@@ -28,6 +28,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.navigation.toptabbar.LocalTopTabBarInset
 import com.nuvio.tv.domain.model.DiscoverLocation
 import com.nuvio.tv.ui.components.EmptyScreenState
 import com.nuvio.tv.ui.components.PosterCardDefaults
@@ -129,7 +130,7 @@ fun DiscoverScreen(
                 onItemLongPress = { item, addonBaseUrl ->
                     viewModel.posterOptions.show(item, addonBaseUrl)
                 },
-                modifier = Modifier.padding(top = NuvioTheme.spacing.lg)
+                modifier = Modifier.padding(top = LocalTopTabBarInset.current + NuvioTheme.spacing.lg)
             )
         }
 

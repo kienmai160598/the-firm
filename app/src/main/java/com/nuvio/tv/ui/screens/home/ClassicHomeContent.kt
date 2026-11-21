@@ -180,6 +180,7 @@ fun ClassicHomeContent(
             }
         }
     }
+    ReportHomePageScroll(columnListState)
 
     // Scroll to top when triggered from sidebar Home button.
     LaunchedEffect(scrollToTopTrigger) {
@@ -483,7 +484,7 @@ fun ClassicHomeContent(
     }
     val backgroundColor = NuvioTheme.colors.Background
     CompositionLocalProvider(
-        LocalBringIntoViewSpec provides verticalBringIntoViewSpec,
+        LocalBringIntoViewSpec provides rememberTopRowHold(verticalBringIntoViewSpec, columnListState),
         LocalFastScrollActive provides isFastScrollingState,
         LocalVerticalRowsScrolling provides isVerticalScrollingState
     ) {
@@ -593,7 +594,7 @@ fun ClassicHomeContent(
                     null // Classic uses imperative requestFocus
                 },
             ),
-        contentPadding = PaddingValues(top = if (heroVisible) NuvioTheme.spacing.none else NuvioTheme.spacing.xl, bottom = NuvioTheme.spacing.xl),
+        contentPadding = PaddingValues(top = if (heroVisible) NuvioTheme.spacing.none else homeFirstRowTopPadding(), bottom = NuvioTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxl)
     ) {
         if (heroVisible) {

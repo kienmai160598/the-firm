@@ -118,6 +118,10 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
+import com.nuvio.tv.LocalSidebarExpanded
+import com.nuvio.tv.ui.navigation.toptabbar.LocalTopTabBarInset
+import com.nuvio.tv.ui.navigation.toptabbar.ReportTopTabBarScroll
+import com.nuvio.tv.ui.navigation.toptabbar.isScrolledDown
 
 /** Skeleton rows shown while a search is pending, matching the two mobile renders. */
 private const val SEARCH_SKELETON_ROW_COUNT = 2
@@ -572,12 +576,13 @@ fun SearchScreen(
         contentAlignment = Alignment.TopCenter
     ) {
         val listState = rememberLazyListState()
+        ReportTopTabBarScroll { listState.isScrolledDown() }
 
         // Step back within Search before falling through to the root handler.
         val focusedRowKey = lastFocusedRowKey
         val focusedItemIndex = focusedResultItemIndex.intValue
         BackHandler(
-            enabled = !inputRowHasFocus && !backToFieldLatched &&
+            enabled = !inputRowHasFocus && !backToFieldLatched && !LocalSidebarExpanded.current &&
                 (isRecentSearchSectionFocused || (!isDiscoverMode && focusedRowKey != null))
         ) {
             if (!isRecentSearchSectionFocused && focusedItemIndex > 0 && focusedRowKey != null) {
@@ -625,7 +630,7 @@ fun SearchScreen(
                 .dpadRepeatThrottle(),
             state = listState,
             contentPadding = PaddingValues(
-                top = if (isDiscoverMode) 10.dp else NuvioTheme.spacing.lg,
+                top = LocalTopTabBarInset.current + if (isDiscoverMode) 10.dp else NuvioTheme.spacing.lg,
                 bottom = NuvioTheme.spacing.lg
             ),
             verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)

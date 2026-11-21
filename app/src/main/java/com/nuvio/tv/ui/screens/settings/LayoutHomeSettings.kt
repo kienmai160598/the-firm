@@ -143,8 +143,10 @@ internal fun LayoutHomeLayoutSection(
 @Composable
 internal fun LayoutHomeContentSection(
     uiState: LayoutSettingsUiState,
-    onEvent: (LayoutSettingsEvent) -> Unit
+    onEvent: (LayoutSettingsEvent) -> Unit,
+    showDiscoverLocation: Boolean = false
 ) {
+    if (showDiscoverLocation) LayoutDiscoverLocationRow(uiState, onEvent)
     if (uiState.selectedLayout != HomeLayout.MODERN) {
         SettingsToggleRow(
             title = stringResource(R.string.layout_poster_labels),
@@ -358,7 +360,7 @@ private fun CatalogChip(
 }
 
 @Composable
-private fun DiscoverLocationRow(
+internal fun DiscoverLocationRow(
     selectedLocation: DiscoverLocation,
     rememberedLocation: DiscoverLocation,
     onLocationSelected: (DiscoverLocation) -> Unit

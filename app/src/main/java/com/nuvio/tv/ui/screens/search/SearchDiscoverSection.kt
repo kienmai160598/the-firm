@@ -73,6 +73,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.navigation.toptabbar.ReportTopTabBarScroll
 import com.nuvio.tv.domain.model.MetaPreview
 import com.nuvio.tv.ui.components.EmptyScreenState
 import com.nuvio.tv.ui.components.GridContentCard
@@ -501,6 +502,8 @@ internal fun DiscoverGrid(
 ) {
     val restoreFocusRequester = remember { FocusRequester() }
     val gridState = rememberLazyGridState()
+    // Focusing the first row scrolls the grid a little; only a row that has left it hides the bar.
+    ReportTopTabBarScroll { gridState.firstVisibleItemIndex > 0 }
     var pendingFocusOnNewItemIndex by remember { mutableStateOf<Int?>(null) }
 
     // Scroll to top only when the filter combination actually changes (not on initial composition / back navigation).

@@ -273,6 +273,7 @@ internal fun ModernHomeRowsList(
         null
     }
 
+    val upLeavesForTopBar = upFromFirstRowGoesToTopTabBar()
     CompositionLocalProvider(
         LocalBringIntoViewSpec provides verticalRowBringIntoViewSpec,
         LocalFastScrollActive provides isFastScrolling,
@@ -293,6 +294,7 @@ internal fun ModernHomeRowsList(
                     val lastRowKey = carouselRows.list.lastOrNull()?.key
                     if (event.type == KeyEventType.KeyDown &&
                         event.key == Key.DirectionUp &&
+                        !upLeavesForTopBar &&
                         effectiveExpandEnabled &&
                         expandedCatalogFocusKey.value != null &&
                         activeRowKey.value == firstRowKey

@@ -467,7 +467,8 @@ private fun HeroTitleContent(
                 style = scaledTitleStyle,
                 color = NuvioTheme.colors.TextPrimary,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.heroTitleWidthUnderTopBar()
             )
         }
 

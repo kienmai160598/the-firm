@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.nuvio.tv.R
 import com.nuvio.tv.LocalRootContentInset
+import com.nuvio.tv.ui.navigation.toptabbar.TopTabBarRootFrame
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import com.nuvio.tv.core.player.LocalBackgroundTrailerController
@@ -106,7 +107,7 @@ private fun NavGraphBuilder.rootComposable(
     composable(route) { backStackEntry ->
         val inset = if (withInset) LocalRootContentInset.current else 0.dp
         Box(modifier = Modifier.padding(start = inset)) {
-            content(backStackEntry)
+            TopTabBarRootFrame(route, withInset) { content(backStackEntry) }
         }
     }
 }

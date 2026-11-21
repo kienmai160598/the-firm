@@ -61,7 +61,7 @@ fun LayoutSettingsContent(
     val sections = visibleLayoutSections(
         essentialMode = essentialMode,
         focusedPosterHasOptions = uiState.focusedPosterHasOptions()
-    )
+    ).withoutSidebarForTopTabBar()
     var expandedSections by rememberSaveable(essentialMode) {
         mutableStateOf(if (essentialMode) listOf(LayoutSection.HOME_LAYOUT.name) else emptyList())
     }
@@ -173,7 +173,7 @@ private fun LayoutSectionContent(
     val onEvent: (LayoutSettingsEvent) -> Unit = viewModel::onEvent
     when (section) {
         LayoutSection.HOME_LAYOUT -> LayoutHomeLayoutSection(uiState, onEvent)
-        LayoutSection.HOME_CONTENT -> LayoutHomeContentSection(uiState, onEvent)
+        LayoutSection.HOME_CONTENT -> LayoutHomeContentSection(uiState, onEvent, discoverLocationInHomeContent)
         LayoutSection.SIDEBAR -> LayoutSidebarSection(uiState, onEvent)
         LayoutSection.CONTINUE_WATCHING -> LayoutContinueWatchingSection(uiState, onEvent)
         LayoutSection.FOCUSED_POSTER -> LayoutFocusedPosterSection(uiState, onEvent)

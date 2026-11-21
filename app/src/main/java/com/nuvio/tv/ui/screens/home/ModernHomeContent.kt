@@ -212,6 +212,7 @@ fun ModernHomeContent(
         initialFirstVisibleItemIndex = focusState.verticalScrollIndex,
         initialFirstVisibleItemScrollOffset = focusState.verticalScrollOffset
     )
+    ReportModernRowsScroll(verticalRowListState)
     val isVerticalRowsScrollingState = remember(verticalRowListState) {
         derivedStateOf { verticalRowListState.isScrollInProgress }
     }

@@ -159,6 +159,7 @@ fun LibraryScreen(
     val primaryFocusRequester = remember { FocusRequester() }
     val selectorFocusRequester = remember { FocusRequester() }
     val gridState = rememberLazyGridState()
+    ReportLibraryGridScroll(gridState)
     var pendingPrimaryFocus by remember { mutableStateOf(true) }
     var serverFocusTarget by remember {
         mutableStateOf(serversViewModel.focusedShelfKey?.let { key -> serversViewModel.focusedIndexes[key]?.let { key to it } })
@@ -330,7 +331,7 @@ fun LibraryScreen(
                 }
                 false
             },
-        contentPadding = PaddingValues(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.xl, bottom = NuvioTheme.spacing.xxl),
+        contentPadding = PaddingValues(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = libraryTopPadding(), bottom = NuvioTheme.spacing.xxl),
         horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
     ) {
@@ -367,6 +368,7 @@ fun LibraryScreen(
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             LibraryViewModeRow(
+                modifier = Modifier.revealGridTopOnFocus(gridState).enterFromTopTabBar(),
                 modes = viewModes,
                 selectedMode = viewMode,
                 primaryFocusRequester = primaryFocusRequester,
@@ -710,7 +712,7 @@ fun LibraryScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = NuvioTheme.colors.TextPrimary,
                 modifier = Modifier
-                    .padding(top = NuvioTheme.spacing.xl)
+                    .padding(top = libraryTopPadding())
                     .background(NuvioTheme.colors.BackgroundElevated, RoundedCornerShape(10.dp))
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             )
@@ -734,11 +736,12 @@ private fun LibraryViewModeRow(
     selectedMode: LibraryViewMode,
     primaryFocusRequester: FocusRequester,
     onSelected: (LibraryViewMode) -> Unit,
+    modifier: Modifier = Modifier,
     /** Optional action pinned to the right of the tabs (used for the cloud refresh button). */
     trailing: (@Composable () -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {

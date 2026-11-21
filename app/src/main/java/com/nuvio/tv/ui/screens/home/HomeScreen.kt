@@ -441,7 +441,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = NuvioTheme.spacing.xl)
+                    .padding(top = homeFirstRowTopPadding())
                     .background(
                         color = Color(0xFF5A1C1C),
                         shape = RoundedCornerShape(10.dp)

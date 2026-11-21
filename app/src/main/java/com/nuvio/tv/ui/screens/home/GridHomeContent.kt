@@ -28,7 +28,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -123,6 +125,8 @@ fun GridHomeContent(
         initialFirstVisibleItemIndex = gridFocusState.verticalScrollIndex,
         initialFirstVisibleItemScrollOffset = gridFocusState.verticalScrollOffset
     )
+    ReportHomePageScroll(gridState)
+    val gridBringIntoViewSpec = rememberTopRowHold(LocalBringIntoViewSpec.current, gridState)
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val lastFocusedGridItemKey = remember { mutableStateOf(gridFocusState.focusedItemKey) }
     var restoredSavedGridFocus by remember { mutableStateOf(false) }
@@ -229,7 +233,8 @@ fun GridHomeContent(
     val hasHero = remember(gridItems) {
         gridItems.firstOrNull() is GridItem.Hero
     }
-    val topPadding = if (hasHero) NuvioTheme.spacing.none else NuvioTheme.spacing.xl
+    val topPadding = if (hasHero) NuvioTheme.spacing.none else homeFirstRowTopPadding()
+    val sectionHeaderWithoutHero = rememberGridSectionHeaderWithoutHero(gridState)
 
     // Determine if hero is scrolled past
     val isScrolledPastHeroState = remember(hasHero, gridState) {
@@ -237,7 +242,7 @@ fun GridHomeContent(
             if (hasHero) {
                 gridState.firstVisibleItemIndex > 0
             } else {
-                true
+                sectionHeaderWithoutHero.value
             }
         }
     }
@@ -433,6 +438,7 @@ fun GridHomeContent(
             result
         }
 
+        CompositionLocalProvider(LocalBringIntoViewSpec provides gridBringIntoViewSpec) {
         LazyVerticalGrid(
             state = gridState,
             columns = GridCells.Adaptive(minSize = gridColumnMinSize),
@@ -849,6 +855,7 @@ fun GridHomeContent(
             }
 
         } // end LazyVerticalGrid
+        }
         } // end BoxWithConstraints
 
         // Sticky header overlay

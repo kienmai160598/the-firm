@@ -94,6 +94,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.nuvio.tv.BuildConfig
 import com.nuvio.tv.R
+import com.nuvio.tv.LocalSidebarExpanded
 import com.nuvio.tv.core.build.AppFeaturePolicy
 import com.nuvio.tv.domain.model.ExperienceMode
 import com.nuvio.tv.domain.model.SettingsUiStyle
@@ -1066,7 +1067,7 @@ private fun IntegrationSettingsContent(
     animeSkipFocusRequester: FocusRequester,
     autoFocusEnabled: Boolean
 ) {
-    BackHandler(enabled = selectedSection != IntegrationSettingsSection.Hub) {
+    BackHandler(enabled = selectedSection != IntegrationSettingsSection.Hub && !LocalSidebarExpanded.current) {
         onSelectSection(IntegrationSettingsSection.Hub)
     }
     val hubEntryFocusRequester = when (hubReturnSection) {
