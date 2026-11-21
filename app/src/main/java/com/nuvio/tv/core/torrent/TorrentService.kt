@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Singleton
 class TorrentService @Inject constructor(
@@ -40,6 +41,7 @@ class TorrentService @Inject constructor(
         private const val TAG = "TorrentService"
         private const val SAMPLE_INTERVAL_MS = 1_000L
         private const val STATS_INTERVAL_MS = 250L
+        private const val MAKE_ROOM_TIMEOUT_MS = 10_000L
     }
 
     private data class EngineConfigurationKey(
@@ -72,6 +74,7 @@ class TorrentService @Inject constructor(
     @Volatile
     private var engine: NuvioEngine? = null
     private var engineConfigurationKey: EngineConfigurationKey? = null
+    private var engineCacheCapacityBytes = 0L
     private val knownTorrentIds = mutableSetOf<String>()
 
     suspend fun startStream(
@@ -137,6 +140,9 @@ class TorrentService @Inject constructor(
         var attached = false
         var startupStatsJob: Job? = null
         return try {
+            phase.set("check_storage")
+            requireRoomForStream()
+
             phase.set("ensure_engine")
             val magnetUri = buildMagnetUri(infoHash, (DefaultTorrentTrackers + trackers).distinct())
             val resolvedEngine = ensureEngine()
@@ -168,6 +174,10 @@ class TorrentService @Inject constructor(
                 phase.get(),
                 "stream=${diagnosticId(stream.id)} selectedFile=${stream.fileIndex} fileBytes=${stream.fileSize}"
             )
+            currentCoroutineContext().ensureActive()
+
+            phase.set("make_room")
+            makeRoomForStream(resolvedEngine, torrentId)
             currentCoroutineContext().ensureActive()
 
             phase.set("attach_route")
@@ -316,28 +326,92 @@ class TorrentService @Inject constructor(
         closeEngine(engine)
         currentCoroutineContext().ensureActive()
         val stateDirectory = File(context.noBackupFilesDir, "nuvio-engine/state")
-        val cacheDirectory = File(context.cacheDir, "nuvio-engine")
+        val cacheDirectory = engineCacheDirectory()
         check(stateDirectory.mkdirs() || stateDirectory.isDirectory) {
             "Could not create the Nuvio Engine state directory"
         }
-        check(cacheDirectory.mkdirs() || cacheDirectory.isDirectory) {
-            "Could not create the Nuvio Engine cache directory"
-        }
         migrateNestedPayloadDirectory(cacheDirectory)
+        val capacityBytes = fittedCacheCapacityBytes(
+            cacheDirectory,
+            configurationKey.diskCacheCapacityBytes
+        )
         return NuvioEngine.create(
             buildTorrentEngineConfig(
                 stateDirectory = stateDirectory,
                 cacheDirectory = cacheDirectory,
                 uploadEnabled = configurationKey.uploadEnabled,
                 torrentProfile = configurationKey.torrentProfile,
-                diskCacheCapacityBytes = configurationKey.diskCacheCapacityBytes
+                diskCacheCapacityBytes = capacityBytes
             )
         ).also { created ->
             engine = created
             engineConfigurationKey = configurationKey
+            engineCacheCapacityBytes = capacityBytes
             observeEngineEvents(created)
             Log.i(TAG, "Using Nuvio Engine ${NuvioEngine.version} (${NuvioEngine.protocolBackendVersion})")
         }
+    }
+
+    private fun engineCacheDirectory(): File {
+        val cacheDirectory = File(context.cacheDir, "nuvio-engine")
+        check(cacheDirectory.mkdirs() || cacheDirectory.isDirectory) {
+            "Could not create the Nuvio Engine cache directory"
+        }
+        return cacheDirectory
+    }
+
+    // The requested size stays in the configuration key: free space moves with every stream, and
+    // keying on the fitted value would rebuild the engine on each start.
+    private fun fittedCacheCapacityBytes(cacheDirectory: File, requestedBytes: Long): Long {
+        val storage = measureTorrentCacheStorage(cacheDirectory)
+        val capacityBytes = fitTorrentCacheCapacity(requestedBytes, storage.reclaimableBytes)
+        Log.i(
+            TorrentDiagnosticTag,
+            "cacheBudget requested=$requestedBytes usable=${storage.usableBytes} " +
+                "cached=${storage.cachedBytes} capacity=$capacityBytes"
+        )
+        return capacityBytes
+    }
+
+    // Runs once the stream is prepared: the engine then keeps this title, unloads every other
+    // torrent and evicts the oldest titles. It only does so while no player request is open, and
+    // the player has no url yet. A reclaim that fails or times out costs cache, not playback.
+    private suspend fun makeRoomForStream(activeEngine: NuvioEngine, torrentId: String) {
+        val outcome = try {
+            val targetBytes = reclaimTargetBytes(torrentId)
+            val reclaimed = withTimeoutOrNull(MAKE_ROOM_TIMEOUT_MS) {
+                activeEngine.reclaimDiskCache(targetBytes)
+            }
+            if (reclaimed == null) "target=$targetBytes timed out" else "target=$targetBytes done"
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (error: Exception) {
+            "failed: ${diagnosticMessage(error.message)}"
+        }
+        knownTorrentIds.retainAll(setOf(torrentId))
+
+        Log.i(TorrentDiagnosticTag, "cacheBudget makeRoom torrent=${diagnosticId(torrentId)} $outcome")
+    }
+
+    private fun reclaimTargetBytes(torrentId: String): Long {
+        val cacheDirectory = engineCacheDirectory()
+
+        return otherTitlesReclaimTargetBytes(
+            reclaimableBytes = measureTorrentCacheStorage(cacheDirectory).reclaimableBytes,
+            capacityBytes = engineCacheCapacityBytes,
+            currentTitleBytes = measureTorrentTitleBytes(cacheDirectory, torrentId)
+        )
+    }
+
+    private fun requireRoomForStream() {
+        val storage = measureTorrentCacheStorage(engineCacheDirectory())
+        if (storage.hasRoomForStream) return
+
+        Log.w(
+            TorrentDiagnosticTag,
+            "cacheBudget storageLow usable=${storage.usableBytes} cached=${storage.cachedBytes}"
+        )
+        throw TorrentStorageLowException(context.getString(R.string.torrent_error_storage_low))
     }
 
     private suspend fun closeEngine(target: NuvioEngine?) {

@@ -264,6 +264,7 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
  * the decoder it only turns a screensaver or a quick app switch into a full player rebuild.
  */
 internal fun PlayerRuntimeController.releaseForBackground() {
+    if (releaseTorrentForBackground()) return
     if (!releaseDecoderOnBackground || isUsingMpvEngine() || pendingBackgroundCrashRecovery) return
     val player = _exoPlayer ?: return
     if (currentStreamUrl.isEmpty()) return
@@ -288,6 +289,10 @@ internal fun isAppBackgroundStop(
 
 internal fun PlayerRuntimeController.resumeForLifecycle() {
     isInBackground = false
+
+    // Checked first: the rebuild below reuses currentStreamUrl, which for a stopped torrent is a
+    // local url nothing serves any more.
+    if (resumeTorrentAfterBackground()) return
 
     // If the codec crashed while in background, the player was released to free
     // resources. Rebuild it now with the saved position so the user comes back

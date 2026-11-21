@@ -1992,26 +1992,10 @@ fun PlayerRuntimeController.onEvent(
                     showSubtitleDelayOverlay = false
                 )
             }
-            if (isTorrentStream && currentInfoHash != null) {
+            val torrentIdentity = currentTorrentStreamIdentity()
+            if (torrentIdentity != null) {
                 releasePlayer()
-                stopTorrentStream()
-                launchTorrentSourceStream(
-                    stream = com.nuvio.tv.domain.model.Stream(
-                        name = _uiState.value.currentStreamName,
-                        title = null,
-                        description = null,
-                        url = null,
-                        ytId = null,
-                        infoHash = currentInfoHash,
-                        fileIdx = currentFileIdx,
-                        externalUrl = null,
-                        behaviorHints = null,
-                        addonName = currentAddonName ?: "",
-                        addonLogo = currentAddonLogo
-                    ),
-                    infoHash = currentInfoHash!!,
-                    loadSavedProgress = true
-                )
+                relaunchTorrentStream(torrentIdentity, loadSavedProgress = true)
             } else {
                 releasePlayer()
                 reinitializeCurrentStream()

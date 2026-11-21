@@ -1901,6 +1901,7 @@
     <string name="settings_p2p_clear_cache_playback_active">Stop P2P playback before clearing the cache</string>
     <string name="settings_p2p_clear_cache_done">Cleared %1$s of inactive torrent data</string>
     <string name="settings_p2p_clear_cache_failed">Could not clear the torrent cache</string>
+    <string name="torrent_error_storage_low">Torrent playback needs about 700 MB of free storage on this device. Free up space and try again.</string>
     <string name="p2p_download_title">Downloading P2P Engine</string>
     <string name="p2p_download_subtitle">This is a one-time download required for P2P streaming.</string>
     <string name="stream_type_external">External</string>
@@ -2004,6 +2005,7 @@
     <string name="sources_reload">Reload</string>
     <string name="sources_close">Close</string>
     <string name="sources_playing">Playing</string>
+    <string name="stream_exceeds_device_budget">Too heavy for this device</string>
     <string name="sources_no_streams">No streams found</string>
 
     <string name="episodes_panel_close">Close</string>

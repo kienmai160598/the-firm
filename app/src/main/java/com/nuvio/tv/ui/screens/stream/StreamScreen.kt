@@ -1145,6 +1145,7 @@ private fun StreamsList(
     val sharedFocusRequester = remember { FocusRequester() }
     var sharedCardHasFocus by remember { mutableStateOf(false) }
     val partySourceLabel = stringResource(R.string.party_source)
+    val exceedsDeviceBudgetLabel = stringResource(R.string.stream_exceeds_device_budget)
 
     var focusedStreamKey by remember { mutableStateOf<String?>(null) }
     val prevStreamKeysRef = remember { mutableStateOf(streamKeys) }
@@ -1317,7 +1318,8 @@ private fun StreamsList(
                     showAddonLogo = showAddonLogo,
                     badgePlacement = badgePlacement,
                     reserveBadgeSpace = hasBadgeRules && stream.badges.isEmpty(),
-                    label = partySourceLabel.takeIf { isPartySource },
+                    label = partySourceLabel.takeIf { isPartySource }
+                        ?: exceedsDeviceBudgetLabel.takeIf { stream.exceedsDeviceBudget },
                     onClick = { onStreamSelected(stream) },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester

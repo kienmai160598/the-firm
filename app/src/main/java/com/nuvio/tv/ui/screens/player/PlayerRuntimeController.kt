@@ -557,6 +557,7 @@ class PlayerRuntimeController(
     internal var releaseDecoderOnBackground: Boolean = false
     internal var pendingBackgroundCrashRecovery: Boolean = false
     internal var backgroundCrashSavedPositionMs: Long = 0L
+    internal var torrentBackgroundResume: TorrentBackgroundResume? = null
 
     internal var skipIntervals: List<SkipInterval> = emptyList()
     internal var chapterSkipIntervals: List<SkipInterval> = emptyList()

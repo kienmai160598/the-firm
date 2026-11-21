@@ -2223,6 +2223,7 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                 )
                 return orderedStreams.flatMap { it.streams }.firstOrNull { stream ->
                     !stream.isExternal() &&
+                        !stream.exceedsDeviceBudget &&
                         com.nuvio.tv.core.player.FilenameEpisodeMatcher.matches(
                             stream.behaviorHints?.filename, nextFilename
                         )

@@ -172,6 +172,7 @@ internal fun StreamItem(
                     ) {
                         Text(
                             text = streamName,
+                            modifier = Modifier.weight(1f, fill = false),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 textDirection = streamName.contentTextDirection()
                             ),
@@ -191,6 +192,15 @@ internal fun StreamItem(
                                     color = NuvioTheme.colors.Primary
                                 )
                             }
+                        }
+
+                        if (stream.exceedsDeviceBudget) {
+                            Text(
+                                text = stringResource(R.string.stream_exceeds_device_budget),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = NuvioTheme.colors.Secondary,
+                                maxLines = 1
+                            )
                         }
                     }
                 }

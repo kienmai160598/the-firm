@@ -10,7 +10,8 @@ import com.nuvio.tv.data.local.toTrackPreference
 internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
     url: String,
     headers: Map<String, String>,
-    loadSavedProgress: Boolean
+    loadSavedProgress: Boolean,
+    startPaused: Boolean = false
 ) {
     val playbackRequest = PlayerMediaSourceFactory.normalizePlaybackRequest(url, headers)
     val playbackUrl = playbackRequest.url
@@ -119,7 +120,7 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
             phase = "initializing_player",
             message = context.getString(com.nuvio.tv.R.string.player_loading_building)
         )
-        initializePlayer(playbackUrl, playbackHeaders)
+        initializePlayer(playbackUrl, playbackHeaders, startPaused = startPaused)
     }
 }
 

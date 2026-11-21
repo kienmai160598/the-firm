@@ -40,6 +40,8 @@ object StreamAutoPlaySelector {
     private fun isPlayable(stream: Stream): Boolean {
         // External URL streams (e.g. error pages, web links) are not playable.
         if (stream.isExternal()) return false
+        // A P2P stream the device cannot keep up with is left for the user to pick by hand.
+        if (stream.exceedsDeviceBudget) return false
         if (stream.serverTarget != null) return true
         // Streams with a direct URL are always playable regardless of debrid cache status.
         if (stream.getStreamUrl() != null) return true
@@ -86,7 +88,7 @@ object StreamAutoPlaySelector {
      */
     fun selectEarlyBingeGroupMatch(streams: List<Stream>, targetBingeGroup: String): Stream? {
         if (targetBingeGroup.isBlank()) return null
-        val visible = streams.filter { !it.isExternal() }
+        val visible = streams.filter { !it.isExternal() && !it.exceedsDeviceBudget }
         val exact = visible.firstOrNull { it.behaviorHints?.bingeGroup == targetBingeGroup }
         if (exact != null) return exact
         if (scraperIdFromPluginBingeGroup(targetBingeGroup) == null) return null

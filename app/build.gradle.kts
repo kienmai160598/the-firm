@@ -303,6 +303,19 @@ android {
             applicationIdSuffix = ".debug"
             matchingFallbacks += "release"
         }
+        // The debug build's identity, key and endpoints with release shrinking, so it updates the
+        // debug install in place.
+        create("box") {
+            initWith(buildTypes.getByName("debug"))
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            matchingFallbacks += "release"
+        }
     }
 
     splits {
@@ -371,7 +384,10 @@ android {
 androidComponents {
     onVariants(selector().withBuildType("debug")) { variant ->
         val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
-        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuviodebug.com")
+        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuviobox.tv")
+    }
+    onVariants(selector().withBuildType("box")) { variant ->
+        variant.applicationId.set("com.nuviobox.tv")
     }
     // Only the full flavor ships the in-app updater.
     onVariants(selector().withFlavor("distribution" to "full")) { variant ->

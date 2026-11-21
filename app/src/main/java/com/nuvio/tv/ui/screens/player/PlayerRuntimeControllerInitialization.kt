@@ -1369,6 +1369,15 @@ internal fun PlayerRuntimeController.initializePlayer(
                                 }
                                 _uiState.update { it.copy(pendingSeekPosition = null) }
                             }
+                            // The progress loop runs only while playing; a restart that stays
+                            // paused would otherwise show 0:00 at the resumed position.
+                            if (!this@apply.isPlaying) {
+                                updatePlaybackTimeline(
+                                    currentPosition = this@apply.currentPosition,
+                                    duration = this@apply.duration.coerceAtLeast(0L),
+                                    bufferedPosition = this@apply.bufferedPosition
+                                )
+                            }
                             tryAutoSelectPreferredSubtitleFromAvailableTracks()
                             if (!NuvioExoPlayerPerformanceHelper.shouldGuardTrackRebuild() || !hasRenderedFirstFrame) {
                                 trackSelectionParameters = trackSelectionParameters.buildUpon().build()

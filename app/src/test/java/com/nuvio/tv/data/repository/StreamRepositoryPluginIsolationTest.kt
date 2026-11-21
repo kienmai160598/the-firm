@@ -6,9 +6,11 @@ import com.nuvio.tv.core.debrid.LocalDebridAvailabilityService
 import com.nuvio.tv.core.network.NetworkResult
 import com.nuvio.tv.core.plugin.PluginManager
 import com.nuvio.tv.core.profile.ProfileManager
+import com.nuvio.tv.core.streams.TitleRuntimeLookup
 import com.nuvio.tv.core.tmdb.TmdbService
 import com.nuvio.tv.data.local.DebridSettingsDataStore
 import com.nuvio.tv.data.remote.api.AddonApi
+import com.nuvio.tv.data.remote.dto.BehaviorHintsDto
 import com.nuvio.tv.data.remote.dto.StreamDto
 import com.nuvio.tv.data.remote.dto.StreamResponseDto
 import com.nuvio.tv.domain.model.Addon
@@ -16,17 +18,21 @@ import com.nuvio.tv.domain.model.AddonResource
 import com.nuvio.tv.domain.model.AddonStreams
 import com.nuvio.tv.domain.model.DebridSettings
 import com.nuvio.tv.domain.model.LocalScraperResult
+import com.nuvio.tv.domain.model.Meta
 import com.nuvio.tv.domain.model.pluginBingeGroup
 import com.nuvio.tv.domain.model.PluginRepository
 import com.nuvio.tv.domain.model.RepositoryType
 import com.nuvio.tv.domain.model.ScraperInfo
 import com.nuvio.tv.domain.repository.AddonRepository
+import com.nuvio.tv.domain.repository.MetaRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
@@ -64,6 +70,69 @@ class StreamRepositoryPluginIsolationTest {
         tmdbResult.complete(null)
         Unit
     }
+
+    @Test
+    fun `P2P streams over the device budget are marked and moved behind the others`() = runTest {
+        val harness = newHarness(emptyList())
+        harness.returnsHeavyThenLightTorrent()
+        val twoHourFilm = mockk<Meta> {
+            every { runtime } returns "120 min"
+            every { videos } returns emptyList()
+        }
+        every { harness.metaRepository.getCachedMeta("movie", "tt1341338") } returns twoHourFilm
+
+        val streams = harness.lastStreams()
+
+        assertEquals(listOf("Light", "Heavy"), streams.map { it.name })
+        assertEquals(listOf(false, true), streams.map { it.exceedsDeviceBudget })
+    }
+
+    @Test
+    fun `a failing runtime lookup leaves the streams as the addon sent them`() = runTest {
+        val harness = newHarness(emptyList())
+        harness.returnsHeavyThenLightTorrent()
+        every { harness.metaRepository.getMetaFromAllAddons(any(), any(), any()) } returns flow {
+            throw IllegalStateException("meta addon down")
+        }
+
+        val streams = harness.lastStreams()
+
+        assertEquals(listOf("Heavy", "Light"), streams.map { it.name })
+        assertEquals(listOf(false, false), streams.map { it.exceedsDeviceBudget })
+    }
+
+    private fun Harness.returnsHeavyThenLightTorrent() {
+        val gibibyte = 1024L * 1024L * 1024L
+        coEvery { api.getStreams(any()) } returns Response.success(
+            StreamResponseDto(
+                streams = listOf(
+                    StreamDto(
+                        name = "Heavy",
+                        infoHash = "0123456789abcdef0123456789abcdef01234567",
+                        fileIdx = 0,
+                        behaviorHints = BehaviorHintsDto(videoSize = 60L * gibibyte)
+                    ),
+                    StreamDto(
+                        name = "Light",
+                        infoHash = "89abcdef0123456789abcdef0123456789abcdef",
+                        fileIdx = 0,
+                        behaviorHints = BehaviorHintsDto(videoSize = 10L * gibibyte)
+                    )
+                )
+            )
+        )
+    }
+
+    private suspend fun Harness.lastStreams() =
+        repository.getStreamsFromAllAddons(
+            type = "movie",
+            videoId = "tt1341338",
+            season = null,
+            episode = null
+        ).toList()
+            .filterIsInstance<NetworkResult.Success<List<AddonStreams>>>()
+            .last().data
+            .flatMap { it.streams }
 
     @Test
     fun `TMDB lookup is skipped when no compatible plugin is enabled`() = runTest {
@@ -313,6 +382,10 @@ class StreamRepositoryPluginIsolationTest {
             firstArg<List<AddonStreams>>()
         }
 
+        val metaRepository = mockk<MetaRepository>()
+        every { metaRepository.getCachedMeta(any(), any()) } returns null
+        every { metaRepository.getMetaFromAllAddons(any(), any(), any()) } returns emptyFlow()
+
         return Harness(
             repository = StreamRepositoryImpl(
                 context = mockk<Context>(relaxed = true),
@@ -328,8 +401,10 @@ class StreamRepositoryPluginIsolationTest {
                     every { isNativeRequest(any()) } returns false
                     every { revision } returns 0
                     every { sources(any(), any(), any(), any(), any()) } returns emptyList()
-                }
+                },
+                titleRuntimeLookup = TitleRuntimeLookup(metaRepository)
             ),
+            metaRepository = metaRepository,
             api = api,
             tmdbService = tmdbService,
             addonRepository = addonRepository,
@@ -377,6 +452,7 @@ class StreamRepositoryPluginIsolationTest {
 
     private data class Harness(
         val repository: StreamRepositoryImpl,
+        val metaRepository: MetaRepository,
         val api: AddonApi,
         val tmdbService: TmdbService,
         val addonRepository: AddonRepository,
