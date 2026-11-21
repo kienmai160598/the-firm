@@ -2,14 +2,66 @@
 # Runs one fixed remote-control scenario on the box and records frame and memory stats.
 # Usage: ANDROID_SERIAL=<ip>:5555 box/perf/measure.sh <label> [runs]
 # Results: box/perf/results/<label>/run-<n>.txt, a summary line per segment on stdout.
+# The box is muted while it runs and its mute state is restored on any exit.
 set -euo pipefail
 
-label="${1:?label}"
+usage="usage: ANDROID_SERIAL=<ip>:5555 [BOX_PACKAGE=<id>] box/perf/measure.sh <label> [runs]"
+label="${1:?$usage}"
 runs="${2:-3}"
-package="com.nuviobox.tv"
+: "${ANDROID_SERIAL:?$usage}"
+package="${BOX_PACKAGE:-com.nuviobox.tv}"
 activity="$package/com.nuvio.tv.MainActivity"
 out="$(dirname "$0")/results/$label"
-mkdir -p "$out"
+
+fail() {
+    echo "measure.sh: $1" >&2
+    exit 1
+}
+
+validate_arguments() {
+    case "$label" in
+        */* | *..*) fail "label must not contain '/' or '..': $label" ;;
+    esac
+    [[ "$runs" =~ ^[1-9][0-9]*$ ]] || fail "runs must be a positive integer: $runs"
+}
+
+music_muted() {
+    local audio_dump
+    audio_dump="$(adb shell dumpsys audio)" || return 1
+    awk '
+        /^ *- / { in_music = ($2 == "STREAM_MUSIC:" || $2 == "STREAM_MUSIC") }
+        in_music && $1 == "Muted:" && state == "" { state = $2 }
+        END { if (state == "") exit 1; print state }
+    ' <<<"$audio_dump" || {
+        echo "measure.sh: no STREAM_MUSIC 'Muted:' line in dumpsys audio" >&2
+        return 1
+    }
+}
+
+set_music_muted() {
+    local wanted="$1" current
+    current="$(music_muted)" || return 1
+    [[ "$current" == "$wanted" ]] && return 0
+
+    press KEYCODE_VOLUME_MUTE 1
+    current="$(music_muted)" || return 1
+    [[ "$current" == "$wanted" ]] && return 0
+
+    press KEYCODE_VOLUME_MUTE 1
+    echo "measure.sh: the mute key did not change STREAM_MUSIC Muted, sent it again" >&2
+    return 1
+}
+
+restore_music_mute() {
+    set_music_muted "$original_muted" ||
+        echo "measure.sh: could not restore mute ($original_muted), check the box" >&2
+}
+
+mute_for_measuring() {
+    original_muted="$(music_muted)"
+    trap restore_music_mute EXIT
+    set_music_muted true
+}
 
 press() {
     local key="$1" count="$2"
@@ -19,16 +71,35 @@ press() {
     done
 }
 
+matching_lines() {
+    local what="$1" pattern="$2" text="$3"
+    grep -E "$pattern" <<<"$text" || fail "no $what in the box output for $package"
+}
+
+start_app() {
+    local file="$1" launch
+    adb shell am force-stop "$package"
+    sleep 2
+    launch="$(adb shell am start -W -n "$activity")"
+    matching_lines "TotalTime from am start ($launch)" "TotalTime" "$launch" >>"$file"
+}
+
 frames_reset() {
     adb shell dumpsys gfxinfo "$package" reset >/dev/null
 }
 
 frames_record() {
-    local segment="$1" file="$2"
+    local segment="$1" file="$2" gfxinfo frame_stats
+    gfxinfo="$(adb shell dumpsys gfxinfo "$package")"
+    frame_stats="Total frames|Janky frames|th percentile:|Number (Missed|Slow UI)"
     echo "## $segment" >>"$file"
-    adb shell dumpsys gfxinfo "$package" |
-        grep -E "Total frames|Janky frames|th percentile:|Number (Missed|Slow UI)" |
-        grep -v "gpu percentile" >>"$file"
+    matching_lines "frame stats" "$frame_stats" "$gfxinfo" | grep -v "gpu percentile" >>"$file"
+}
+
+memory_record() {
+    local file="$1" meminfo
+    meminfo="$(adb shell dumpsys meminfo "$package")"
+    matching_lines "memory total" "TOTAL PSS|TOTAL:" "$meminfo" | sed -n 1p >>"$file"
 }
 
 summary() {
@@ -46,9 +117,7 @@ summary() {
 run_once() {
     local file="$1"
     : >"$file"
-    adb shell am force-stop "$package"
-    sleep 2
-    adb shell am start -W -n "$activity" | grep -E "TotalTime" >>"$file"
+    start_app "$file"
     sleep 10
 
     frames_reset
@@ -68,13 +137,14 @@ run_once() {
     press KEYCODE_BACK 1
     sleep 2
 
-    adb shell dumpsys meminfo "$package" | grep -E "TOTAL PSS|TOTAL:" | head -1 >>"$file"
+    memory_record "$file"
 }
 
-adb shell input keyevent KEYCODE_VOLUME_MUTE
+validate_arguments
+mkdir -p "$out"
+mute_for_measuring
 for run in $(seq "$runs"); do
     run_once "$out/run-$run.txt"
     summary "$out/run-$run.txt"
 done
-adb shell input keyevent KEYCODE_VOLUME_MUTE
 adb shell am force-stop "$package"
