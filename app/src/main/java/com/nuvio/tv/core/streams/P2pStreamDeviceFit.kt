@@ -1,29 +1,11 @@
 package com.nuvio.tv.core.streams
 
 import com.nuvio.tv.core.debrid.StreamTextSizeParser
-import com.nuvio.tv.core.util.parseRuntimeMinutes
-import com.nuvio.tv.domain.model.Meta
 import com.nuvio.tv.domain.model.Stream
 
 // Three short samples on the Mi Box averaged 31 to 36 Mbps of download. A stream has to stay
 // well under that for its read-ahead to fill faster than playback drains it.
-internal const val P2pStreamBitrateBudgetBitsPerSecond = 25_000_000L
-
-data class TitleDuration(val runtimeMinutes: Int?, val isEpisode: Boolean)
-
-internal fun titleRuntimeMinutes(meta: Meta, season: Int?, episode: Int?): Int? {
-    val episodeRuntime = meta.videos
-        .firstOrNull { season != null && it.season == season && it.episode == episode }
-        ?.runtime
-
-    return (episodeRuntime ?: parseRuntimeMinutes(meta.runtime))?.takeIf { it > 0 }
-}
-
-internal fun metaIdOfVideo(videoId: String, season: Int?, episode: Int?): String {
-    if (season == null || episode == null) return videoId
-
-    return videoId.removeSuffix(":$season:$episode")
-}
+internal const val P2P_STREAM_BITRATE_BUDGET_BITS_PER_SECOND = 25_000_000L
 
 // The size of the one video a stream plays. An addon's structured size is trusted. A size printed
 // in the text is trusted for a film, and for an episode only when the stream names its file, since
@@ -47,7 +29,7 @@ internal fun p2pStreamBitsPerSecond(stream: Stream, title: TitleDuration): Long?
 internal fun exceedsP2pBitrateBudget(stream: Stream, title: TitleDuration): Boolean {
     val bitsPerSecond = p2pStreamBitsPerSecond(stream, title) ?: return false
 
-    return bitsPerSecond > P2pStreamBitrateBudgetBitsPerSecond
+    return bitsPerSecond > P2P_STREAM_BITRATE_BUDGET_BITS_PER_SECOND
 }
 
 // Marks the streams this device cannot keep up with and moves them behind the others, keeping the
@@ -56,6 +38,7 @@ internal fun rankP2pStreamsForDevice(streams: List<Stream>, title: TitleDuration
     streams
         .map { stream ->
             val exceeds = exceedsP2pBitrateBudget(stream, title)
-            if (stream.exceedsDeviceBudget == exceeds) stream else stream.copy(exceedsDeviceBudget = exceeds)
+            if (stream.exceedsDeviceBudget == exceeds) stream
+            else stream.copy(exceedsDeviceBudget = exceeds)
         }
         .sortedBy { it.exceedsDeviceBudget }

@@ -1,0 +1,5 @@
+<resources>
+    <string name="theme_color_expressive">Expressive</string>
+    <string name="torrent_error_storage_low">Torrent playback needs about 700 MB of free storage on this device. Free up space and try again.</string>
+    <string name="stream_exceeds_device_budget">Too heavy for this device</string>
+</resources>

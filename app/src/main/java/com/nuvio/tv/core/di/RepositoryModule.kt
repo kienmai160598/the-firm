@@ -4,7 +4,7 @@ import com.nuvio.tv.data.repository.AddonRepositoryImpl
 import com.nuvio.tv.data.repository.CatalogRepositoryImpl
 import com.nuvio.tv.data.repository.LibraryRepositoryImpl
 import com.nuvio.tv.data.repository.MetaRepositoryImpl
-import com.nuvio.tv.data.repository.StreamRepositoryImpl
+import com.nuvio.tv.core.streams.DeviceFitStreamRepository
 import com.nuvio.tv.data.repository.SubtitleRepositoryImpl
 import com.nuvio.tv.data.repository.SyncRepositoryImpl
 import com.nuvio.tv.data.repository.WatchProgressRepositoryImpl
@@ -44,7 +44,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindStreamRepository(impl: StreamRepositoryImpl): StreamRepository
+    abstract fun bindStreamRepository(impl: DeviceFitStreamRepository): StreamRepository
 
     @Binds
     @Singleton

@@ -70,7 +70,6 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.nuvio.tv.ui.screens.home.ContinueWatchingItem
 import com.nuvio.tv.ui.screens.home.canMarkWatched
-import com.nuvio.tv.ui.theme.NuvioRadii
 import com.nuvio.tv.ui.theme.NuvioTheme
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
@@ -94,7 +93,7 @@ import androidx.compose.ui.text.TextStyle
 import com.nuvio.tv.domain.model.CardDepthStyle
 import kotlinx.coroutines.delay
 
-private val BadgeShape = RoundedCornerShape(NuvioRadii.tokens.xs)
+private val BadgeShape = RoundedCornerShape(NuvioTheme.radii.xs)
 private val CwNewEpisodeBadgeColor = Color(0xFF1D4ED8)
 private val CwNewSeasonBadgeColor = Color(0xFFB45309)
 

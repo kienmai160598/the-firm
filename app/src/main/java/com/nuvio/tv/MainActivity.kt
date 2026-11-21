@@ -103,7 +103,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import com.nuvio.tv.domain.model.BoxUiDefaults
+import com.nuvio.tv.core.build.BoxBuild
 import com.nuvio.tv.ui.screens.ambient.AmbientIdleController
 import com.nuvio.tv.ui.screens.ambient.AmbientModeHost
 import com.nuvio.tv.ui.screens.ambient.LocalAmbientIdleController
@@ -409,7 +409,7 @@ open class MainActivity : ComponentActivity() {
         val launchEpisodeTitle = intent?.getStringExtra("episodeTitle")
         captureDeepLinkIntent(intent)
 
-        setContentForScreenReaders(BoxUiDefaults.pruneUnreadSemantics) {
+        setContentForScreenReaders(BoxBuild.pruneUnreadSemantics) {
             var hasSelectedProfileThisSession by rememberSaveable { mutableStateOf(false) }
             var startupSession by remember { mutableIntStateOf(0) }
             // Triggered immediately on profile click (before system confirms selection).
@@ -541,7 +541,7 @@ open class MainActivity : ComponentActivity() {
                     experienceModeDataStore.mode,
                 ) { themeAndAccess, font, amoledMode, amoledSurfacesMode, experienceMode ->
                     MainUiPrefs(
-                        theme = themeAndAccess.first.theme ?: BoxUiDefaults.appTheme,
+                        theme = themeAndAccess.first.theme ?: BoxBuild.appTheme,
                         customThemeColors = themeAndAccess.first.customColors,
                         memberAccess = themeAndAccess.second,
                         font = font,
@@ -703,7 +703,7 @@ open class MainActivity : ComponentActivity() {
                         ?: activeTheme.takeIf { splashPreferencesReady }
                         ?: splashPrefs.getString("theme_$activeProfileId", null)
                             ?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
-                        ?: BoxUiDefaults.appTheme
+                        ?: BoxBuild.appTheme
                     SplashBackground(
                         profileColorHex = if (hasFocusedOverride) focusedSplashColor else (colorHex ?: fallbackColor),
                         backgroundUrl = resolvedBgUrl,

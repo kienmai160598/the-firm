@@ -6,7 +6,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nuvio.tv.domain.model.AppTheme
 
 @Immutable
 data class NuvioRadiusTokens(
@@ -55,18 +54,6 @@ object NuvioRadii {
         panel = 28.dp,
         full = 999.dp
     )
-
-    // The Material 3 Expressive corner scale (androidx material3 ShapeTokens): small parts keep
-    // their radius, cards and containers move one step rounder, like the box's launcher.
-    val expressive = tokens.copy(
-        lg = 16.dp,
-        xl = 20.dp,
-        xxl = 28.dp,
-        panel = 32.dp
-    )
-
-    fun forTheme(theme: AppTheme): NuvioRadiusTokens =
-        if (theme == AppTheme.EXPRESSIVE) expressive else tokens
 }
 
 object NuvioShapes {

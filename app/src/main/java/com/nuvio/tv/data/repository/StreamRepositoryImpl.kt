@@ -3,9 +3,6 @@ package com.nuvio.tv.data.repository
 import android.content.Context
 import android.util.Log
 import com.nuvio.tv.R
-import com.nuvio.tv.core.streams.TitleDuration
-import com.nuvio.tv.core.streams.TitleRuntimeLookup
-import com.nuvio.tv.core.streams.rankP2pStreamsForDevice
 import com.nuvio.tv.core.network.NetworkResult
 import com.nuvio.tv.core.network.safeApiCall
 import com.nuvio.tv.core.debrid.DebridStreamPresentation
@@ -63,8 +60,7 @@ class StreamRepositoryImpl @Inject constructor(
     private val tmdbService: TmdbService,
     private val debridStreamPresentation: DebridStreamPresentation,
     private val localDebridAvailabilityService: LocalDebridAvailabilityService,
-    private val serverStreams: ServerStreams,
-    private val titleRuntimeLookup: TitleRuntimeLookup
+    private val serverStreams: ServerStreams
 ) : StreamRepository {
     private val streamSearchSessions = StreamSearchSessionCache()
     private val localPluginSearchPaused = MutableStateFlow(false)
@@ -255,9 +251,6 @@ class StreamRepositoryImpl @Inject constructor(
             val accumulatedResults = mutableListOf<AddonStreams>()
 
             coroutineScope {
-                val titleDuration = async {
-                    titleRuntimeLookup.titleDuration(type, videoId, season, episode)
-                }
                 // Channel to receive results as they complete
                 val resultChannel = Channel<AddonStreams>(Channel.UNLIMITED)
                 
@@ -404,12 +397,7 @@ class StreamRepositoryImpl @Inject constructor(
                 for (result in resultChannel) {
                     val checkingResult = localDebridAvailabilityService.markChecking(listOf(result)).firstOrNull() ?: result
                     val checkedResult = localDebridAvailabilityService.annotateCachedAvailability(listOf(checkingResult)).firstOrNull() ?: checkingResult
-                    mergePresentedResult(
-                        accumulatedResults,
-                        checkedResult,
-                        debridSettings,
-                        titleDuration.await()
-                    )
+                    mergePresentedResult(accumulatedResults, checkedResult, debridSettings)
                     emit(NetworkResult.Success(accumulatedResults.toList()))
                     Log.d(TAG, "Emitted ${accumulatedResults.size} addon(s), latest: ${checkedResult.addonName} with ${checkedResult.streams.size} streams")
                 }
@@ -521,8 +509,7 @@ class StreamRepositoryImpl @Inject constructor(
     private suspend fun mergePresentedResult(
         accumulatedResults: MutableList<AddonStreams>,
         result: AddonStreams,
-        debridSettings: DebridSettings,
-        titleDuration: TitleDuration
+        debridSettings: DebridSettings
     ) {
         val existingIndex = accumulatedResults.indexOfFirst { it.addonName == result.addonName }
         if (existingIndex >= 0) {
@@ -530,24 +517,18 @@ class StreamRepositoryImpl @Inject constructor(
             val merged = existing.copy(
                 streams = mergeStreams(existing.streams, result.streams)
             )
-            accumulatedResults[existingIndex] = presentStreams(merged, debridSettings, titleDuration)
+            accumulatedResults[existingIndex] = presentStreams(merged, debridSettings)
         } else {
-            accumulatedResults.add(presentStreams(result, debridSettings, titleDuration))
+            accumulatedResults.add(presentStreams(result, debridSettings))
         }
     }
 
-    private fun presentStreams(
-        result: AddonStreams,
-        debridSettings: DebridSettings,
-        titleDuration: TitleDuration
-    ): AddonStreams {
-        val presented = debridStreamPresentation.apply(
+    private fun presentStreams(result: AddonStreams, debridSettings: DebridSettings): AddonStreams {
+        return debridStreamPresentation.apply(
             groups = listOf(result),
             settings = debridSettings,
             includeBadgeMatches = false
         ).firstOrNull() ?: result
-
-        return presented.copy(streams = rankP2pStreamsForDevice(presented.streams, titleDuration))
     }
 
     private fun mergeStreams(existing: List<Stream>, incoming: List<Stream>): List<Stream> {

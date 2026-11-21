@@ -7,7 +7,7 @@ import com.nuvio.tv.data.repository.MemberAccessRepository
 import com.nuvio.tv.domain.model.AppFont
 import com.nuvio.tv.domain.model.AppIconOption
 import com.nuvio.tv.domain.model.AppTheme
-import com.nuvio.tv.domain.model.BoxUiDefaults
+import com.nuvio.tv.core.build.BoxBuild
 import com.nuvio.tv.domain.model.CosmeticEntitlements
 import com.nuvio.tv.domain.model.CustomThemeColors
 import com.nuvio.tv.domain.model.SettingsUiStyle
@@ -90,7 +90,7 @@ class ThemeSettingsViewModel @Inject constructor(
                     _uiState.update { state ->
                         state.copy(
                             themesLoaded = true,
-                            selectedTheme = selection.theme ?: BoxUiDefaults.appTheme,
+                            selectedTheme = selection.theme ?: BoxBuild.appTheme,
                             customThemeColors = selection.customColors,
                             customThemeGradientEnabled = gradientEnabled,
                             availableThemes = availableThemes

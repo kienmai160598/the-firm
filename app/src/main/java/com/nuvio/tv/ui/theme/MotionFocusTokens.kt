@@ -102,10 +102,6 @@ object NuvioMotion {
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessMediumLow
     )
-
-    // Material 3 Expressive fast spatial spring (MotionScheme.expressive()), the one the box's
-    // launcher zooms its tiles with: small parts that move or scale, with a little overshoot.
-    fun <T> expressiveFastSpatial(): SpringSpec<T> = spring(dampingRatio = 0.6f, stiffness = 800f)
 }
 
 object NuvioFocus {

@@ -47,8 +47,6 @@ val LocalThemePalette = staticCompositionLocalOf { ThemeColors.White }
 
 val LocalSettingsUiStyle = staticCompositionLocalOf { SettingsUiStyle.CLASSIC }
 
-val LocalNuvioRadii = staticCompositionLocalOf { NuvioRadii.tokens }
-
 val LocalNuvioFocusRingStyle = staticCompositionLocalOf {
     createFocusRingStyle(ThemeColors.Ocean)
 }
@@ -107,8 +105,7 @@ fun NuvioTheme(
         LocalAppTheme provides appTheme,
         LocalThemePalette provides palette,
         LocalSettingsUiStyle provides settingsUiStyle,
-        LocalNuvioFocusRingStyle provides focusRingStyle,
-        LocalNuvioRadii provides NuvioRadii.forTheme(appTheme)
+        LocalNuvioFocusRingStyle provides focusRingStyle
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
@@ -143,9 +140,7 @@ object NuvioTheme {
         get() = NuvioSpacing.tokens
 
     val radii: NuvioRadiusTokens
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalNuvioRadii.current
+        get() = ExpressiveRadii.forBuild
 
     val shapes: NuvioShapeTokens
         get() = NuvioShapes.tokens
@@ -192,12 +187,8 @@ object NuvioTheme {
         @ReadOnlyComposable
         get() = LocalSettingsUiStyle.current
 
-    // Expressive cards zoom on focus, like the tiles of the box's launcher; other themes keep
-    // Nuvio's still cards with a ring.
     val cardFocusScale: Float
         @Composable
         @ReadOnlyComposable
-        get() = if (LocalAppTheme.current == AppTheme.EXPRESSIVE) EXPRESSIVE_CARD_FOCUS_SCALE else 1f
+        get() = ExpressiveMotion.cardFocusScale(LocalAppTheme.current)
 }
-
-private const val EXPRESSIVE_CARD_FOCUS_SCALE = 1.06f

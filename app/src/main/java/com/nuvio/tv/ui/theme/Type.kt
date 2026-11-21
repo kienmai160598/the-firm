@@ -25,13 +25,6 @@ val InterFamily = FontFamily(
     Font(R.font.inter_variable, FontWeight.Bold)
 )
 
-val GoogleSansFlexFamily = FontFamily(
-    Font(R.font.google_sans_flex, FontWeight.Normal),
-    Font(R.font.google_sans_flex, FontWeight.Medium),
-    Font(R.font.google_sans_flex, FontWeight.SemiBold),
-    Font(R.font.google_sans_flex, FontWeight.Bold)
-)
-
 val OpenSansFamily = FontFamily(
     Font(R.font.opensans_variable, FontWeight.Normal),
     Font(R.font.opensans_variable, FontWeight.Medium),

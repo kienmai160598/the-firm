@@ -145,7 +145,6 @@ android {
         buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${localProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
         buildConfigField("String", "INTRODB_API_URL", "\"${localProperties.getProperty("INTRODB_API_URL", "")}\"")
         buildConfigField("String", "TRAILER_API_URL", "\"${localProperties.getProperty("TRAILER_API_URL", "")}\"")
-        buildConfigField("boolean", "BOX_UI_DEFAULTS", "false")
         buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", "\"${localProperties.getProperty("IMDB_RATINGS_API_BASE_URL", "")}\"")
         buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", "\"${localProperties.getProperty("IMDB_TAPFRAME_API_BASE_URL", "")}\"")
         buildConfigField("String", "TRAKT_CLIENT_ID", "\"${localProperties.getProperty("TRAKT_CLIENT_ID", "")}\"")
@@ -304,20 +303,6 @@ android {
             applicationIdSuffix = ".debug"
             matchingFallbacks += "release"
         }
-        // The debug build's identity, key and endpoints with release shrinking, so it updates the
-        // debug install in place.
-        create("box") {
-            initWith(buildTypes.getByName("debug"))
-            isDebuggable = false
-            buildConfigField("boolean", "BOX_UI_DEFAULTS", "true")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            matchingFallbacks += "release"
-        }
     }
 
     splits {
@@ -386,10 +371,7 @@ android {
 androidComponents {
     onVariants(selector().withBuildType("debug")) { variant ->
         val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
-        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuviobox.tv")
-    }
-    onVariants(selector().withBuildType("box")) { variant ->
-        variant.applicationId.set("com.nuviobox.tv")
+        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuviodebug.com")
     }
     // Only the full flavor ships the in-app updater.
     onVariants(selector().withFlavor("distribution" to "full")) { variant ->
@@ -404,6 +386,35 @@ androidComponents {
             })
         }
         variant.sources.assets?.addGeneratedSourceDirectory(embedTask, EmbedUpdateDexMetadataTask::outputDirectory)
+    }
+}
+
+// Box fork: one build type for the 2 GB TV box. Kept in one block after upstream's android {} so
+// initWith copies a fully configured debug type and upstream merges do not touch it.
+android {
+    defaultConfig {
+        buildConfigField("boolean", "BOX_UI_DEFAULTS", "false")
+    }
+    buildTypes {
+        // Debug's signing key and endpoints with release shrinking, installed as its own app.
+        create("box") {
+            initWith(buildTypes.getByName("debug"))
+            isDebuggable = false
+            buildConfigField("boolean", "BOX_UI_DEFAULTS", "true")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            matchingFallbacks += "release"
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("box")) { variant ->
+        variant.applicationId.set("com.nuviobox.tv")
     }
 }
 

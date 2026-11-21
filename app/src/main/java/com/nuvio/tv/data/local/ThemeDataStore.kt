@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nuvio.tv.core.profile.ProfileManager
 import com.nuvio.tv.domain.model.AppFont
 import com.nuvio.tv.domain.model.AppTheme
-import com.nuvio.tv.domain.model.BoxUiDefaults
+import com.nuvio.tv.core.build.BoxBuild
 import com.nuvio.tv.domain.model.CustomThemeColors
 import com.nuvio.tv.domain.model.SettingsUiStyle
 import com.nuvio.tv.domain.model.ThemeSelection
@@ -47,11 +47,11 @@ class ThemeDataStore @Inject constructor(
 
     val selectedFont: Flow<AppFont> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
-            val fontName = prefs[fontKey] ?: BoxUiDefaults.appFont.name
+            val fontName = prefs[fontKey] ?: BoxBuild.appFont.name
             try {
                 AppFont.valueOf(fontName)
             } catch (e: IllegalArgumentException) {
-                BoxUiDefaults.appFont
+                BoxBuild.appFont
             }
         }
     }

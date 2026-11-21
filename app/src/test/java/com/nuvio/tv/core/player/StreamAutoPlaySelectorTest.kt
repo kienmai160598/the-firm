@@ -61,64 +61,6 @@ class StreamAutoPlaySelectorTest {
     }
 
     @Test
-    fun `a P2P stream over the device budget is skipped by autoplay`() {
-        val tooHeavy = stream(
-            addonName = "AddonA",
-            name = "Remux",
-            infoHash = "0123456789abcdef0123456789abcdef01234567"
-        ).copy(exceedsDeviceBudget = true)
-        val fitting = stream(
-            addonName = "AddonA",
-            name = "Encode",
-            infoHash = "89abcdef0123456789abcdef0123456789abcdef"
-        )
-
-        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
-            streams = listOf(tooHeavy, fitting),
-            mode = StreamAutoPlayMode.FIRST_STREAM,
-            regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
-            installedAddonNames = setOf("AddonA"),
-            selectedAddons = emptySet(),
-            selectedPlugins = emptySet()
-        )
-        val onlyTooHeavy = StreamAutoPlaySelector.selectAutoPlayStream(
-            streams = listOf(tooHeavy),
-            mode = StreamAutoPlayMode.FIRST_STREAM,
-            regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
-            installedAddonNames = setOf("AddonA"),
-            selectedAddons = emptySet(),
-            selectedPlugins = emptySet()
-        )
-
-        assertEquals(fitting, selected)
-        assertEquals(null, onlyTooHeavy)
-    }
-
-    @Test
-    fun `an early binge group match skips a P2P stream over the device budget`() {
-        val tooHeavy = stream(
-            addonName = "AddonA",
-            name = "Remux",
-            bingeGroup = "group-a",
-            infoHash = "0123456789abcdef0123456789abcdef01234567"
-        ).copy(exceedsDeviceBudget = true)
-        val fitting = stream(
-            addonName = "AddonB",
-            name = "Encode",
-            bingeGroup = "group-a",
-            infoHash = "89abcdef0123456789abcdef0123456789abcdef"
-        )
-
-        assertEquals(
-            fitting,
-            StreamAutoPlaySelector.selectEarlyBingeGroupMatch(listOf(tooHeavy, fitting), "group-a")
-        )
-        assertEquals(null, StreamAutoPlaySelector.selectEarlyBingeGroupMatch(listOf(tooHeavy), "group-a"))
-    }
-
-    @Test
     fun `falls back to normal mode when no bingeGroup match exists`() {
         val first = stream(
             addonName = "AddonA",

@@ -49,16 +49,16 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.contentColorFor
 import androidx.tv.material3.surfaceColorAtElevation
-import com.nuvio.tv.ui.theme.NuvioMotion
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import kotlinx.coroutines.launch
 
 /**
  * Drop-in replacement for tv-material `Card` as the home rows configure it: one [shape] and
- * [containerColor] for every state, [focusedBorder] while focused or pressed and
+ * [containerColor] for every state, no scale, [focusedBorder] while focused or pressed and
  * [focusedGlow] while focused (`CardDefaults.border(focusedBorder = ...)`,
- * `CardDefaults.glow(focusedGlow = ...)`). [focusedScale] zooms the focused card on the
- * Material 3 Expressive fast spatial spring; it is read only in the card's layer, so the zoom
- * redraws the card without recomposing or measuring it again.
+ * `CardDefaults.glow(focusedGlow = ...)`, `CardDefaults.scale(focusedScale = 1f)`).
+ * A [focusedScale] other than 1f zooms the focused card; only its layer reads the zoom, so the
+ * card is neither recomposed nor measured again while it runs.
  *
  * It draws the same layers in the same order as tv-material's `Surface` (glow, z-index, border,
  * background, clip) and handles D-pad select, focus and semantics the same way. The difference is
@@ -85,9 +85,9 @@ fun LightweightCard(
         targetValue = if (focused) FOCUSED_Z_INDEX else NON_FOCUSED_Z_INDEX,
         label = "zIndex"
     )
-    val scale = animateFloatAsState(
+    val scale = if (focusedScale == 1f) null else animateFloatAsState(
         targetValue = if (focused && !pressed) focusedScale else 1f,
-        animationSpec = NuvioMotion.expressiveFastSpatial(),
+        animationSpec = ExpressiveMotion.expressiveFastSpatial(),
         label = "scale"
     )
     val border = if (focused || pressed) focusedBorder else Border.None
@@ -136,8 +136,8 @@ fun LightweightCard(
                     onLongClick { false }
                 }
                 .graphicsLayer {
-                    scaleX = scale.value
-                    scaleY = scale.value
+                    scaleX = scale?.value ?: 1f
+                    scaleY = scale?.value ?: 1f
                 }
                 .then(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

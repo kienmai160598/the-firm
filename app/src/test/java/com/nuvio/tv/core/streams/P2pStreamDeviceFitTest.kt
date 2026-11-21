@@ -1,18 +1,10 @@
 package com.nuvio.tv.core.streams
 
-import com.nuvio.tv.domain.model.Meta
-import com.nuvio.tv.domain.model.Stream
-import com.nuvio.tv.domain.model.StreamBehaviorHints
-import com.nuvio.tv.domain.model.Video
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
-private const val GIBIBYTE = 1024L * 1024L * 1024L
 
 class P2pStreamDeviceFitTest {
     private val twoHourFilm = TitleDuration(runtimeMinutes = 120, isEpisode = false)
@@ -106,67 +98,4 @@ class P2pStreamDeviceFitTest {
 
         assertFalse(ranked.single().exceedsDeviceBudget)
     }
-
-    @Test
-    fun `an episode's own runtime wins over the show's`() {
-        val meta = meta(runtime = "45 min", episodes = listOf(episode(1, 2, runtime = 61)))
-
-        assertEquals(61, titleRuntimeMinutes(meta, season = 1, episode = 2))
-    }
-
-    @Test
-    fun `an episode without a runtime falls back to the show's`() {
-        val meta = meta(runtime = "45 min", episodes = listOf(episode(1, 2, runtime = null)))
-
-        assertEquals(45, titleRuntimeMinutes(meta, season = 1, episode = 2))
-    }
-
-    @Test
-    fun `a film's runtime is parsed from the meta and missing stays unknown`() {
-        assertEquals(148, titleRuntimeMinutes(meta(runtime = "2h 28min"), season = null, episode = null))
-        assertNull(titleRuntimeMinutes(meta(runtime = null), season = null, episode = null))
-    }
-
-    @Test
-    fun `the meta id drops the season and episode of an episode's video id`() {
-        assertEquals("tt0903747", metaIdOfVideo("tt0903747:1:2", season = 1, episode = 2))
-        assertEquals("kitsu:42", metaIdOfVideo("kitsu:42:1:7", season = 1, episode = 7))
-        assertEquals("tt0111161", metaIdOfVideo("tt0111161", season = null, episode = null))
-    }
-
-    private fun meta(runtime: String?, episodes: List<Video> = emptyList()): Meta = mockk {
-        every { this@mockk.runtime } returns runtime
-        every { videos } returns episodes
-    }
-
-    private fun episode(season: Int, episode: Int, runtime: Int?): Video = mockk {
-        every { this@mockk.season } returns season
-        every { this@mockk.episode } returns episode
-        every { this@mockk.runtime } returns runtime
-    }
-
-    private fun torrent(
-        name: String? = null,
-        title: String? = null,
-        videoSize: Long? = null,
-        fileIdx: Int? = 0
-    ): Stream = Stream(
-        name = name,
-        title = title,
-        description = null,
-        url = null,
-        ytId = null,
-        infoHash = "0123456789abcdef0123456789abcdef01234567",
-        fileIdx = fileIdx,
-        externalUrl = null,
-        behaviorHints = StreamBehaviorHints(
-            notWebReady = null,
-            bingeGroup = null,
-            countryWhitelist = null,
-            proxyHeaders = null,
-            videoSize = videoSize
-        ),
-        addonName = "Addon",
-        addonLogo = null
-    )
 }

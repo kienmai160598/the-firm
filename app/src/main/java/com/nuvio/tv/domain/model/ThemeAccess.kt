@@ -1,5 +1,7 @@
 package com.nuvio.tv.domain.model
 
+import com.nuvio.tv.core.build.BoxBuild
+
 private val supporterThemes = linkedMapOf(
     AppTheme.GOLD to CosmeticEntitlement.GOLD_THEME,
     AppTheme.JADE to CosmeticEntitlement.JADE_THEME,
@@ -29,7 +31,7 @@ fun resolveAppTheme(
             .filterValues(entitlements::includes)
             .keys
             .firstOrNull()
-            ?: BoxUiDefaults.appTheme
+            ?: BoxBuild.appTheme
     }
     return if (selectedTheme in availableAppThemes(entitlements)) {
         selectedTheme

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 // Material 3 Tonal Spot dark scheme from the M3 baseline seed #6750A4, the same scheme the box's
 // launcher builds (material-color-utilities 1.12.0, SchemeTonalSpot, contrast 0), so the app and
 // Home share one palette. Nuvio's accent is M3's primary; its layers are M3's surface containers.
-object ExpressiveColors {
+internal object ExpressiveColors {
     private val primary = Color(0xFFCFBDFE)
     private val onPrimary = Color(0xFF36275D)
     private val primaryContainer = Color(0xFF4D3D75)
