@@ -49,13 +49,16 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.contentColorFor
 import androidx.tv.material3.surfaceColorAtElevation
+import com.nuvio.tv.ui.theme.NuvioMotion
 import kotlinx.coroutines.launch
 
 /**
  * Drop-in replacement for tv-material `Card` as the home rows configure it: one [shape] and
- * [containerColor] for every state, no scale, [focusedBorder] while focused or pressed and
+ * [containerColor] for every state, [focusedBorder] while focused or pressed and
  * [focusedGlow] while focused (`CardDefaults.border(focusedBorder = ...)`,
- * `CardDefaults.glow(focusedGlow = ...)`, `CardDefaults.scale(focusedScale = 1f)`).
+ * `CardDefaults.glow(focusedGlow = ...)`). [focusedScale] zooms the focused card on the
+ * Material 3 Expressive fast spatial spring; it is read only in the card's layer, so the zoom
+ * redraws the card without recomposing or measuring it again.
  *
  * It draws the same layers in the same order as tv-material's `Surface` (glow, z-index, border,
  * background, clip) and handles D-pad select, focus and semantics the same way. The difference is
@@ -72,6 +75,7 @@ fun LightweightCard(
     modifier: Modifier = Modifier,
     focusedBorder: Border = Border.None,
     focusedGlow: Glow = Glow.None,
+    focusedScale: Float = 1f,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -80,6 +84,11 @@ fun LightweightCard(
     val zIndex = animateFloatAsState(
         targetValue = if (focused) FOCUSED_Z_INDEX else NON_FOCUSED_Z_INDEX,
         label = "zIndex"
+    )
+    val scale = animateFloatAsState(
+        targetValue = if (focused && !pressed) focusedScale else 1f,
+        animationSpec = NuvioMotion.expressiveFastSpatial(),
+        label = "scale"
     )
     val border = if (focused || pressed) focusedBorder else Border.None
     val glow = if (focused && !pressed) focusedGlow else Glow.None
@@ -126,7 +135,10 @@ fun LightweightCard(
                     }
                     onLongClick { false }
                 }
-                .graphicsLayer(scaleX = 1f, scaleY = 1f)
+                .graphicsLayer {
+                    scaleX = scale.value
+                    scaleY = scale.value
+                }
                 .then(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         CardGlowElement(shape, glowBlurRadiusPx, glowColor)

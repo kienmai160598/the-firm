@@ -1366,7 +1366,8 @@ private fun ModernCarouselCard(
             shape = cardShape,
             containerColor = backgroundCardColor,
             focusedBorder = effectiveFocusedBorder,
-            focusedGlow = effectiveFocusGlow
+            focusedGlow = effectiveFocusGlow,
+            focusedScale = NuvioTheme.cardFocusScale
         ) {
             Box(
                 modifier = Modifier

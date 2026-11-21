@@ -145,6 +145,7 @@ android {
         buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${localProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
         buildConfigField("String", "INTRODB_API_URL", "\"${localProperties.getProperty("INTRODB_API_URL", "")}\"")
         buildConfigField("String", "TRAILER_API_URL", "\"${localProperties.getProperty("TRAILER_API_URL", "")}\"")
+        buildConfigField("boolean", "BOX_UI_DEFAULTS", "false")
         buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", "\"${localProperties.getProperty("IMDB_RATINGS_API_BASE_URL", "")}\"")
         buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", "\"${localProperties.getProperty("IMDB_TAPFRAME_API_BASE_URL", "")}\"")
         buildConfigField("String", "TRAKT_CLIENT_ID", "\"${localProperties.getProperty("TRAKT_CLIENT_ID", "")}\"")
@@ -308,6 +309,7 @@ android {
         create("box") {
             initWith(buildTypes.getByName("debug"))
             isDebuggable = false
+            buildConfigField("boolean", "BOX_UI_DEFAULTS", "true")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

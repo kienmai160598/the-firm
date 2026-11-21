@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.nuvio.tv.core.player.TrailerVideoPolicy
 import com.nuvio.tv.core.profile.ProfileManager
+import com.nuvio.tv.domain.model.BoxUiDefaults
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -38,7 +39,7 @@ class TrailerSettingsDataStore @Inject constructor(
     val settings: Flow<TrailerSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
             TrailerSettings(
-                enabled = prefs[enabledKey] ?: true,
+                enabled = prefs[enabledKey] ?: BoxUiDefaults.trailersAutoplay,
                 delaySeconds = prefs[delaySecondsKey] ?: 7,
                 playInBackground = prefs[playInBackgroundKey] ?: false,
                 pauseOnScroll = prefs[pauseOnScrollKey] ?: true,

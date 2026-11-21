@@ -990,7 +990,8 @@ private fun EpisodeCard(
         focusedBorder = Border(
             border = focusRingBorder,
             shape = shape
-        )
+        ),
+        focusedScale = NuvioTheme.cardFocusScale
     ) {
         Box(
             modifier = Modifier

@@ -29,7 +29,7 @@ fun resolveAppTheme(
             .filterValues(entitlements::includes)
             .keys
             .firstOrNull()
-            ?: AppTheme.WHITE
+            ?: BoxUiDefaults.appTheme
     }
     return if (selectedTheme in availableAppThemes(entitlements)) {
         selectedTheme

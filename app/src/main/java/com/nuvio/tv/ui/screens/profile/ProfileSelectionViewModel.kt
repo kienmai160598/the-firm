@@ -14,6 +14,7 @@ import com.nuvio.tv.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.nuvio.tv.data.remote.supabase.ProfileBackgroundRepository
 import com.nuvio.tv.data.remote.supabase.SupabaseProfilePinVerifyResult
 import com.nuvio.tv.data.repository.MemberAccessRepository
+import com.nuvio.tv.domain.model.BoxUiDefaults
 import com.nuvio.tv.domain.model.CosmeticEntitlement
 import com.nuvio.tv.domain.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -122,7 +123,7 @@ class ProfileSelectionViewModel @Inject constructor(
                     combine(
                         profileList.map { profile ->
                             themeDataStore.observeThemeForProfile(profile.id)
-                                .map { theme -> profile.id to (theme ?: com.nuvio.tv.domain.model.AppTheme.WHITE) }
+                                .map { theme -> profile.id to (theme ?: BoxUiDefaults.appTheme) }
                         }
                     ) { entries -> entries.toMap() }
                 }

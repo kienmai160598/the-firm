@@ -18,6 +18,7 @@ import com.nuvio.tv.core.sync.homeCollectionKey
 import com.nuvio.tv.core.sync.withLocalServerKeys
 import com.nuvio.tv.data.mediaserver.ServerCatalog
 import com.nuvio.tv.domain.model.Addon
+import com.nuvio.tv.domain.model.BoxUiDefaults
 import com.nuvio.tv.domain.model.CardDepthStyle
 import com.nuvio.tv.domain.model.CardDepthSurface
 import com.nuvio.tv.domain.model.Collection
@@ -57,7 +58,6 @@ class LayoutPreferenceDataStore @Inject constructor(
         private const val FEATURE = "layout_settings"
         private const val DEFAULT_POSTER_CARD_WIDTH_DP = 126
         private const val DEFAULT_POSTER_CARD_HEIGHT_DP = 189
-        private const val DEFAULT_POSTER_CARD_CORNER_RADIUS_DP = 12
         private const val DEFAULT_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS = 3
         private const val MIN_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS = 0
     }
@@ -287,7 +287,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     val focusedPosterBackdropExpandEnabled: Flow<Boolean> = profileFlow { prefs ->
-        prefs[focusedPosterBackdropExpandEnabledKey] ?: true
+        prefs[focusedPosterBackdropExpandEnabledKey] ?: BoxUiDefaults.focusedCardExpands
     }
 
     val focusedPosterBackdropExpandDelaySeconds: Flow<Int> = profileFlow { prefs ->
@@ -325,7 +325,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     val posterCardCornerRadiusDp: Flow<Int> = profileFlow { prefs ->
-        prefs[posterCardCornerRadiusDpKey] ?: DEFAULT_POSTER_CARD_CORNER_RADIUS_DP
+        prefs[posterCardCornerRadiusDpKey] ?: BoxUiDefaults.posterCornerRadiusDp
     }
 
     val cardDepthStyle: Flow<CardDepthStyle> = profileFlow { prefs ->
@@ -341,7 +341,7 @@ class LayoutPreferenceDataStore @Inject constructor(
             continueWatchingEnabled = prefs[cardDepthContinueWatchingEnabledKey] ?: true,
             episodeCardsEnabled = prefs[cardDepthEpisodeCardsEnabledKey] ?: true,
             castEnabled = prefs[cardDepthCastEnabledKey] ?: true,
-            trailersEnabled = prefs[cardDepthTrailersEnabledKey] ?: true
+            trailersEnabled = prefs[cardDepthTrailersEnabledKey] ?: BoxUiDefaults.trailersAutoplay
         )
     }
 

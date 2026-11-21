@@ -109,6 +109,7 @@ object ThemeColors {
             AppTheme.AMBER -> Amber
             AppTheme.ROSE -> Rose
             AppTheme.WHITE -> White
+            AppTheme.EXPRESSIVE -> ExpressiveColors.Palette
         }
     }
 }
