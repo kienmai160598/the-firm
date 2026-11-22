@@ -13,7 +13,6 @@ import com.kien.movies.ui.theme.MoviesMotion
 import kotlinx.coroutines.delay
 
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveFocus
 
 import android.util.Log
@@ -133,13 +132,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.Tracks
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
@@ -163,6 +158,12 @@ import com.kien.movies.domain.model.StreamBadge
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesIconButton
+import com.kien.movies.ui.theme.ExpressiveColors
 import android.text.format.DateFormat
 import com.kien.movies.ui.util.rememberRawSvgPainter
 import java.util.Date
@@ -1894,11 +1895,11 @@ private fun PlayerScreenContent(
         AnimatedVisibility(
             visible = uiState.showChaptersPanel && uiState.chapters.isNotEmpty() && uiState.error == null,
             enter = slideInHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 initialOffsetX = { it }
             ),
             exit = slideOutHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 targetOffsetX = { it }
             ),
             modifier = playerControlsDim
@@ -1937,11 +1938,11 @@ private fun PlayerScreenContent(
             visible = uiState.showEpisodesPanel && uiState.error == null &&
                 !uiState.showEpisodeAutoPlayLoadingOverlay,
             enter = slideInHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 initialOffsetX = { it }
             ),
             exit = slideOutHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 targetOffsetX = { it }
             ),
             modifier = playerControlsDim
@@ -1983,11 +1984,11 @@ private fun PlayerScreenContent(
         AnimatedVisibility(
             visible = uiState.showSourcesPanel && uiState.error == null,
             enter = slideInHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 initialOffsetX = { it }
             ),
             exit = slideOutHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 targetOffsetX = { it }
             ),
             modifier = playerControlsDim
@@ -2028,11 +2029,11 @@ private fun PlayerScreenContent(
         AnimatedVisibility(
             visible = uiState.showPartyPanel && uiState.error == null,
             enter = slideInHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 initialOffsetX = { it }
             ),
             exit = slideOutHorizontally(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 targetOffsetX = { it }
             ),
             modifier = playerControlsDim
@@ -2093,11 +2094,11 @@ private fun PlayerScreenContent(
         AnimatedVisibility(
             visible = uiState.showSubtitleStylePanel && uiState.error == null,
             enter = slideInVertically(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 initialOffsetY = { -it }
             ),
             exit = slideOutVertically(
-                animationSpec = PlayerMotion.spatial(220),
+                animationSpec = PlayerMotion.spatial(),
                 targetOffsetY = { -it }
             ),
             modifier = playerControlsDim
@@ -2889,22 +2890,9 @@ private fun PlayerControlsOverlay(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (isExpressiveBuild) 360.dp else 200.dp)
+                .height(360.dp)
                 .align(Alignment.BottomCenter)
-                .then(
-                    if (isExpressiveBuild) {
-                        Modifier.playerTransportScrim()
-                    } else {
-                        Modifier.background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.8f)
-                                )
-                            )
-                        )
-                    }
-                )
+                .playerTransportScrim()
         )
 
         Column(
@@ -2968,11 +2956,7 @@ private fun PlayerControlsOverlay(
                             text = episodeInfo,
                             modifier = Modifier.reportRightEdge("episode", titleRights),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (isExpressiveBuild) {
-                                PlayerTransportSupporting
-                            } else {
-                                Color.White.copy(alpha = 0.9f)
-                            },
+                            color = PlayerTransportSupporting,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -3029,9 +3013,7 @@ private fun PlayerControlsOverlay(
                             onFocused = onResetHideTimer,
                             onClick = onPlayPause
                         )
-                        if (playerTimesUnderScrubber) {
-                            PlayerScrubberTimesHost(viewModel = viewModel)
-                        }
+                        PlayerScrubberTimesHost(viewModel = viewModel)
                     }
                 }
 
@@ -3049,7 +3031,7 @@ private fun PlayerControlsOverlay(
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(
-                        if (isExpressiveBuild) MoviesTheme.spacing.md else MoviesTheme.spacing.xs
+                        MoviesTheme.spacing.md
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -3148,7 +3130,6 @@ private fun PlayerControlsOverlay(
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
-                            contentColor = if (partyActive) MoviesTheme.colors.Secondary else Color.White,
                             active = partyActive
                         )
                     }
@@ -3166,7 +3147,7 @@ private fun PlayerControlsOverlay(
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(
-                                if (isExpressiveBuild) MoviesTheme.spacing.md else MoviesTheme.spacing.xs
+                                MoviesTheme.spacing.md
                             ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -3249,8 +3230,8 @@ private fun PlayerControlsOverlay(
                     )
                 }
 
-                // Right side - Time display only
-                if (!playerTimesUnderScrubber || isLivePlayback) {
+                // Right side: the clock of a live stream only
+                if (isLivePlayback) {
                     PlayerControlsTimeTextHost(viewModel = viewModel)
                 }
             }
@@ -3365,8 +3346,8 @@ private fun ReportControlButton(
                 maxLines = 1,
                 modifier = Modifier
                     .background(
-                        PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.78f)),
-                        PlayerSurfaceStyle.pillShape(RoundedCornerShape(5.dp))
+                        PlayerSurfaceStyle.floatingContainer(),
+                        PlayerSurfaceStyle.pillShape()
                     )
                     .padding(horizontal = 8.dp, vertical = 3.dp)
             )
@@ -3385,13 +3366,11 @@ private fun ControlButton(
     enabled: Boolean = true,
     onDownKey: (() -> Unit)? = null,
     onFocused: (() -> Unit)? = null,
-    contentColor: Color = Color.White,
     active: Boolean = false
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    IconButton(
+    MoviesIconButton(
         onClick = onClick,
+        style = if (active) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary,
         enabled = enabled,
         modifier = Modifier
             .size(MoviesTheme.spacing.xxxl)
@@ -3428,13 +3407,8 @@ private fun ControlButton(
                 }
             }
             .onFocusChanged {
-                isFocused = it.isFocused
                 if (it.isFocused) onFocused?.invoke()
             }
-            .playerFocusLift(isFocused),
-        colors = PlayerControlStyle.iconButtonColors(contentColor, active),
-        shape = PlayerControlStyle.capsuleShape,
-        scale = PlayerControlStyle.stillScale
     ) {
         if (iconPainter != null) {
             Icon(
@@ -3814,8 +3788,8 @@ private fun AspectRatioIndicator(text: String) {
     Row(
         modifier = Modifier
             .background(
-                color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.85f)),
-                shape = PlayerSurfaceStyle.pillShape(RoundedCornerShape(MoviesTheme.spacing.xl))
+                color = PlayerSurfaceStyle.floatingContainer(),
+                shape = PlayerSurfaceStyle.pillShape()
             )
             .padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
         horizontalArrangement = Arrangement.Center,
@@ -3826,7 +3800,7 @@ private fun AspectRatioIndicator(text: String) {
             modifier = Modifier
                 .size(36.dp)
                 .background(
-                    color = PlayerSurfaceStyle.iconBadgeColor(Color(0xFF3B3B3B)),
+                    color = PlayerSurfaceStyle.iconBadgeColor(),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -3834,7 +3808,7 @@ private fun AspectRatioIndicator(text: String) {
             Icon(
                 painter = customAspectPainter,
                 contentDescription = null,
-                tint = PlayerSurfaceStyle.iconBadgeContent(Color.White),
+                tint = PlayerSurfaceStyle.iconBadgeContent(),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -3858,8 +3832,8 @@ private fun StreamSourceIndicator(text: String) {
     Row(
         modifier = Modifier
             .background(
-                color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.82f)),
-                shape = PlayerSurfaceStyle.pillShape(RoundedCornerShape(20.dp))
+                color = PlayerSurfaceStyle.floatingContainer(),
+                shape = PlayerSurfaceStyle.pillShape()
             )
             .padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
@@ -3881,8 +3855,8 @@ private fun PlayerEngineSwitchIndicator(
 ) {
     Column(
         modifier = Modifier
-            .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(20.dp)))
-            .background(PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.86f)))
+            .clip(PlayerSurfaceStyle.cardShape())
+            .background(PlayerSurfaceStyle.floatingContainer())
             .padding(horizontal = 22.dp, vertical = MoviesTheme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -4025,7 +3999,7 @@ private fun SubtitleDelayOverlay(
                             onResetFocused()
                         }
                     },
-                colors = PlayerPillStyle.colors(isResetButtonFocused, resting = Color.White.copy(alpha = 0.11f)),
+                colors = PlayerPillStyle.colors(isResetButtonFocused, resting = ExpressiveColors.frosted),
                 shape = PlayerPillStyle.shape(isResetButtonFocused),
                 scale = PlayerListItemStyle.stillScale,
                 border = PlayerListItemStyle.noBorder()
@@ -4057,7 +4031,7 @@ private fun SubtitleDelayOverlay(
                             onSyncLineFocused()
                         }
                     },
-                colors = PlayerPillStyle.colors(isSyncLineButtonFocused, resting = Color.White.copy(alpha = 0.11f)),
+                colors = PlayerPillStyle.colors(isSyncLineButtonFocused, resting = ExpressiveColors.frosted),
                 shape = PlayerPillStyle.shape(isSyncLineButtonFocused),
                 scale = PlayerListItemStyle.stillScale,
                 border = PlayerListItemStyle.noBorder()
@@ -4097,8 +4071,8 @@ private fun LoadingIssueReportAction(
     }
     Column(
         modifier = modifier
-            .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(MoviesTheme.radii.lg)))
-            .background(PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.72f)))
+            .clip(PlayerSurfaceStyle.cardShape())
+            .background(PlayerSurfaceStyle.floatingContainer())
             .padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
@@ -4223,9 +4197,7 @@ private fun ErrorOverlay(
                     style = MaterialTheme.typography.bodyMedium,
                     color = when (reportStatus) {
                         PlaybackIssueReportStatus.Sent -> MoviesTheme.colors.Secondary
-                        PlaybackIssueReportStatus.Failed -> PlayerSurfaceStyle.errorText(
-                            upstream = Color(0xFFFF8A80)
-                        )
+                        PlaybackIssueReportStatus.Failed -> PlayerSurfaceStyle.errorText()
                         else -> Color.White.copy(alpha = 0.7f)
                     },
                     textAlign = TextAlign.Center,
@@ -4306,20 +4278,15 @@ internal fun PlayerOverlayButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    Button(
+    MoviesButton(
         onClick = onClick,
+        modifier = modifier,
+        style = if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary,
         enabled = enabled,
-        modifier = modifier
-            .onFocusChanged { isFocused = it.isFocused }
-            .playerFocusLift(isFocused),
-        colors = PlayerControlStyle.pillButtonColors(isFocused, primary),
-        shape = PlayerControlStyle.capsuleShape,
         contentPadding = PaddingValues(
             horizontal = MoviesTheme.spacing.lg,
             vertical = 14.dp
-        ),
-        scale = PlayerControlStyle.stillScale
+        )
     ) {
         Text(
             text = text,
@@ -4357,7 +4324,7 @@ private fun SpeedSelectionDialog(
             modifier = Modifier
                 .playerControlsBrightness(brightness)
                 .width(300.dp)
-                .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(MoviesTheme.radii.xxl)))
+                .clip(PlayerSurfaceStyle.cardShape())
                 .background(MoviesTheme.colors.BackgroundElevated)
         ) {
             Column(
@@ -4400,7 +4367,7 @@ private fun MoreActionsDialog(
         Box(
             modifier = Modifier
                 .width(360.dp)
-                .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(MoviesTheme.radii.xl)))
+                .clip(PlayerSurfaceStyle.cardShape())
                 .background(MoviesTheme.colors.BackgroundElevated)
         ) {
             Column(
@@ -4436,20 +4403,13 @@ private fun MoreActionItem(
     text: String,
     onClick: () -> Unit
 ) {
-    Card(
+    MoviesCard(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusSpringScale(),
-        colors = PlayerListItemStyle.colors(resting = MoviesTheme.colors.BackgroundCard),
-        shape = PlayerListItemStyle.shape,
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = PlayerListItemStyle.labelColor(),
             modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
         )
     }
@@ -4462,18 +4422,11 @@ private fun SpeedItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    Card(
+    MoviesCard(
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .onFocusChanged { isFocused = it.isFocused }
-            .playerFocusLift(isFocused, PlayerListItemStyle.FOCUS_SCALE),
-        colors = PlayerPillStyle.colors(isFocused, isSelected),
-        shape = PlayerPillStyle.shape(isFocused),
-        scale = PlayerListItemStyle.stillScale,
-        border = PlayerListItemStyle.noBorder()
+        modifier = modifier.fillMaxWidth(),
+        selected = isSelected,
+        shape = M3eShapes.capsule
     ) {
         Row(
             modifier = Modifier
@@ -4484,15 +4437,13 @@ private fun SpeedItem(
         ) {
             Text(
                 text = if (speed == 1f) stringResource(R.string.player_speed_normal) else "${speed}x",
-                style = MaterialTheme.typography.bodyLarge,
-                color = ExpressiveFocus.contentColor(isFocused, isSelected, MoviesTheme.colors.TextPrimary)
+                style = MaterialTheme.typography.bodyLarge
             )
 
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = stringResource(R.string.cd_selected),
-                    tint = if (isFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Secondary,
                     modifier = Modifier.size(MoviesTheme.spacing.xl)
                 )
             }
@@ -4508,17 +4459,11 @@ internal fun DialogButton(
     enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    Button(
+    MoviesButton(
         onClick = onClick,
-        enabled = enabled,
-        modifier = modifier
-            .onFocusChanged { isFocused = it.isFocused }
-            .playerFocusLift(isFocused),
-        colors = PlayerControlStyle.pillButtonColors(isFocused, isPrimary),
-        shape = PlayerControlStyle.capsuleShape,
-        scale = ButtonDefaults.scale(focusedScale = 1f)
+        modifier = modifier,
+        style = if (isPrimary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary,
+        enabled = enabled
     ) {
         Text(
             text = text,
@@ -4595,7 +4540,7 @@ private fun PlayerBufferingIndicator(
                     Spacer(
                         modifier = Modifier
                             .width(200.dp)
-                            .height(PlayerSurfaceStyle.progressThickness(upstream = 3.dp))
+                            .height(PlayerSurfaceStyle.progressThickness(3.dp))
                             .playerLinearProgress(progress = { torrentBufferingProgress })
                     )
                 }

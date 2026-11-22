@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalTvMaterial3Api::class)
+@file:Suppress("UNUSED_PARAMETER")
 
 package com.kien.movies.ui.screens.settings
 
@@ -13,66 +14,51 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ButtonScale
 import androidx.tv.material3.ButtonShape
 import androidx.tv.material3.CardColors
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressivePrimaryButtonColors
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.moviesButtonColors
+import com.kien.movies.ui.components.expressive.moviesButtonShape
+import com.kien.movies.ui.components.expressive.moviesCardColors
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveRadii
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
 
-// Settings rows span the panel, so they grow less than a chip or a tab does.
-private const val SETTINGS_ROW_FOCUS_SCALE = 1.02f
-private const val EXPRESSIVE_ROW_FOCUS_SCALE = 1.03f
-private const val OPTION_FOCUS_SCALE = 1.02f
 private const val OPTION_SUPPORTING_ALPHA = 0.72f
 
 internal const val SETTINGS_SECONDARY_TEXT_ALPHA = 0.64f
 internal const val SETTINGS_TERTIARY_TEXT_ALPHA = 0.40f
 
-/** A resting settings row on the box build: white at 8%, so the list reads as tvOS tiles. */
-internal val SettingsRowRestFill: Color = Color.White.copy(alpha = 0.08f)
+/** A resting settings row: the kit's frosted fill, so the list reads as tvOS tiles. */
+internal val SettingsRowRestFill: Color = ExpressiveColors.frosted
 
-private val ExpressiveRowShape = RoundedCornerShape(ExpressiveRadii.forBuild.md)
-private val CapsuleShape = RoundedCornerShape(percent = ExpressiveFocus.PILL_PERCENT)
+private val RowCornerShape = RoundedCornerShape(ExpressiveRadii.forBuild.md)
 
 internal val SettingsStillButtonScale: ButtonScale =
     ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
 
 @Composable
-internal fun Modifier.settingsRowFocusScale(focused: Boolean): Modifier = expressiveFocusScale(
-    focused,
-    if (isExpressiveBuild) EXPRESSIVE_ROW_FOCUS_SCALE else SETTINGS_ROW_FOCUS_SCALE
-)
+internal fun Modifier.settingsRowFocusScale(focused: Boolean): Modifier =
+    expressiveFocusScale(focused, ExpressiveFocus.CONTROL_SCALE)
 
 @Composable
 @ReadOnlyComposable
-internal fun settingsRowCornerShape(): RoundedCornerShape =
-    if (isExpressiveBuild) ExpressiveRowShape else RoundedCornerShape(MoviesTheme.radii.xl)
+internal fun settingsRowCornerShape(): RoundedCornerShape = RowCornerShape
 
 /**
- * A settings row on the box build, in the tvOS Settings manner: frosted at rest with white
- * content, solid white with black content on focus. Text and icons inside read the content colour
- * through [settingsRowText], so they turn black with the fill.
+ * A settings row in the tvOS Settings manner: frosted at rest with white content, solid white
+ * with black content on focus. Text and icons inside read the content colour through
+ * [settingsRowText], so they turn black with the fill.
  */
 @Composable
-internal fun expressiveSettingsRowColors(): CardColors = CardDefaults.colors(
-    containerColor = SettingsRowRestFill,
-    contentColor = ExpressiveColors.textPrimary,
-    focusedContainerColor = ExpressiveColors.focus,
-    focusedContentColor = ExpressiveColors.onFocus,
-    pressedContainerColor = ExpressiveColors.secondaryPressed,
-    pressedContentColor = ExpressiveColors.onFocus
-)
+internal fun expressiveSettingsRowColors(): CardColors = moviesCardColors()
 
 /**
- * The colour of text or an icon in a settings row: the row's content colour at [emphasis] on the
- * box build, so it follows the white focus fill; [upstream] elsewhere. [contentAlpha] dims a
- * disabled row on both.
+ * The colour of text or an icon in a settings row: the row's content colour at [emphasis], so it
+ * follows the white focus fill. [contentAlpha] dims a disabled row; [upstream] is not read.
  */
 @Composable
 @ReadOnlyComposable
@@ -80,101 +66,42 @@ internal fun settingsRowText(
     upstream: Color,
     contentAlpha: Float = 1f,
     emphasis: Float = 1f
-): Color = if (isExpressiveBuild) {
-    LocalContentColor.current.copy(alpha = emphasis * contentAlpha)
-} else {
-    upstream.copy(alpha = contentAlpha)
-}
+): Color = LocalContentColor.current.copy(alpha = emphasis * contentAlpha)
 
-internal fun settingsOptionScale(): Float = if (isExpressiveBuild) OPTION_FOCUS_SCALE else 1f
+internal fun settingsOptionScale(): Float = ExpressiveFocus.CONTROL_SCALE
 
 @Composable
 @ReadOnlyComposable
-internal fun settingsOptionShape(): RoundedCornerShape = RoundedCornerShape(MoviesTheme.radii.lg)
+internal fun settingsOptionShape(): RoundedCornerShape = RowCornerShape
 
-/** A picker option: tonal when chosen, accent when focused; its text follows LocalContentColor. */
+/** A picker option: brighter frosted when chosen, white on focus; its text follows LocalContentColor. */
 @Composable
-internal fun settingsOptionColors(selected: Boolean): CardColors = if (isExpressiveBuild) {
-    CardDefaults.colors(
-        containerColor = if (selected) ExpressiveColors.frostedStrong else SettingsRowRestFill,
-        contentColor = ExpressiveColors.textPrimary,
-        focusedContainerColor = ExpressiveColors.focus,
-        focusedContentColor = ExpressiveColors.onFocus,
-        pressedContainerColor = ExpressiveColors.secondaryPressed,
-        pressedContentColor = ExpressiveColors.onFocus
-    )
-} else {
-    upstreamOptionColors(selected)
-}
-
-@Composable
-private fun upstreamOptionColors(selected: Boolean): CardColors = CardDefaults.colors(
-    containerColor =
-        if (selected) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
-    contentColor = MoviesTheme.colors.TextPrimary,
-    focusedContainerColor = MoviesTheme.colors.Secondary,
-    focusedContentColor = MoviesTheme.colors.OnSecondary
-)
+internal fun settingsOptionColors(selected: Boolean): CardColors = moviesCardColors(selected = selected)
 
 @Composable
 @ReadOnlyComposable
 internal fun settingsOptionSupportingColor(): Color =
     LocalContentColor.current.copy(alpha = OPTION_SUPPORTING_ALPHA)
 
-/**
- * The primary action rests on the accent's container so focus, which fills with the accent
- * itself, still reads; the other actions rest tonal.
- */
+/** The kit's button fills: the brighter frosted capsule for the [primary] action. */
 @Composable
-internal fun settingsDialogButtonColors(primary: Boolean, focused: Boolean): ButtonColors {
-    if (isExpressiveBuild) {
-        val upstream = ButtonDefaults.colors()
-        return if (primary) {
-            expressivePrimaryButtonColors(upstream)
-        } else {
-            expressiveButtonColors(upstream)
-        }
-    }
-    val container = ExpressiveFocus.containerColor(
-        focused = focused,
-        resting =
-            if (primary) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground
-    )
-    val content = ExpressiveFocus.contentColor(
-        focused = focused,
-        resting =
-            if (primary) MoviesTheme.colors.OnSecondaryVariant else MoviesTheme.colors.TextPrimary
-    )
-    return ButtonDefaults.colors(
-        containerColor = container,
-        contentColor = content,
-        focusedContainerColor = container,
-        focusedContentColor = content,
-        pressedContainerColor = container,
-        pressedContentColor = content
-    )
-}
+internal fun settingsDialogButtonColors(primary: Boolean, focused: Boolean): ButtonColors =
+    moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
 
 @Composable
-internal fun settingsDialogButtonShape(focused: Boolean): ButtonShape =
-    if (isExpressiveBuild) {
-        ButtonDefaults.shape(CapsuleShape)
-    } else {
-        ButtonDefaults.shape(ExpressiveFocus.morphingPill(focused))
-    }
+internal fun settingsDialogButtonShape(focused: Boolean): ButtonShape = moviesButtonShape
 
-/** A capsule in every state on the box build, as tvOS draws its buttons and chips. */
-internal fun settingsCapsuleOr(upstream: Shape): Shape =
-    if (isExpressiveBuild) CapsuleShape else upstream
+/** A capsule in every state, as tvOS draws its buttons and chips. */
+internal fun settingsCapsuleOr(upstream: Shape): Shape = M3eShapes.capsule
 
 /**
- * A row's trailing value: white at 64% at rest and black at 64% on focus on the box build. A value
- * given its own colour keeps it at rest, since that colour carries meaning (an error, a state).
+ * A row's trailing value: white at 64% at rest and black at 64% on focus. A value given its own
+ * colour keeps it at rest, since that colour carries meaning (an error, a state).
  */
 @Composable
 @ReadOnlyComposable
 internal fun settingsRowValueColor(valueColor: Color, contentAlpha: Float, focused: Boolean): Color =
-    if (isExpressiveBuild && (focused || valueColor == MoviesTheme.colors.TextSecondary)) {
+    if (focused || valueColor == MoviesTheme.colors.TextSecondary) {
         settingsRowText(valueColor, contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA)
     } else {
         valueColor.copy(alpha = contentAlpha)

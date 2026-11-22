@@ -76,7 +76,7 @@ import com.kien.movies.R
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
+import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.theme.rememberMetaFloor
 import com.kien.movies.ui.util.StableList
 import com.kien.movies.ui.util.recompositionHighlighter
@@ -134,7 +134,7 @@ fun HeroCarousel(
         items.getOrNull(activeIndex)?.let { currentOnActiveItemChanged(it) }
     }
 
-    // Auto-advance when not focused — delay first advance to 20s so initial GPU load settles
+    // Auto-advance when not focused: delay first advance to 20s so initial GPU load settles
     LaunchedEffect(isFocused, items.size) {
         if (items.size <= 1) return@LaunchedEffect
         delay(AUTO_ADVANCE_INTERVAL_MS * 2) // 20s before first advance
@@ -227,12 +227,9 @@ fun HeroCarousel(
             )
         }
 
-        // Indicator dots — optimized to minimize recompositions and layout passes
-        val focusRingBrush = MoviesTheme.focusRing.brush()
+        // Indicator dots: optimized to minimize recompositions and layout passes
         val dotColorInactive = remember { Color.White.copy(alpha = 0.3f) }
-        val dotShape = remember {
-            if (isExpressiveBuild) RoundedCornerShape(percent = 50) else RoundedCornerShape(3.dp)
-        }
+        val dotShape = remember { RoundedCornerShape(percent = 50) }
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -257,8 +254,7 @@ fun HeroCarousel(
                         .size(width = dotWidth, height = dotHeight)
                         .clip(dotShape)
                         .then(
-                            if (useGradient && isExpressiveBuild) Modifier.background(Color.White)
-                            else if (useGradient) Modifier.background(focusRingBrush)
+                            if (useGradient) Modifier.background(Color.White)
                             else Modifier.background(dotColor!!)
                         )
                 )
@@ -454,7 +450,7 @@ private fun HeroCarouselSlide(
                 )
             }
 
-            if (isExpressiveBuild) HeroDetailsHint(focused = heroFocused)
+            HeroDetailsHint(focused = heroFocused)
         }
     }
 }
@@ -471,7 +467,7 @@ private fun HeroDetailsHint(focused: Boolean) {
         modifier = Modifier
             .padding(top = MoviesTheme.spacing.sm)
             .expressiveFocusScale(focused)
-            .background(container, RoundedCornerShape(percent = 50))
+            .background(container, M3eShapes.capsule)
             .padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)

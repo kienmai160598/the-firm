@@ -23,7 +23,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
@@ -34,27 +33,21 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import com.kien.movies.ui.components.FocusMarqueeText
-import com.kien.movies.ui.theme.ExpressiveFocus
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
-// The rail is narrow beside the detail pane, so it grows less than the top tab bar's tabs.
-private const val RAIL_FOCUS_SCALE = 1.04f
 private val RailIconSize = buttonIconSize(18.dp)
 
 /**
- * The Classic style's settings rail in the top tab bar's look: a focused category fills with the
- * accent, the chosen one rests tonal, and neither draws a ring. Focus and semantics match
- * [SettingsRailButton], which the screen's focus restoration relies on.
+ * The Classic style's settings rail as kit cards: a focused category fills white with black
+ * content, the chosen one rests on the brighter frosted fill, and neither draws a ring. Focus and
+ * semantics match [SettingsRailButton], which the screen's focus restoration relies on.
  */
 @Composable
 internal fun SettingsExpressiveRailButton(
@@ -71,16 +64,13 @@ internal fun SettingsExpressiveRailButton(
     var isFocused by remember { mutableStateOf(false) }
     val appliedModifier =
         if (focusRequester != null) modifier.focusRequester(focusRequester) else modifier
-    val container = ExpressiveFocus.containerColor(isFocused, isSelected && !suppressSelectedVisual)
-    val content = ExpressiveFocus.contentColor(isFocused, isSelected)
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = appliedModifier
             .padding(top = MoviesTheme.spacing.xxs, bottom = MoviesTheme.spacing.xxs)
             .fillMaxWidth()
             .heightIn(min = SettingsRailItemHeight)
-            .expressiveFocusScale(isFocused, RAIL_FOCUS_SCALE)
             .onFocusChanged { state ->
                 val nowFocused = state.isFocused
                 if (isFocused != nowFocused) {
@@ -93,11 +83,9 @@ internal fun SettingsExpressiveRailButton(
                 role = Role.Tab
                 this.selected = isSelected
             },
-        colors = CardDefaults.colors(containerColor = container, focusedContainerColor = container),
-        border = CardDefaults.border(border = Border.None, focusedBorder = Border.None),
-        shape = CardDefaults.shape(railShape(isFocused)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        selected = isSelected && !suppressSelectedVisual
     ) {
+        val content = LocalContentColor.current
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -128,11 +116,6 @@ internal fun SettingsExpressiveRailButton(
         }
     }
 }
-
-/** A tvOS Settings row on the box build: a fixed 12dp corner; the morphing pill elsewhere. */
-@Composable
-private fun railShape(focused: Boolean): Shape =
-    if (isExpressiveBuild) settingsRowCornerShape() else ExpressiveFocus.morphingPill(focused)
 
 @Composable
 private fun RailIcon(icon: ImageVector?, rawIconRes: Int?, tint: Color) {

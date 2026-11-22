@@ -5,7 +5,6 @@ package com.kien.movies.ui.screens.settings
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.annotation.RawRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -75,28 +74,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardBorder
 import androidx.tv.material3.CardColors
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.SettingsUiStyle
 import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.components.BrandWordmark
-import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.moviesCardBorder
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
+import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesComponents
 import com.kien.movies.ui.theme.MoviesRadii
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
@@ -161,44 +162,22 @@ internal fun settingsTallRowShape(): RoundedCornerShape =
     if (isFlatSettingsStyle()) settingsRowShape() else RoundedCornerShape(SettingsSecondaryCardRadius)
 
 @Composable
-internal fun settingsRowColors(): CardColors = if (isExpressiveBuild) {
-    expressiveSettingsRowColors()
-} else if (isFlatSettingsStyle()) {
-    CardDefaults.colors(
-        containerColor = Color.Transparent,
-        focusedContainerColor = settingsFocusFillColor()
-    )
-} else {
-    CardDefaults.colors(
-        containerColor = MoviesTheme.colors.Background,
-        focusedContainerColor = MoviesTheme.colors.FocusBackground
-    )
-}
+internal fun settingsRowColors(): CardColors = expressiveSettingsRowColors()
 
 @Composable
-internal fun settingsRowBorder(): CardBorder =
-    CardDefaults.border(border = Border.None, focusedBorder = Border.None)
+internal fun settingsRowBorder(): CardBorder = moviesCardBorder()
 
 internal object SettingsTestTags {
     const val ROW_ICON = "settings_row_icon"
 }
 
 @Composable
-private fun SettingsRowLeadingIcon(
-    icon: ImageVector,
-    enabled: Boolean,
-    focused: Boolean
-) {
+private fun SettingsRowLeadingIcon(icon: ImageVector, enabled: Boolean) {
     val contentAlpha = if (enabled) 1f else 0.4f
     Icon(
         imageVector = icon,
         contentDescription = null,
-        tint = if (isExpressiveBuild) {
-            settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha)
-        } else {
-            (if (focused && enabled) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary)
-                .copy(alpha = contentAlpha)
-        },
+        tint = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
         modifier = Modifier
             .size(MoviesTheme.spacing.xl)
             .testTag(SettingsTestTags.ROW_ICON)
@@ -333,25 +312,12 @@ internal fun SettingsWorkspaceSurface(
     content: @Composable BoxScope.() -> Unit
 ) {
     TenFootTypography {
-        if (isExpressiveBuild && !isFlatSettingsStyle() && classicContainer) {
+        if (!isFlatSettingsStyle() && classicContainer) {
             Box(modifier = modifier.padding(20.dp), content = content)
-        } else if (isFlatSettingsStyle() || !classicContainer) {
-            Box(
-                modifier = modifier
-                    .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
-                content = content
-            )
         } else {
             Box(
                 modifier = modifier
-                    .clip(RoundedCornerShape(SettingsContainerRadius))
-                    .background(MoviesTheme.colors.BackgroundElevated)
-                    .border(
-                        width = MoviesTheme.spacing.hairline,
-                        color = MoviesTheme.colors.Border,
-                        shape = RoundedCornerShape(SettingsContainerRadius)
-                    )
-                    .padding(20.dp),
+                    .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
                 content = content
             )
         }
@@ -378,8 +344,6 @@ internal fun SettingsRailButton(
         return
     }
     var isFocused by remember { mutableStateOf(false) }
-    val zen = isFlatSettingsStyle()
-    val railShape = if (zen) SettingsZenRowShape else RoundedCornerShape(SettingsPillRadius)
     val appliedModifier = if (focusRequester != null) {
         modifier.focusRequester(focusRequester)
     } else {
@@ -387,7 +351,7 @@ internal fun SettingsRailButton(
     }
     val showSelected = isSelected && !suppressSelectedVisual
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = appliedModifier
             .padding(top = MoviesTheme.spacing.xxs, bottom = MoviesTheme.spacing.xxs)
@@ -405,31 +369,10 @@ internal fun SettingsRailButton(
                 role = Role.Tab
                 this.selected = isSelected
             },
-        colors = CardDefaults.colors(
-            containerColor = when {
-                zen -> Color.Transparent
-                showSelected -> MoviesTheme.colors.BackgroundCard
-                else -> MoviesTheme.colors.Background
-            },
-            focusedContainerColor = if (zen) settingsFocusFillColor() else MoviesTheme.colors.BackgroundCard
-        ),
-        border = if (zen) {
-            CardDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else {
-            CardDefaults.border(
-                border = if (showSelected) Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None,
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                )
-            )
-        },
-        shape = CardDefaults.shape(railShape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        selected = showSelected
     ) {
+        val emphasis = if (isSelected || isFocused) 1f else SETTINGS_SECONDARY_TEXT_ALPHA
+        val content = LocalContentColor.current.copy(alpha = emphasis)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -439,68 +382,48 @@ internal fun SettingsRailButton(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = if (zen) 14.dp else 18.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (zen) {
-                        Box(
-                            modifier = Modifier
-                                .width(3.dp)
-                                .height(16.dp)
-                                .clip(RoundedCornerShape(SettingsPillRadius))
-                                .background(
-                                    if (showSelected) MoviesTheme.colors.Secondary else Color.Transparent
-                                )
-                        )
-                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-                    }
-                    if (rawIconRes != null) {
-                        Image(
-                            painter = rememberRawSvgPainter(rawIconRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            contentScale = ContentScale.Fit,
-                            colorFilter = ColorFilter.tint(
-                                if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
-                            )
-                        )
-                    } else if (icon != null) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-
-                    if (rawIconRes != null || icon != null) {
-                        Spacer(modifier = Modifier.width(10.dp))
-                    }
-
-                    FocusMarqueeText(
-                        text = title,
-                        focused = isFocused,
-                        modifier = Modifier.clearAndSetSemantics {},
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = if (isSelected || isFocused) FontWeight.SemiBold else FontWeight.Medium
-                        ),
-                        color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
-                    )
-                }
-
-                if (!zen) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                Box(
+                    modifier = Modifier
+                        .width(3.dp)
+                        .height(16.dp)
+                        .clip(M3eShapes.capsule)
+                        .background(if (showSelected) content else Color.Transparent)
+                )
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
+                if (rawIconRes != null) {
+                    Image(
+                        painter = rememberRawSvgPainter(rawIconRes),
                         contentDescription = null,
-                        tint = MoviesTheme.colors.TextTertiary,
+                        modifier = Modifier.size(18.dp),
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(content)
+                    )
+                } else if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = content,
                         modifier = Modifier.size(18.dp)
                     )
                 }
+
+                if (rawIconRes != null || icon != null) {
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+
+                FocusMarqueeText(
+                    text = title,
+                    focused = isFocused,
+                    modifier = Modifier.clearAndSetSemantics {},
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight =
+                            if (isSelected || isFocused) FontWeight.SemiBold else FontWeight.Medium
+                    ),
+                    color = content
+                )
             }
         }
     }
@@ -552,19 +475,11 @@ internal fun SettingsTopBarTab(
                 }
             },
         colors = CardDefaults.colors(
-            containerColor = if (showSelected) {
-                MoviesTheme.colors.FocusBackground
-            } else {
-                Color.Transparent
-            },
-            focusedContainerColor = if (glideIndicator) {
-                Color.Transparent
-            } else {
-                MoviesTheme.colors.Secondary
-            }
+            containerColor = if (showSelected) ExpressiveColors.frostedStrong else Color.Transparent,
+            focusedContainerColor = if (glideIndicator) Color.Transparent else ExpressiveColors.focus
         ),
-        border = CardDefaults.border(border = Border.None, focusedBorder = Border.None),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsPillRadius)),
+        border = moviesCardBorder(),
+        shape = CardDefaults.shape(M3eShapes.capsule),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Row(
@@ -651,11 +566,7 @@ internal fun SettingsDetailHeader(
         ) {
             Text(
                 text = title,
-                style = if (isExpressiveBuild) {
-                    MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
-                } else {
-                    MaterialTheme.typography.headlineMedium
-                },
+                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 color = MoviesTheme.colors.TextPrimary
             )
             Text(
@@ -709,37 +620,7 @@ internal fun SettingsGroupCard(
                 content()
             }
         }
-        SettingsUiStyle.CLASSIC -> if (isExpressiveBuild) {
-            SettingsExpressiveGroup(modifier, title, subtitle, content)
-        } else Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(settingsGroupShape())
-                .background(MoviesTheme.colors.BackgroundCard)
-                .border(
-                    width = MoviesTheme.spacing.hairline,
-                    color = MoviesTheme.colors.Border,
-                    shape = settingsGroupShape()
-                )
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            if (!title.isNullOrBlank()) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary
-                )
-            }
-            if (!subtitle.isNullOrBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MoviesTheme.colors.TextSecondary
-                )
-            }
-            content()
-        }
+        SettingsUiStyle.CLASSIC -> SettingsExpressiveGroup(modifier, title, subtitle, content)
     }
 }
 
@@ -759,13 +640,12 @@ internal fun SettingsToggleRow(
     val contentAlpha = if (enabled) 1f else 0.4f
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = {
             if (enabled) onToggle()
         },
         modifier = modifier
             .fillMaxWidth()
-            .settingsRowFocusScale(isFocused)
             .heightIn(min = 62.dp)
             .focusProperties { canFocus = enabled }
             .semantics {
@@ -779,11 +659,7 @@ internal fun SettingsToggleRow(
                     isFocused = nowFocused
                     if (nowFocused) onFocused()
                 }
-            },
-        colors = settingsRowColors(),
-        border = settingsRowBorder(),
-        shape = CardDefaults.shape(settingsRowShape()),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            }
     ) {
         Row(
             modifier = Modifier
@@ -807,7 +683,7 @@ internal fun SettingsToggleRow(
                         Icon(
                             imageVector = titleTrailingIcon,
                             contentDescription = null,
-                            tint = if (isExpressiveBuild && isFocused) {
+                            tint = if (isFocused) {
                                 settingsRowText(titleTrailingIconTint, contentAlpha)
                             } else {
                                 titleTrailingIconTint.copy(alpha = contentAlpha)
@@ -861,12 +737,11 @@ internal fun SettingsActionRow(
     val contentAlpha = if (enabled) 1f else 0.4f
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = { if (enabled) onClick() },
         modifier = modifier
             .padding(top = MoviesTheme.spacing.xxs, bottom = MoviesTheme.spacing.xxs)
             .fillMaxWidth()
-            .settingsRowFocusScale(isFocused)
             .focusProperties { canFocus = enabled }
             .semantics {
                 if (!enabled) disabled()
@@ -878,11 +753,7 @@ internal fun SettingsActionRow(
                     isFocused = nowFocused
                     if (nowFocused) onFocused()
                 }
-            },
-        colors = settingsRowColors(),
-        border = settingsRowBorder(),
-        shape = CardDefaults.shape(settingsRowShape()),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            }
     ) {
         Row(
             modifier = Modifier
@@ -902,7 +773,7 @@ internal fun SettingsActionRow(
                 )
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
             } else if (leadingIcon != null) {
-                SettingsRowLeadingIcon(icon = leadingIcon, enabled = enabled, focused = isFocused)
+                SettingsRowLeadingIcon(icon = leadingIcon, enabled = enabled)
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
             }
             Column(modifier = Modifier.weight(1f)) {
@@ -920,7 +791,7 @@ internal fun SettingsActionRow(
                         Icon(
                             imageVector = titleTrailingIcon,
                             contentDescription = null,
-                            tint = if (isExpressiveBuild && isFocused) {
+                            tint = if (isFocused) {
                                 settingsRowText(titleTrailingIconTint, contentAlpha)
                             } else {
                                 titleTrailingIconTint.copy(alpha = contentAlpha)
@@ -1014,7 +885,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                     key = { index, option -> "$index-${option.value}" }
                 ) { index, option ->
                     val isSelected = option.value == selectedValue
-                    Card(
+                    MoviesCard(
                         onClick = { onOptionSelected(option.value) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1023,10 +894,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                                 role = Role.RadioButton
                                 this.selected = isSelected
                             },
-                        colors = settingsOptionColors(isSelected),
-                        border = settingsRowBorder(),
-                        shape = CardDefaults.shape(settingsOptionShape()),
-                        scale = CardDefaults.scale(focusedScale = settingsOptionScale())
+                        selected = isSelected
                     ) {
                         Row(
                             modifier = Modifier
@@ -1123,7 +991,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                         key = { index, option -> "$index-${option.value}" }
                     ) { index, option ->
                         val isSelected = selected.contains(option.value)
-                        Card(
+                        MoviesCard(
                             onClick = {
                                 if (isSelected) {
                                     selected.remove(option.value)
@@ -1138,10 +1006,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                                     role = Role.Checkbox
                                     toggleableState = if (isSelected) ToggleableState.On else ToggleableState.Off
                                 },
-                            colors = settingsOptionColors(isSelected),
-                            border = settingsRowBorder(),
-                            shape = CardDefaults.shape(settingsOptionShape()),
-                            scale = CardDefaults.scale(focusedScale = settingsOptionScale())
+                            selected = isSelected
                         ) {
                             Row(
                                 modifier = Modifier
@@ -1213,17 +1078,11 @@ internal fun SettingsDialogActionButton(
     enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    Button(
+    MoviesButton(
         onClick = onClick,
-        enabled = enabled,
-        modifier = modifier
-            .tvControlHeight()
-            .onFocusChanged { isFocused = it.isFocused }
-            .expressiveFocusScale(isFocused),
-        colors = settingsDialogButtonColors(primary, isFocused),
-        shape = settingsDialogButtonShape(isFocused),
-        scale = SettingsStillButtonScale
+        modifier = modifier,
+        style = if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary,
+        enabled = enabled
     ) {
         Text(
             text = text,
@@ -1242,78 +1101,7 @@ internal fun SettingsChoiceChip(
     onFocused: () -> Unit = {},
     multiSelect: Boolean = false
 ) {
-    if (!isFlatSettingsStyle()) {
-        SettingsExpressiveChoiceChip(label, selected, onClick, modifier, onFocused, multiSelect)
-        return
-    }
-    var isFocused by remember { mutableStateOf(false) }
-    val zen = isFlatSettingsStyle()
-
-    Card(
-        onClick = onClick,
-        modifier = modifier.onFocusChanged { state ->
-            val nowFocused = state.isFocused
-            if (isFocused != nowFocused) {
-                isFocused = nowFocused
-                if (nowFocused) onFocused()
-            }
-        }.semantics {
-            if (multiSelect) {
-                role = Role.Checkbox
-                toggleableState = if (selected) ToggleableState.On else ToggleableState.Off
-            } else {
-                role = Role.RadioButton
-                this.selected = selected
-            }
-        },
-        colors = CardDefaults.colors(
-            containerColor = when {
-                zen && selected -> MoviesTheme.colors.Secondary.copy(alpha = 0.18f)
-                zen -> Color.Transparent
-                selected -> MoviesTheme.colors.FocusRing.copy(alpha = 0.2f)
-                else -> MoviesTheme.colors.Background
-            },
-            focusedContainerColor = when {
-                zen -> settingsFocusFillColor()
-                selected -> MoviesTheme.colors.FocusRing.copy(alpha = 0.2f)
-                else -> MoviesTheme.colors.Background
-            }
-        ),
-        border = if (zen) {
-            CardDefaults.border(
-                border = if (selected) Border(
-                    border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Secondary.copy(alpha = 0.6f)),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None,
-                focusedBorder = if (selected) Border(
-                    border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Secondary.copy(alpha = 0.6f)),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None
-            )
-        } else {
-            CardDefaults.border(
-                border = if (selected) Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None,
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                )
-            )
-        },
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsPillRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium.copy(
-                textDirection = label.contentTextDirection()
-            ),
-            color = if (selected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
-            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 10.dp)
-        )
-    }
+    SettingsExpressiveChoiceChip(label, selected, onClick, modifier, onFocused, multiSelect)
 }
 
 @Composable
@@ -1322,36 +1110,5 @@ internal fun SettingsTogglePill(
     enabled: Boolean,
     focused: Boolean = false
 ) {
-    if (isExpressiveBuild || !isFlatSettingsStyle()) {
-        SettingsExpressiveSwitch(checked, enabled, focused)
-        return
-    }
-    val alpha = if (enabled) 1f else 0.35f
-    val zen = isFlatSettingsStyle()
-    val trackColor = when {
-        zen && checked -> MoviesTheme.colors.Secondary.copy(alpha = 0.9f * alpha)
-        checked -> MoviesTheme.colors.Secondary.copy(alpha = 0.35f * alpha)
-        else -> MoviesTheme.colors.Border.copy(alpha = alpha)
-    }
-    val knobColor = if (zen && checked) {
-        MoviesTheme.colors.OnSecondary.copy(alpha = alpha)
-    } else {
-        Color.White.copy(alpha = alpha)
-    }
-    Box(
-        modifier = Modifier
-            .width(46.dp)
-            .height(MoviesTheme.spacing.xl)
-            .clip(RoundedCornerShape(SettingsPillRadius))
-            .background(trackColor)
-            .padding(MoviesTheme.spacing.xxs),
-        contentAlignment = if (checked) Alignment.CenterEnd else Alignment.CenterStart
-    ) {
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .clip(CircleShape)
-                .background(knobColor)
-        )
-    }
+    SettingsExpressiveSwitch(checked, enabled, focused)
 }

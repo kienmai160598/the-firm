@@ -1,8 +1,6 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.clickable
@@ -29,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
@@ -41,8 +38,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -276,47 +273,16 @@ private fun PauseMetadataView(
     }
 }
 
+/** A cast pill: frosted at rest, white with black text on focus. */
 @Composable
 private fun CastChip(
     member: MetaCastMember,
     onClick: () -> Unit
 ) {
-    if (isExpressiveBuild) return ExpressiveCastChip(member, onClick)
-
-    Card(
+    MoviesCard(
         onClick = onClick,
-        colors = CardDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.1f),
-            focusedContainerColor = Color.White.copy(alpha = 0.18f)
-        ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-    ) {
-        Text(
-            text = member.name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-/** A cast pill that fills with the accent and squares off a little on focus. */
-@Composable
-private fun ExpressiveCastChip(member: MetaCastMember, onClick: () -> Unit) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .heightIn(min = CastChipMinHeight)
-            .onFocusChanged { isFocused = it.isFocused }
-            .playerFocusLift(isFocused),
-        colors = PlayerPillStyle.colors(isFocused, resting = Color.White.copy(alpha = 0.1f)),
-        shape = PlayerPillStyle.shape(isFocused),
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale
+        modifier = Modifier.heightIn(min = CastChipMinHeight),
+        shape = M3eShapes.capsule
     ) {
         Box(
             modifier = Modifier
@@ -327,7 +293,6 @@ private fun ExpressiveCastChip(member: MetaCastMember, onClick: () -> Unit) {
             Text(
                 text = member.name,
                 style = MaterialTheme.typography.bodyMedium,
-                color = ExpressiveFocus.contentColor(isFocused, resting = Color.White),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

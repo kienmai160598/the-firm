@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -34,8 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -45,14 +42,10 @@ import com.kien.movies.core.server.AddonWebConfigMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
-import com.kien.movies.ui.screens.settings.expressiveCardShape
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressiveControl
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.theme.isExpressiveBuild
-import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.theme.bodyFloor
 import androidx.compose.ui.unit.Dp
 
@@ -112,7 +105,7 @@ private fun EssentialAddonSetupBody(
                         .weight(1f)
                         .height(setupCardHeight()),
                     colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
-                    shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                    shape = M3eShapes.panel
                 ) {
                     Column(
                         modifier = Modifier.padding(22.dp),
@@ -162,21 +155,13 @@ private fun EssentialAddonSetupBody(
                                 }
                             }
                         )
-                        Button(
+                        MoviesButton(
                             onClick = {
                                 viewModel.installAddon()
                                 keyboardController?.hide()
                             },
                             enabled = !uiState.isInstalling,
-                            modifier = Modifier.tvControlHeight(),
-                            colors = ButtonDefaults.colors(
-                                containerColor = MoviesTheme.colors.Secondary,
-                                contentColor = MoviesTheme.colors.OnSecondary,
-                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant
-                            ).expressiveControl(primary = true),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                            border = ButtonDefaults.border().expressiveRingless(),
-                            scale = ButtonDefaults.scale().expressiveControlGrow()
+                            style = MoviesButtonStyle.Primary
                         ) {
                             Text(
                                 text = if (uiState.isInstalling) {
@@ -200,7 +185,7 @@ private fun EssentialAddonSetupBody(
                         .weight(1f)
                         .height(setupCardHeight()),
                     colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
-                    shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                    shape = M3eShapes.panel
                 ) {
                     Column(
                         modifier = Modifier.padding(22.dp),
@@ -221,18 +206,8 @@ private fun EssentialAddonSetupBody(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MoviesTheme.colors.TextSecondary
                         )
-                        Button(
-                            onClick = { viewModel.startQrMode(AddonWebConfigMode.ADDONS_ONLY) },
-                            modifier = Modifier.tvControlHeight(),
-                            colors = ButtonDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundElevated,
-                                contentColor = MoviesTheme.colors.TextPrimary,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                                focusedContentColor = MoviesTheme.colors.Primary
-                            ).expressiveControl(),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                            border = ButtonDefaults.border().expressiveRingless(),
-                            scale = ButtonDefaults.scale().expressiveControlGrow()
+                        MoviesButton(
+                            onClick = { viewModel.startQrMode(AddonWebConfigMode.ADDONS_ONLY) }
                         ) {
                             Icon(imageVector = Icons.Default.QrCode2, contentDescription = null)
                             Text(text = stringResource(R.string.essential_addon_show_qr))
@@ -241,19 +216,7 @@ private fun EssentialAddonSetupBody(
                 }
             }
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
-            Button(
-                onClick = onSkip,
-                modifier = Modifier.tvControlHeight(),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                    focusedContentColor = MoviesTheme.colors.Primary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
-            ) {
+            MoviesButton(onClick = onSkip) {
                 Text(
                     text = stringResource(R.string.essential_addon_continue_for_now),
                     modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)
@@ -288,10 +251,7 @@ private fun EssentialAddonSetupBody(
     }
 }
 
-private val UpstreamSetupCardHeight = 220.dp
-
-// Room for the 10-foot type and 48dp buttons, which outgrow upstream's 220dp.
+// Room for the 10-foot type and 48dp buttons, which outgrow the old 220dp.
 private val TenFootSetupCardHeight = 256.dp
 
-private fun setupCardHeight(): Dp =
-    if (isExpressiveBuild) TenFootSetupCardHeight else UpstreamSetupCardHeight
+private fun setupCardHeight(): Dp = TenFootSetupCardHeight

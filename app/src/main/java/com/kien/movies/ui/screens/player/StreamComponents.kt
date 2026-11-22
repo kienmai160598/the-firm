@@ -47,7 +47,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.Key
-import androidx.tv.material3.Card
+import com.kien.movies.ui.components.expressive.MoviesCard
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -107,7 +107,7 @@ internal fun StreamItem(
         }
     }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -115,17 +115,13 @@ internal fun StreamItem(
             .onFocusChanged {
                 onFocusChanged?.invoke(it.isFocused)
             }
-            .focusSpringScale()
             .then(if (onUpKey != null) Modifier.onKeyEvent { event ->
                 if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN &&
                     event.key == Key.DirectionUp) {
                     onUpKey(); true
                 } else false
             } else Modifier),
-        colors = PlayerListItemStyle.colors(isCurrentStream),
-        shape = PlayerListItemStyle.shape,
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale
+        selected = isCurrentStream
     ) {
         Row(
             modifier = Modifier

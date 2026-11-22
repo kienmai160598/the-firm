@@ -33,11 +33,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -46,6 +41,9 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.AppIconOption
 import com.kien.movies.launcher.AppIconSettingsState
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
@@ -132,30 +130,19 @@ internal fun AppIconChangeConfirmationDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
-                modifier = Modifier.tvControlHeight().weight(1f),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                modifier = Modifier.tvControlHeight().weight(1f)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = onConfirm,
                 modifier = Modifier
                     .tvControlHeight()
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(stringResource(android.R.string.ok))
             }
@@ -171,8 +158,7 @@ private fun AppIconOptionCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(12.dp)
-    Card(
+    MoviesCard(
         onClick = { if (enabled) onClick() },
         modifier = modifier
             .alpha(if (enabled) 1f else 0.55f)
@@ -180,26 +166,7 @@ private fun AppIconOptionCard(
                 role = Role.RadioButton
                 this.selected = selected
             },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            border = if (selected) {
-                Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                    shape = shape
-                )
-            } else {
-                Border.None
-            },
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = shape
-            )
-        ).expressiveSelection(selected),
-        shape = CardDefaults.shape(shape).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+        selected = selected
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Image(
@@ -230,7 +197,6 @@ private fun AppIconOptionCard(
                     text = option.localizedName(),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -239,7 +205,6 @@ private fun AppIconOptionCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = MoviesTheme.colors.Primary,
                         modifier = Modifier.size(18.dp)
                     )
                 }

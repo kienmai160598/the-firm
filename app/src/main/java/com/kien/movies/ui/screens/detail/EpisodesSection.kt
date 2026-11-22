@@ -2,7 +2,6 @@ package com.kien.movies.ui.screens.detail
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.BorderStroke
 import com.kien.movies.ui.theme.MoviesPrimitives
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -31,7 +30,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
@@ -83,11 +81,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kien.movies.core.util.parseEpisodeReleaseLocalDate
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -108,9 +104,11 @@ import com.kien.movies.ui.components.LightweightCard
 import com.kien.movies.ui.components.MonochromePosterPlaceholder
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.WatchedMarker
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.components.LocalCardDepthStyle
@@ -135,6 +133,7 @@ private const val SEASON_POSTER_ASPECT = 2f / 3f
 private val SEASON_TAB_POSTER_HEIGHT = 150.dp
 private val SEASON_TAB_POSTER_CORNER_RADIUS = 6.dp
 private val SEASON_TAB_BOX_VERTICAL_PADDING = 12.dp
+private const val UNSELECTED_TAB_TEXT_ALPHA = 0.64f
 
 @Immutable
 data class SeasonPosterTabsStyle(
@@ -318,27 +317,8 @@ private fun SeasonTab(
     onFocused: (Int, Boolean) -> Unit
 ) {
     val tabShape = remember(isPosterMode) {
-        if (isPosterMode) RoundedCornerShape(SEASON_TAB_POSTER_CORNER_RADIUS) else CircleShape
+        if (isPosterMode) RoundedCornerShape(SEASON_TAB_POSTER_CORNER_RADIUS) else M3eShapes.capsule
     }
-    val tabBorder = if (!isPosterMode || isExpressiveBuild) {
-        noFocusRingCardBorder()
-    } else CardDefaults.border(
-        focusedBorder = Border(
-            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-            shape = tabShape
-        )
-    )
-    val selectedPosterTabBorder = if (isExpressiveBuild) noFocusRingCardBorder() else CardDefaults.border(
-        border = Border(
-            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.TextPrimary.copy(alpha = 0.25f)),
-            shape = tabShape
-        ),
-        focusedBorder = Border(
-            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-            shape = tabShape
-        )
-    )
-    val tabScale = CardDefaults.scale(focusedScale = 1.0f)
     val textSecondary = MoviesTheme.extendedColors.textSecondary
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
@@ -347,7 +327,7 @@ private fun SeasonTab(
     val isHighlighted = isFocused || (isSelected && !rowHasFocus)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Card(
+        MoviesCard(
             onClick = {
                 if (longPressTriggered) {
                     longPressTriggered = false
@@ -355,8 +335,9 @@ private fun SeasonTab(
                     onClick(season)
                 }
             },
+            selected = isSelected,
+            shape = tabShape,
             modifier = Modifier
-                .expressiveFocusScale(isFocused)
                 .focusRequester(focusRequester)
                 .focusProperties {
                     canFocus = isFocusEnabled
@@ -407,11 +388,7 @@ private fun SeasonTab(
                 .semantics {
                     role = Role.Tab
                     selected = isSelected
-                },
-            shape = CardDefaults.shape(shape = tabShape),
-            colors = seasonTabColors(isSelected),
-            border = if (isPosterMode && isSelected && !rowHasFocus) selectedPosterTabBorder else tabBorder,
-            scale = tabScale
+                }
         ) {
             if (isPosterMode) {
                 SeasonPosterImage(posterUrl = posterUrl, shape = tabShape)
@@ -419,7 +396,11 @@ private fun SeasonTab(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.titleMedium,
-                    color = textTabContentColor(isFocused, isSelected),
+                    color = if (isFocused || isSelected) {
+                        LocalContentColor.current
+                    } else {
+                        LocalContentColor.current.copy(alpha = UNSELECTED_TAB_TEXT_ALPHA)
+                    },
                     modifier = Modifier.padding(
                         vertical = 10.dp.atLeastOnBox(SEASON_TAB_BOX_VERTICAL_PADDING),
                         horizontal = 20.dp
@@ -931,7 +912,7 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val progressFillColor = forBuild(MoviesTheme.colors.Secondary, ExpressiveColors.accentRed)
+    val progressFillColor = ExpressiveColors.accentRed
     val textPrimary = MoviesTheme.colors.TextPrimary
     val focusRingBorder = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs)
 
@@ -1271,12 +1252,12 @@ fun SeasonOptionsDialog(
         title = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
         subtitle = stringResource(R.string.episodes_season_actions)
     ) {
-        Button(
+        MoviesButton(
             onClick = if (isFullyWatched) onMarkSeasonUnwatched else onMarkSeasonWatched,
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(primaryFocusRequester),
-            colors = tonalButtonColors(),
+            style = MoviesButtonStyle.Primary,
             contentPadding = tvButtonPadding()
         ) {
             Text(
@@ -1290,10 +1271,10 @@ fun SeasonOptionsDialog(
         }
 
         if (hasPreviousSeasons && season > 0) {
-            Button(
+            MoviesButton(
                 onClick = onMarkPreviousSeasonsWatched,
-                colors = tonalButtonColors(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = tvButtonPadding()
             ) {
                 Text(
                     text = stringResource(R.string.episodes_mark_previous_seasons_watched),

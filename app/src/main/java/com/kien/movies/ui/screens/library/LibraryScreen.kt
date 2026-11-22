@@ -1,7 +1,6 @@
 package com.kien.movies.ui.screens.library
 
 import android.view.KeyEvent as AndroidKeyEvent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +24,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -77,16 +75,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.core.cloud.CloudLibraryFile
 import com.kien.movies.core.cloud.CloudLibraryItem
@@ -101,12 +93,7 @@ import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
-import com.kien.movies.ui.screens.detail.forBuild
-import com.kien.movies.ui.screens.detail.noRingCardBorder
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.screens.detail.selectableButtonColors
-import com.kien.movies.ui.screens.detail.tonalButtonColors
-import com.kien.movies.ui.screens.detail.tonalCardColors
 import com.kien.movies.ui.screens.detail.tvButtonPadding
 import com.kien.movies.ui.screens.home.HeroBackdropState
 import com.kien.movies.ui.screens.stream.PlayerChoiceDialog
@@ -116,7 +103,11 @@ import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.domain.model.localizedTitle
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.components.destructiveButtonColors
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.util.localizedContentType
@@ -128,6 +119,8 @@ import androidx.compose.ui.text.TextStyle
 import com.kien.movies.R
 
 private const val KEY_REPEAT_THROTTLE_MS = 80L
+private const val SECONDARY_CONTENT_ALPHA = 0.64f
+private const val TERTIARY_CONTENT_ALPHA = 0.4f
 
 private enum class LibraryViewMode {
     Saved,
@@ -136,8 +129,6 @@ private enum class LibraryViewMode {
 }
 
 
-private val LibraryToastShape = forBuild(RoundedCornerShape(10.dp), LibraryContainerShape)
-private val CloudFileShape = forBuild(RoundedCornerShape(10.dp), LibraryContainerShape)
 
 @Composable
 private fun localizedTypeLabel(key: String): String = when (key.lowercase()) {
@@ -394,10 +385,9 @@ fun LibraryScreen(
                 // Refresh belongs to the cloud view only, pinned right in line with the tabs.
                 trailing = if (viewMode == LibraryViewMode.Cloud) {
                     {
-                        Button(
+                        MoviesButton(
                             onClick = viewModel::refreshCloudLibrary,
                             enabled = !uiState.cloudLibrary.isRefreshing,
-                            colors = tonalButtonColors(),
                             contentPadding = tvButtonPadding()
                         ) {
                             Text(
@@ -727,7 +717,7 @@ fun LibraryScreen(
                 color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier
                     .padding(top = libraryTopPadding())
-                    .background(MoviesTheme.colors.BackgroundElevated, LibraryToastShape)
+                    .background(MoviesTheme.colors.BackgroundElevated, M3eShapes.card)
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             )
         }
@@ -762,7 +752,7 @@ private fun LibraryViewModeRow(
         Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             modes.forEach { mode ->
                 val selected = mode == selectedMode
-                Button(
+                MoviesButton(
                     onClick = { onSelected(mode) },
                     modifier = Modifier
                         .then(if (selected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
@@ -770,11 +760,7 @@ private fun LibraryViewModeRow(
                             role = Role.Tab
                             this.selected = selected
                         },
-                    colors = selectableButtonColors(
-                        selected = selected,
-                        upstreamSelected = MoviesTheme.colors.FocusBackground,
-                        upstreamSelectedContent = MoviesTheme.colors.TextPrimary
-                    ),
+                    style = selectedButtonStyle(selected),
                     contentPadding = tvButtonPadding()
                 ) {
                     Text(
@@ -886,15 +872,12 @@ private fun CloudLibrarySearchRow(
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        Surface(
+        MoviesSurface(
             onClick = { editing = true },
             modifier = Modifier
                 .weight(1f)
                 .focusRequester(fieldFocusRequester),
-            colors = librarySearchFieldColors(),
-            border = librarySearchFieldBorder(),
-            shape = ClickableSurfaceDefaults.shape(librarySearchFieldShape()),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+            scale = 1f
         ) {
             BasicTextField(
                 value = query,
@@ -936,7 +919,7 @@ private fun CloudLibrarySearchRow(
                     }
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = LocalContentColor.current,
                                             textDirection = TextDirection.Content
                 ),
                 cursorBrush = SolidColor(
@@ -947,7 +930,7 @@ private fun CloudLibrarySearchRow(
                         Text(
                             text = stringResource(R.string.cloud_library_search_label),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MoviesTheme.colors.TextTertiary
+                            color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                         )
                     }
                     innerTextField()
@@ -956,12 +939,11 @@ private fun CloudLibrarySearchRow(
         }
 
         if (query.isNotEmpty()) {
-            Button(
+            MoviesButton(
                 onClick = {
                     onQueryChange("")
                     editing = false
                 },
-                colors = tonalButtonColors(),
                 contentPadding = tvButtonPadding()
             ) {
                 Text(
@@ -1000,18 +982,9 @@ private fun CloudLibraryCard(
     onClick: () -> Unit
 ) {
     val fileLine = cloudLibraryFileLine(item)
-    Card(
+    MoviesCard(
         onClick = { if (!isResolving) onClick() },
-        modifier = Modifier.fillMaxWidth(),
-        shape = CardDefaults.shape(LibraryContainerShape),
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs), shape = LibraryContainerShape)
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -1022,14 +995,13 @@ private fun CloudLibraryCard(
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.titleSmall,
-                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold
             )
             fileLine?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MoviesTheme.colors.TextSecondary
+                    color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                 )
             }
             Row(
@@ -1041,7 +1013,7 @@ private fun CloudLibraryCard(
                     modifier = Modifier.weight(1f),
                     text = cloudLibraryMetadata(item),
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = MoviesTheme.colors.TextTertiary
+                    color = LocalContentColor.current.copy(alpha = TERTIARY_CONTENT_ALPHA)
                 )
                 Text(
                     text = if (isResolving) {
@@ -1051,7 +1023,11 @@ private fun CloudLibraryCard(
                     },
                     style = MaterialTheme.typography.labelMedium
                         .atLeastOnBox(TvSizeFloors.metaText),
-                    color = if (item.playableFiles.isEmpty()) MoviesTheme.colors.TextTertiary else MoviesTheme.colors.Primary
+                    color = if (item.playableFiles.isEmpty()) {
+                        LocalContentColor.current.copy(alpha = TERTIARY_CONTENT_ALPHA)
+                    } else {
+                        LocalContentColor.current
+                    }
                 )
             }
         }
@@ -1120,13 +1096,9 @@ private fun CloudFilePickerDialog(
         ) {
             items(item.playableFiles, key = { it.stableKey }) { file ->
                 val resolving = resolvingFileKey == "${item.stableKey}:${file.stableKey}"
-                Card(
+                MoviesCard(
                     onClick = { if (!resolving) onPlay(file) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = tonalCardColors(resting = MoviesTheme.colors.BackgroundCard),
-                    border = forBuild(CardDefaults.border(), noRingCardBorder()),
-                    shape = CardDefaults.shape(CloudFileShape),
-                    scale = CardDefaults.scale(focusedScale = 1f)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -1137,7 +1109,6 @@ private fun CloudFilePickerDialog(
                         Text(
                             text = file.name,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MoviesTheme.colors.TextPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
                         formatCloudSize(file.sizeBytes)?.let { size ->
@@ -1145,14 +1116,13 @@ private fun CloudFilePickerDialog(
                                 text = size,
                                 style = MaterialTheme.typography.bodySmall
                                     .atLeastOnBox(TvSizeFloors.metaText),
-                                color = MoviesTheme.colors.TextSecondary
+                                color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                             )
                         }
                         Text(
                             text = stringResource(R.string.cloud_library_play_file),
                             style = MaterialTheme.typography.labelMedium
-                                .atLeastOnBox(TvSizeFloors.metaText),
-                            color = MoviesTheme.colors.Primary
+                                .atLeastOnBox(TvSizeFloors.metaText)
                         )
                     }
                 }
@@ -1370,7 +1340,7 @@ private fun LibraryDropdownPicker(
     }
 
     Box(modifier = modifier) {
-        Card(
+        MoviesCard(
             onClick = { onExpandedChange(!expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -1383,14 +1353,6 @@ private fun LibraryDropdownPicker(
                 )
                 .onSizeChanged { anchorSize = it }
                 .onFocusChanged { isFocused = it.isFocused }
-                .libraryFieldFocusScale(isFocused),
-            shape = CardDefaults.shape(shape = LibraryContainerShape),
-            colors = libraryFieldColors(isFocused),
-            border = CardDefaults.border(focusedBorder = Border.None),
-            scale = CardDefaults.scale(
-                focusedScale = 1.0f,
-                pressedScale = 1.0f
-            )
         ) {
             Column(
                 modifier = Modifier
@@ -1401,7 +1363,7 @@ private fun LibraryDropdownPicker(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextTertiary)
+                    color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1411,14 +1373,12 @@ private fun LibraryDropdownPicker(
                     Text(
                         text = value,
                         style = MaterialTheme.typography.titleMedium,
-                        color = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                        tint = ExpressiveFocus.contentColor(isFocused)
+                        contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title)
                     )
                 }
             }
@@ -1433,7 +1393,7 @@ private fun LibraryDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = LibraryContainerShape,
+            shape = M3eShapes.card,
             containerColor = MoviesTheme.colors.Surface,
             tonalElevation = MoviesTheme.spacing.none,
             shadowElevation = MoviesTheme.spacing.sm
@@ -1458,7 +1418,7 @@ private fun LibraryDropdownPicker(
                         .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = M3eShapes.card
                         )
                         .semantics {
                             // The current option is only distinguished by a background tint,
@@ -1512,19 +1472,17 @@ private fun LibraryActionsRow(
         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         if (showManageLists) {
-            Button(
+            MoviesButton(
                 onClick = onManageLists,
                 enabled = !pending && !isSyncing,
-                colors = tonalButtonColors(),
                 contentPadding = tvButtonPadding()
             ) {
                 Text(stringResource(R.string.library_manage_lists), style = buttonLabelStyle())
             }
         }
-        Button(
+        MoviesButton(
             onClick = onRefresh,
             enabled = !pending && !isSyncing,
-            colors = tonalButtonColors(),
             contentPadding = tvButtonPadding()
         ) {
             Text(
@@ -1552,11 +1510,11 @@ private fun ConfirmDeleteDialog(
         subtitle = stringResource(R.string.library_delete_subtitle),
         width = 420.dp
     ) {
-        Button(
+        MoviesButton(
             onClick = onConfirm,
             enabled = !pending,
             modifier = Modifier.fillMaxWidth(),
-            colors = destructiveButtonColors()
+            style = MoviesButtonStyle.Destructive
         ) {
             Text(stringResource(R.string.library_list_delete))
         }

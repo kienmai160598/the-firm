@@ -1,6 +1,5 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedContent
@@ -57,6 +56,7 @@ import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -78,10 +78,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -89,6 +85,11 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.TraktCommentReview
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -131,7 +132,7 @@ fun CommentsSection(
     modifier: Modifier = Modifier,
     windowResetKey: String? = null
 ) {
-    val cardShape = RoundedCornerShape(MoviesTheme.radii.xl)
+    val cardShape = M3eShapes.card
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val firstItemFocusRequester = remember { FocusRequester() }
     val internalTitleModeFocusRequester = remember { FocusRequester() }
@@ -364,7 +365,7 @@ fun CommentsSection(
                         ),
                         color = MoviesTheme.colors.TextSecondary
                     )
-                    Button(
+                    MoviesButton(
                         onClick = onRetry,
                         modifier = Modifier
                             .focusRequester(firstItemFocusRequester)
@@ -377,7 +378,6 @@ fun CommentsSection(
                                     upFocusModifier
                                 }
                             ),
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(stringResource(R.string.action_retry), style = buttonLabelStyle())
@@ -487,8 +487,9 @@ private fun CommentModeButton(
     rightFocusRequester: FocusRequester? = null,
     onClick: () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
+        style = selectedButtonStyle(selected),
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusProperties {
@@ -510,7 +511,6 @@ private fun CommentModeButton(
                 this.selected = selected
             }
             .tvControlHeight(),
-        colors = selectableButtonColors(selected),
         contentPadding = tvButtonPadding()
     ) {
         Text(text, style = buttonLabelStyle())
@@ -521,7 +521,7 @@ private fun CommentModeButton(
 @Composable
 private fun CommentCard(
     review: TraktCommentReview,
-    shape: RoundedCornerShape,
+    shape: Shape,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -531,29 +531,13 @@ private fun CommentCard(
         review.comment
     }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .width(360.dp)
             .height(230.dp),
-        colors = forBuild(
-            upstream = CardDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                focusedContainerColor = MoviesTheme.colors.BackgroundCard
-            ),
-            expressive = tonalCardColors(resting = MoviesTheme.colors.BackgroundCard)
-        ),
-        border = forBuild(
-            upstream = CardDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = shape
-                )
-            ),
-            expressive = noRingCardBorder()
-        ),
-        shape = CardDefaults.shape(shape),
-        scale = CardDefaults.scale(focusedScale = forBuild(1.02f, ExpressiveFocus.CONTROL_SCALE))
+        focus = MoviesCardFocus.Frosted,
+        shape = shape
     ) {
         Column(
             modifier = Modifier
@@ -697,15 +681,15 @@ private fun EpisodeCommentPickerDialog(
                         } else {
                             Modifier
                         }
-                        Button(
+                        MoviesButton(
                             onClick = { onSeasonSelected(seasonNumber) },
+                            style = selectedButtonStyle(seasonNumber == season),
                             modifier = seasonModifier
                                 .semantics {
                                     role = Role.Tab
                                     selected = seasonNumber == season
                                 }
                                 .tvControlHeight(),
-                            colors = selectableButtonColors(seasonNumber == season),
                             contentPadding = tvButtonPadding()
                         ) {
                             Text(
@@ -738,14 +722,10 @@ private fun EpisodeCommentPickerDialog(
                             .focusRequester(primaryFocusRequester)
                         else -> Modifier.fillMaxWidth()
                     }
-                    Button(
+                    MoviesButton(
                         onClick = { onEpisodeSelected(episode) },
                         modifier = episodeModifier.tvControlHeight(),
-                        colors = selectableButtonColors(
-                            selected = episode.id == selectedEpisodeId,
-                            upstreamSelected = MoviesTheme.colors.FocusBackground,
-                            upstreamSelectedContent = MoviesTheme.colors.TextPrimary
-                        ),
+                        style = selectedButtonStyle(episode.id == selectedEpisodeId),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -1113,9 +1093,12 @@ private fun selectedEpisodeLabel(video: Video): String {
     return "S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')}"
 }
 
+private fun selectedButtonStyle(selected: Boolean): MoviesButtonStyle =
+    if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+
 @Composable
 private fun LoadingCommentCard(
-    shape: RoundedCornerShape,
+    shape: Shape,
     modifier: Modifier = Modifier
 ) {
     Column(

@@ -37,8 +37,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -47,6 +45,8 @@ import com.kien.movies.domain.model.LibraryListPrivacy
 import kotlinx.coroutines.delay
 import com.kien.movies.domain.model.localizedTitle
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
@@ -54,8 +54,6 @@ import com.kien.movies.R
 import com.kien.movies.core.tracking.TrackingListManagementCapabilities
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
-import com.kien.movies.ui.screens.detail.selectableButtonColors
-import com.kien.movies.ui.screens.detail.tonalButtonColors
 import com.kien.movies.ui.screens.detail.tvButtonPadding
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -106,7 +104,7 @@ internal fun ManageListsDialog(
                     Text(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = libraryErrorText()
+                        color = MoviesTheme.colors.Error
                     )
                 }
 
@@ -125,7 +123,7 @@ internal fun ManageListsDialog(
                     ) {
                         items(personalTabs, key = { it.key }) { tab ->
                             val selected = tab.key == selectedKey
-                            Button(
+                            MoviesButton(
                                 onClick = { onSelect(tab.key) },
                                 enabled = !pending,
                                 modifier = (if (tab.key == personalTabs.firstOrNull()?.key) {
@@ -138,11 +136,7 @@ internal fun ManageListsDialog(
                                     role = Role.Tab
                                     this.selected = selected
                                 },
-                                colors = selectableButtonColors(
-                                    selected = selected,
-                                    upstreamSelected = MoviesTheme.colors.FocusBackground,
-                                    upstreamSelectedContent = MoviesTheme.colors.TextPrimary
-                                ),
+                                style = selectedButtonStyle(selected),
                                 contentPadding = tvButtonPadding()
                             ) {
                                 Text(
@@ -157,11 +151,10 @@ internal fun ManageListsDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(
+                    MoviesButton(
                         onClick = onCreate,
                         modifier = if (personalTabs.isEmpty()) Modifier.focusRequester(firstFocusRequester) else Modifier,
                         enabled = !pending,
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -169,10 +162,9 @@ internal fun ManageListsDialog(
                             style = buttonLabelStyle()
                         )
                     }
-                    Button(
+                    MoviesButton(
                         onClick = onEdit,
                         enabled = !pending && selectedKey != null,
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -181,10 +173,9 @@ internal fun ManageListsDialog(
                         )
                     }
                     if (capabilities.supportsReordering) {
-                        Button(
+                        MoviesButton(
                             onClick = onMoveUp,
                             enabled = !pending && selectedKey != null,
-                            colors = tonalButtonColors(),
                             contentPadding = tvButtonPadding()
                         ) {
                             Text(
@@ -192,10 +183,9 @@ internal fun ManageListsDialog(
                                 style = buttonLabelStyle()
                             )
                         }
-                        Button(
+                        MoviesButton(
                             onClick = onMoveDown,
                             enabled = !pending && selectedKey != null,
-                            colors = tonalButtonColors(),
                             contentPadding = tvButtonPadding()
                         ) {
                             Text(
@@ -207,10 +197,10 @@ internal fun ManageListsDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(
+                    MoviesButton(
                         onClick = onDelete,
                         enabled = !pending && selectedKey != null,
-                        colors = libraryDeleteButtonColors(),
+                        style = MoviesButtonStyle.Destructive,
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -218,10 +208,9 @@ internal fun ManageListsDialog(
                             style = buttonLabelStyle()
                         )
                     }
-                    Button(
+                    MoviesButton(
                         onClick = onDismiss,
                         enabled = !pending,
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -368,7 +357,7 @@ internal fun ListEditorDialog(
         LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             items(capabilities.privacyOptions, key = { it.name }) { privacy ->
                 val selected = privacy == state.privacy
-                Button(
+                MoviesButton(
                     onClick = { onPrivacyChanged(privacy) },
                     enabled = !pending,
                     modifier = Modifier.semantics {
@@ -377,11 +366,7 @@ internal fun ListEditorDialog(
                         // instead of reading the write-only semantics property.
                         this.selected = privacy == state.privacy
                     },
-                    colors = selectableButtonColors(
-                        selected = selected,
-                        upstreamSelected = MoviesTheme.colors.FocusBackground,
-                        upstreamSelectedContent = MoviesTheme.colors.TextPrimary
-                    ),
+                    style = selectedButtonStyle(selected),
                     contentPadding = tvButtonPadding()
                 ) {
                     Text(
@@ -392,11 +377,11 @@ internal fun ListEditorDialog(
             }
         }
 
-        Button(
+        MoviesButton(
             onClick = onSave,
             enabled = !pending,
             modifier = Modifier.fillMaxWidth(),
-            colors = tonalButtonColors(),
+            style = MoviesButtonStyle.Primary,
             contentPadding = tvButtonPadding()
         ) {
             Text(
@@ -410,3 +395,6 @@ internal fun ListEditorDialog(
         }
     }
 }
+
+internal fun selectedButtonStyle(selected: Boolean): MoviesButtonStyle =
+    if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary

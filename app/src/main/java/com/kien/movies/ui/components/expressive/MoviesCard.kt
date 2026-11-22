@@ -2,11 +2,14 @@
 
 package com.kien.movies.ui.components.expressive
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardBorder
@@ -31,12 +34,24 @@ internal val moviesCardScale: CardScale = CardDefaults.scale(
     pressedScale = 1f
 )
 
-/** No ring on a text card: focus reads from its fill and lift. */
+private val SelectedOutlineWidth = 2.dp
+private const val SELECTED_OUTLINE_ALPHA = 0.72f
+
+/**
+ * No ring on focus: focus reads from the fill and lift. A [selected] card at rest keeps a thin
+ * white outline, so the chosen tile of a grid reads without focus on it.
+ */
 @Composable
-internal fun moviesCardBorder(): CardBorder = CardDefaults.border(
-    border = Border.None,
-    focusedBorder = Border.None,
-    pressedBorder = Border.None
+internal fun moviesCardBorder(selected: Boolean = false, shape: Shape = M3eShapes.card): CardBorder =
+    CardDefaults.border(
+        border = if (selected) selectedOutline(shape) else Border.None,
+        focusedBorder = Border.None,
+        pressedBorder = Border.None
+    )
+
+private fun selectedOutline(shape: Shape): Border = Border(
+    border = BorderStroke(SelectedOutlineWidth, Color.White.copy(alpha = SELECTED_OUTLINE_ALPHA)),
+    shape = shape
 )
 
 /** Frosted at rest, brighter while [selected]; [focus] picks the focused fill. */
@@ -44,14 +59,15 @@ internal fun moviesCardBorder(): CardBorder = CardDefaults.border(
 internal fun moviesCardColors(
     selected: Boolean = false,
     focus: MoviesCardFocus = MoviesCardFocus.White,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    resting: Color = ExpressiveColors.frosted
 ): CardColors {
     val white = focus == MoviesCardFocus.White && enabled
     val focusedContainer = if (white) ExpressiveColors.focus else ExpressiveColors.frostedFocused
     val restingContent = if (enabled) ExpressiveColors.textPrimary else ExpressiveColors.textTertiary
     val focusedContent = if (white) ExpressiveColors.onFocus else restingContent
     return CardDefaults.colors(
-        containerColor = if (selected) ExpressiveColors.frostedStrong else ExpressiveColors.frosted,
+        containerColor = if (selected) ExpressiveColors.frostedStrong else resting,
         contentColor = restingContent,
         focusedContainerColor = focusedContainer,
         focusedContentColor = focusedContent,
@@ -72,6 +88,8 @@ internal fun MoviesCard(
     focus: MoviesCardFocus = MoviesCardFocus.White,
     enabled: Boolean = true,
     shape: Shape = M3eShapes.card,
+    resting: Color = ExpressiveColors.frosted,
+    scale: Float = ExpressiveFocus.CONTROL_SCALE,
     onLongClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit
@@ -81,9 +99,14 @@ internal fun MoviesCard(
         onLongClick = onLongClick,
         modifier = modifier,
         shape = CardDefaults.shape(shape = shape),
-        colors = moviesCardColors(selected = selected, focus = focus, enabled = enabled),
-        scale = moviesCardScale,
-        border = moviesCardBorder(),
+        colors = moviesCardColors(
+            selected = selected,
+            focus = focus,
+            enabled = enabled,
+            resting = resting
+        ),
+        scale = CardDefaults.scale(focusedScale = scale, pressedScale = 1f),
+        border = moviesCardBorder(selected = selected, shape = shape),
         interactionSource = interactionSource,
         content = content
     )

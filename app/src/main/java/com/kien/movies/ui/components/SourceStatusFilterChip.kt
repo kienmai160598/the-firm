@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.ExpressiveFocus
+import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.util.contentTextDirection
 
@@ -78,7 +78,7 @@ fun SourceStatusFilterChip(
         leadingIcon = selectedCheckIcon(isSelected && !isError, textColor),
         colors = filterChipColors(isFocused, isSelected, isError, textColor),
         border = borderlessFilterChip(),
-        shape = FilterChipDefaults.shape(shape = ExpressiveFocus.morphingPill(isFocused)),
+        shape = FilterChipDefaults.shape(shape = M3eShapes.capsule),
         scale = SelectableChipScale.None
     ) {
         Text(

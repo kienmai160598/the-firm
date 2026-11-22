@@ -12,7 +12,6 @@ import com.kien.movies.ui.theme.MoviesTheme
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -62,13 +61,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImagePainter
@@ -83,6 +78,10 @@ import com.kien.movies.data.repository.GitHubContributor
 import com.kien.movies.data.repository.SupporterMember
 import com.kien.movies.domain.model.MemberTier
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import java.time.Instant
 import java.time.ZoneId
@@ -603,20 +602,12 @@ private fun TabErrorState(
                 color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center
             )
-            Button(
+            MoviesButton(
                 onClick = onRetry,
                 modifier = Modifier
-                    .tvControlHeight()
                     .focusRequester(retryFocusRequester)
                     .focusProperties { left = leftFocusRequester },
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(text = stringResource(R.string.action_retry))
             }
@@ -634,7 +625,7 @@ private fun SupporterCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -643,23 +634,7 @@ private fun SupporterCard(
                 left = leftFocusRequester
                 if (upFocusRequester != null) up = upFocusRequester
             }
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
-        ),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                shape = RoundedCornerShape(22.dp)
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(22.dp)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(22.dp)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f).expressiveCardGrow()
+            .onFocusChanged { isFocused = it.isFocused }
     ) {
         Row(
             modifier = Modifier
@@ -678,7 +653,7 @@ private fun SupporterCard(
                 Text(
                     text = supporter.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = LocalContentColor.current,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -686,7 +661,7 @@ private fun SupporterCard(
                 Text(
                     text = supporterTierLabel(supporter.membershipLevel),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MoviesTheme.colors.TextSecondary,
+                    color = LocalContentColor.current.copy(alpha = SETTINGS_SECONDARY_TEXT_ALPHA),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -695,7 +670,7 @@ private fun SupporterCard(
                     Text(
                         text = stringResource(R.string.supporters_since, date),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MoviesTheme.colors.TextSecondary,
+                        color = LocalContentColor.current.copy(alpha = SETTINGS_SECONDARY_TEXT_ALPHA),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -705,7 +680,9 @@ private fun SupporterCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = if (isFocused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextTertiary,
+                tint = LocalContentColor.current.copy(
+                    alpha = if (isFocused) 1f else SETTINGS_TERTIARY_TEXT_ALPHA
+                ),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -722,7 +699,7 @@ private fun SponsorCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -731,23 +708,7 @@ private fun SponsorCard(
                 left = leftFocusRequester
                 if (upFocusRequester != null) up = upFocusRequester
             }
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
-        ),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                shape = RoundedCornerShape(22.dp)
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(22.dp)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(22.dp)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f).expressiveCardGrow()
+            .onFocusChanged { isFocused = it.isFocused }
     ) {
         Row(
             modifier = Modifier
@@ -765,7 +726,7 @@ private fun SponsorCard(
                 Text(
                     text = sponsor.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = LocalContentColor.current,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -774,7 +735,9 @@ private fun SponsorCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = if (isFocused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextTertiary,
+                tint = LocalContentColor.current.copy(
+                    alpha = if (isFocused) 1f else SETTINGS_TERTIARY_TEXT_ALPHA
+                ),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -791,7 +754,7 @@ private fun ContributorCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -800,23 +763,7 @@ private fun ContributorCard(
                 left = leftFocusRequester
                 if (upFocusRequester != null) up = upFocusRequester
             }
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
-        ),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                shape = RoundedCornerShape(22.dp)
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(22.dp)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(22.dp)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f).expressiveCardGrow()
+            .onFocusChanged { isFocused = it.isFocused }
     ) {
         Row(
             modifier = Modifier
@@ -839,7 +786,7 @@ private fun ContributorCard(
                     Text(
                         text = contributor.name,
                         style = MaterialTheme.typography.titleMedium,
-                        color = MoviesTheme.colors.TextPrimary,
+                        color = LocalContentColor.current,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -852,7 +799,9 @@ private fun ContributorCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = if (isFocused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextTertiary,
+                tint = LocalContentColor.current.copy(
+                    alpha = if (isFocused) 1f else SETTINGS_TERTIARY_TEXT_ALPHA
+                ),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -950,7 +899,7 @@ private fun RowScope.SupportersTabButton(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .tvControlHeight()
@@ -972,26 +921,8 @@ private fun RowScope.SupportersTabButton(
                 isFocused = state.isFocused
                 if (state.isFocused) onClick()
             },
-        colors = CardDefaults.colors(
-            containerColor = if (selected) MoviesTheme.colors.BackgroundCard else MoviesTheme.colors.Background,
-            focusedContainerColor = MoviesTheme.colors.BackgroundCard
-        ).expressiveControl(selected = selected),
-        border = CardDefaults.border(
-            border = if (selected) {
-                Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline, alpha = 0.8f),
-                    shape = RoundedCornerShape(999.dp)
-                )
-            } else {
-                Border.None
-            },
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(999.dp)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(999.dp)).expressivePill(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveControlGrow()
+        selected = selected,
+        shape = M3eShapes.capsule
     ) {
         Box(
             modifier = Modifier
@@ -1003,13 +934,8 @@ private fun RowScope.SupportersTabButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = expressiveControlContent(
-                    focused = isFocused,
-                    upstream = when {
-                        isFocused -> MoviesTheme.colors.TextPrimary
-                        selected -> MoviesTheme.colors.TextPrimary
-                        else -> MoviesTheme.colors.TextSecondary
-                    }
+                color = LocalContentColor.current.copy(
+                    alpha = if (selected || isFocused) 1f else SETTINGS_SECONDARY_TEXT_ALPHA
                 ),
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                 maxLines = 1,
@@ -1066,38 +992,23 @@ private fun SponsorDetailsDialog(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
-            Button(
+            MoviesButton(
                 onClick = {
-                    val channelUrl = sponsor.channelUrl ?: return@Button
+                    val channelUrl = sponsor.channelUrl ?: return@MoviesButton
                     runCatching {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(channelUrl)))
                     }
                 },
                 enabled = sponsor.channelUrl != null,
-                modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.focusRequester(primaryFocusRequester),
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(text = stringResource(R.string.sponsors_open_channel))
             }
 
-            Button(
-                modifier = Modifier.tvControlHeight(),
+            MoviesButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                    contentColor = MoviesTheme.colors.TextPrimary,
-                    focusedContentColor = MoviesTheme.colors.Primary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                style = MoviesButtonStyle.Secondary
             ) {
                 Text(text = stringResource(R.string.action_close))
             }
@@ -1144,36 +1055,21 @@ private fun SupporterDetailsDialog(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
-            Button(
+            MoviesButton(
                 onClick = {
                     runCatching {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URL)))
                     }
                 },
-                modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.focusRequester(primaryFocusRequester),
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(text = stringResource(R.string.supporters_open_donations))
             }
 
-            Button(
-                modifier = Modifier.tvControlHeight(),
+            MoviesButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                    contentColor = MoviesTheme.colors.TextPrimary,
-                    focusedContentColor = MoviesTheme.colors.Primary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                style = MoviesButtonStyle.Secondary
             ) {
                 Text(text = stringResource(R.string.action_close))
             }
@@ -1256,9 +1152,9 @@ private fun ContributorDetailsDialog(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
-            Button(
+            MoviesButton(
                 onClick = {
-                    val profileUrl = contributor.profileUrl ?: return@Button
+                    val profileUrl = contributor.profileUrl ?: return@MoviesButton
                     runCatching {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse(profileUrl))
@@ -1266,31 +1162,16 @@ private fun ContributorDetailsDialog(
                     }
                 },
                 enabled = contributor.profileUrl != null,
-                modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.focusRequester(primaryFocusRequester),
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(text = stringResource(R.string.contributors_open_github))
             }
 
             supportLink?.kofiUrl?.let {
-                Button(
-                    modifier = Modifier.tvControlHeight(),
+                MoviesButton(
                     onClick = { showSupportQr = !showSupportQr },
-                    colors = ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                        contentColor = MoviesTheme.colors.TextPrimary,
-                        focusedContentColor = MoviesTheme.colors.Primary
-                    ).expressiveControl(),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                    scale = ButtonDefaults.scale().expressiveControlGrow()
+                    style = MoviesButtonStyle.Secondary
                 ) {
                     Text(
                         text = stringResource(
@@ -1304,17 +1185,9 @@ private fun ContributorDetailsDialog(
                 }
             }
 
-            Button(
-                modifier = Modifier.tvControlHeight(),
+            MoviesButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                    contentColor = MoviesTheme.colors.TextPrimary,
-                    focusedContentColor = MoviesTheme.colors.Primary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                style = MoviesButtonStyle.Secondary
             ) {
                 Text(text = stringResource(R.string.action_close))
             }

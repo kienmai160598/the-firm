@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,7 +29,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -45,10 +43,17 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import com.kien.movies.R
 import com.kien.movies.domain.model.Video
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.moviesCardBorder
+import com.kien.movies.ui.components.expressive.moviesCardScale
 
 
 // The episode label grows to the TV floor on the box, so its cell grows to keep both lines.
-private val RatingCellHeight = forBuild(upstream = 46.dp, expressive = 52.dp)
+private val RatingCellHeight = 52.dp
+
+// A 16 sp label is 20 sp tall, so 14 dp above and below makes the 48 dp TV control height.
+private val SeasonChipPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -180,8 +185,10 @@ fun EpisodeRatingsSection(
                             seasonFocusRequesters.getValue(season)
                         }
 
-                        Card(
+                        MoviesCard(
                             onClick = { selectedSeason = season },
+                            selected = isSelected,
+                            shape = M3eShapes.capsule,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
                                 .focusProperties {
@@ -197,18 +204,13 @@ fun EpisodeRatingsSection(
                                 .semantics {
                                     role = Role.Tab
                                     selected = isSelected
-                                },
-                            shape = ratingSeasonChipShape(),
-                            colors = ratingSeasonChipColors(isSelected),
-                            border = ratingSeasonChipBorder(),
-                            scale = CardDefaults.scale(focusedScale = 1f)
+                                }
                         ) {
                             Text(
                                 text = stringResource(R.string.ratings_season_label, season),
                                 style = MaterialTheme.typography.labelMedium
                                     .atLeastOnBox(TvSizeFloors.bodyText),
-                                color = ratingSeasonChipContent(),
-                                modifier = Modifier.padding(ratingSeasonChipPadding())
+                                modifier = Modifier.padding(SeasonChipPadding)
                             )
                         }
                     }
@@ -256,18 +258,13 @@ fun EpisodeRatingsSection(
                                 // empty onClick stays; clearAndSetSemantics replaces the chip's two
                                 // Texts with one name that carries both the episode and its rating.)
                                 .clearAndSetSemantics { contentDescription = ratingDescription },
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
+                            shape = CardDefaults.shape(shape = M3eShapes.card),
                             colors = CardDefaults.colors(
                                 containerColor = episodeRating.chipColor,
                                 focusedContainerColor = episodeRating.chipColor
                             ),
-                            border = CardDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(14.dp)
-                                )
-                            ),
-                            scale = CardDefaults.scale(focusedScale = 1.03f)
+                            border = moviesCardBorder(),
+                            scale = moviesCardScale
                         ) {
                             Column(
                                 modifier = Modifier

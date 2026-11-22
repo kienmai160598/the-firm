@@ -5,7 +5,6 @@ package com.kien.movies.ui.screens.settings
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.ScrollableState
@@ -21,21 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
-import com.kien.movies.ui.theme.isExpressiveBuild
+import com.kien.movies.ui.theme.ExpressiveMotion
 
-private const val INDICATOR_FADE_MS = 150
 private val IndicatorIconSize = MoviesTheme.spacing.xxl
 private val IndicatorEdgeInset = MoviesTheme.spacing.xxs
 
 /**
- * The strip a vertical chevron covers at a list's top or bottom edge. On the box build a list
- * keeps its rows out of it, so the chevron never sits on top of a row.
+ * The strip a vertical chevron covers at a list's top or bottom edge. A list keeps its rows out
+ * of it, so the chevron never sits on top of a row.
  */
-internal val SettingsVerticalIndicatorBand: Dp =
-    if (isExpressiveBuild) IndicatorIconSize + IndicatorEdgeInset else 0.dp
+internal val SettingsVerticalIndicatorBand: Dp = IndicatorIconSize + IndicatorEdgeInset
 
 @Composable
 internal fun BoxScope.SettingsVerticalScrollIndicators(
@@ -51,8 +47,8 @@ internal fun BoxScope.SettingsVerticalScrollIndicators(
         modifier = modifier
             .align(Alignment.TopCenter)
             .padding(top = IndicatorEdgeInset),
-        enter = fadeIn(animationSpec = settingsDetailFade(INDICATOR_FADE_MS)),
-        exit = fadeOut(animationSpec = settingsDetailFade(INDICATOR_FADE_MS))
+        enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
+        exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
     ) {
         Icon(
             imageVector = Icons.Default.KeyboardArrowUp,
@@ -66,8 +62,8 @@ internal fun BoxScope.SettingsVerticalScrollIndicators(
         modifier = modifier
             .align(Alignment.BottomCenter)
             .padding(bottom = IndicatorEdgeInset),
-        enter = fadeIn(animationSpec = settingsDetailFade(INDICATOR_FADE_MS)),
-        exit = fadeOut(animationSpec = settingsDetailFade(INDICATOR_FADE_MS))
+        enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
+        exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
     ) {
         Icon(
             imageVector = Icons.Default.KeyboardArrowDown,
@@ -88,8 +84,8 @@ internal fun BoxScope.SettingsHorizontalScrollIndicators(
         modifier = modifier
             .align(Alignment.CenterStart)
             .padding(start = IndicatorEdgeInset),
-        enter = fadeIn(animationSpec = settingsDetailFade(INDICATOR_FADE_MS)),
-        exit = fadeOut(animationSpec = settingsDetailFade(INDICATOR_FADE_MS))
+        enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
+        exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -103,8 +99,8 @@ internal fun BoxScope.SettingsHorizontalScrollIndicators(
         modifier = modifier
             .align(Alignment.CenterEnd)
             .padding(end = IndicatorEdgeInset),
-        enter = fadeIn(animationSpec = settingsDetailFade(INDICATOR_FADE_MS)),
-        exit = fadeOut(animationSpec = settingsDetailFade(INDICATOR_FADE_MS))
+        enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
+        exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

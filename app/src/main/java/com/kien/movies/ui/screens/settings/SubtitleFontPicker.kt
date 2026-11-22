@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.QrCode2
@@ -41,8 +40,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -50,6 +47,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.core.player.SubtitleFonts
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.addon.QrCodeOverlay
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.player.rememberSubtitleFontFamily
@@ -165,7 +163,7 @@ private fun SubtitleFontOption(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
@@ -173,12 +171,7 @@ private fun SubtitleFontOption(
                 role = Role.RadioButton
                 this.selected = selected
             },
-        colors = CardDefaults.colors(
-            containerColor = if (selected) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+        selected = selected
     ) {
         Row(
             modifier = Modifier
@@ -190,13 +183,11 @@ private fun SubtitleFontOption(
                 text = "Aa",
                 style = MaterialTheme.typography.titleLarge,
                 fontFamily = rememberSubtitleFontFamily(fontId),
-                color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier.width(52.dp)
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (selected) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -206,7 +197,6 @@ private fun SubtitleFontOption(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = MoviesTheme.colors.Primary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -222,18 +212,12 @@ private fun SubtitleFontActionCard(
     modifier: Modifier = Modifier,
     showLabel: Boolean = false
 ) {
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier.semantics {
             role = Role.Button
             contentDescription = label
-        },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+        }
     ) {
         Row(
             modifier = Modifier.padding(MoviesTheme.spacing.lg),
@@ -243,7 +227,6 @@ private fun SubtitleFontActionCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MoviesTheme.colors.TextPrimary,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -251,8 +234,7 @@ private fun SubtitleFontActionCard(
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MoviesTheme.colors.TextPrimary
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }

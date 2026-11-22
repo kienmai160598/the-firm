@@ -39,11 +39,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -51,6 +46,9 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.formatHexColor
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.LocalMoviesFocusRingStyle
 import com.kien.movies.ui.theme.MoviesTheme
@@ -191,21 +189,9 @@ internal fun CustomThemeEditor(
                     firstSwatchFocusRequester = firstSwatchFocusRequester
                 )
 
-                Card(
+                MoviesCard(
                     onClick = { restoreHexFocus = true; showHexEditor = true },
-                    modifier = Modifier.fillMaxWidth().focusRequester(hexFocusRequester),
-                    colors = CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.Background,
-                        focusedContainerColor = expressiveCardFocusFill(
-                            MoviesTheme.colors.Background
-                        )
-                    ),
-                    shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(10.dp))
-                    ).expressiveRingless(),
-                    scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-                        .expressiveCardGrow()
+                    modifier = Modifier.fillMaxWidth().focusRequester(hexFocusRequester)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
@@ -240,33 +226,23 @@ internal fun CustomThemeEditor(
                 color = MoviesTheme.colors.TextSecondary,
                 modifier = Modifier.weight(1f)
             )
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .tvControlHeight()
                     .height(36.dp)
                     .focusRequester(cancelFocusRequester)
-                    .focusProperties { up = hexFocusRequester },
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                colors = ButtonDefaults.colors().expressiveControl()
+                    .focusProperties { up = hexFocusRequester }
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = { onSave(colors) },
                 modifier = Modifier
                     .tvControlHeight()
                     .height(36.dp)
                     .focusProperties { up = hexFocusRequester },
-                colors = ButtonDefaults.colors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black,
-                    focusedContainerColor = Color.White,
-                    focusedContentColor = Color.Black
-                ).expressiveControl(primary = true),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) { Text(stringResource(R.string.custom_theme_save)) }
         }
     }
@@ -291,26 +267,15 @@ private fun ThemeColorSlot(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(12.dp)
     val label = stringResource(R.string.custom_theme_color_number, index + 1)
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier.semantics {
             role = Role.RadioButton
             this.selected = selected
             contentDescription = "$label, ${formatHexColor(color)}"
         },
-        shape = CardDefaults.shape(shape).expressiveCard(),
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        border = CardDefaults.border(
-            border = if (selected) Border(BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)), shape = shape) else Border.None,
-            focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = shape)
-        ).expressiveSelection(selected),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-            .expressiveCardGrow()
+        selected = selected
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 12.dp),
@@ -320,8 +285,7 @@ private fun ThemeColorSlot(
             Box(Modifier.size(22.dp).background(Color(color or 0xFF000000.toInt()), CircleShape))
             Text(
                 label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MoviesTheme.colors.TextPrimary
+                style = MaterialTheme.typography.labelMedium
             )
         }
     }

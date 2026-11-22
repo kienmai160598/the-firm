@@ -2,6 +2,8 @@ package com.kien.movies.ui.screens.home
 
 import com.kien.movies.ui.components.ExpressiveErrorContainer
 import com.kien.movies.ui.components.ExpressiveOnErrorContainer
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
@@ -9,7 +11,6 @@ import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import android.util.Log
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
@@ -33,13 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -64,7 +62,6 @@ import com.kien.movies.core.tracking.supportsMembershipFor
 import com.kien.movies.data.local.StartupAuthNotice
 import com.kien.movies.ui.components.posteroptions.TrackingRemovalConfirmationDialog
 import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.isExpressiveBuild
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -376,10 +373,10 @@ fun HomeScreen(
                         enter = if (hasShownInitialHomeContent) {
                             EnterTransition.None
                         } else {
-                            fadeIn(animationSpec = ExpressiveMotion.slowEffectsOr(tween(320))) +
+                            fadeIn(animationSpec = ExpressiveMotion.slowEffects()) +
                                 slideInVertically(
                                     initialOffsetY = { it / 24 },
-                                    animationSpec = ExpressiveMotion.defaultSpatialOr(tween(320))
+                                    animationSpec = ExpressiveMotion.standardDefaultSpatial()
                                 )
                         }
                     ) {
@@ -448,14 +445,8 @@ fun HomeScreen(
                     .align(Alignment.TopCenter)
                     .padding(top = homeFirstRowTopPadding())
                     .background(
-                        color = if (isExpressiveBuild) {
-                            ExpressiveErrorContainer
-                        } else {
-                            Color(0xFF5A1C1C)
-                        },
-                        shape = RoundedCornerShape(
-                            if (isExpressiveBuild) MoviesTheme.radii.lg else 10.dp
-                        )
+                        color = ExpressiveErrorContainer,
+                        shape = RoundedCornerShape(MoviesTheme.radii.lg)
                     )
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             ) {
@@ -465,11 +456,7 @@ fun HomeScreen(
                         StartupAuthNotice.TRAKT -> stringResource(R.string.auth_notice_trakt_logged_out)
                     },
                     style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                    color = if (isExpressiveBuild) {
-                        ExpressiveOnErrorContainer
-                    } else {
-                        MoviesTheme.colors.TextPrimary
-                    }
+                    color = ExpressiveOnErrorContainer
                 )
             }
         }
@@ -769,27 +756,25 @@ private fun HomePosterOptionsDialog(
         title = title,
         subtitle = stringResource(R.string.home_poster_dialog_subtitle)
     ) {
-        Button(
+        MoviesButton(
             onClick = onDetails,
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(primaryFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                contentColor = MoviesTheme.colors.TextPrimary
-            )
+            style = MoviesButtonStyle.Primary
         ) {
             Text(stringResource(R.string.cw_action_go_to_details))
         }
 
-        Button(
+        MoviesButton(
             onClick = onToggleLibrary,
             enabled = !isLibraryPending,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                contentColor = MoviesTheme.colors.TextPrimary
-            )
+            style = if (isInLibrary && !showManageLists) {
+                MoviesButtonStyle.Destructive
+            } else {
+                MoviesButtonStyle.Secondary
+            }
         ) {
             Text(
                 if (showManageLists) {
@@ -804,14 +789,10 @@ private fun HomePosterOptionsDialog(
             )
         }
 
-        Button(
+        MoviesButton(
             onClick = onToggleWatched,
             enabled = !isWatchedPending,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                contentColor = MoviesTheme.colors.TextPrimary
-            )
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 if (isWatched) {

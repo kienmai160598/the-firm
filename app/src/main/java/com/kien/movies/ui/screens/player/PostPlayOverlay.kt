@@ -2,13 +2,9 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesMotion
 
-import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.focus.onFocusChanged
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -62,9 +58,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kien.movies.ui.util.localizeEpisodeTitle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
@@ -98,13 +94,13 @@ fun PostPlayOverlay(
     transition.AnimatedVisibility(
         visible = { it != null },
         enter = slideInHorizontally(
-            animationSpec = PlayerMotion.spatial(260),
+            animationSpec = PlayerMotion.spatial(),
             initialOffsetX = { it / 2 }
-        ) + fadeIn(animationSpec = PlayerMotion.effects(220)),
+        ) + fadeIn(animationSpec = PlayerMotion.effects()),
         exit = slideOutHorizontally(
-            animationSpec = PlayerMotion.spatial(200),
+            animationSpec = PlayerMotion.spatial(),
             targetOffsetX = { it / 2 }
-        ) + fadeOut(animationSpec = PlayerMotion.effects(160)),
+        ) + fadeOut(animationSpec = PlayerMotion.effects()),
         modifier = modifier,
     ) {
         val onCardClick: () -> Unit = when {
@@ -112,42 +108,12 @@ fun PostPlayOverlay(
             mode is PostPlayMode.StillWatching -> onContinueStillWatching
             else -> ({})
         }
-        Card(
+        MoviesSurface(
             onClick = onCardClick,
-            shape = CardDefaults.shape(
-                shape = PlayerSurfaceStyle.cardShape(RoundedCornerShape(14.dp))
-            ),
-            colors = if (isExpressiveBuild) {
-                PlayerListItemStyle.colors(
-                    resting = PlayerSurfaceStyle.floatingContainer(Color(0xE3191919))
-                )
-            } else {
-                CardDefaults.colors(
-                    containerColor = Color(0xE3191919),
-                    focusedContainerColor = Color(0xE3191919),
-                )
-            },
-            border = if (isExpressiveBuild) {
-                PlayerListItemStyle.noBorder()
-            } else {
-                CardDefaults.border(
-                    border = Border(
-                        border = BorderStroke(
-                            MoviesTheme.spacing.hairline,
-                            Color.White.copy(alpha = 0.16f)
-                        ),
-                        shape = RoundedCornerShape(14.dp),
-                    ),
-                    focusedBorder = Border(
-                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                        shape = RoundedCornerShape(14.dp),
-                    ),
-                )
-            },
-            scale = CardDefaults.scale(focusedScale = 1f),
+            shape = PlayerSurfaceStyle.cardShape(),
+            resting = PlayerSurfaceStyle.floatingContainer(),
             modifier = Modifier
                 .width(PlayerTenFoot.atLeast(420.dp, PostPlayCardWidth))
-                .then(if (isExpressiveBuild) Modifier.focusSpringScale() else Modifier)
                 .focusRequester(nextEpisodeFocusRequester)
                 .onPlaced {
                     if (isAutoPlay && !controlsVisible && !placedFocused) {
@@ -168,8 +134,8 @@ fun PostPlayOverlay(
         ) {
             transition.AnimatedContent(
                 transitionSpec = {
-                    fadeIn(PlayerMotion.effects(MoviesMotion.tokens.durations.fast)) togetherWith
-                        fadeOut(PlayerMotion.effects(120))
+                    fadeIn(PlayerMotion.effects()) togetherWith
+                        fadeOut(PlayerMotion.effects())
                 },
                 contentKey = { it?.let { current -> current::class } },
             ) { current ->
@@ -328,9 +294,7 @@ private fun StillWatchingBody(
         ) {
             PostPlayPillButton(
                 icon = Icons.Default.PlayArrow,
-                iconTint = Color.White,
                 label = stringResource(R.string.still_watching_continue),
-                textColor = Color.White,
                 onClick = onContinue,
                 focusRequester = continueFocusRequester,
                 modifier = Modifier
@@ -347,9 +311,7 @@ private fun StillWatchingBody(
             )
             PostPlayPillButton(
                 icon = Icons.Default.Close,
-                iconTint = Color.White.copy(alpha = 0.65f),
                 label = stringResource(R.string.still_watching_exit),
-                textColor = Color.White.copy(alpha = 0.72f),
                 onClick = onDismiss,
                 focusRequester = exitFocusRequester,
                 modifier = Modifier.focusProperties {
@@ -361,55 +323,35 @@ private fun StillWatchingBody(
     }
 }
 
+/** A pill action inside the card: frosted at rest, white with black content on focus. */
 @Composable
 private fun PostPlayPillButton(
     icon: ImageVector,
-    iconTint: Color,
     label: String,
-    textColor: Color,
     onClick: () -> Unit,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
-    if (isExpressiveBuild) {
-        return ExpressivePostPlayPillButton(icon, label, onClick, focusRequester, modifier)
-    }
-
-    Card(
+    MoviesCard(
         onClick = onClick,
-        shape = CardDefaults.shape(shape = CircleShape),
-        colors = CardDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = Color.White.copy(alpha = 0.15f),
-        ),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
-                shape = CircleShape,
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = CircleShape,
-            ),
-        ),
-        scale = CardDefaults.scale(focusedScale = 1f),
+        shape = M3eShapes.capsule,
         modifier = modifier.focusRequester(focusRequester),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier
+                .heightIn(min = PillButtonMinHeight)
+                .padding(horizontal = MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(PillButtonIconSize),
             )
             Text(
                 text = label,
-                color = textColor,
                 fontSize = PostPlayLabelSize,
-                modifier = Modifier.padding(start = 3.dp),
+                modifier = Modifier.padding(start = MoviesTheme.spacing.xs),
             )
         }
     }
@@ -421,51 +363,6 @@ private val PostPlayTitleSize = PlayerTenFoot.atLeast(14.sp, PlayerTenFoot.bodyT
 private val PostPlayLabelSize = PlayerTenFoot.atLeast(12.sp, PlayerTenFoot.bodyText)
 private val PillButtonMinHeight = 48.dp
 private val PillButtonIconSize = 24.dp
-
-/** A tonal pill that fills with the accent and squares off a little on focus. */
-@Composable
-private fun ExpressivePostPlayPillButton(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    focusRequester: FocusRequester,
-    modifier: Modifier,
-) {
-    var isFocused by remember { mutableStateOf(false) }
-    val content = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextPrimary)
-
-    Card(
-        onClick = onClick,
-        shape = PlayerPillStyle.shape(isFocused),
-        colors = PlayerPillStyle.colors(isFocused, resting = MoviesTheme.colors.BackgroundCard),
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale,
-        modifier = modifier
-            .focusRequester(focusRequester)
-            .onFocusChanged { isFocused = it.isFocused }
-            .playerFocusLift(isFocused),
-    ) {
-        Row(
-            modifier = Modifier
-                .heightIn(min = PillButtonMinHeight)
-                .padding(horizontal = MoviesTheme.spacing.lg),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = content,
-                modifier = Modifier.size(PillButtonIconSize),
-            )
-            Text(
-                text = label,
-                color = content,
-                fontSize = PostPlayLabelSize,
-                modifier = Modifier.padding(start = MoviesTheme.spacing.xs),
-            )
-        }
-    }
-}
 
 @Composable
 private fun NextEpisodeThumbnail(
@@ -532,7 +429,6 @@ private fun nextEpisodeDisplayLabel(nextEpisode: NextEpisodeInfo): String {
     return "$code • $localizedTitle"
 }
 
-/** White on the dark card; on the expressive build it follows the card to black on focus. */
+/** The card's content colour: white at rest, black once the focused card turns white. */
 @Composable
-private fun postPlayInk(): Color =
-    if (isExpressiveBuild) LocalContentColor.current else Color.White
+private fun postPlayInk(): Color = LocalContentColor.current

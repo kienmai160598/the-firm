@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.runtime.Composable
@@ -51,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import com.kien.movies.R
 import com.kien.movies.core.tracking.TrackingRatings
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 import kotlin.math.min
@@ -75,16 +75,11 @@ internal fun RatingStars(
     var focused by remember { mutableStateOf(false) }
     var confirmArmed by remember { mutableStateOf(false) }
     val description = stringResource(R.string.rating_value, value.toString())
-    val shape = RoundedCornerShape(MoviesTheme.radii.xl)
+    val shape = M3eShapes.card
     val container by animateColorAsState(
         targetValue = ratingStarsContainer(focused),
-        animationSpec = effectsSpec(tween(durationMillis = 180)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "rating_stars_container"
-    )
-    val border by animateColorAsState(
-        targetValue = ratingStarsRing(focused),
-        animationSpec = effectsSpec(tween(durationMillis = 180)),
-        label = "rating_stars_border"
     )
 
     fun select(next: Int) {
@@ -146,7 +141,6 @@ internal fun RatingStars(
             }
             .focusable()
             .background(container, shape)
-            .border(MoviesTheme.spacing.xxs, border, shape)
             .padding(horizontal = 18.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(starSize / 6)
     ) {

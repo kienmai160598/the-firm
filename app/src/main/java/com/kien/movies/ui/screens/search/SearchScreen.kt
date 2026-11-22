@@ -17,7 +17,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.focusGroup
@@ -43,8 +41,6 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -62,9 +58,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -88,11 +81,9 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.IconButton as TvIconButton
-import androidx.tv.material3.IconButtonDefaults as TvIconButtonDefaults
+import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.ui.components.CatalogRowSection
 import com.kien.movies.ui.components.EmptyScreenState
@@ -114,12 +105,13 @@ import com.kien.movies.LocalSidebarExpanded
 import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
 import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
 import com.kien.movies.ui.navigation.toptabbar.isScrolledDown
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.isExpressiveBuild
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
-import com.kien.movies.ui.screens.detail.fastSpatialSpec
 import com.kien.movies.ui.screens.detail.tvControlHeight
 
 /** Skeleton rows shown while a search is pending, matching the two mobile renders. */
@@ -1019,7 +1011,7 @@ private fun RecentSearchesSection(
                 style = androidx.tv.material3.MaterialTheme.typography.titleMedium,
                 color = MoviesTheme.colors.TextPrimary
             )
-            Button(
+            MoviesButton(
                 onClick = onClearHistory,
                 modifier = Modifier
                     .focusRequester(clearHistoryFocusRequester)
@@ -1027,8 +1019,7 @@ private fun RecentSearchesSection(
                         down = firstSearchFocusRequester
                     }
                     .tvControlHeight(),
-                colors = recentSearchButtonColors(),
-                shape = ButtonDefaults.shape(recentClearShape())
+                style = MoviesButtonStyle.Destructive
             ) {
                 Text(
                     text = stringResource(R.string.search_recent_clear),
@@ -1058,13 +1049,7 @@ private fun RecentSearchesSection(
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var isSearchFocused by remember(recentQuery) { mutableStateOf(false) }
-                    val searchScale by animateFloatAsState(
-                        targetValue = if (isSearchFocused) 1.02f else 1f,
-                        animationSpec = fastSpatialSpec(tween(durationMillis = 140)),
-                        label = "recentSearchScale"
-                    )
-                    Button(
+                    MoviesButton(
                         onClick = { onSearchSelected(recentQuery) },
                         modifier = Modifier
                             .weight(1f)
@@ -1076,19 +1061,7 @@ private fun RecentSearchesSection(
                                     right = removeFocusRequester
                                 }
                             }
-                            .onFocusChanged { isSearchFocused = it.isFocused }
                             .tvControlHeight()
-                            .graphicsLayer {
-                                scaleX = searchScale
-                                scaleY = searchScale
-                                transformOrigin = TransformOrigin(
-                                    pivotFractionX = if (isRtl) 1f else 0f,
-                                    pivotFractionY = 0.5f
-                                )
-                            },
-                        colors = recentSearchButtonColors(),
-                        scale = ButtonDefaults.scale(focusedScale = 1f),
-                        shape = ButtonDefaults.shape(recentRowShape())
                     ) {
                         Text(
                             text = recentQuery,
@@ -1098,8 +1071,7 @@ private fun RecentSearchesSection(
                         )
                     }
 
-                    var isRemoveFocused by remember(recentQuery) { mutableStateOf(false) }
-                    TvIconButton(
+                    MoviesIconButton(
                         onClick = {
                             val nextQuery = recentSearches.getOrNull(index + 1)
                             val previousQuery = recentSearches.getOrNull(index - 1)
@@ -1129,27 +1101,7 @@ private fun RecentSearchesSection(
                                     left = searchFocusRequester
                                 }
                             }
-                            .onFocusChanged { isRemoveFocused = it.isFocused }
                             .size(36.dp.atLeastOnBox(TvSizeFloors.control))
-                            .then(
-                                if (isRemoveFocused && !isExpressiveBuild) {
-                                    Modifier.border(
-                                        width = MoviesTheme.spacing.xxs,
-                                        color = MoviesTheme.colors.FocusRing,
-                                        shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                    )
-                                } else {
-                                    Modifier
-                                }
-                            ),
-                        colors = TvIconButtonDefaults.colors(
-                            containerColor = Color.Transparent,
-                            focusedContainerColor = recentRemoveFocusedContainer(),
-                            contentColor = MoviesTheme.colors.TextPrimary,
-                            focusedContentColor = MoviesTheme.colors.TextPrimary
-                        ),
-                        scale = TvIconButtonDefaults.scale(focusedScale = 1f),
-                        shape = TvIconButtonDefaults.shape(shape = recentClearShape())
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -1159,8 +1111,7 @@ private fun RecentSearchesSection(
                             ),
                             modifier = Modifier.size(
                                 18.dp.atLeastOnBox(TvSizeFloors.buttonIcon)
-                            ),
-                            tint = recentRemoveTint(isRemoveFocused)
+                            )
                         )
                     }
                 }
@@ -1192,7 +1143,6 @@ private fun SearchInputField(
     clearHistoryFocusRequester: FocusRequester?,
     isScreenActive: Boolean = true
 ) {
-    var isDiscoverButtonFocused by remember { mutableStateOf(false) }
     var isVoiceButtonFocused by remember { mutableStateOf(false) }
     var isSearchFieldFocused by remember { mutableStateOf(false) }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -1205,20 +1155,17 @@ private fun SearchInputField(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showDiscoverButton) {
-            IconButton(
+            MoviesIconButton(
                 onClick = onOpenDiscover,
                 modifier = Modifier
                     .then(
                         discoverFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                     )
-                    .onFocusChanged { isDiscoverButtonFocused = it.isFocused }
                     .size(MoviesTheme.spacing.huge)
-                    .expressiveIconButtonSurface(isDiscoverButtonFocused)
             ) {
                 Icon(
                     imageVector = Icons.Default.Explore,
-                    contentDescription = stringResource(R.string.cd_open_discover),
-                    tint = ExpressiveFocus.contentColor(isDiscoverButtonFocused, resting = MoviesTheme.colors.TextPrimary)
+                    contentDescription = stringResource(R.string.cd_open_discover)
                 )
             }
 
@@ -1259,8 +1206,13 @@ private fun SearchInputField(
                 }
 
                 // Layer 3: Actual button
-                IconButton(
+                MoviesIconButton(
                     onClick = onVoiceSearch,
+                    style = if (isVoiceListening) {
+                        MoviesButtonStyle.Selected
+                    } else {
+                        MoviesButtonStyle.Secondary
+                    },
                     modifier = Modifier
                         .then(
                             if (voiceFocusRequester != null) {
@@ -1274,15 +1226,15 @@ private fun SearchInputField(
                             onVoiceFocusChanged(it.isFocused)
                         }
                         .size(MoviesTheme.spacing.huge)
-                        .expressiveIconButtonSurface(isVoiceButtonFocused, selected = isVoiceListening)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mic,
                         contentDescription = stringResource(R.string.cd_voice_search),
-                        tint = ExpressiveFocus.contentColor(
-                            isVoiceButtonFocused,
-                            resting = if (isVoiceListening) themeAccent else MoviesTheme.colors.TextPrimary
-                        )
+                        tint = if (isVoiceListening && !isVoiceButtonFocused) {
+                            themeAccent
+                        } else {
+                            LocalContentColor.current
+                        }
                     )
                 }
             }
@@ -1350,7 +1302,7 @@ private fun SearchInputField(
                 }
             ),
             singleLine = true,
-            shape = RoundedCornerShape(percent = 50),
+            shape = M3eShapes.capsule,
             placeholder = {
                 Text(
                     text = stringResource(R.string.search_placeholder),
@@ -1365,23 +1317,19 @@ private fun SearchInputField(
         // Clear button, requested in review. Placed beside the field rather than as a trailing
         // icon so it is reachable with the D-pad, matching the voice button's treatment.
         if (query.isNotEmpty()) {
-            var isClearButtonFocused by remember { mutableStateOf(false) }
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-            IconButton(
+            MoviesIconButton(
                 onClick = {
                     // Clearing drops this button from the row, so hand focus back first.
                     runCatching { searchFocusRequester.requestFocus() }
                     onQueryChanged("")
                 },
                 modifier = Modifier
-                    .onFocusChanged { isClearButtonFocused = it.isFocused }
                     .size(MoviesTheme.spacing.huge)
-                    .expressiveIconButtonSurface(isClearButtonFocused)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(R.string.cd_clear_search),
-                    tint = ExpressiveFocus.contentColor(isClearButtonFocused, resting = MoviesTheme.colors.TextPrimary)
+                    contentDescription = stringResource(R.string.cd_clear_search)
                 )
             }
         }

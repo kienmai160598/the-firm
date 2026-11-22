@@ -1,17 +1,15 @@
 package com.kien.movies.ui.screens.collection
 
+import androidx.compose.ui.semantics.selected
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 
 import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.animateColorAsState
@@ -66,8 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -80,7 +76,6 @@ import com.kien.movies.domain.model.Collection
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.screenTitleFloor
@@ -407,7 +402,7 @@ fun CollectionManagementScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
             ) {
-                Button(
+                MoviesButton(
                     onClick = {
                         collectionToDelete = null
                         pendingFocusTarget = "delete:${collection.id}"
@@ -415,13 +410,11 @@ fun CollectionManagementScreen(
                     modifier = Modifier
                         .focusRequester(deleteDialogFocusRequester)
                         .semantics { role = Role.Button }
-                        .tvControlHeight(),
-                    scale = expressiveButtonScale(ButtonDefaults.scale()),
-                    colors = expressiveButtonColors(ButtonDefaults.colors())
+                        .tvControlHeight()
                 ) {
                     Text(stringResource(R.string.collections_cancel), style = buttonLabelStyle())
                 }
-                Button(
+                MoviesButton(
                     onClick = {
                         val currentIndex = uiState.collections.indexOfFirst { it.id == collection.id }
                         val nextTargetId = uiState.collections
@@ -437,8 +430,7 @@ fun CollectionManagementScreen(
                         pendingFocusTarget = nextTarget
                     },
                     modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
-                    scale = expressiveButtonScale(ButtonDefaults.scale()),
-                    colors = expressiveButtonColors(ButtonDefaults.colors())
+                    style = MoviesButtonStyle.Destructive
                 ) {
                     Text(
                         stringResource(R.string.collections_delete_confirm),
@@ -535,37 +527,13 @@ internal fun ImportContent(
                     }
                     val tabModifier = Modifier.focusRequester(modeFocusRequesters.getValue(mode))
                     val isSelected = mode == importMode
-                    Button(
+                    MoviesButton(
                         onClick = { onModeChange(mode) },
                         modifier = tabModifier.semantics {
                             role = Role.Tab
                             this.selected = isSelected
                         }.tvControlHeight(),
-                        colors = expressiveButtonColors(if (isSelected) {
-                            ButtonDefaults.colors(
-                                containerColor = MoviesTheme.colors.Primary,
-                                contentColor = MoviesTheme.colors.Background,
-                                focusedContainerColor = MoviesTheme.colors.Primary,
-                                focusedContentColor = MoviesTheme.colors.Background
-                            )
-                        } else {
-                            ButtonDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundCard,
-                                contentColor = MoviesTheme.colors.TextPrimary,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                                focusedContentColor = MoviesTheme.colors.Primary
-                            )
-                        }, selected = isSelected),
-                        border = expressiveButtonBorder(ButtonDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            )
-                        )),
-                        shape = expressiveButtonShape(
-                            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                        ),
-                        scale = expressiveButtonScale(ButtonDefaults.scale())
+                        style = if (isSelected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
                     ) {
                         Text(label)
                     }
@@ -799,27 +767,11 @@ private fun CollectionListItem(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.trapHorizontalFocus()
             ) {
-                Button(
+                MoviesButton(
                     modifier = Modifier.tvControlHeight(),
                     onClick = if (isMoving) onConfirmMove else onStartMove,
                     enabled = isMoving || (canMove && actionsEnabled),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = if (isMoving) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
-                        contentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
-                        focusedContainerColor = if (isMoving) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
-                        focusedContentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Primary
-                    ), selected = isMoving),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                    )),
-                    shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                    style = if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
                 ) {
                     Icon(
                         imageVector = Icons.Default.Reorder,
@@ -827,36 +779,19 @@ private fun CollectionListItem(
                     )
                 }
 
-                Button(
+                MoviesButton(
                     onClick = onEdit,
                     enabled = actionsEnabled && !isMoving,
                     modifier = Modifier
                         .tvControlHeight()
                         .then(
                             editFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
-                        ),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextSecondary,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                        focusedContentColor = MoviesTheme.colors.Primary
-                    )),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                    )),
-                    shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                        )
                 ) {
                     Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                 }
 
-                Button(
+                MoviesButton(
                     onClick = onDelete,
                     enabled = actionsEnabled && !isMoving,
                     modifier = Modifier
@@ -864,23 +799,7 @@ private fun CollectionListItem(
                         .then(
                             deleteFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                         ),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextSecondary,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                        focusedContentColor = MoviesTheme.colors.Error
-                    ), destructive = true),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                    )),
-                    shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                    style = MoviesButtonStyle.Destructive
                 ) {
                     Icon(Icons.Default.Delete, stringResource(R.string.cd_delete))
                 }

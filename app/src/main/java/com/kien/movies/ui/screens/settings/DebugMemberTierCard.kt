@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -14,13 +13,11 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.MemberTier
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
@@ -55,8 +52,7 @@ internal fun DebugMemberTierCard(
         ) {
             options.forEach { (tier, label) ->
                 val selected = tier == selectedTier
-                val shape = RoundedCornerShape(MoviesTheme.radii.sm)
-                Card(
+                MoviesCard(
                     onClick = { onTierSelected(tier) },
                     modifier = Modifier
                         .weight(1f)
@@ -64,35 +60,11 @@ internal fun DebugMemberTierCard(
                             role = Role.RadioButton
                             this.selected = selected
                         },
-                    colors = CardDefaults.colors(
-                        containerColor = if (selected) {
-                            MoviesTheme.colors.Secondary.copy(alpha = 0.2f)
-                        } else {
-                            MoviesTheme.colors.BackgroundCard
-                        },
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ),
-                    border = CardDefaults.border(
-                        border = if (selected) {
-                            Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                                shape = shape
-                            )
-                        } else {
-                            Border.None
-                        },
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = shape
-                        )
-                    ).expressiveSelection(selected),
-                    shape = CardDefaults.shape(shape).expressiveCard(),
-                    scale = CardDefaults.scale(focusedScale = 1.04f).expressiveCardGrow()
+                    selected = selected
                 ) {
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelLarge,
-                        color = MoviesTheme.colors.TextPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.lg),

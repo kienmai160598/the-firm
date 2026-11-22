@@ -2,9 +2,7 @@ package com.kien.movies.ui.screens.tmdb
 
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import androidx.compose.animation.core.tween
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -118,7 +116,7 @@ fun TmdbEntityBrowseScreen(
     ) {
         Crossfade(
             targetState = screenMode,
-            animationSpec = if (isExpressiveBuild) ExpressiveMotion.defaultEffects() else tween(),
+            animationSpec = ExpressiveMotion.defaultEffects(),
             label = "TmdbEntityBrowseState"
         ) { mode ->
             when (mode) {

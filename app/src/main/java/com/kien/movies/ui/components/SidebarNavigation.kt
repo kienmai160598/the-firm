@@ -1,6 +1,5 @@
 package com.kien.movies.ui.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,23 +29,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.kien.movies.R
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.ui.theme.MoviesComponents
-import com.kien.movies.ui.theme.MoviesStrokes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 
-private val NavItemShape = RoundedCornerShape(MoviesComponents.tokens.sidebar.panelRadius / 2)
 private val NavItemIconShape = RoundedCornerShape(MoviesComponents.tokens.sidebar.panelRadius / 3)
 
 data class SidebarItem(
@@ -113,16 +109,8 @@ private fun SidebarNavItem(
     onNavigate: (String) -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isFocused || isSelected) MoviesTheme.colors.FocusBackground else Color.Transparent,
-        label = "navItemBackground"
-    )
-    val borderColor by animateColorAsState(
-        targetValue = if (isFocused) MoviesTheme.colors.FocusRing else Color.Transparent,
-        label = "navItemBorder"
-    )
 
-    Card(
+    MoviesCard(
         onClick = { onNavigate(item.route) },
         modifier = Modifier
             .fillMaxWidth()
@@ -131,18 +119,7 @@ private fun SidebarNavItem(
             .onFocusChanged { state ->
                 isFocused = state.hasFocus
             },
-        colors = CardDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-        ),
-        border = CardDefaults.border(
-            border = androidx.tv.material3.Border.None,
-            focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.focus, borderColor),
-                shape = NavItemShape
-            )
-        ),
-        shape = CardDefaults.shape(shape = NavItemShape)
+        selected = isSelected
     ) {
         Row(
             modifier = Modifier
@@ -170,7 +147,7 @@ private fun SidebarNavItem(
         Text(
             text = item.label,
             style = MaterialTheme.typography.titleMedium,
-            color = if (isFocused || isSelected) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
+            color = LocalContentColor.current.copy(alpha = if (isFocused || isSelected) 1f else 0.64f)
         )
     }
     }

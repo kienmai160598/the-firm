@@ -1,11 +1,9 @@
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.screens.detail.spatialSpec
-import com.kien.movies.ui.screens.detail.effectsSpec
+import com.kien.movies.ui.theme.ExpressiveMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -108,7 +106,7 @@ fun PartyPanel(
                 targetState = state.party,
                 contentKey = { it != null },
                 transitionSpec = {
-                    fadeIn(effectsSpec(tween(220))) togetherWith fadeOut(effectsSpec(tween(150)))
+                    fadeIn(ExpressiveMotion.defaultEffects()) togetherWith fadeOut(ExpressiveMotion.defaultEffects())
                 },
                 label = "partyPanelContent",
                 modifier = Modifier.fillMaxSize(),
@@ -380,10 +378,10 @@ fun PartyStatusPill(
             AnimatedContent(
                 targetState = message,
                 transitionSpec = {
-                    val rise = slideInVertically(spatialSpec(tween(240))) { it / 2 }
-                    val leave = slideOutVertically(spatialSpec(tween(160))) { -it / 2 }
-                    (fadeIn(effectsSpec(tween(200))) + rise) togetherWith
-                        (fadeOut(effectsSpec(tween(120))) + leave)
+                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 2 }
+                    val leave = slideOutVertically(ExpressiveMotion.standardDefaultSpatial()) { -it / 2 }
+                    (fadeIn(ExpressiveMotion.defaultEffects()) + rise) togetherWith
+                        (fadeOut(ExpressiveMotion.defaultEffects()) + leave)
                 },
                 label = "partyStatusMessage",
             ) { text ->

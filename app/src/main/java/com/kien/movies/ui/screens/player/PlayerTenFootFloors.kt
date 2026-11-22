@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.tv.material3.MaterialTheme as TvMaterialTheme
 import androidx.tv.material3.Typography as TvTypography
 
@@ -31,16 +30,15 @@ internal object PlayerTenFoot {
     val sideMargin: Dp = 48.dp
     val edgeMargin: Dp = 28.dp
 
-    /** [size] raised to [floor] on the box build, untouched elsewhere. */
+    /** [size] raised to [floor]. */
     fun atLeast(size: TextUnit, floor: TextUnit): TextUnit =
-        if (isExpressiveBuild && size.value < floor.value) floor else size
+        if (size.value < floor.value) floor else size
 
-    fun atLeast(size: Dp, floor: Dp): Dp =
-        if (isExpressiveBuild) maxOf(size, floor) else size
+    fun atLeast(size: Dp, floor: Dp): Dp = maxOf(size, floor)
 }
 
 internal fun TextStyle.atLeast(floor: TextUnit): TextStyle {
-    if (!isExpressiveBuild || fontSize.value >= floor.value) return this
+    if (fontSize.value >= floor.value) return this
 
     val roomyLineHeight = (floor.value * MIN_LINE_HEIGHT_RATIO).sp
     val raisedLineHeight = if (lineHeight.isSp && lineHeight.value < roomyLineHeight.value) {
@@ -59,8 +57,6 @@ internal fun TextStyle.atLeast(floor: TextUnit): TextStyle {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun PlayerTenFootType(content: @Composable () -> Unit) {
-    if (!isExpressiveBuild) return content()
-
     val tvTypography = TvMaterialTheme.typography
     val materialTypography = MaterialTheme.typography
     val flooredTv = remember(tvTypography) { tvTypography.withTenFootFloors() }

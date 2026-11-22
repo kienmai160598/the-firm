@@ -1,9 +1,8 @@
 package com.kien.movies.ui.components.posteroptions
 
 import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressivePrimaryButtonColors
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -34,8 +32,6 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -51,8 +47,6 @@ import com.kien.movies.domain.model.localizedMembershipTitle
 import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.theme.TvSizeFloors
-import com.kien.movies.ui.theme.isExpressiveBuild
-import com.kien.movies.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -79,34 +73,19 @@ fun PosterOptionsDialog(
         title = title,
         subtitle = stringResource(R.string.home_poster_dialog_subtitle)
     ) {
-        Button(
+        MoviesButton(
             onClick = onDetails,
             modifier = Modifier
                 .fillMaxWidth()
-                .tvControlHeight()
-                .focusRequester(primaryFocusRequester),
-            colors = expressiveButtonColors(
-                ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                )
-            ),
-            scale = expressiveButtonScale(ButtonDefaults.scale())
+                .focusRequester(primaryFocusRequester)
         ) {
             Text(stringResource(R.string.cw_action_go_to_details), style = buttonLabelStyle())
         }
 
-        Button(
+        MoviesButton(
             onClick = onToggleLibrary,
             enabled = !isLibraryPending,
-            modifier = Modifier.fillMaxWidth().tvControlHeight(),
-            colors = expressiveButtonColors(
-                ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                )
-            ),
-            scale = expressiveButtonScale(ButtonDefaults.scale())
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 if (showManageLists) {
@@ -122,17 +101,10 @@ fun PosterOptionsDialog(
             )
         }
 
-        Button(
+        MoviesButton(
             onClick = onToggleWatched,
             enabled = !isWatchedPending,
-            modifier = Modifier.fillMaxWidth().tvControlHeight(),
-            colors = expressiveButtonColors(
-                ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                )
-            ),
-            scale = expressiveButtonScale(ButtonDefaults.scale())
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 if (isWatched) {
@@ -174,7 +146,7 @@ fun PosterListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isExpressiveBuild) MoviesTheme.colors.Error else Color(0xFFFFB6B6)
+                color = MoviesTheme.colors.Error
             )
         }
 
@@ -186,28 +158,20 @@ fun PosterListPickerDialog(
         ) {
             items(tabs, key = { it.key }) { tab ->
                 val selected = membership[tab.key] == true
-                Button(
+                MoviesButton(
                     onClick = { onToggle(tab.key) },
                     enabled = !isPending,
                     modifier = (if (tab.key == tabs.firstOrNull()?.key) {
                         Modifier
                             .fillMaxWidth()
-                            .tvControlHeight()
                             .focusRequester(primaryFocusRequester)
                     } else {
-                        Modifier.fillMaxWidth().tvControlHeight()
+                        Modifier.fillMaxWidth()
                     }).semantics {
                         role = Role.Checkbox
                         toggleableState = if (selected) ToggleableState.On else ToggleableState.Off
                     },
-                    colors = expressiveButtonColors(
-                        ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            contentColor = MoviesTheme.colors.TextPrimary
-                        ),
-                        selected = selected
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                    style = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
                 ) {
                     Text(
                         text = tab.localizedMembershipTitle(),
@@ -233,16 +197,10 @@ fun PosterListPickerDialog(
         Divider(color = MoviesTheme.colors.Border, thickness = MoviesTheme.spacing.hairline)
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            Button(
+            MoviesButton(
                 onClick = onSave,
                 enabled = !isPending,
-                colors = expressiveButtonColors(
-                    ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextPrimary
-                    )
-                ),
-                scale = expressiveButtonScale(ButtonDefaults.scale())
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(
                     if (isPending) {
@@ -357,25 +315,17 @@ fun TrackingRemovalConfirmationDialog(
         width = 560.dp,
         suppressFirstKeyUp = false
     ) {
-        Button(
+        MoviesButton(
             onClick = onConfirm,
             enabled = !isPending,
-            modifier = Modifier.fillMaxWidth().tvControlHeight(),
-            colors = expressivePrimaryButtonColors(ButtonDefaults.colors()),
-            scale = expressiveButtonScale(ButtonDefaults.scale())
+            modifier = Modifier.fillMaxWidth(),
+            style = MoviesButtonStyle.Destructive
         ) {
             Text(stringResource(R.string.action_remove_anyway), style = buttonLabelStyle())
         }
-        Button(
+        MoviesButton(
             onClick = onDismiss,
-            modifier = Modifier.fillMaxWidth().tvControlHeight(),
-            colors = expressiveButtonColors(
-                ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                )
-            ),
-            scale = expressiveButtonScale(ButtonDefaults.scale())
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.action_cancel), style = buttonLabelStyle())
         }

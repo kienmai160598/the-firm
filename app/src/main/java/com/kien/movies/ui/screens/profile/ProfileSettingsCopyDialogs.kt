@@ -25,14 +25,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.UserProfile
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
@@ -269,32 +269,11 @@ private fun SourceProfileButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
-        colors = ButtonDefaults.colors(
-            containerColor = if (selected) {
-                MoviesTheme.colors.Secondary
-            } else {
-                MoviesTheme.colors.BackgroundCard
-            },
-            contentColor = if (selected) {
-                MoviesTheme.colors.OnSecondary
-            } else {
-                MoviesTheme.colors.TextPrimary
-            },
-            focusedContainerColor = if (selected) {
-                MoviesTheme.colors.SecondaryVariant
-            } else {
-                MoviesTheme.colors.FocusBackground
-            },
-            focusedContentColor = if (selected) {
-                MoviesTheme.colors.OnSecondaryVariant
-            } else {
-                MoviesTheme.colors.FocusContent
-            }
-        )
+        style = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
     ) {
         Text(
             text = text,

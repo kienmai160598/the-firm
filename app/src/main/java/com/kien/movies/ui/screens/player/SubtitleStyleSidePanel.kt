@@ -39,11 +39,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Shape
-import androidx.tv.material3.CardColors
-import androidx.tv.material3.CardShape
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -56,17 +51,19 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.data.local.SubtitleStyleSettings
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 
 private val StyleCardWidth = 220.dp
 private val StyleCardHeight = 102.dp
@@ -104,7 +101,7 @@ internal fun SubtitleStyleSidePanel(
             .width(760.dp)
             .height(330.dp)
             .clip(RoundedCornerShape(bottomStart = PanelCorner, bottomEnd = PanelCorner))
-            .background(if (isExpressiveBuild) MoviesTheme.colors.Surface else Color(0xFF101010))
+            .background(MoviesTheme.colors.Surface)
             .then(if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier)
             .padding(start = MoviesTheme.spacing.lg, end = MoviesTheme.spacing.lg, top = 22.dp, bottom = 10.dp)
     ) {
@@ -315,26 +312,13 @@ internal fun SubtitleStyleSidePanel(
                         .width(StyleCardWidth)
                         .height(StyleCardHeight)
                 ) {
-                    var resetFocused by remember { mutableStateOf(false) }
-                    Card(
+                    MoviesCard(
                         onClick = { onEvent(PlayerEvent.OnResetSubtitleDefaults) },
-                        modifier = Modifier.onFocusChanged { resetFocused = it.isFocused },
-                        colors = styleButtonColors(
-                            focused = resetFocused,
-                            resting = Color.White.copy(alpha = 0.1f)
-                        ),
-                        shape = styleButtonShape(
-                            focused = resetFocused,
-                            upstream = RoundedCornerShape(MoviesTheme.radii.md)
-                        )
+                        shape = M3eShapes.capsule
                     ) {
                         Text(
                             text = stringResource(R.string.subtitle_style_reset),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = styleButtonContent(
-                                focused = resetFocused,
-                                upstream = Color.White.copy(alpha = 0.8f)
-                            ),
                             modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 10.dp)
                         )
                     }
@@ -353,14 +337,8 @@ private fun SubtitleStyleSection(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.lg else 14.dp))
-            .background(
-                if (isExpressiveBuild) {
-                    MoviesTheme.colors.BackgroundCard
-                } else {
-                    Color.White.copy(alpha = 0.06f)
-                }
-            )
+            .clip(RoundedCornerShape(MoviesTheme.radii.lg))
+            .background(MoviesTheme.colors.BackgroundCard)
             .padding(MoviesTheme.spacing.md)
     ) {
         Column(
@@ -420,28 +398,9 @@ private fun SubtitleStyleStepperButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    IconButton(
+    MoviesIconButton(
         onClick = onClick,
-        modifier = modifier
-            .size(MoviesTheme.spacing.xxl)
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = if (isExpressiveBuild) {
-            PlayerControlStyle.iconButtonColors(Color.White)
-        } else {
-            IconButtonDefaults.colors(
-                containerColor = Color.White.copy(alpha = 0.16f),
-                focusedContainerColor = Color.White.copy(alpha = 0.28f),
-                contentColor = Color.White,
-                focusedContentColor = Color.White
-            )
-        },
-        shape = if (isExpressiveBuild) {
-            PlayerControlStyle.capsuleShape
-        } else {
-            IconButtonDefaults.shape(shape = RoundedCornerShape(10.dp))
-        }
+        modifier = modifier.size(MoviesTheme.spacing.xxl)
     ) {
         Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(MoviesTheme.spacing.lg))
     }
@@ -452,7 +411,7 @@ private fun SubtitleStyleValueDisplay(text: String) {
     Box(
         modifier = Modifier
             .widthIn(min = 52.dp)
-            .clip(PlayerSurfaceStyle.pillShape(RoundedCornerShape(10.dp)))
+            .clip(PlayerSurfaceStyle.pillShape())
             .background(Color.White.copy(alpha = 0.12f))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center
@@ -513,55 +472,14 @@ private fun SubtitleStyleToggleButton(
     isEnabled: Boolean,
     onClick: () -> Unit
 ) {
-    if (isExpressiveBuild) return ExpressiveStyleToggleButton(isEnabled, onClick)
-
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier.semantics {
             role = Role.Switch
             toggleableState = if (isEnabled) ToggleableState.On else ToggleableState.Off
         },
-        colors = CardDefaults.colors(
-            containerColor = if (isEnabled) Color.White.copy(alpha = 0.18f) else Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.28f)
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp))
-    ) {
-        Text(
-            text = if (isEnabled) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),
-            style = MaterialTheme.typography.bodySmall,
-            color = if (isEnabled) Color.White else Color.White.copy(alpha = 0.55f),
-            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = 6.dp)
-        )
-    }
-}
-
-/** On rests in the accent's tonal container; focus fills the accent and squares the pill off. */
-@Composable
-private fun ExpressiveStyleToggleButton(isEnabled: Boolean, onClick: () -> Unit) {
-    var isFocused by remember { mutableStateOf(false) }
-    val resting = if (isEnabled) {
-        MoviesTheme.colors.SecondaryVariant
-    } else {
-        Color.White.copy(alpha = 0.08f)
-    }
-    val restingContent = if (isEnabled) {
-        MoviesTheme.colors.OnSecondaryVariant
-    } else {
-        Color.White.copy(alpha = 0.55f)
-    }
-
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .onFocusChanged { isFocused = it.isFocused }
-            .semantics {
-                role = Role.Switch
-                toggleableState = if (isEnabled) ToggleableState.On else ToggleableState.Off
-            },
-        colors = PlayerPillStyle.colors(isFocused, resting = resting),
-        shape = PlayerPillStyle.shape(isFocused),
-        border = PlayerListItemStyle.noBorder()
+        selected = isEnabled,
+        shape = M3eShapes.capsule
     ) {
         Text(
             text = if (isEnabled) {
@@ -570,32 +488,19 @@ private fun ExpressiveStyleToggleButton(isEnabled: Boolean, onClick: () -> Unit)
                 stringResource(R.string.subtitle_style_off)
             },
             style = MaterialTheme.typography.bodySmall,
-            color = ExpressiveFocus.contentColor(isFocused, resting = restingContent),
+            color = if (isEnabled) {
+                LocalContentColor.current
+            } else {
+                LocalContentColor.current.copy(alpha = TOGGLE_OFF_CONTENT_ALPHA)
+            },
             modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = 6.dp)
         )
     }
 }
 
-@Composable
-private fun styleButtonColors(focused: Boolean, resting: Color): CardColors =
-    if (isExpressiveBuild) {
-        PlayerPillStyle.colors(focused, resting = resting)
-    } else {
-        CardDefaults.colors(
-            containerColor = resting,
-            focusedContainerColor = Color.White.copy(alpha = 0.2f)
-        )
-    }
+private const val TOGGLE_OFF_CONTENT_ALPHA = 0.55f
 
-@Composable
-private fun styleButtonShape(focused: Boolean, upstream: Shape): CardShape =
-    if (isExpressiveBuild) PlayerPillStyle.shape(focused) else CardDefaults.shape(upstream)
-
-@Composable
-private fun styleButtonContent(focused: Boolean, upstream: Color): Color =
-    if (isExpressiveBuild) ExpressiveFocus.contentColor(focused, resting = upstream) else upstream
-
-private val PanelCorner = if (isExpressiveBuild) 28.dp else 20.dp
+private val PanelCorner = 20.dp
 
 /** Accessible name for a colour swatch: its own RGB value, as that is the only colour
  *  description available on this panel (there are no per-colour name resources). */

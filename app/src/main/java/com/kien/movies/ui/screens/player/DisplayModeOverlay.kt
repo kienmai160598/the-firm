@@ -125,9 +125,9 @@ fun DisplayModeOverlay(
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier
-                    .clip(PlayerSurfaceStyle.pillShape(RoundedCornerShape(6.dp)))
+                    .clip(PlayerSurfaceStyle.pillShape())
                     .background(
-                        PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.45f))
+                        PlayerSurfaceStyle.floatingContainer()
                     )
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )

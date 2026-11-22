@@ -4,7 +4,6 @@ import com.kien.movies.ui.components.posterFocusScale
 import com.kien.movies.ui.components.posterFocusLift
 import com.kien.movies.ui.components.posterFocusBorder
 import androidx.compose.foundation.shape.CircleShape
-import com.kien.movies.ui.screens.detail.forBuild
 import com.kien.movies.ui.screens.detail.tvButtonPadding
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
 import com.kien.movies.ui.screens.detail.atLeastOnBox
@@ -85,8 +84,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -111,10 +108,12 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import kotlinx.coroutines.launch
 
 
-private val CountBadgeShape = forBuild(RoundedCornerShape(MoviesTheme.radii.xs), CircleShape)
+private val CountBadgeShape = CircleShape
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -195,7 +194,7 @@ private fun CastDetailContent(
     isItemWatched: (MetaPreview) -> Boolean = { false }
 ) {
     val backgroundColor = MoviesTheme.colors.Background
-    val accentColor = forBuild(MoviesTheme.colors.Secondary, Color.Transparent)
+    val accentColor = Color.Transparent
 
     val allCredits = remember(person.movieCredits, person.tvCredits) {
         (person.movieCredits + person.tvCredits)
@@ -759,7 +758,7 @@ private fun FilmographyRow(
 @Composable
 private fun CastDetailSkeleton(personName: String) {
     val backgroundColor = MoviesTheme.colors.Background
-    val accentColor = forBuild(MoviesTheme.colors.Secondary, Color.Transparent)
+    val accentColor = Color.Transparent
     val shimmerBrush = rememberShimmerBrush()
 
     Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
@@ -911,14 +910,9 @@ private fun CastDetailError(
                 color = MoviesTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
-            Button(
+            MoviesButton(
                 onClick = onRetry,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ),
+                style = MoviesButtonStyle.Primary,
                 contentPadding = tvButtonPadding()
             ) {
                 Text(stringResource(R.string.cast_detail_retry), style = buttonLabelStyle())

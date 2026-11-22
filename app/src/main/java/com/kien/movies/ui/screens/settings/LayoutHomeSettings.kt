@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
@@ -35,9 +34,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -49,6 +45,8 @@ import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.ui.components.ClassicLayoutPreview
 import com.kien.movies.ui.components.GridLayoutPreview
 import com.kien.movies.ui.components.ModernLayoutPreview
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 
 @Composable
 internal fun LayoutHomeLayoutSection(
@@ -256,7 +254,7 @@ private fun LayoutCard(
     var isFocused by remember { mutableStateOf(false) }
     val animatePreview = isSelected || isFocused
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .onFocusChanged { state ->
@@ -269,23 +267,8 @@ private fun LayoutCard(
                 role = Role.RadioButton
                 this.selected = isSelected
             },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        border = CardDefaults.border(
-            border = if (isSelected) Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            ) else Border.None,
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            )
-        ).expressiveSelection(isSelected),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius))
-            .expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+        selected = isSelected,
+        focus = MoviesCardFocus.Frosted
     ) {
         Column(
             modifier = Modifier

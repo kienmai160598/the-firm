@@ -4,7 +4,6 @@ package com.kien.movies.ui.screens.settings
 
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,11 +47,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -75,6 +69,9 @@ import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.PosterCwStylePreview
 import com.kien.movies.ui.components.WideCwStylePreview
 import com.kien.movies.ui.components.cardDepthVisual
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -430,7 +427,7 @@ private fun CwStyleCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .onFocusChanged { state ->
@@ -443,23 +440,8 @@ private fun CwStyleCard(
                 role = Role.RadioButton
                 this.selected = isSelected
             },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        border = CardDefaults.border(
-            border = if (isSelected) Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            ) else Border.None,
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            )
-        ).expressiveSelection(isSelected),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius))
-            .expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+        selected = isSelected,
+        focus = MoviesCardFocus.Frosted
     ) {
         Column(
             modifier = Modifier
@@ -801,31 +783,13 @@ private fun CardDepthResetButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-    Button(
+    MoviesButton(
         onClick = onClick,
-        modifier = modifier.tvControlHeight(),
-        shape = ButtonDefaults.shape(shape = shape).expressivePill(),
-        colors = ButtonDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = MoviesTheme.colors.Background
-        ).expressiveControl(),
-        border = ButtonDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                shape = shape
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = shape
-            )
-        ).expressiveRingless(),
-        scale = ButtonDefaults.scale().expressiveControlGrow()
+        modifier = modifier.tvControlHeight()
     ) {
         Text(
             text = stringResource(R.string.layout_reset_default),
-            style = MaterialTheme.typography.titleMedium,
-            color = onControlColor(MoviesTheme.colors.TextPrimary)
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }

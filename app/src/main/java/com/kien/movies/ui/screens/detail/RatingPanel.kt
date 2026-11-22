@@ -5,7 +5,6 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -46,6 +45,7 @@ import com.kien.movies.core.tracking.TrackingRatingState
 import com.kien.movies.core.tracking.TrackingRatings
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.settings.SettingsDialogActionButton
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import java.util.Locale
 import kotlin.math.floor
@@ -181,7 +181,7 @@ internal fun RatingPanel(
 private fun RatingScore(value: Int) {
     val color by animateColorAsState(
         targetValue = if (value > 0) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
-        animationSpec = effectsSpec(tween(durationMillis = 200)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "rating_score_color"
     )
     Row(verticalAlignment = Alignment.Bottom) {
@@ -193,8 +193,8 @@ private fun RatingScore(value: Int) {
                     dampingRatio = 0.8f,
                     stiffness = Spring.StiffnessMediumLow
                 )
-                val enterFade = fadeIn(effectsSpec(tween(140)))
-                val exitFade = fadeOut(effectsSpec(tween(100)))
+                val enterFade = fadeIn(ExpressiveMotion.defaultEffects())
+                val exitFade = fadeOut(ExpressiveMotion.defaultEffects())
                 val slideIn = slideInVertically(motion) { if (rising) it / 2 else -it / 2 }
                 val slideOut = slideOutVertically(motion) { if (rising) -it / 2 else it / 2 }
                 (slideIn + enterFade) togetherWith (slideOut + exitFade) using

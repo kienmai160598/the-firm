@@ -6,39 +6,24 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
-import androidx.tv.material3.MaterialTheme
-import com.kien.movies.ui.theme.ExpressiveColors
-import androidx.tv.material3.Border
-import androidx.tv.material3.ButtonColors
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.CardBorder
-import androidx.tv.material3.CardColors
-import androidx.tv.material3.CardDefaults
-import com.kien.movies.ui.screens.detail.forBuild
-import com.kien.movies.ui.screens.detail.tonalButtonColors
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
+import androidx.tv.material3.MaterialTheme
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.theme.ExpressiveColors
 
 private const val PULSE_MILLIS = 900
 private const val PULSE_MAX_SCALE = 1.35f
@@ -47,84 +32,44 @@ private const val PULSE_START_ALPHA = 0.2f
 // Material 3 emphasized decelerate: the ring leaves fast and settles, like a spring would.
 private val PulseEasing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
 
-/** A tonal icon button: accent on focus, tonal while [selected], with the M3E shape change. */
-@Composable
-internal fun Modifier.expressiveIconButtonSurface(
-    focused: Boolean,
-    selected: Boolean = false
-): Modifier {
-    val container = ExpressiveFocus.containerColor(
-        focused = focused,
-        selected = selected,
-        resting = searchRestingFill()
-    )
-    val shape = if (isExpressiveBuild) CircleShape else ExpressiveFocus.morphingPill(focused)
-    return expressiveFocusScale(focused).background(container, shape)
-}
-
-/** A resting control on the search screens: frosted white on the box build. */
-@Composable
-internal fun searchRestingFill(): Color =
-    if (isExpressiveBuild) ExpressiveColors.frosted else MoviesTheme.colors.BackgroundCard
-
 private val SearchFieldMinHeight = 64.dp
 private const val PLACEHOLDER_ALPHA = 0.5f
 
 /**
- * The search field on the box build, as tvOS draws it: a large frosted capsule with white text at
- * rest that turns solid white with black text and cursor while it has focus. No outline.
+ * The search field as tvOS draws it: a large frosted capsule with white text at rest that turns
+ * solid white with black text and cursor while it has focus. No outline.
  */
 @Composable
-internal fun searchFieldColors(): TextFieldColors {
-    if (!isExpressiveBuild) {
-        return TextFieldDefaults.colors(
-            focusedContainerColor = MoviesTheme.colors.BackgroundCard,
-            unfocusedContainerColor = MoviesTheme.colors.BackgroundCard,
-            focusedIndicatorColor = MoviesTheme.colors.FocusRing,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = MoviesTheme.colors.TextPrimary,
-            unfocusedTextColor = MoviesTheme.colors.TextPrimary,
-            cursorColor = MoviesTheme.colors.FocusRing
-        )
-    }
-    return TextFieldDefaults.colors(
-        focusedContainerColor = ExpressiveColors.focus,
-        unfocusedContainerColor = ExpressiveColors.frosted,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-        focusedTextColor = ExpressiveColors.onFocus,
-        unfocusedTextColor = ExpressiveColors.textPrimary,
-        cursorColor = ExpressiveColors.onFocus,
-        focusedLeadingIconColor = ExpressiveColors.onFocus,
-        unfocusedLeadingIconColor = ExpressiveColors.textSecondary
-    )
-}
+internal fun searchFieldColors(): TextFieldColors = TextFieldDefaults.colors(
+    focusedContainerColor = ExpressiveColors.focus,
+    unfocusedContainerColor = ExpressiveColors.frosted,
+    focusedIndicatorColor = Color.Transparent,
+    unfocusedIndicatorColor = Color.Transparent,
+    focusedTextColor = ExpressiveColors.onFocus,
+    unfocusedTextColor = ExpressiveColors.textPrimary,
+    cursorColor = ExpressiveColors.onFocus,
+    focusedLeadingIconColor = ExpressiveColors.onFocus,
+    unfocusedLeadingIconColor = ExpressiveColors.textSecondary
+)
 
 /** The placeholder dims with the field's text and turns black with it on focus. */
-@Composable
-internal fun searchPlaceholderColor(fieldFocused: Boolean): Color = when {
-    !isExpressiveBuild -> MoviesTheme.colors.TextTertiary
-    fieldFocused -> ExpressiveColors.onFocus.copy(alpha = PLACEHOLDER_ALPHA)
-    else -> ExpressiveColors.textTertiary
-}
-
-internal fun Modifier.searchFieldSize(): Modifier =
-    if (isExpressiveBuild) heightIn(min = SearchFieldMinHeight) else this
-
-/** The query in the field: the row title size on the box build, so it reads from the sofa. */
-@Composable
-internal fun searchFieldTextStyle(): TextStyle {
-    val base = TextStyle(textDirection = TextDirection.Content)
-    return if (isExpressiveBuild) MaterialTheme.typography.titleMedium.merge(base) else base
-}
-
-/** A magnifier leading the field on the box build; none upstream. */
-internal fun searchFieldLeadingIcon(): (@Composable () -> Unit)? =
-    if (isExpressiveBuild) {
-        { Icon(imageVector = Icons.Default.Search, contentDescription = null) }
+internal fun searchPlaceholderColor(fieldFocused: Boolean): Color =
+    if (fieldFocused) {
+        ExpressiveColors.onFocus.copy(alpha = PLACEHOLDER_ALPHA)
     } else {
-        null
+        ExpressiveColors.textTertiary
     }
+
+internal fun Modifier.searchFieldSize(): Modifier = heightIn(min = SearchFieldMinHeight)
+
+/** The query in the field: the row title size, so it reads from the sofa. */
+@Composable
+internal fun searchFieldTextStyle(): TextStyle =
+    MaterialTheme.typography.titleMedium.merge(TextStyle(textDirection = TextDirection.Content))
+
+/** A magnifier leading the field. */
+internal fun searchFieldLeadingIcon(): (@Composable () -> Unit) =
+    { Icon(imageVector = Icons.Default.Search, contentDescription = null) }
 
 /** The listening pulse; composed only while listening, so an idle search screen runs no frames. */
 @Composable
@@ -145,85 +90,5 @@ internal fun VoicePulseRing(color: Color, modifier: Modifier = Modifier) {
     }
 }
 
-/** Recent searches: tonal rows that fill with the accent on focus on the box build. */
-@Composable
-internal fun recentSearchButtonColors(): ButtonColors {
-    if (isExpressiveBuild) return tonalButtonColors(ExpressiveColors.frosted)
-
-    return ButtonDefaults.colors(
-        containerColor = MoviesTheme.colors.BackgroundCard,
-        contentColor = MoviesTheme.colors.TextPrimary,
-        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-        focusedContentColor = MoviesTheme.colors.Primary
-    )
-}
-
-internal fun recentRowShape(): Shape =
-    RoundedCornerShape(forBuild(MoviesTheme.radii.md, MoviesTheme.radii.lg))
-
-internal fun recentClearShape(): Shape =
-    forBuild(RoundedCornerShape(MoviesTheme.radii.md), CircleShape)
-
-@Composable
-internal fun recentRemoveFocusedContainer(): Color =
-    if (isExpressiveBuild) MoviesTheme.colors.Secondary else MoviesTheme.colors.FocusBackground
-
-@Composable
-internal fun recentRemoveTint(focused: Boolean): Color {
-    val colors = MoviesTheme.colors
-    return if (isExpressiveBuild && focused) colors.OnSecondary else colors.TextPrimary
-}
-
-private val UpstreamFieldCorner = 14.dp
-
-/** Discover's filter fields and their menus: the M3E large corner on the box build. */
-internal val DiscoverFieldShape: Shape =
-    RoundedCornerShape(forBuild(UpstreamFieldCorner, MoviesTheme.radii.lg))
-
-/** A filled M3 field on the box build: no hairline, the accent on focus. */
-@Composable
-internal fun discoverFieldColors(focused: Boolean): CardColors {
-    if (!isExpressiveBuild) {
-        return CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        )
-    }
-    val container = ExpressiveFocus.containerColor(focused, resting = searchRestingFill())
-    return CardDefaults.colors(containerColor = container, focusedContainerColor = container)
-}
-
-@Composable
-internal fun discoverFieldBorder(): CardBorder {
-    if (isExpressiveBuild) return CardDefaults.border(focusedBorder = Border.None)
-
-    val shape = RoundedCornerShape(UpstreamFieldCorner)
-    return CardDefaults.border(
-        border = Border(
-            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-            shape = shape
-        ),
-        focusedBorder = Border(
-            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-            shape = shape
-        )
-    )
-}
-
-@Composable
-internal fun discoverFieldContent(focused: Boolean, resting: Color): Color =
-    if (isExpressiveBuild) ExpressiveFocus.contentColor(focused, resting = resting) else resting
-
-@Composable
-internal fun discoverFieldIconTint(focused: Boolean): Color {
-    if (isExpressiveBuild) return ExpressiveFocus.contentColor(focused)
-
-    return if (focused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextSecondary
-}
-
-@Composable
-internal fun discoverMenuBorder(): BorderStroke? = if (isExpressiveBuild) {
-    null
-} else {
-    BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border)
-}
+/** Discover's filter fields and their menus: the kit's 12dp field corner. */
+internal val DiscoverFieldShape: Shape = M3eShapes.card

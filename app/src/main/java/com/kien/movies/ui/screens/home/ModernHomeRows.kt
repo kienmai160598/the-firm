@@ -9,7 +9,6 @@ import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -1451,8 +1450,7 @@ private fun ModernCarouselCard(
                         var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                         val gifAlpha by animateFloatAsState(
                             targetValue = if (gifLoaded) 1f else 0f,
-                            animationSpec =
-                                ExpressiveMotion.effectsOr(tween(durationMillis = 200)),
+                            animationSpec = ExpressiveMotion.defaultEffects(),
                             label = "gifFadeIn"
                         )
                         AsyncImage(

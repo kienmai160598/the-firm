@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -33,21 +31,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.screens.settings.expressiveControl
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.screens.settings.expressivePanelShape
-import com.kien.movies.ui.screens.settings.expressiveCardShape
 
 @Composable
 fun SyncCodeClaimScreen(
@@ -71,7 +63,7 @@ fun SyncCodeClaimScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = MoviesTheme.colors.BackgroundElevated,
-                    shape = expressivePanelShape(RoundedCornerShape(20.dp))
+                    shape = M3eShapes.panel
                 )
                 .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -101,7 +93,7 @@ fun SyncCodeClaimScreen(
                         .fillMaxWidth()
                         .background(
                             color = MoviesPrimitives.green700.copy(alpha = 0.15f),
-                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                            shape = M3eShapes.panel
                         )
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
@@ -115,21 +107,13 @@ fun SyncCodeClaimScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
-                Button(
+                MoviesButton(
                     onClick = {
                         viewModel.clearSyncClaimSuccess()
                         onBackPress()
                     },
-                    colors = ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.Secondary,
-                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                        contentColor = MoviesTheme.colors.OnSecondary,
-                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                    ).expressiveControl(primary = true),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                    border = ButtonDefaults.border().expressiveRingless(),
-                    scale = ButtonDefaults.scale().expressiveControlGrow(),
-                    modifier = Modifier.fillMaxWidth().tvControlHeight()
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MoviesButtonStyle.Primary
                 ) {
                     Text(stringResource(R.string.sync_claim_done), modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs))
                 }
@@ -181,25 +165,17 @@ fun SyncCodeClaimScreen(
                     Text(
                         text = uiState.error ?: "",
                         style = MaterialTheme.typography.bodySmall,
-                        color = accountErrorContent(Color(0xFFF44336))
+                        color = accountErrorContent()
                     )
                 }
 
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
-                Button(
+                MoviesButton(
                     onClick = { viewModel.claimSyncCode(code, pin) },
                     enabled = !uiState.isLoading && code.isNotBlank() && pin.length >= 4,
-                    colors = ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.Secondary,
-                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                        contentColor = MoviesTheme.colors.OnSecondary,
-                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                    ).expressiveControl(primary = true),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                    border = ButtonDefaults.border().expressiveRingless(),
-                    scale = ButtonDefaults.scale().expressiveControlGrow(),
-                    modifier = Modifier.fillMaxWidth().tvControlHeight()
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MoviesButtonStyle.Primary
                 ) {
                     Text(
                         text = if (uiState.isLoading) stringResource(R.string.sync_claim_linking) else stringResource(R.string.sync_claim_title),

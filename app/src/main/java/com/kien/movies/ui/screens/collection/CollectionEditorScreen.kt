@@ -1,18 +1,17 @@
 package com.kien.movies.ui.screens.collection
 
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.tv.material3.LocalContentColor
+import com.kien.movies.ui.components.expressive.MoviesSwitch
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.components.expressiveOptionCardBorder
-import com.kien.movies.ui.components.expressiveOptionCardColors
-import com.kien.movies.ui.components.expressiveOptionCardShape
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,18 +69,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
-import androidx.tv.material3.Switch
-import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.kien.movies.domain.model.AddonCatalogCollectionSource
@@ -97,7 +90,6 @@ import com.kien.movies.domain.model.TmdbCollectionSourceType
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.metaFloor
@@ -296,7 +288,9 @@ fun CollectionEditorScreen(
                 )
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
-                Card(
+                val pinToTopRowInteraction = remember { MutableInteractionSource() }
+                val pinToTopRowFocused by pinToTopRowInteraction.collectIsFocusedAsState()
+                MoviesCard(
                     onClick = { viewModel.setPinToTop(!uiState.pinToTop) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -305,20 +299,7 @@ fun CollectionEditorScreen(
                             role = Role.Switch
                             toggleableState = if (uiState.pinToTop) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = expressiveOptionCardColors(CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    )),
-                    border = expressiveOptionCardBorder(CardDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        )
-                    )),
-                    shape = expressiveOptionCardShape(
-                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = CardDefaults.scale(focusedScale = 1.02f)
+                    interactionSource = pinToTopRowInteraction
                 ) {
                     Row(
                         modifier = Modifier
@@ -330,32 +311,24 @@ fun CollectionEditorScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.collections_editor_pin_above),
-                                style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                                color = MoviesTheme.colors.TextPrimary,
+                                style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content)
                             )
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_pin_above_desc),
                                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = MoviesTheme.colors.TextSecondary
+                                color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                             )
                         }
                         Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-                        Switch(
-                            checked = uiState.pinToTop,
-                            onCheckedChange = null,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MoviesTheme.colors.Secondary,
-                                checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
-                                uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
-                                uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
-                            )
-                        )
+                        MoviesSwitch(checked = uiState.pinToTop, enabled = true, focused = pinToTopRowFocused)
                     }
                 }
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
-                Card(
+                val focusGlowEnabledRowInteraction = remember { MutableInteractionSource() }
+                val focusGlowEnabledRowFocused by focusGlowEnabledRowInteraction.collectIsFocusedAsState()
+                MoviesCard(
                     onClick = { viewModel.setFocusGlowEnabled(!uiState.focusGlowEnabled) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -364,20 +337,7 @@ fun CollectionEditorScreen(
                             role = Role.Switch
                             toggleableState = if (uiState.focusGlowEnabled) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = expressiveOptionCardColors(CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    )),
-                    border = expressiveOptionCardBorder(CardDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        )
-                    )),
-                    shape = expressiveOptionCardShape(
-                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = CardDefaults.scale(focusedScale = 1.02f)
+                    interactionSource = focusGlowEnabledRowInteraction
                 ) {
                     Row(
                         modifier = Modifier
@@ -389,27 +349,17 @@ fun CollectionEditorScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.collections_editor_focus_glow),
-                                style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                                color = MoviesTheme.colors.TextPrimary,
+                                style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content)
                             )
                             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_focus_glow_desc),
                                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = MoviesTheme.colors.TextSecondary
+                                color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                             )
                         }
                         Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-                        Switch(
-                            checked = uiState.focusGlowEnabled,
-                            onCheckedChange = null,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MoviesTheme.colors.Secondary,
-                                checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
-                                uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
-                                uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
-                            )
-                        )
+                        MoviesSwitch(checked = uiState.focusGlowEnabled, enabled = true, focused = focusGlowEnabledRowFocused)
                     }
                 }
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
@@ -436,7 +386,7 @@ fun CollectionEditorScreen(
                     )
                     viewModes.forEach { (mode, label) ->
                         val isSelected = uiState.viewMode == mode
-                        Button(
+                        MoviesButton(
                             onClick = { viewModel.setViewMode(mode) },
                             modifier = Modifier
                                 .focusRequester(viewModeFocusRequesters.getValue(mode))
@@ -444,26 +394,7 @@ fun CollectionEditorScreen(
                                     role = Role.RadioButton
                                     selected = isSelected
                                 }.tvControlHeight(),
-                            colors = expressiveButtonColors(ButtonDefaults.colors(
-                                containerColor = if (isSelected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
-                                contentColor = if (isSelected) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                                focusedContentColor = MoviesTheme.colors.Primary
-                            ), selected = isSelected),
-                            border = expressiveButtonBorder(ButtonDefaults.border(
-                                border = if (isSelected) Border(
-                                    border = BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.Secondary),
-                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                ) else Border.None,
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                )
-                            )),
-                            shape = expressiveButtonShape(
-                                ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                            ),
-                            scale = expressiveButtonScale(ButtonDefaults.scale())
+                            style = if (isSelected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
                         ) {
                             Text(label)
                         }
@@ -472,7 +403,9 @@ fun CollectionEditorScreen(
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             if (uiState.viewMode == FolderViewMode.TABBED_GRID) {
-                    Card(
+                    val showAllTabRowInteraction = remember { MutableInteractionSource() }
+                    val showAllTabRowFocused by showAllTabRowInteraction.collectIsFocusedAsState()
+                    MoviesCard(
                         onClick = { viewModel.setShowAllTab(!uiState.showAllTab) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -481,20 +414,7 @@ fun CollectionEditorScreen(
                                 role = Role.Switch
                                 toggleableState = if (uiState.showAllTab) ToggleableState.On else ToggleableState.Off
                             },
-                        colors = expressiveOptionCardColors(CardDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground
-                        )),
-                        border = expressiveOptionCardBorder(CardDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            )
-                        )),
-                        shape = expressiveOptionCardShape(
-                            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                        ),
-                        scale = CardDefaults.scale(focusedScale = 1.02f)
+                        interactionSource = showAllTabRowInteraction
                     ) {
                         Row(
                             modifier = Modifier
@@ -506,27 +426,17 @@ fun CollectionEditorScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = stringResource(R.string.collections_editor_show_all_tab),
-                                    style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                                    color = MoviesTheme.colors.TextPrimary,
+                                    style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content)
                                 )
                                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                                 Text(
                                     text = stringResource(R.string.collections_editor_show_all_tab_desc),
                                     style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                    color = MoviesTheme.colors.TextSecondary
+                                    color = LocalContentColor.current.copy(alpha = SECONDARY_CONTENT_ALPHA)
                                 )
                             }
                             Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-                            Switch(
-                                checked = uiState.showAllTab,
-                                onCheckedChange = null,
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MoviesTheme.colors.Secondary,
-                                    checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
-                                    uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
-                                    uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
-                                )
-                            )
+                            MoviesSwitch(checked = uiState.showAllTab, enabled = true, focused = showAllTabRowFocused)
                         }
                     }
                     Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
@@ -626,7 +536,7 @@ fun CollectionEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
             ) {
-                Button(
+                MoviesButton(
                     onClick = {
                         folderToDelete = null
                         pendingFocusTarget = "folder_delete:${folder.id}"
@@ -634,13 +544,11 @@ fun CollectionEditorScreen(
                     modifier = Modifier
                         .focusRequester(deleteDialogFocusRequester)
                         .semantics { role = Role.Button }
-                        .tvControlHeight(),
-                    scale = expressiveButtonScale(ButtonDefaults.scale()),
-                    colors = expressiveButtonColors(ButtonDefaults.colors())
+                        .tvControlHeight()
                 ) {
                     Text(stringResource(R.string.collections_cancel), style = buttonLabelStyle())
                 }
-                Button(
+                MoviesButton(
                     onClick = {
                         val currentIndex = uiState.folders.indexOfFirst { it.id == folder.id }
                         val nextTargetId = uiState.folders
@@ -656,8 +564,7 @@ fun CollectionEditorScreen(
                         pendingFocusTarget = nextTarget
                     },
                     modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
-                    scale = expressiveButtonScale(ButtonDefaults.scale()),
-                    colors = expressiveButtonColors(ButtonDefaults.colors())
+                    style = MoviesButtonStyle.Destructive
                 ) {
                     Text(stringResource(R.string.cd_delete), style = buttonLabelStyle())
                 }
@@ -770,64 +677,31 @@ private fun FolderListItem(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.trapHorizontalFocus()
             ) {
-                Button(
+                MoviesButton(
                     onClick = if (isMoving) onConfirmMove else onStartMove,
                     enabled = isMoving || (canMove && actionsEnabled),
                     modifier = Modifier.semantics {
                         role = Role.Button
                     }.tvControlHeight(),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = if (isMoving) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
-                        contentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
-                        focusedContainerColor = if (isMoving) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
-                        focusedContentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Primary
-                    ), selected = isMoving),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                    )),
-                    shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                    style = if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
                 ) {
                     Icon(
                         imageVector = Icons.Default.Reorder,
                         contentDescription = stringResource(R.string.cd_reorder)
                     )
                 }
-                Button(
+                MoviesButton(
                     onClick = onEdit,
                     enabled = actionsEnabled && !isMoving,
                     modifier = Modifier
                         .tvControlHeight()
                         .then(
                             editFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
-                        ),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextSecondary,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                        focusedContentColor = MoviesTheme.colors.Primary
-                    )),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                    )),
-                    shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                        )
                 ) {
                     Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                 }
-                Button(
+                MoviesButton(
                     onClick = onDelete,
                     enabled = actionsEnabled && !isMoving,
                     modifier = Modifier
@@ -835,23 +709,7 @@ private fun FolderListItem(
                         .then(
                             deleteFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                         ),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextSecondary,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                        focusedContentColor = MoviesTheme.colors.Error
-                    ), destructive = true),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                    )),
-                    shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                    style = MoviesButtonStyle.Destructive
                 ) {
                     Icon(Icons.Default.Delete, stringResource(R.string.cd_delete))
                 }

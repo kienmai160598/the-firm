@@ -2,8 +2,7 @@
 
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.screens.detail.fastSpatialSpec
-import com.kien.movies.ui.screens.detail.effectsSpec
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import android.view.KeyEvent
@@ -53,8 +52,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -62,6 +59,8 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.core.party.PARTY_CODE_ALPHABET
 import com.kien.movies.core.party.PARTY_CODE_LENGTH
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.settingsOptionRow
 import com.kien.movies.ui.theme.MoviesTheme
 
@@ -105,12 +104,12 @@ private fun CodeSlot(
             char != null -> MoviesTheme.colors.TextSecondary
             else -> MoviesTheme.colors.Border
         },
-        animationSpec = effectsSpec(tween(180)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "codeSlotLine",
     )
     val lineHeight by animateDpAsState(
         targetValue = if (active) MoviesTheme.strokes.heavy else MoviesTheme.strokes.medium,
-        animationSpec = fastSpatialSpec(tween(180)),
+        animationSpec = ExpressiveMotion.expressiveFastSpatial(),
         label = "codeSlotLineHeight"
     )
     Column(
@@ -127,9 +126,9 @@ private fun CodeSlot(
                 targetState = char,
                 transitionSpec = {
                     val pop = spring<Float>(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium)
-                    val enterFade = fadeIn(effectsSpec(tween(120)))
+                    val enterFade = fadeIn(ExpressiveMotion.defaultEffects())
                     (enterFade + scaleIn(pop, initialScale = 0.5f)) togetherWith
-                        fadeOut(effectsSpec(tween(90)))
+                        fadeOut(ExpressiveMotion.defaultEffects())
                 },
                 label = "codeSlotChar",
             ) { value ->
@@ -269,14 +268,13 @@ private fun KeypadButton(
     primary: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
             .height(44.dp.atLeastOnBox(TvSizeFloors.control))
             .focusProperties { canFocus = enabled },
-        colors = keypadButtonColors(primary),
-        scale = ButtonDefaults.scale(focusedScale = 1.04f),
+        style = if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary,
         contentPadding = PaddingValues(0.dp),
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

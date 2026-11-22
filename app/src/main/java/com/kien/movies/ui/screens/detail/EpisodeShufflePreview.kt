@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
-import androidx.tv.material3.Button
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -52,6 +51,7 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.PlayManualOverrideDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
@@ -111,7 +111,7 @@ internal fun EpisodeShufflePreview(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Button(
+                MoviesButton(
                     onClick = { if (!starting) onBack() },
                     modifier = Modifier.focusRequester(backFocus).focusProperties { down = playFocus }
                 ) {
@@ -161,7 +161,7 @@ internal fun EpisodeShufflePreview(
                             modifier = Modifier.focusProperties { up = backFocus; down = FocusRequester.Cancel }
                         )
                         if (canShuffleAgain) {
-                            Button(
+                            MoviesButton(
                                 onClick = { if (!starting) onShuffleAgain() },
                                 modifier = Modifier
                                     .focusProperties {
@@ -169,7 +169,6 @@ internal fun EpisodeShufflePreview(
                                         down = FocusRequester.Cancel
                                     }
                                     .tvControlHeight(),
-                                colors = tonalOnBoxButtonColors(),
                                 contentPadding = tvButtonPadding()
                             ) {
                                 Icon(
@@ -232,7 +231,7 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
     }
     Box(
         modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-            .clip(RoundedCornerShape(forBuild(16.dp, MoviesTheme.radii.xl)))
+            .clip(RoundedCornerShape(MoviesTheme.radii.xl))
             .background(MoviesTheme.colors.BackgroundCard),
         contentAlignment = Alignment.Center
     ) {

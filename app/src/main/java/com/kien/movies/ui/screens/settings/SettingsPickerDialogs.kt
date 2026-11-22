@@ -64,6 +64,8 @@ import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.displayName
 import com.kien.movies.domain.model.formatHexColor
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -197,30 +199,18 @@ internal fun ColorSelectionDialog(
                     color = MoviesTheme.colors.TextSecondary,
                     modifier = Modifier.width(70.dp)
                 )
-                Card(
+                MoviesCard(
                     onClick = { alphaPercent = (alphaPercent - 10).coerceAtLeast(0) },
                     // The glyph is not a name, so the Card itself is the named button node.
                     modifier = Modifier.clearAndSetSemantics {
                         contentDescription = decreaseLabel
                         role = Role.Button
                     },
-                    colors = CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundElevated,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ).expressiveControl(),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
-                        )
-                    ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-                        .expressivePill()
+                    shape = M3eShapes.capsule
                 ) {
                     Text(
                         text = "−",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier.padding(
                             horizontal = MoviesTheme.spacing.lg,
                             vertical = TvSizeFloors.atLeast(
@@ -250,30 +240,18 @@ internal fun ColorSelectionDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MoviesTheme.colors.TextPrimary
                 )
-                Card(
+                MoviesCard(
                     onClick = { alphaPercent = (alphaPercent + 10).coerceAtMost(100) },
                     // The glyph is not a name, so the Card itself is the named button node.
                     modifier = Modifier.clearAndSetSemantics {
                         contentDescription = increaseLabel
                         role = Role.Button
                     },
-                    colors = CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundElevated,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ).expressiveControl(),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
-                        )
-                    ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-                        .expressivePill()
+                    shape = M3eShapes.capsule
                 ) {
                     Text(
                         text = "+",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier.padding(
                             horizontal = MoviesTheme.spacing.lg,
                             vertical = TvSizeFloors.atLeast(
@@ -291,52 +269,29 @@ internal fun ColorSelectionDialog(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Card(
+                MoviesCard(
                     onClick = onDismiss,
-                    colors = CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundElevated,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ).expressiveControl(),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
-                        )
-                    ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-                        .expressivePill(),
+                    shape = M3eShapes.capsule,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = stringResource(R.string.action_cancel),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier
                             .padding(MoviesTheme.spacing.md)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
                 }
-                Card(
+                MoviesCard(
                     onClick = { onColorSelected(currentChipColor.copy(alpha = alphaPercent / 100f)) },
-                    colors = CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundElevated,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ).expressiveControl(primary = true),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
-                        )
-                    ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-                        .expressivePill(),
+                    selected = true,
+                    shape = M3eShapes.capsule,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = stringResource(R.string.action_apply),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier
                             .padding(MoviesTheme.spacing.md)
                             .fillMaxWidth(),

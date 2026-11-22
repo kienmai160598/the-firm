@@ -60,11 +60,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.Video
-import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.components.FocusScrollingText
 import com.kien.movies.ui.components.LoadingIndicator
@@ -722,9 +721,8 @@ private fun EpisodesSeasonTabs(
     ) {
         itemsIndexed(seasons, key = { _, season -> season }) { index, season ->
             val isSelected = selectedSeason == season
-            var isFocused by remember { mutableStateOf(false) }
 
-            Card(
+            MoviesCard(
                 onClick = { onSeasonSelected(season) },
                 modifier = Modifier
                     .then(if (index == focusEntryIndex) Modifier.focusRequester(selectedTabFocusRequester) else Modifier)
@@ -733,23 +731,19 @@ private fun EpisodesSeasonTabs(
                         this.selected = isSelected
                     }
                     .onFocusChanged {
-                        isFocused = it.isFocused
                         if (it.isFocused && season != selectedSeason) pendingSeason = season
                     }
-                    .playerFocusLift(isFocused)
                     .semantics {
                         role = Role.Tab
                         this.selected = isSelected
                     },
-                shape = PlayerPillStyle.shape(isFocused),
-                colors = PlayerPillStyle.colors(isFocused, isSelected),
-                border = PlayerListItemStyle.noBorder(),
-                scale = CardDefaults.scale(focusedScale = 1.0f)
+                selected = isSelected,
+                shape = M3eShapes.capsule
             ) {
                 Text(
                     text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
                     style = MaterialTheme.typography.labelLarge,
-                    color = ExpressiveFocus.contentColor(isFocused, isSelected),
+                    color = PlayerListItemStyle.labelColor(),
                     modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
                 )
             }
@@ -790,14 +784,13 @@ private fun EpisodeItem(
         }
     }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = Modifier
             .fillMaxWidth()
             .then(if (requestInitialFocus) Modifier.focusRequester(focusRequester) else Modifier)
             .onFocusChanged { isFocused = it.isFocused }
-            .playerFocusLift(isFocused, PlayerListItemStyle.FOCUS_SCALE)
             .onPreviewKeyEvent { keyEvent ->
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                     // In RTL, DPAD_LEFT visually moves toward later items and
@@ -838,10 +831,7 @@ private fun EpisodeItem(
                 }
                 false
             },
-        colors = PlayerListItemStyle.colors(isCurrent),
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale,
-        shape = PlayerListItemStyle.shape
+        selected = isCurrent
     ) {
         Row(
             modifier = Modifier

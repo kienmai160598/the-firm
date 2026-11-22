@@ -6,7 +6,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,19 +39,16 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ClickableSurfaceScale
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.expressiveFocusScale
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -80,10 +75,10 @@ internal fun RatingActionButton(
         twirl.animateTo(1f, spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow))
     }
 
-    Surface(
+    MoviesSurface(
         onClick = onClick,
+        shape = M3eShapes.capsule,
         modifier = Modifier
-            .expressiveFocusScale(focused)
             .onFocusChanged { state ->
                 focused = state.isFocused
                 if (state.isFocused) onFocused()
@@ -92,27 +87,14 @@ internal fun RatingActionButton(
             .semantics {
                 role = Role.Button
                 contentDescription = description
-            },
-        shape = ClickableSurfaceDefaults.shape(shape = CircleShape),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = forBuild(MoviesTheme.colors.BackgroundCard, ExpressiveColors.frosted),
-            focusedContainerColor = MoviesTheme.colors.Secondary,
-            contentColor = MoviesTheme.colors.TextPrimary,
-            focusedContentColor = MoviesTheme.colors.OnSecondary
-        ),
-        scale = ClickableSurfaceScale.None
+            }
     ) {
         Row(
             modifier = Modifier
                 .height(MoviesTheme.spacing.xxxl)
                 .defaultMinSize(minWidth = MoviesTheme.spacing.xxxl)
                 .animateContentSize(
-                    animationSpec = fastSpatialSpec(
-                        tween(
-                            durationMillis = MoviesMotion.tokens.durations.fast,
-                            easing = MoviesMotion.tokens.easings.standard
-                        )
-                    )
+                    animationSpec = ExpressiveMotion.expressiveFastSpatial()
                 )
                 .padding(horizontal = if (rated) 16.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -135,8 +117,8 @@ internal fun RatingActionButton(
             AnimatedContent(
                 targetState = rating,
                 transitionSpec = {
-                    (slideInVertically { it / 2 } + fadeIn(effectsSpec(tween(160)))) togetherWith
-                        (slideOutVertically { -it / 2 } + fadeOut(effectsSpec(tween(120)))) using
+                    (slideInVertically { it / 2 } + fadeIn(ExpressiveMotion.defaultEffects())) togetherWith
+                        (slideOutVertically { -it / 2 } + fadeOut(ExpressiveMotion.defaultEffects())) using
                         SizeTransform(clip = false)
                 },
                 label = "rating_action_value"

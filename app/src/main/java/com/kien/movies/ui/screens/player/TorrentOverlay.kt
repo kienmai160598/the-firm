@@ -1,7 +1,6 @@
 package com.kien.movies.ui.screens.player
 
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +42,8 @@ fun TorrentOverlay(
         Column(
             modifier = Modifier
                 .background(
-                    color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.7f)),
-                    shape = PlayerSurfaceStyle.compactShape(RoundedCornerShape(MoviesTheme.radii.sm))
+                    color = PlayerSurfaceStyle.floatingContainer(),
+                    shape = PlayerSurfaceStyle.compactShape()
                 )
                 .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
@@ -56,11 +54,7 @@ fun TorrentOverlay(
             ) {
                 Text(
                     text = "P2P",
-                    color = if (isExpressiveBuild) {
-                        MoviesTheme.colors.Success
-                    } else {
-                        Color(0xFF4CAF50)
-                    },
+                    color = MoviesTheme.colors.Success,
                     fontSize = TorrentStatSize,
                     fontWeight = FontWeight.Bold
                 )

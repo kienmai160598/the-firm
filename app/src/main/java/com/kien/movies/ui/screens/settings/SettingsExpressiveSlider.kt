@@ -16,8 +16,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 // Stays under the 38 dp step buttons beside it, so the row keeps its height.
 private val SliderHeight = 36.dp
@@ -29,7 +27,7 @@ private val HandleFocusedWidth = 6.dp
 private const val INACTIVE_TRACK_ALPHA = 0.2f
 
 /**
- * The Material 3 Expressive slider: a thick active track in the accent, a tonal inactive track,
+ * The Material 3 Expressive slider: a thick white active track, a faint white inactive track,
  * and a bar handle held apart from both by a gap. The handle slides on the expressive spring and
  * widens while the row is focused. Everything is drawn, so a change only redraws.
  */
@@ -72,19 +70,12 @@ internal fun SettingsExpressiveSlider(
     )
 }
 
-/** White on the box build, black while the row behind it is focused and white. */
-@Composable
-private fun sliderActiveColor(focused: Boolean): Color = when {
-    !isExpressiveBuild -> MoviesTheme.colors.Secondary
-    focused -> ExpressiveColors.onFocus
-    else -> ExpressiveColors.focus
-}
+/** White, black while the row behind it is focused and white. */
+private fun sliderActiveColor(focused: Boolean): Color =
+    if (focused) ExpressiveColors.onFocus else ExpressiveColors.focus
 
-@Composable
-private fun sliderInactiveColor(focused: Boolean, contentAlpha: Float): Color = when {
-    !isExpressiveBuild -> MoviesTheme.colors.SurfaceVariant.copy(alpha = contentAlpha)
-    else -> sliderActiveColor(focused).copy(alpha = INACTIVE_TRACK_ALPHA * contentAlpha)
-}
+private fun sliderInactiveColor(focused: Boolean, contentAlpha: Float): Color =
+    sliderActiveColor(focused).copy(alpha = INACTIVE_TRACK_ALPHA * contentAlpha)
 
 private fun DrawScope.drawTrack(
     path: Path,

@@ -3,13 +3,10 @@ package com.kien.movies.ui.screens.profile
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -31,54 +28,33 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.core.build.BoxBuild
-import com.kien.movies.ui.screens.detail.forBuild
 import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesFocusRingStyle
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColorPalette
 import com.kien.movies.ui.theme.ThemeColors
-import com.kien.movies.ui.theme.isExpressiveBuild
 
-private const val HALO_ALPHA = 0.4f
 private const val INITIAL_TO_AVATAR = 0.4f
 
 /** The picker shows before any profile's theme applies, so it takes the box build's palette. */
 internal val ProfilePickerPalette: ThemeColorPalette =
     ThemeColors.getColorPalette(BoxBuild.appTheme)
 
+/** The avatar's corner: a fixed rounded tile in every focus state. */
+internal val ProfileAvatarShape: Shape = RoundedCornerShape(20.dp)
+
 /**
- * A profile avatar. On the box build it is a large rounded tile in the Netflix "Who's watching?"
- * manner that answers focus only by lifting (see [profileLift]): no halo, ring or shape change.
- * Elsewhere it squares its corners on focus inside a tonal halo in the profile's own accent.
+ * A profile avatar: a large rounded tile in the Netflix "Who's watching?" manner that answers
+ * focus only by lifting (see [profileLift]): no halo, ring or shape change.
  */
 @Composable
-internal fun FocusMorphingProfileAvatar(
+internal fun ProfilePickerAvatar(
     name: String,
     colorHex: String,
     avatarImageUrl: String?,
-    focused: Boolean,
-    focusProgress: Float,
-    avatarSize: Dp,
-    haloSize: Dp,
-    halo: MoviesFocusRingStyle
+    avatarSize: Dp
 ) {
-    val shape = profileAvatarShape(focused)
-    if (isExpressiveBuild) {
-        ShapedAvatar(name, colorHex, avatarImageUrl, avatarSize, shape)
-        return
-    }
-
-    Box(
-        modifier = Modifier
-            .size(haloSize)
-            .background(halo.brush(HALO_ALPHA * focusProgress), shape),
-        contentAlignment = Alignment.Center
-    ) {
-        ShapedAvatar(name, colorHex, avatarImageUrl, avatarSize, shape)
-    }
+    ShapedAvatar(name, colorHex, avatarImageUrl, avatarSize, ProfileAvatarShape)
 }
 
 @Composable
@@ -127,137 +103,72 @@ private fun avatarColorOf(colorHex: String): Color =
         .getOrDefault(MoviesPrimitives.blue500)
 
 private const val PIN_ERROR_FILL_ALPHA = 0.16f
-private const val DISABLED_FILL_ALPHA = 0.5f
-
-/** On the box build a filled, tonal surface carries focus and grouping, so no outline is drawn. */
-internal fun Modifier.borderOffOnBox(border: BorderStroke, shape: Shape): Modifier =
-    if (isExpressiveBuild) this else this.border(border, shape)
-
-internal fun Modifier.borderOffOnBox(width: Dp, color: Color, shape: Shape): Modifier =
-    borderOffOnBox(BorderStroke(width, color), shape)
+private const val DISABLED_FILL_ALPHA = 0.06f
 
 internal fun profilePanelShape(): Shape =
-    RoundedCornerShape(forBuild(PanelCornerUpstream, MoviesTheme.radii.xxl))
+    RoundedCornerShape(MoviesTheme.radii.xxl)
 
 internal fun profileTileShape(): Shape =
-    RoundedCornerShape(forBuild(TileCornerUpstream, MoviesTheme.radii.xl))
-
-internal fun profileButtonShape(): Shape =
-    forBuild(RoundedCornerShape(MoviesTheme.radii.md), CircleShape)
+    RoundedCornerShape(MoviesTheme.radii.xl)
 
 internal fun pinBoxShape(): Shape =
-    RoundedCornerShape(forBuild(MoviesTheme.radii.xxs, MoviesTheme.radii.lg))
+    RoundedCornerShape(MoviesTheme.radii.lg)
 
 @Composable
-internal fun profileTextColor(): Color = forBuild(Color.White, MoviesTheme.colors.TextPrimary)
+internal fun profileTextColor(): Color = MoviesTheme.colors.TextPrimary
 
 @Composable
 internal fun profileToastFill(): Color =
-    forBuild(Color.Black.copy(alpha = 0.78f), MoviesTheme.colors.BackgroundCard)
+    MoviesTheme.colors.BackgroundCard
 
 /**
- * The name field keeps its focus ring on the box build: its focused fill matches the resting
- * primary button, so the ring is what says which one has focus. Only the resting outline goes.
+ * The overlay button in the kit's palette: frosted at rest (brighter for the primary action),
+ * solid white on focus, a faint fill while disabled.
  */
-@Composable
-internal fun profileFieldRestingBorder(): Color =
-    forBuild(MoviesTheme.colors.Border, Color.Transparent)
-
-@Composable
-internal fun profileFieldRestingFill(): Color =
-    forBuild(Color.White.copy(alpha = 0.05f), MoviesTheme.colors.BackgroundCard)
-
-/**
- * Upstream fills the primary button with the accent at rest. On the box build only the focused
- * button carries the accent and the primary one rests in the tonal focus tone, so with no ring a
- * focused Cancel never looks like the Create beside it.
- */
-@Composable
-internal fun overlayButtonFill(enabled: Boolean, primary: Boolean, focused: Boolean): Color {
-    val colors = MoviesTheme.colors
-    if (!isExpressiveBuild) {
-        return when {
-            !enabled -> Color.White.copy(alpha = 0.04f)
-            primary && focused -> colors.SecondaryVariant
-            primary -> colors.Secondary
-            focused -> colors.FocusBackground
-            else -> Color.White.copy(alpha = 0.06f)
-        }
+internal fun overlayButtonFill(enabled: Boolean, primary: Boolean, focused: Boolean): Color =
+    when {
+        !enabled -> Color.White.copy(alpha = DISABLED_FILL_ALPHA)
+        focused -> ExpressiveColors.focus
+        primary -> ExpressiveColors.frostedStrong
+        else -> ExpressiveColors.frosted
     }
-    return when {
-        !enabled -> colors.BackgroundCard.copy(alpha = DISABLED_FILL_ALPHA)
-        focused -> colors.Secondary
-        primary -> colors.FocusBackground
-        else -> colors.BackgroundCard
+
+/** Black on the white focused fill, white at rest, tertiary while disabled. */
+internal fun overlayButtonContent(enabled: Boolean, focused: Boolean): Color =
+    when {
+        !enabled -> ExpressiveColors.textTertiary
+        focused -> ExpressiveColors.onFocus
+        else -> ExpressiveColors.textPrimary
     }
-}
 
 @Composable
-internal fun overlayButtonContent(enabled: Boolean, primary: Boolean, focused: Boolean): Color {
-    val colors = MoviesTheme.colors
-    if (!isExpressiveBuild) {
-        return when {
-            !enabled -> colors.TextSecondary
-            primary && focused -> colors.OnSecondaryVariant
-            focused -> colors.FocusContent
-            primary -> colors.OnSecondary
-            else -> colors.TextPrimary
-        }
-    }
-    return when {
-        !enabled -> colors.TextSecondary
-        focused -> colors.OnSecondary
-        else -> colors.TextPrimary
-    }
-}
+internal fun pinErrorBorder(): Color = MoviesTheme.colors.Error
 
 @Composable
-internal fun pinErrorBorder(): Color = forBuild(Color(0xFFE35D5D), MoviesTheme.colors.Error)
+internal fun pinErrorFill(): Color = MoviesTheme.colors.Error.copy(alpha = PIN_ERROR_FILL_ALPHA)
 
 @Composable
-internal fun pinErrorFill(): Color = forBuild(
-    Color(0xFF311818).copy(alpha = 0.76f),
-    MoviesTheme.colors.Error.copy(alpha = PIN_ERROR_FILL_ALPHA)
-)
+internal fun pinErrorText(): Color = MoviesTheme.colors.Error
 
-@Composable
-internal fun pinErrorText(): Color = forBuild(Color(0xFFFF8E8E), MoviesTheme.colors.Error)
-
-private val PanelCornerUpstream = 20.dp
-private val TileCornerUpstream = 18.dp
-
-private const val UPSTREAM_LIFT = 0.04f
 private const val PICKER_LIFT = 0.10f
 private val PickerAvatarSize = 136.dp
 private val CompactPickerAvatarSize = 104.dp
-private val PickerAvatarShape = RoundedCornerShape(20.dp)
-
-/** The avatar's corner: a fixed rounded tile on the box build, the morphing pill elsewhere. */
-@Composable
-internal fun profileAvatarShape(focused: Boolean): Shape =
-    if (isExpressiveBuild) PickerAvatarShape else ExpressiveFocus.morphingPill(focused)
 
 internal fun profilePickerAvatarSize(compact: Boolean): Dp =
     if (compact) CompactPickerAvatarSize else PickerAvatarSize
 
-/** The lift on focus: a smooth spring on the box build, upstream's expressive spring elsewhere. */
+/** The lift on focus: a smooth spring. */
 internal fun profileLiftSpec(): FiniteAnimationSpec<Float> =
-    if (isExpressiveBuild) {
-        spring(dampingRatio = LIFT_DAMPING, stiffness = Spring.StiffnessMediumLow)
-    } else {
-        ExpressiveMotion.expressiveFastSpatial()
-    }
+    spring(dampingRatio = LIFT_DAMPING, stiffness = Spring.StiffnessMediumLow)
 
 /** Grows a profile tile with its focus progress, read at draw time so a lift costs no recompose. */
 internal fun Modifier.profileLift(focusProgress: State<Float>): Modifier = graphicsLayer {
-    val scale = 1f + (if (isExpressiveBuild) PICKER_LIFT else UPSTREAM_LIFT) * focusProgress.value
+    val scale = 1f + PICKER_LIFT * focusProgress.value
     scaleX = scale
     scaleY = scale
 }
 
-/** The add-profile tile at rest: frosted white on the box build. */
-@Composable
-internal fun addProfileRestingFill(): Color =
-    if (isExpressiveBuild) ExpressiveColors.frosted else MoviesTheme.colors.BackgroundCard
+/** The add-profile tile at rest: frosted white. */
+internal val addProfileRestingFill: Color = ExpressiveColors.frosted
 
 private const val LIFT_DAMPING = 0.8f

@@ -8,13 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.tvControlHeight
+import com.kien.movies.ui.components.expressive.MoviesButton
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -39,26 +36,18 @@ fun PlayManualOverrideDialog(
         subtitle = subtitle
     ) {
         if (showPlayManually) {
-            Button(
+            MoviesButton(
                 onClick = onPlayManually,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(primaryFocusRequester)
-                    .tvControlHeight(),
-                colors = expressiveButtonColors(
-                    ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextPrimary
-                    )
-                ),
-                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
                 Text(stringResource(R.string.play_manually), style = buttonLabelStyle())
             }
         }
 
         if (showStartFromBeginning) {
-            Button(
+            MoviesButton(
                 onClick = onStartFromBeginning,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -66,14 +55,6 @@ fun PlayManualOverrideDialog(
                         if (!showPlayManually) Modifier.focusRequester(primaryFocusRequester)
                         else Modifier
                     )
-                    .tvControlHeight(),
-                colors = expressiveButtonColors(
-                    ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundCard,
-                        contentColor = MoviesTheme.colors.TextPrimary
-                    )
-                ),
-                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
                 Text(
                     stringResource(R.string.cw_action_start_from_beginning),

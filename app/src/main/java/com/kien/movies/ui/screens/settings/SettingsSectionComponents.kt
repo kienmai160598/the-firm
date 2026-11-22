@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ExpandMore
@@ -29,16 +28,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.tvControlHeight
 
 internal val SettingsRowContentInset = 18.dp
 
@@ -166,33 +162,20 @@ internal fun SettingsResetButton(
     modifier: Modifier = Modifier,
     onFocused: () -> Unit = {}
 ) {
-    val flat = isFlatSettingsStyle()
-    val shape = if (flat) settingsRowShape() else RoundedCornerShape(SettingsPillRadius)
-    Button(
+    MoviesButton(
         onClick = onClick,
-        modifier = modifier.tvControlHeight().onFocusChanged { if (it.isFocused) onFocused() },
-        shape = ButtonDefaults.shape(shape = shape).let { if (flat) it else it.expressivePill() },
-        colors = ButtonDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor =
-                if (flat) settingsFocusFillColor() else MoviesTheme.colors.FocusBackground
-        ).let { if (flat) it else it.expressiveControl() },
-        border = ButtonDefaults.border(border = Border.None, focusedBorder = Border.None),
-        scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-            .let { if (flat) it else it.expressiveControlGrow() }
+        modifier = modifier.onFocusChanged { if (it.isFocused) onFocused() }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.RestartAlt,
                 contentDescription = null,
-                tint = onControlColor(MoviesTheme.colors.TextSecondary),
                 modifier = Modifier.size(buttonIconSize(18.dp))
             )
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelLarge,
-                color = onControlColor(MoviesTheme.colors.TextPrimary)
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }

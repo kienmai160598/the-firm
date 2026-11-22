@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -61,23 +60,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesMotion
-import com.kien.movies.ui.theme.tvControlHeight
 
 private data class RatingOrderItem(
     val provider: String,
@@ -304,30 +300,12 @@ private fun MDBListApiKeyDialog(
         subtitle = stringResource(R.string.mdblist_ratings_key_override_subtitle),
         width = 700.dp
     ) {
-        Card(
+        MoviesCard(
             onClick = { inputFocusRequester.requestFocus() },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
-            colors = CardDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundElevated,
-                focusedContainerColor = expressiveCardFocusFill(
-                    MoviesTheme.colors.BackgroundElevated
-                )
-            ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = androidx.compose.foundation.BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
-                ),
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
-                )
-            ).expressiveRingless(),
-            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
-                .expressiveCard(),
-            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+            focus = MoviesCardFocus.Frosted
         ) {
             Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                 BasicTextField(
@@ -345,7 +323,7 @@ private fun MDBListApiKeyDialog(
                     keyboardActions = KeyboardActions(
                         onDone = { keyboardController?.hide() }
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MoviesTheme.colors.TextPrimary,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = LocalContentColor.current,
                                             textDirection = TextDirection.Content),
                     cursorBrush = SolidColor(
                         if (isInputFocused) MoviesTheme.colors.Primary
@@ -356,7 +334,7 @@ private fun MDBListApiKeyDialog(
                             Text(
                                 text = stringResource(R.string.mdblist_dialog_placeholder),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MoviesTheme.colors.TextTertiary
+                                color = LocalContentColor.current.copy(alpha = SETTINGS_TERTIARY_TEXT_ALPHA)
                             )
                         }
                         innerTextField()
@@ -369,41 +347,17 @@ private fun MDBListApiKeyDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            Button(
-                modifier = Modifier.tvControlHeight(),
-                onClick = onDismiss,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundElevated,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
-            ) {
+            MoviesButton(onClick = onDismiss) {
                 Text(stringResource(R.string.action_cancel))
             }
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-            Button(
-                modifier = Modifier.tvControlHeight(),
-                onClick = onClear,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundElevated,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
-            ) {
+            MoviesButton(onClick = onClear, style = MoviesButtonStyle.Destructive) {
                 Text(stringResource(R.string.action_clear))
             }
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-            Button(
-                modifier = Modifier.tvControlHeight(),
+            MoviesButton(
                 onClick = { if (!validating) viewModel.validateAndSaveApiKey(value, onSaved) },
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(if (validating) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
             }
@@ -439,8 +393,7 @@ private fun RatingOrderRow(
     val flat = isFlatSettingsStyle()
     val contentAlpha = if (enabled) 1f else 0.4f
     val rowShape = settingsRowShape()
-    val toggleShape = RoundedCornerShape(MoviesTheme.radii.md)
-    val moveButtonShape = RoundedCornerShape(MoviesTheme.radii.md)
+    var toggleFocused by remember { mutableStateOf(false) }
     val canToggle = enabled && actionsEnabled && !isMoving
     val moveButtonEnabled = isMoving || (canMove && actionsEnabled)
 
@@ -489,30 +442,20 @@ private fun RatingOrderRow(
                 horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
+                MoviesSurface(
                     onClick = {
                         if (canToggle) onToggle()
                     },
                     modifier = Modifier
                         .focusProperties { canFocus = enabled }
+                        .onFocusChanged { toggleFocused = it.isFocused }
                         .semantics {
                             if (!canToggle) disabled()
                             role = Role.Switch
                             contentDescription = title
                             toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = Color.Transparent,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = toggleShape
-                        )
-                    ).expressiveRingless(),
-                    shape = ClickableSurfaceDefaults.shape(toggleShape).expressiveCard(),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+                    resting = Color.Transparent
                 ) {
                     Box(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -520,54 +463,20 @@ private fun RatingOrderRow(
                     ) {
                         SettingsTogglePill(
                             checked = checked,
-                            enabled = enabled
+                            enabled = enabled,
+                            focused = toggleFocused
                         )
                     }
                 }
 
-                Button(
+                MoviesButton(
                     onClick = if (isMoving) onConfirmMove else onStartMove,
                     enabled = moveButtonEnabled,
                     modifier = Modifier
-                        .tvControlHeight()
                         .focusRequester(moveFocusRequester)
                         .focusProperties { canFocus = enabled }
                         .semantics { role = Role.Button },
-                    colors = if (isMoving) {
-                        ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.Secondary,
-                            contentColor = MoviesTheme.colors.OnSecondary,
-                            focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                            focusedContentColor = MoviesTheme.colors.OnSecondary
-                        )
-                    } else {
-                        ButtonDefaults.colors(
-                            containerColor = if (flat) {
-                                MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.7f)
-                            } else {
-                                MoviesTheme.colors.BackgroundCard
-                            },
-                            contentColor = MoviesTheme.colors.TextSecondary.copy(alpha = contentAlpha),
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                            focusedContentColor = MoviesTheme.colors.Primary,
-                            disabledContainerColor = if (flat) {
-                                MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.25f)
-                            } else {
-                                MoviesTheme.colors.BackgroundCard.copy(alpha = 0.4f)
-                            },
-                            disabledContentColor = MoviesTheme.colors.TextTertiary.copy(alpha = 0.4f)
-                        )
-                    },
-                    border = ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = moveButtonShape
-                        ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(moveButtonShape)
-                    ).expressiveRingless(),
-                    shape = ButtonDefaults.shape(moveButtonShape).expressivePill(),
-                    scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-                        .expressiveControlGrow(),
+                    style = if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary,
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     Icon(

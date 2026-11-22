@@ -70,8 +70,6 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
-import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
@@ -79,6 +77,9 @@ import com.kien.movies.data.local.SUBTITLE_LANGUAGE_FORCED
 import com.kien.movies.data.local.SubtitleStyleSettings
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.player.autosync.AutoSyncStatusIndicator
 import com.kien.movies.ui.screens.player.autosync.AutoSyncedChip
@@ -851,14 +852,10 @@ private fun SubtitleStyleRail(
                 .heightIn(max = 720.dp)
         ) {
             item {
-                Card(
+                MoviesCard(
                     onClick = { dispatchStyleEvent(PlayerEvent.OnShowSubtitleDelayOverlay) },
-                    colors = overlayCardColors(selected = false),
-                    shape = PlayerListItemStyle.shape,
-                    border = overlayCardBorder(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusSpringScale()
                         .then(styleCardModifier)
                         .focusRequester(requireNotNull(focusRequesters[StyleFocusKey.DelaySet]))
                         .onPreviewKeyEvent { event ->
@@ -878,8 +875,7 @@ private fun SubtitleStyleRail(
                                 else -> false
                             }
                         }
-                        .onFocusChanged { if (it.isFocused) onStyleFocused(StyleFocusKey.DelaySet) },
-                    scale = PlayerListItemStyle.stillScale
+                        .onFocusChanged { if (it.isFocused) onStyleFocused(StyleFocusKey.DelaySet) }
                 ) {
                     Row(
                         modifier = Modifier
@@ -1091,13 +1087,9 @@ private fun SubtitleStyleRail(
                 }
             }
             item {
-                Card(
+                MoviesCard(
                     onClick = { dispatchStyleEvent(PlayerEvent.OnResetSubtitleDefaults) },
-                    colors = overlayCardColors(selected = false),
-                    shape = PlayerListItemStyle.shape,
-                    border = overlayCardBorder(),
                     modifier = Modifier
-                        .focusSpringScale()
                         .then(styleCardModifier)
                         .focusRequester(requireNotNull(focusRequesters[StyleFocusKey.Reset]))
                         .onPreviewKeyEvent { event ->
@@ -1117,8 +1109,7 @@ private fun SubtitleStyleRail(
                                 else -> false
                             }
                         }
-                        .onFocusChanged { if (it.isFocused) onStyleFocused(StyleFocusKey.Reset) },
-                    scale = PlayerListItemStyle.stillScale
+                        .onFocusChanged { if (it.isFocused) onStyleFocused(StyleFocusKey.Reset) }
                 ) {
                     Text(
                         text = stringResource(R.string.subtitle_reset_defaults),
@@ -1164,11 +1155,11 @@ private fun SubtitleLanguageCard(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val moveToOptionsKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_LEFT else android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 
-    Card(
+    MoviesCard(
         onClick = onClick,
+        selected = isSelected,
         modifier = Modifier
             .fillMaxWidth()
-            .focusSpringScale()
             .semantics {
                 role = Role.RadioButton
                 this.selected = isSelected
@@ -1200,11 +1191,7 @@ private fun SubtitleLanguageCard(
                     )
                     onFocused()
                 }
-            },
-        colors = overlayCardColors(selected = isSelected),
-        shape = PlayerListItemStyle.shape,
-        border = overlayCardBorder(),
-        scale = PlayerListItemStyle.stillScale
+            }
     ) {
         Row(
             modifier = Modifier
@@ -1243,12 +1230,12 @@ private fun SubtitleOptionCard(
     val moveLeftKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_RIGHT else android.view.KeyEvent.KEYCODE_DPAD_LEFT
     val moveRightKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_LEFT else android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         onLongClick = onLongClick,
+        selected = item.isSelected,
         modifier = Modifier
             .fillMaxWidth()
-            .focusSpringScale()
             .semantics {
                 role = Role.RadioButton
                 this.selected = item.isSelected
@@ -1291,11 +1278,7 @@ private fun SubtitleOptionCard(
                     )
                     onFocused()
                 }
-            },
-        colors = overlayCardColors(selected = item.isSelected),
-        shape = PlayerListItemStyle.shape,
-        border = overlayCardBorder(),
-        scale = PlayerListItemStyle.stillScale
+            }
     ) {
         Row(
             modifier = Modifier
@@ -1500,11 +1483,10 @@ private fun StepperButton(
     focusKey: String? = null,
     onFocused: ((String) -> Unit)? = null
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val moveLeftKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_RIGHT else android.view.KeyEvent.KEYCODE_DPAD_LEFT
 
-    IconButton(
+    MoviesIconButton(
         onClick = onClick,
         modifier = Modifier
             .size(40.dp)
@@ -1528,15 +1510,10 @@ private fun StepperButton(
                 }
             }
             .onFocusChanged {
-                isFocused = it.isFocused
                 if (it.isFocused && focusKey != null) {
                     onFocused?.invoke(focusKey)
                 }
             }
-            .playerFocusLift(isFocused),
-        colors = PlayerControlStyle.iconButtonColors(Color.White),
-        shape = PlayerControlStyle.capsuleShape,
-        scale = IconButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription)
     }
@@ -1558,8 +1535,10 @@ internal fun ToggleChip(
         role = Role.Switch
         toggleableState = if (isEnabled) ToggleableState.On else ToggleableState.Off
     }
-    Card(
+    MoviesCard(
         onClick = onClick,
+        selected = isEnabled,
+        shape = M3eShapes.capsule,
         modifier = if (focusRequester != null) {
             Modifier
                 .focusRequester(focusRequester)
@@ -1609,11 +1588,7 @@ internal fun ToggleChip(
                     if (it.isFocused && focusKey != null) onFocused?.invoke(focusKey)
                 }
                 .then(switchSemantics)
-        },
-        colors = overlayCardColors(selected = isEnabled),
-        shape = PlayerListItemStyle.shape,
-        border = overlayCardBorder(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        }
     ) {
         Text(
             text = label,
@@ -1720,12 +1695,6 @@ private fun ColorChip(
 }
 
 private const val NEUTRAL_CHIP_ALPHA = 0.14f
-
-@Composable
-private fun overlayCardColors(selected: Boolean) = PlayerListItemStyle.colors(selected)
-
-@Composable
-private fun overlayCardBorder() = PlayerListItemStyle.noBorder()
 
 /** Accessible name for a colour swatch: its own RGB value, as that is the only colour
  *  description available on this screen (there are no per-colour name resources). */

@@ -107,10 +107,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.draw.clip
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -138,6 +136,9 @@ import com.kien.movies.domain.model.TraktCommentReview
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.ui.components.ErrorState
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.components.MetaDetailsSkeleton
 import com.kien.movies.ui.components.PlayManualOverrideDialog
 import com.kien.movies.ui.components.SynopsisOverlay
@@ -2780,7 +2781,7 @@ private fun MetaDetailsContent(
 
                     Crossfade(
                         targetState = visiblePeopleSection,
-                        animationSpec = effectsSpec(tween(durationMillis = 160)),
+                        animationSpec = ExpressiveMotion.defaultEffects(),
                         label = "peopleSectionSwitch"
                     ) { section ->
                         when (section) {
@@ -3539,6 +3540,8 @@ private fun PeopleSectionTabs(
     }
 }
 
+private const val UNSELECTED_PEOPLE_TAB_ALPHA = 0.64f
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun PeopleSectionTabButton(
@@ -3559,8 +3562,10 @@ private fun PeopleSectionTabButton(
         }
     }
 
-    Card(
+    MoviesCard(
         onClick = onFocused,
+        selected = selected,
+        shape = M3eShapes.capsule,
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusProperties {
@@ -3582,17 +3587,20 @@ private fun PeopleSectionTabButton(
             .semantics {
                 role = Role.Tab
                 this.selected = selected
-            },
-        colors = peopleTabColors(isFocused, selected),
-        border = peopleTabBorder(),
-        shape = peopleTabShape(),
-        scale = peopleTabScale()
+            }
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleLarge,
-            color = peopleTabContentColor(isFocused, selected),
-            modifier = Modifier.padding(peopleTabPadding())
+            color = if (isFocused || selected) {
+                LocalContentColor.current
+            } else {
+                LocalContentColor.current.copy(alpha = UNSELECTED_PEOPLE_TAB_ALPHA)
+            },
+            modifier = Modifier.padding(
+                horizontal = MoviesTheme.spacing.lg,
+                vertical = MoviesTheme.spacing.md
+            )
         )
     }
 }

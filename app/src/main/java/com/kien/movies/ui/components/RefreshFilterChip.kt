@@ -23,7 +23,7 @@ import androidx.tv.material3.FilterChipDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.SelectableChipScale
 import com.kien.movies.R
-import com.kien.movies.ui.theme.ExpressiveFocus
+import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.theme.expressiveFocusScale
 import kotlinx.coroutines.delay as coroutineDelay
 
@@ -83,7 +83,7 @@ fun RefreshFilterChip(
         },
         colors = filterChipColors(isFocused, selected = false, isError = false, content = contentColor),
         border = borderlessFilterChip(),
-        shape = FilterChipDefaults.shape(shape = ExpressiveFocus.morphingPill(isFocused)),
+        shape = FilterChipDefaults.shape(shape = M3eShapes.capsule),
         scale = SelectableChipScale.None
     ) {
         Icon(

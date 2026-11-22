@@ -2,7 +2,6 @@
 
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
@@ -10,7 +9,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.filled.Reorder
@@ -39,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -49,33 +47,26 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Border
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
-import androidx.tv.material3.Switch
-import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import kotlinx.coroutines.delay
-import com.kien.movies.ui.screens.settings.expressiveRingless
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressiveControl
-import com.kien.movies.ui.screens.settings.expressiveChoice
-import com.kien.movies.ui.screens.settings.expressiveCardShape
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.components.expressive.moviesButtonColors
+import com.kien.movies.ui.components.expressive.moviesButtonScale
+import com.kien.movies.ui.components.expressive.moviesButtonShape
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.theme.ExpressiveMotion
 
@@ -224,12 +215,8 @@ private fun CatalogOrderScreenBody(
         ) {
             val visibleMessage = pinnedNoticeMessage ?: return@AnimatedVisibility
             Surface(
-                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md)),
+                shape = M3eShapes.panel,
                 colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundElevated),
-                border = Border(
-                    border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                    shape = RoundedCornerShape(MoviesTheme.radii.md),
-                ).let { if (isExpressiveBuild) Border.None else it },
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
@@ -271,6 +258,7 @@ private fun CatalogOrderHeader(
         color = MoviesTheme.colors.TextSecondary,
     )
     Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
+    var isToggleFocused by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -288,30 +276,20 @@ private fun CatalogOrderHeader(
                 color = MoviesTheme.colors.TextSecondary,
             )
         }
-        Surface(
+        MoviesSurface(
             onClick = {
                 if (movingKey == null) {
                     onToggleFollowAddons(!followAddonsOrder)
                 }
             },
-            modifier = Modifier.semantics {
-                role = Role.Switch
-                toggleableState = if (followAddonsOrder) ToggleableState.On else ToggleableState.Off
-            },
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = MoviesTheme.colors.FocusBackground
-            ),
-            border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                )
-            ).expressiveRingless(),
-            shape = ClickableSurfaceDefaults.shape(
-                RoundedCornerShape(MoviesTheme.radii.md)
-            ).expressivePill(),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
+            modifier = Modifier
+                .semantics {
+                    role = Role.Switch
+                    toggleableState = if (followAddonsOrder) ToggleableState.On else ToggleableState.Off
+                }
+                .onFocusChanged { isToggleFocused = it.isFocused },
+            shape = M3eShapes.capsule,
+            resting = Color.Transparent
         ) {
             Box(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -319,7 +297,7 @@ private fun CatalogOrderHeader(
             ) {
                 ListToggleSwitch(
                     checked = followAddonsOrder,
-                    focused = false,
+                    focused = isToggleFocused,
                     enabled = movingKey == null
                 )
             }
@@ -345,25 +323,14 @@ private fun CatalogOrderCard(
         } else {
             MoviesTheme.colors.BackgroundCard
         },
-        animationSpec = if (isExpressiveBuild) {
-            ExpressiveMotion.defaultEffects()
-        } else {
-            MoviesMotion.focusTween()
-        },
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "catalogOrderCardColor",
     )
-    val cardBorder = if (isMoving && !isExpressiveBuild) {
-        BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.FocusRing)
-    } else {
-        null
-    }
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = cardColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md)),
-        border = cardBorder,
+        shape = M3eShapes.panel,
     ) {
         Row(
             modifier = Modifier
@@ -412,36 +379,26 @@ private fun CatalogOrderCard(
                 val toggleLabel = stringResource(
                     if (item.isDisabled) R.string.catalog_order_enable else R.string.catalog_order_disable
                 )
-                Surface(
+                var isToggleFocused by remember { mutableStateOf(false) }
+                MoviesSurface(
                     onClick = {
                         if (actionsEnabled && !isMoving) onToggleEnabled()
                     },
-                    modifier = Modifier.semantics {
-                        role = Role.Switch
-                        contentDescription = toggleLabel
-                        toggleableState = if (item.isDisabled) ToggleableState.Off else ToggleableState.On
-                    },
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = Color.Transparent,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        )
-                    ).expressiveRingless(),
-                    shape = ClickableSurfaceDefaults.shape(
-                        RoundedCornerShape(MoviesTheme.radii.md)
-                    ).expressivePill(),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-                        .expressiveControlGrow()
+                    modifier = Modifier
+                        .semantics {
+                            role = Role.Switch
+                            contentDescription = toggleLabel
+                            toggleableState = if (item.isDisabled) ToggleableState.Off else ToggleableState.On
+                        }
+                        .onFocusChanged { isToggleFocused = it.isFocused },
+                    shape = M3eShapes.capsule,
+                    resting = Color.Transparent
                 ) {
                     Box(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        ListToggleSwitch(checked = !item.isDisabled, focused = false)
+                        ListToggleSwitch(checked = !item.isDisabled, focused = isToggleFocused)
                     }
                 }
                 if (item.isPinnedToTop) {
@@ -449,22 +406,10 @@ private fun CatalogOrderCard(
                         onClick = onPinnedMoveAttempt,
                         enabled = actionsEnabled,
                         modifier = Modifier.tvControlHeight(),
-                        colors = ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            contentColor = MoviesTheme.colors.TextSecondary,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                            focusedContentColor = MoviesTheme.colors.Primary
-                        ).expressiveControl(),
-                        border = ButtonDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            ),
-                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                        ).reorderExpressive(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                            .expressivePill(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
+                        colors = moviesButtonColors(MoviesButtonStyle.Secondary),
+                        border = reorderButtonBorder(),
+                        shape = moviesButtonShape,
+                        scale = moviesButtonScale
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Lock,
@@ -476,31 +421,12 @@ private fun CatalogOrderCard(
                         onClick = if (isMoving) onConfirmMove else onStartMove,
                         enabled = isMoving || (item.canMove && actionsEnabled),
                         modifier = Modifier.tvControlHeight(),
-                        colors = if (isMoving) {
-                            ButtonDefaults.colors(
-                                containerColor = MoviesTheme.colors.Secondary,
-                                contentColor = MoviesTheme.colors.OnSecondary,
-                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                                focusedContentColor = MoviesTheme.colors.OnSecondary,
-                            )
-                        } else {
-                            ButtonDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundCard,
-                                contentColor = MoviesTheme.colors.TextSecondary,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                                focusedContentColor = MoviesTheme.colors.Primary
-                            )
-                        }.expressiveChoice(selected = isMoving),
-                        border = ButtonDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            ),
-                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                        ).reorderExpressive(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                            .expressivePill(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
+                        colors = moviesButtonColors(
+                            if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                        ),
+                        border = reorderButtonBorder(),
+                        shape = moviesButtonShape,
+                        scale = moviesButtonScale
                     ) {
                         Icon(
                             imageVector = Icons.Default.Reorder,

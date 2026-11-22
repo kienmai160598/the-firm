@@ -9,7 +9,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -51,16 +49,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
-import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.updater.UpdateUiState
@@ -207,7 +203,7 @@ internal fun UpdateBanner(
 
             // An update installed automatically has nothing left to download or install.
             if (!isInstalledUpdate) {
-                Button(
+                MoviesButton(
                     onClick = {
                         when {
                             state.isDownloading -> Unit
@@ -218,14 +214,8 @@ internal fun UpdateBanner(
                     enabled = state.isDownloading ||
                         state.downloadedApkPath != null ||
                         state.isUpdateAvailable,
-                    colors = ButtonDefaults.colors(
-                        containerColor = MoviesTheme.colors.Secondary,
-                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                        contentColor = MoviesTheme.colors.OnSecondary,
-                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                    ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50)),
-                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                    style = MoviesButtonStyle.Primary
                 ) {
                     Text(
                         text = when {
@@ -312,23 +302,10 @@ private fun UpdateBannerIconButton(
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
-    IconButton(
+    MoviesIconButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = Modifier.size(44.dp),
-        colors = IconButtonDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.Secondary,
-            contentColor = MoviesTheme.colors.TextPrimary,
-            focusedContentColor = MoviesTheme.colors.OnSecondary
-        ),
-        border = IconButtonDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, MoviesTheme.colors.FocusRing),
-                shape = CircleShape
-            )
-        ),
-        shape = IconButtonDefaults.shape(shape = CircleShape)
+        modifier = Modifier.size(44.dp)
     ) {
         Icon(
             imageVector = icon,

@@ -55,8 +55,11 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.isExpressiveBuild
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.moviesCardBorder
+import com.kien.movies.ui.components.expressive.moviesCardScale
+import com.kien.movies.ui.theme.ExpressiveColors
 import kotlin.math.roundToInt
 
 @Composable
@@ -162,13 +165,11 @@ private fun SliderSettingsItemLayout(
     var isFocused by remember { mutableStateOf(false) }
     val contentAlpha = if (enabled) 1f else 0.4f
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val shape = settingsTallRowShape()
 
-    Card(
+    MoviesCard(
         onClick = { },
         modifier = modifier
             .fillMaxWidth()
-            .settingsRowFocusScale(isFocused)
             .onFocusChanged { state ->
                 val nowFocused = state.isFocused
                 if (isFocused != nowFocused) {
@@ -197,11 +198,7 @@ private fun SliderSettingsItemLayout(
                     onSliderProgressChange(target)
                     true
                 }
-            },
-        colors = settingsRowColors(),
-        border = settingsRowBorder(),
-        shape = CardDefaults.shape(shape = shape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            }
     ) {
         Column(
             modifier = Modifier
@@ -292,34 +289,24 @@ private fun SliderStepButton(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val contentAlpha = if (enabled) 1f else 0.4f
-    val flat = isFlatSettingsStyle()
     val ink = sliderStepInk(rowFocused)
 
     Card(
         onClick = { if (enabled) onClick() },
-        modifier = Modifier.expressiveFocusScale(isFocused).onFocusChanged { state ->
+        modifier = Modifier.onFocusChanged { state ->
             val nowFocused = state.isFocused
             if (isFocused != nowFocused) {
                 isFocused = nowFocused
                 if (nowFocused) onFocused()
             }
         },
-        colors = if (isExpressiveBuild) {
-            CardDefaults.colors(
-                containerColor = ink.copy(alpha = STEP_BUTTON_FILL_ALPHA),
-                focusedContainerColor = MoviesTheme.colors.Secondary
-            )
-        } else CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = if (flat) {
-                settingsFocusFillColor()
-            } else {
-                MoviesTheme.colors.Secondary
-            }
+        colors = CardDefaults.colors(
+            containerColor = ink.copy(alpha = STEP_BUTTON_FILL_ALPHA),
+            focusedContainerColor = ExpressiveColors.focus
         ),
-        border = settingsRowBorder(),
-        shape = CardDefaults.shape(shape = CircleShape),
-        scale = CardDefaults.scale(focusedScale = 1f)
+        border = moviesCardBorder(),
+        shape = CardDefaults.shape(shape = M3eShapes.capsule),
+        scale = moviesCardScale
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -328,13 +315,7 @@ private fun SliderStepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = when {
-                    isExpressiveBuild && !isFocused -> ink
-                    isExpressiveBuild -> MoviesTheme.colors.OnSecondary
-                    !isFocused -> MoviesTheme.colors.TextPrimary
-                    flat -> MoviesTheme.colors.TextPrimary
-                    else -> MoviesTheme.colors.OnSecondary
-                }.copy(alpha = contentAlpha),
+                tint = (if (isFocused) ExpressiveColors.onFocus else ink).copy(alpha = contentAlpha),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -353,22 +334,17 @@ internal fun ColorSettingsItem(
     var isFocused by remember { mutableStateOf(false) }
     val contentAlpha = if (enabled) 1f else 0.4f
 
-    Card(
+    MoviesCard(
         onClick = { if (enabled) onClick() },
         modifier = Modifier
             .fillMaxWidth()
-            .settingsRowFocusScale(isFocused)
             .onFocusChanged { state ->
                 val nowFocused = state.isFocused
                 if (isFocused != nowFocused) {
                     isFocused = nowFocused
                     if (nowFocused) onFocused()
                 }
-            },
-        colors = settingsRowColors(),
-        border = settingsRowBorder(),
-        shape = CardDefaults.shape(shape = settingsRowShape()),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            }
     ) {
         Row(
             modifier = Modifier
@@ -417,7 +393,6 @@ internal fun ColorSettingsItem(
 
 private const val STEP_BUTTON_FILL_ALPHA = 0.14f
 
-/** A step button's content on the box build: black while its row is focused and white. */
-@Composable
+/** A step button's content: black while its row is focused and white. */
 private fun sliderStepInk(rowFocused: Boolean): Color =
-    if (rowFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextPrimary
+    if (rowFocused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary

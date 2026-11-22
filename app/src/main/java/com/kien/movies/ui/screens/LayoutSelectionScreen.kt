@@ -2,15 +2,12 @@
 
 package com.kien.movies.ui.screens
 
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
@@ -37,14 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -57,9 +47,7 @@ import com.kien.movies.ui.screens.settings.LayoutSettingsEvent
 import com.kien.movies.ui.screens.settings.LayoutSettingsViewModel
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.metaFloor
-import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
 fun LayoutSelectionScreen(
@@ -137,7 +125,7 @@ fun LayoutSelectionScreen(
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             // Continue button
-            Button(
+            MoviesButton(
                 onClick = {
                     viewModel.onEvent(LayoutSettingsEvent.SelectLayout(selectedLayout))
                     onContinue()
@@ -145,22 +133,8 @@ fun LayoutSelectionScreen(
                 modifier = Modifier
                     .width(200.dp)
                     .height(MoviesTheme.spacing.xxxl)
-                    .focusRequester(continueFocusRequester)
-                    .tvControlHeight(),
-                shape = expressiveButtonShape(ButtonDefaults.shape(
-                    shape = RoundedCornerShape(MoviesTheme.spacing.xl)
-                )),
-                colors = expressiveButtonColors(ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground
-                )),
-                border = expressiveButtonBorder(ButtonDefaults.border(
-                    focusedBorder = Border(
-                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                        shape = RoundedCornerShape(MoviesTheme.spacing.xl)
-                    )
-                )),
-                scale = expressiveButtonScale(ButtonDefaults.scale())
+                    .focusRequester(continueFocusRequester),
+                style = MoviesButtonStyle.Primary
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -168,31 +142,13 @@ fun LayoutSelectionScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.layout_selection_continue),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (isExpressiveBuild) Color.Unspecified else Color.White
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }
         }
     }
 }
-
-/** The chosen layout rests tonal on the expressive build, like a selected chip. */
-@Composable
-private fun layoutOptionContainer(selected: Boolean): Color =
-    if (isExpressiveBuild && selected) {
-        MoviesTheme.colors.FocusBackground
-    } else {
-        MoviesTheme.colors.BackgroundCard
-    }
-
-/**
- * A focused layout card on the box build brightens its frosted fill and lifts instead of drawing
- * a ring; its animated preview stays on a dark ground, so the fill does not turn solid white.
- */
-@Composable
-private fun layoutOptionFocusedContainer(selected: Boolean): Color =
-    if (isExpressiveBuild) ExpressiveColors.frostedFocused else layoutOptionContainer(selected)
 
 @Composable
 private fun LayoutOptionCard(
@@ -203,27 +159,12 @@ private fun LayoutOptionCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onSelect,
         modifier = modifier
             .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = layoutOptionContainer(isSelected),
-            focusedContainerColor = layoutOptionFocusedContainer(isSelected)
-        ),
-        border = CardDefaults.border(
-            border = Border.None,
-            focusedBorder = if (isExpressiveBuild) {
-                Border.None
-            } else {
-                Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = RoundedCornerShape(MoviesTheme.radii.xl)
-                )
-            }
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.xl)),
-        scale = CardDefaults.scale(focusedScale = if (isExpressiveBuild) 1.04f else 1.03f)
+        selected = isSelected,
+        focus = MoviesCardFocus.Frosted
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(

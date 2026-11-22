@@ -11,21 +11,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.screens.settings.expressiveControl
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
 
 @Composable
 internal fun AccountSignOutConfirmationDialog(
@@ -48,32 +41,18 @@ internal fun AccountSignOutConfirmationDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .weight(1f)
-                    .tvControlHeight()
-                    .focusRequester(cancelFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = onConfirm,
-                modifier = Modifier.weight(1f).tvControlHeight(),
-                colors = accountDestructiveColors(ButtonDefaults.colors(
-                    containerColor = MoviesPrimitives.red600.copy(alpha = 0.25f),
-                    contentColor = Color(0xFFF44336)
-                )),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.weight(1f),
+                style = MoviesButtonStyle.Destructive
             ) {
                 Text(stringResource(R.string.account_sign_out))
             }

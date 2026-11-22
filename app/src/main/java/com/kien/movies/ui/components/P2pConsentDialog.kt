@@ -2,7 +2,6 @@ package com.kien.movies.ui.components
 
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -43,12 +41,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.util.contentLayoutDirection
 import com.kien.movies.ui.util.contentTextDirection
@@ -76,7 +73,7 @@ fun P2pConsentDialog(
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             Box(
                 modifier = Modifier
-                    .clip(expressiveDialogShape(RoundedCornerShape(MoviesTheme.radii.xl)))
+                    .clip(M3eShapes.panel)
                     .background(MoviesTheme.colors.BackgroundCard)
             ) {
                 Column(
@@ -145,32 +142,16 @@ fun P2pConsentDialog(
                         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Card(
+                        MoviesCard(
                             onClick = onDismiss,
                             modifier = Modifier
                                 .weight(1f)
                                 .focusRequester(focusRequester),
-                            colors = expressiveActionCardColors(CardDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundElevated,
-                                focusedContainerColor = MoviesTheme.colors.BackgroundElevated
-                            )),
-                            border = expressiveActionCardBorder(CardDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                )
-                            )),
-                            shape = expressiveActionCardShape(
-                                CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-                            ),
-                            scale = expressiveCardScale(
-                                CardDefaults.scale(focusedScale = 1.05f)
-                            )
+                            shape = M3eShapes.capsule
                         ) {
                             Text(
                                 text = stringResource(R.string.p2p_consent_cancel),
                                 style = MaterialTheme.typography.titleMedium,
-                                color = actionCardContentColor(MoviesTheme.colors.TextPrimary),
                                 modifier = Modifier
                                     .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                     .fillMaxWidth(),
@@ -179,34 +160,16 @@ fun P2pConsentDialog(
                         }
 
                         var enableFocused by remember { mutableStateOf(false) }
-                        Card(
+                        MoviesCard(
                             onClick = onEnableP2p,
                             modifier = Modifier
                                 .weight(1f)
                                 .onFocusChanged { enableFocused = it.isFocused },
-                            colors = expressiveActionCardColors(CardDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundElevated,
-                                focusedContainerColor = MoviesTheme.colors.Secondary
-                            )),
-                            border = expressiveActionCardBorder(CardDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                )
-                            )),
-                            shape = expressiveActionCardShape(
-                                CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-                            ),
-                            scale = expressiveCardScale(
-                                CardDefaults.scale(focusedScale = 1.05f)
-                            )
+                            shape = M3eShapes.capsule
                         ) {
                             Text(
                                 text = stringResource(R.string.p2p_consent_enable),
                                 style = MaterialTheme.typography.titleMedium,
-                                color = actionCardContentColor(
-                                    if (enableFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextPrimary
-                                ),
                                 modifier = Modifier
                                     .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                     .fillMaxWidth(),

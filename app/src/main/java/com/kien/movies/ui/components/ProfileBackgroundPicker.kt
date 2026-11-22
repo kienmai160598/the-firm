@@ -3,7 +3,6 @@ package com.kien.movies.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,7 +53,6 @@ import com.kien.movies.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 @Composable
 fun ProfileBackgroundPicker(
@@ -132,20 +130,20 @@ private fun ProfileBackgroundItem(
     val interactionSource = remember { MutableInteractionSource() }
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.04f else 1f,
-        animationSpec = ExpressiveMotion.fastSpatialOr(tween(150)),
+        animationSpec = ExpressiveMotion.expressiveFastSpatial(),
         label = "profileBackgroundScale"
     )
     val borderWidth by animateDpAsState(
         targetValue = if (isSelected) 3.dp else if (isFocused) 2.dp else 1.dp,
-        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "profileBackgroundBorder"
     )
     val labelColor by animateColorAsState(
         targetValue = if (isSelected || isFocused) Color.White else MoviesTheme.colors.TextSecondary,
-        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "profileBackgroundLabel"
     )
-    val shape = RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.lg else 12.dp)
+    val shape = RoundedCornerShape(MoviesTheme.radii.lg)
 
     Column(
         modifier = Modifier

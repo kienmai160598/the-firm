@@ -1,13 +1,11 @@
 package com.kien.movies.ui.components
 
+import com.kien.movies.ui.components.expressive.MoviesChip
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,7 +34,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,16 +53,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.kien.movies.ui.theme.TvSizeFloors
-import com.kien.movies.ui.theme.isExpressiveBuild
-import com.kien.movies.ui.theme.tvControlHeight
 import kotlin.math.floor
 import kotlin.math.max
-import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -218,97 +208,22 @@ private fun CategoryTab(
     leftFocusRequester: FocusRequester?,
     onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
-
-    val bgColor by animateColorAsState(
-        targetValue = when {
-            isExpressiveBuild && isFocused -> MoviesTheme.colors.Secondary
-            isExpressiveBuild && isSelected -> MoviesTheme.colors.FocusBackground
-            isExpressiveBuild -> MoviesTheme.colors.BackgroundCard
-            isSelected && isFocused -> MoviesTheme.colors.FocusBackground
-            isSelected -> MoviesTheme.colors.Secondary.copy(alpha = 0.22f)
-            isFocused -> MoviesTheme.colors.FocusBackground
-            else -> Color.White.copy(alpha = 0.06f)
-        },
-        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
-        label = "categoryBg"
-    )
-    val borderColor by animateColorAsState(
-        targetValue = when {
-            isSelected && isFocused -> MoviesTheme.colors.FocusRing
-            isFocused -> MoviesTheme.colors.FocusRing
-            isSelected -> MoviesTheme.colors.Secondary
-            else -> MoviesTheme.colors.Border
-        },
-        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
-        label = "categoryBorder"
-    )
-    val borderWidth by animateDpAsState(
-        targetValue = when {
-            isSelected && isFocused -> MoviesTheme.spacing.xxs
-            isFocused -> MoviesTheme.spacing.xxs
-            isSelected -> MoviesTheme.spacing.hairline
-            else -> MoviesTheme.spacing.hairline
-        },
-        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
-        label = "categoryBorderWidth"
-    )
-    val textColor by animateColorAsState(
-        targetValue = when {
-            isExpressiveBuild && isFocused -> MoviesTheme.colors.OnSecondary
-            isExpressiveBuild && isSelected -> MoviesTheme.colors.FocusContent
-            isSelected || isFocused -> Color.White
-            else -> MoviesTheme.colors.TextSecondary
-        },
-        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
-        label = "categoryText"
-    )
-
-    Box(
+    MoviesChip(
+        label = label,
+        selected = isSelected,
+        onClick = onClick,
+        showCheck = false,
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusProperties {
                 if (downFocusRequester != null) down = downFocusRequester
                 if (leftFocusRequester != null) start = leftFocusRequester
             }
-            .clip(RoundedCornerShape(20.dp))
-            .background(bgColor)
-            .then(
-                if (isExpressiveBuild) {
-                    Modifier
-                } else {
-                    Modifier.border(
-                        border = if (isFocused) {
-                            MoviesTheme.focusRing.border(borderWidth)
-                        } else {
-                            BorderStroke(borderWidth, borderColor)
-                        },
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                }
-            )
-            .onFocusChanged { isFocused = it.isFocused }
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            )
             .semantics {
                 role = Role.Tab
                 selected = isSelected
             }
-            .tvControlHeight()
-            .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = textColor,
-            fontSize = TvSizeFloors.atLeast(13.sp, TvSizeFloors.bodyText),
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
-        )
-    }
+    )
 }
 
 @Composable
@@ -327,7 +242,7 @@ private fun AvatarGridItem(
 
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.1f else 1f,
-        animationSpec = ExpressiveMotion.fastSpatialOr(tween(150)),
+        animationSpec = ExpressiveMotion.expressiveFastSpatial(),
         label = "avatarScale"
     )
     val borderWidth by animateDpAsState(
@@ -336,7 +251,7 @@ private fun AvatarGridItem(
             isFocused -> MoviesTheme.spacing.xxs
             else -> MoviesTheme.spacing.none
         },
-        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "avatarBorder"
     )
     Box(

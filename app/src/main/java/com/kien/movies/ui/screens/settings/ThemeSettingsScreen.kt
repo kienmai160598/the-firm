@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +46,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -58,13 +59,9 @@ import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.LocaleCache
@@ -74,6 +71,7 @@ import com.kien.movies.domain.model.AppTheme
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.SettingsUiStyle
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
@@ -433,10 +431,9 @@ private fun ThemeSwatchChip(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val palette = remember(theme, customColors) { ThemeColors.getColorPalette(theme, customColors) }
-    val chipShape = RoundedCornerShape(18.dp)
     val label = theme.localizedName()
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .width(96.dp)
@@ -446,19 +443,7 @@ private fun ThemeSwatchChip(
                     isFocused = nowFocused
                 }
             },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        border = CardDefaults.border(
-            border = Border.None,
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = chipShape
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(chipShape).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+        selected = isSelected
     ) {
         Column(
             modifier = Modifier
@@ -493,7 +478,7 @@ private fun ThemeSwatchChip(
             Text(
                 text = theme.localizedName(),
                 style = MaterialTheme.typography.labelMedium,
-                color = if (isFocused || isSelected) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
+                color = optionLabelColor(isFocused || isSelected),
                 maxLines = 1
             )
         }
@@ -508,9 +493,8 @@ private fun SettingsStyleOptionCard(
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val cardShape = RoundedCornerShape(18.dp)
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .onFocusChanged { state ->
@@ -523,22 +507,7 @@ private fun SettingsStyleOptionCard(
                 role = Role.RadioButton
                 this.selected = isSelected
             },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        border = CardDefaults.border(
-            border = if (isSelected) Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
-                shape = cardShape
-            ) else Border.None,
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = cardShape
-            )
-        ).expressiveSelection(isSelected),
-        shape = CardDefaults.shape(cardShape).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+        selected = isSelected
     ) {
         Column(
             modifier = Modifier
@@ -549,7 +518,7 @@ private fun SettingsStyleOptionCard(
                 Text(
                     text = style.localizedName(),
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isFocused || isSelected) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
+                    color = optionLabelColor(isFocused || isSelected),
                     maxLines = 1,
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
@@ -557,7 +526,6 @@ private fun SettingsStyleOptionCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = MoviesTheme.colors.Secondary,
                         modifier = Modifier
                             .size(16.dp)
                             .align(Alignment.CenterEnd)
@@ -570,12 +538,18 @@ private fun SettingsStyleOptionCard(
             Text(
                 text = style.localizedDescription(),
                 style = MaterialTheme.typography.bodySmall,
-                color = MoviesTheme.colors.TextTertiary,
+                color = optionLabelColor(emphasized = false),
                 maxLines = 2
             )
         }
     }
 }
+
+/** An option's text inside a kit card: full content colour when [emphasized], dimmed otherwise. */
+@Composable
+@ReadOnlyComposable
+private fun optionLabelColor(emphasized: Boolean): Color =
+    LocalContentColor.current.copy(alpha = if (emphasized) 1f else SETTINGS_SECONDARY_TEXT_ALPHA)
 
 @Composable
 private fun SettingsUiStyle.localizedName(): String = when (this) {

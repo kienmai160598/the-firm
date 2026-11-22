@@ -14,14 +14,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
 internal fun SentrySettingsDialog(
@@ -83,18 +82,11 @@ internal fun SentrySettingsDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
                 modifier = Modifier
-                    .tvControlHeight()
                     .weight(1f)
-                    .focusRequester(cancelFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(
                     text = stringResource(
@@ -106,21 +98,15 @@ internal fun SentrySettingsDialog(
                     )
                 )
             }
-            Button(
+            MoviesButton(
                 onClick = {
                     onConfirm()
                     onDismiss()
                 },
                 modifier = Modifier
-                    .tvControlHeight()
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(
                     text = stringResource(

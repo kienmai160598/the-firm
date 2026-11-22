@@ -1,7 +1,6 @@
 package com.kien.movies.ui.screens.player
 
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,72 +16,51 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 private const val FLOATING_CONTAINER_ALPHA = 0.92f
 private const val SIDE_PANEL_ALPHA = 0.94f
 private val SIDE_PANEL_CORNER = 20.dp
 private val ProgressGap = 4.dp
 private val ProgressInactiveColor = Color.White.copy(alpha = 0.24f)
-private val UpstreamProgressTrackColor = Color.White.copy(alpha = 0.2f)
-private val UpstreamProgressFillColor = Color.White.copy(alpha = 0.85f)
 
 /**
  * Material 3 Expressive surfaces that float over the playing video: toasts, indicators and the
  * small cards of the player. They sit on the tonal surface container instead of a black scrim
- * and take the rounder M3E corners. Other builds keep the look each call site passes in.
+ * and take the rounder M3E corners.
  */
 internal object PlayerSurfaceStyle {
     @Composable
-    fun floatingContainer(upstream: Color): Color = if (isExpressiveBuild) {
+    fun floatingContainer(): Color =
         MoviesTheme.colors.Surface.copy(alpha = FLOATING_CONTAINER_ALPHA)
-    } else {
-        upstream
-    }
 
     /** A one-line indicator becomes a full pill. */
-    fun pillShape(upstream: Shape): Shape = if (isExpressiveBuild) CircleShape else upstream
+    fun pillShape(): Shape = CircleShape
 
     /** A card or panel of several lines takes the 20dp panel corner. */
-    @Composable
-    fun cardShape(upstream: Shape): Shape = if (isExpressiveBuild) {
-        RoundedCornerShape(SIDE_PANEL_CORNER)
-    } else {
-        upstream
-    }
+    fun cardShape(): Shape = M3eShapes.panel
 
     /** A small card of a few short lines, where the extra large corner would cut into text. */
     @Composable
-    fun compactShape(upstream: Shape): Shape = if (isExpressiveBuild) {
-        RoundedCornerShape(MoviesTheme.radii.lg)
-    } else {
-        upstream
-    }
+    fun compactShape(): Shape = RoundedCornerShape(MoviesTheme.radii.lg)
 
     /** A panel docked to the right edge: rounded on its open side only. */
-    @Composable
-    fun sidePanelShape(): Shape {
-        val corner = if (isExpressiveBuild) SIDE_PANEL_CORNER else MoviesTheme.radii.xxl
-        return RoundedCornerShape(topStart = corner, bottomStart = corner)
-    }
+    fun sidePanelShape(): Shape = RoundedCornerShape(
+        topStart = SIDE_PANEL_CORNER,
+        bottomStart = SIDE_PANEL_CORNER
+    )
 
     /** A dark translucent panel the video still tints through, never a real blur. */
     @Composable
-    fun sidePanelColor(): Color = if (isExpressiveBuild) {
-        MoviesTheme.colors.Surface.copy(alpha = SIDE_PANEL_ALPHA)
-    } else {
-        MoviesTheme.colors.BackgroundElevated
-    }
+    fun sidePanelColor(): Color = MoviesTheme.colors.Surface.copy(alpha = SIDE_PANEL_ALPHA)
 
     /** Inside a panel docked to the right edge, its content keeps the TV safe margins. */
     @Composable
     fun sidePanelPadding(): PaddingValues {
         val inner = MoviesTheme.spacing.xl
-        if (!isExpressiveBuild) return PaddingValues(inner)
-
         val edge = PlayerTenFoot.atLeast(inner, PlayerTenFoot.edgeMargin)
         return PaddingValues(
             start = inner,
@@ -94,68 +72,43 @@ internal object PlayerSurfaceStyle {
 
     /** The small badge of an icon inside an indicator: the accent's tonal container. */
     @Composable
-    fun iconBadgeColor(upstream: Color): Color =
-        if (isExpressiveBuild) MoviesTheme.colors.SecondaryVariant else upstream
+    fun iconBadgeColor(): Color = MoviesTheme.colors.SecondaryVariant
 
     @Composable
-    fun iconBadgeContent(upstream: Color): Color =
-        if (isExpressiveBuild) MoviesTheme.colors.OnSecondaryVariant else upstream
+    fun iconBadgeContent(): Color = MoviesTheme.colors.OnSecondaryVariant
 
     @Composable
-    fun errorText(upstream: Color): Color =
-        if (isExpressiveBuild) MoviesTheme.colors.Error else upstream
+    fun errorText(): Color = MoviesTheme.colors.Error
 
-    /** Netflix red marks what has played; other builds keep their accent. */
-    @Composable
-    fun playedColor(): Color =
-        if (isExpressiveBuild) ExpressiveColors.accentRed else MoviesTheme.colors.Secondary
+    /** Netflix red marks what has played. */
+    fun playedColor(): Color = ExpressiveColors.accentRed
 
     /** M3E linear indicators keep a track thick enough to read from the sofa. */
-    fun progressThickness(upstream: Dp): Dp =
-        if (isExpressiveBuild) maxOf(upstream, EXPRESSIVE_PROGRESS_THICKNESS) else upstream
+    fun progressThickness(size: Dp): Dp = maxOf(size, EXPRESSIVE_PROGRESS_THICKNESS)
 }
 
 private val EXPRESSIVE_PROGRESS_THICKNESS = 4.dp
 
-/**
- * Enter and exit motion of player overlays: M3E springs on expressive builds, the tween each
- * call site had elsewhere. Springs run only while an overlay appears or leaves.
- */
+/** Enter and exit motion of player overlays: M3E springs that run only while one moves. */
 internal object PlayerMotion {
     /** Opacity and colour. */
-    fun <T> effects(upstreamMillis: Int): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) ExpressiveMotion.defaultEffects() else tween(upstreamMillis)
+    fun <T> effects(): FiniteAnimationSpec<T> = ExpressiveMotion.defaultEffects()
 
     /** Large surfaces that slide, without overshoot. */
-    fun <T> spatial(upstreamMillis: Int): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) ExpressiveMotion.standardDefaultSpatial() else tween(upstreamMillis)
+    fun <T> spatial(): FiniteAnimationSpec<T> = ExpressiveMotion.standardDefaultSpatial()
 
     /** Small parts that pop in with a little overshoot. */
-    fun <T> pop(upstreamMillis: Int): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) ExpressiveMotion.expressiveFastSpatial() else tween(upstreamMillis)
+    fun <T> pop(): FiniteAnimationSpec<T> = ExpressiveMotion.expressiveFastSpatial()
 }
 
 /**
- * A determinate linear progress track of loading and buffering. Expressive builds draw a plain
- * white capsule, a small gap, then the faint inactive track. Other builds draw the thin white
- * bar the player had. [progress] is read only while drawing, so a moving value costs no
- * recomposition.
+ * A determinate linear progress track of loading and buffering: a plain white capsule, a small
+ * gap, then the faint inactive track. [progress] is read only while drawing, so a moving value
+ * costs no recomposition.
  */
-@Composable
-internal fun Modifier.playerLinearProgress(
-    progress: () -> Float,
-    upstreamCorner: Dp = MoviesTheme.radii.xxs
-): Modifier {
-    val activeColor = if (isExpressiveBuild) Color.White else MoviesTheme.colors.Secondary
-
-    return drawBehind {
-        val fraction = progress().coerceIn(0f, 1f)
-        if (isExpressiveBuild) {
-            drawExpressiveProgress(fraction, activeColor)
-        } else {
-            drawUpstreamProgress(fraction, upstreamCorner.toPx())
-        }
-    }
+internal fun Modifier.playerLinearProgress(progress: () -> Float): Modifier = drawBehind {
+    val fraction = progress().coerceIn(0f, 1f)
+    drawExpressiveProgress(fraction, Color.White)
 }
 
 private fun DrawScope.drawExpressiveProgress(fraction: Float, activeColor: Color) {
@@ -165,13 +118,6 @@ private fun DrawScope.drawExpressiveProgress(fraction: Float, activeColor: Color
 
     drawRoundedSegment(ProgressInactiveColor, inactiveStart, size.width, corner)
     drawRoundedSegment(activeColor, 0f, activeEnd, corner)
-}
-
-private fun DrawScope.drawUpstreamProgress(fraction: Float, cornerPx: Float) {
-    val corner = CornerRadius(cornerPx)
-
-    drawRoundedSegment(UpstreamProgressTrackColor, 0f, size.width, corner)
-    drawRoundedSegment(UpstreamProgressFillColor, 0f, size.width * fraction, corner)
 }
 
 private fun DrawScope.drawRoundedSegment(

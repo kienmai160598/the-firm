@@ -1,14 +1,13 @@
 package com.kien.movies.ui.screens.collection
 
+import androidx.tv.material3.LocalContentColor
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
 import androidx.activity.compose.BackHandler
 import com.kien.movies.ui.components.buttonLabelStyle
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +26,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusDirection
@@ -63,16 +60,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Switch
 import androidx.tv.material3.SwitchDefaults
@@ -91,7 +83,6 @@ import com.kien.movies.domain.model.TmdbCollectionSourceType
 import com.kien.movies.domain.model.TraktCollectionSource
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.R
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.res.stringResource
@@ -101,6 +92,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import com.kien.movies.ui.theme.tvControlHeight
+
+private const val PLACEHOLDER_ALPHA = 0.4f
+internal const val SECONDARY_CONTENT_ALPHA = 0.64f
 
 internal suspend fun requestFocusWhenReady(
     requester: FocusRequester,
@@ -179,25 +173,10 @@ fun MoviesTextField(
         runCatching { surfaceFocusRequester.requestFocus() }
     }
 
-    Surface(
+    MoviesSurface(
         onClick = { isEditing = true },
         modifier = modifier.focusRequester(surfaceFocusRequester),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundElevated,
-            focusedContainerColor = MoviesTheme.colors.BackgroundElevated
-        ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+        scale = 1f
     ) {
         Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
             BasicTextField(
@@ -223,7 +202,7 @@ fun MoviesTextField(
                     }
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = MoviesTheme.colors.TextPrimary,
+                    color = LocalContentColor.current,
                                             textDirection = TextDirection.Content
                 ),
                 cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
@@ -232,7 +211,7 @@ fun MoviesTextField(
                         Text(
                             text = placeholder,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MoviesTheme.colors.TextTertiary
+                            color = LocalContentColor.current.copy(alpha = PLACEHOLDER_ALPHA)
                         )
                     }
                     innerTextField()
@@ -240,40 +219,6 @@ fun MoviesTextField(
             )
         }
     }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-fun MoviesButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.then(if (!enabled) Modifier.alpha(0.35f) else Modifier)
-            .tvControlHeight(),
-        enabled = enabled,
-        colors = expressiveButtonColors(ButtonDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            contentColor = MoviesTheme.colors.TextPrimary,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-            focusedContentColor = MoviesTheme.colors.Primary
-        )),
-        border = expressiveButtonBorder(ButtonDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            ),
-            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-        )),
-        shape = expressiveButtonShape(
-            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-        ),
-        content = { content() },
-        scale = expressiveButtonScale(ButtonDefaults.scale())
-    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -305,27 +250,24 @@ internal fun UnsavedChangesDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDiscard,
                 enabled = !isSaving,
                 modifier = (if (canSave) Modifier else Modifier.focusRequester(primaryFocusRequester))
                     .semantics { role = Role.Button }
-                    .tvControlHeight(),
-                scale = expressiveButtonScale(ButtonDefaults.scale()),
-                colors = expressiveButtonColors(ButtonDefaults.colors())
+                    .tvControlHeight()
             ) {
                 Text(stringResource(R.string.collections_cancel), style = buttonLabelStyle())
             }
             if (canSave) {
-                Button(
+                MoviesButton(
                     onClick = onSave,
                     enabled = !isSaving,
+                    style = MoviesButtonStyle.Primary,
                     modifier = Modifier
                         .focusRequester(primaryFocusRequester)
                         .semantics { role = Role.Button }
-                        .tvControlHeight(),
-                    scale = expressiveButtonScale(ButtonDefaults.scale()),
-                    colors = expressiveButtonColors(ButtonDefaults.colors())
+                        .tvControlHeight()
                 ) {
                     Text(
                         stringResource(R.string.collections_editor_save),

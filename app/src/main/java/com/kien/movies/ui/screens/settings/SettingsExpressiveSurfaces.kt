@@ -1,9 +1,9 @@
 @file:OptIn(ExperimentalTvMaterial3Api::class)
+@file:Suppress("UNUSED_PARAMETER")
 
 package com.kien.movies.ui.screens.settings
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
@@ -27,38 +27,56 @@ import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ClickableSurfaceShape
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.LocalContentColor
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.components.expressivePrimaryButtonColors
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.moviesButtonBorder
+import com.kien.movies.ui.components.expressive.moviesButtonColors
+import com.kien.movies.ui.components.expressive.moviesButtonScale
+import com.kien.movies.ui.components.expressive.moviesButtonShape
+import com.kien.movies.ui.components.expressive.moviesCardBorder
+import com.kien.movies.ui.components.expressive.moviesCardColors
+import com.kien.movies.ui.components.expressive.moviesCardScale
+import com.kien.movies.ui.components.expressive.moviesSurfaceBorder
+import com.kien.movies.ui.components.expressive.moviesSurfaceColors
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.ExpressiveRadii
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
-import com.kien.movies.ui.theme.isExpressiveBuild
 
-// Shared by the settings, account, addon, plugin and TMDB screens for the tv-material Surfaces and
-// Cards that components/ExpressiveControlStyle does not cover. On the expressive build a card
-// answers focus with a tonal fill, a large corner and a small grow, and a surface used as a button
-// with the accent and a pill; neither draws a ring. Shapes switch per state instead of animating,
-// so long lists cost no frame per item. Other builds get upstream's value back.
+// Shared by the settings, account, addon, plugin and TMDB screens for the tv-material Surfaces,
+// Cards and Buttons they still draw themselves. Each helper hands back the M3E kit's value
+// (components/expressive), so a control styled through it looks like a kit control: 12dp cards,
+// capsule buttons and chips, frosted at rest, white on focus, no ring. The receiver or `upstream`
+// argument a call site passes is not read.
 
-private const val CARD_FOCUS_SCALE = 1.02f
 private val SelectedOutlineWidth = 2.dp
 
-private val ExpressiveCardShape = RoundedCornerShape(ExpressiveRadii.forBuild.xl)
-private val ExpressivePanelShape = RoundedCornerShape(ExpressiveRadii.forBuild.xxl)
-private val PillShape = RoundedCornerShape(percent = ExpressiveFocus.PILL_PERCENT)
+@Composable
+private fun surfaceShapeInEveryState(shape: Shape): ClickableSurfaceShape =
+    ClickableSurfaceDefaults.shape(
+        shape = shape,
+        focusedShape = shape,
+        pressedShape = shape,
+        disabledShape = shape,
+        focusedDisabledShape = shape
+    )
 
-/** A card or row corner; [upstream] on other builds. */
-internal fun expressiveCardShape(upstream: Shape): Shape =
-    if (isExpressiveBuild) ExpressiveCardShape else upstream
+private val ControlSurfaceScale: ClickableSurfaceScale =
+    ClickableSurfaceDefaults.scale(focusedScale = ExpressiveFocus.CONTROL_SCALE, pressedScale = 1f)
 
-/** A large container or hand-drawn dialog corner, M3's extra-large. */
-internal fun expressivePanelShape(upstream: Shape): Shape =
-    if (isExpressiveBuild) ExpressivePanelShape else upstream
+private val CapsuleCardShape: CardShape = CardDefaults.shape(
+    shape = M3eShapes.capsule,
+    focusedShape = M3eShapes.capsule,
+    pressedShape = M3eShapes.capsule
+)
+
+private val TextCardShape: CardShape = CardDefaults.shape(shape = M3eShapes.card)
+
+/** A card or row corner: 12dp. */
+internal fun expressiveCardShape(upstream: Shape): Shape = M3eShapes.card
+
+/** A large container or hand-drawn dialog corner: 20dp. */
+internal fun expressivePanelShape(upstream: Shape): Shape = M3eShapes.panel
 
 /** The size of an icon inside a button, never under the box's 24dp floor. */
 internal fun buttonIconSize(upstream: Dp): Dp =
@@ -66,205 +84,120 @@ internal fun buttonIconSize(upstream: Dp): Dp =
 
 /** A focused card's fill, tonal once its ring is gone. */
 @Composable
-internal fun expressiveCardFocusFill(upstream: Color): Color =
-    if (isExpressiveBuild) MoviesTheme.colors.FocusBackground else upstream
+internal fun expressiveCardFocusFill(upstream: Color): Color = MoviesTheme.colors.FocusBackground
 
-/** A notice drawn in a fixed blue upstream: the theme's tonal container on the box. */
+/** A notice drawn in a fixed blue upstream: the theme's tonal container. */
 @Composable
-internal fun expressiveNoticeColor(upstream: Color): Color =
-    if (isExpressiveBuild) MoviesTheme.colors.FocusBackground else upstream
+internal fun expressiveNoticeColor(upstream: Color): Color = MoviesTheme.colors.FocusBackground
 
 @Composable
 internal fun ClickableSurfaceBorder.expressiveRingless(): ClickableSurfaceBorder =
-    if (isExpressiveBuild) {
-        ClickableSurfaceDefaults.border(
-            border = Border.None,
-            focusedBorder = Border.None,
-            pressedBorder = Border.None
-        )
-    } else {
-        this
-    }
+    moviesSurfaceBorder()
 
 @Composable
-internal fun CardBorder.expressiveRingless(): CardBorder =
-    if (isExpressiveBuild) {
-        CardDefaults.border(
-            border = Border.None,
-            focusedBorder = Border.None,
-            pressedBorder = Border.None
-        )
-    } else {
-        this
-    }
+internal fun CardBorder.expressiveRingless(): CardBorder = moviesCardBorder()
 
 @Composable
 internal fun ClickableSurfaceShape.expressiveCard(): ClickableSurfaceShape =
-    if (isExpressiveBuild) ClickableSurfaceDefaults.shape(ExpressiveCardShape) else this
+    surfaceShapeInEveryState(M3eShapes.card)
 
 @Composable
 internal fun ClickableSurfaceScale.expressiveCardGrow(): ClickableSurfaceScale =
-    if (isExpressiveBuild) ClickableSurfaceDefaults.scale(focusedScale = CARD_FOCUS_SCALE) else this
+    ControlSurfaceScale
 
 @Composable
-internal fun CardScale.expressiveCardGrow(): CardScale =
-    if (isExpressiveBuild) CardDefaults.scale(focusedScale = CARD_FOCUS_SCALE) else this
+internal fun CardScale.expressiveCardGrow(): CardScale = moviesCardScale
 
-/** A surface used as a button or chip: a pill that squares its corners a little on focus. */
+/** A surface used as a button or chip: a capsule in every state. */
 @Composable
 internal fun ClickableSurfaceShape.expressivePill(): ClickableSurfaceShape =
-    if (isExpressiveBuild) {
-        ClickableSurfaceDefaults.shape(
-            shape = PillShape,
-            focusedShape = PillShape,
-            pressedShape = PillShape
-        )
-    } else {
-        this
-    }
+    surfaceShapeInEveryState(M3eShapes.capsule)
 
-/** A surface used as a button or chip grows like the other expressive controls. */
+/** A surface used as a button or chip grows on the kit's control scale. */
 @Composable
 internal fun ClickableSurfaceScale.expressiveControlGrow(): ClickableSurfaceScale =
-    if (isExpressiveBuild) {
-        ClickableSurfaceDefaults.scale(focusedScale = ExpressiveFocus.CONTROL_SCALE)
-    } else {
-        this
-    }
+    ControlSurfaceScale
 
 /**
- * A surface used as a button or chip: on a card surface, tonal while [selected] or the main
- * action ([primary]), filled with the accent on focus.
+ * A surface used as a button or chip: frosted at rest, brighter while [selected] or the main
+ * action ([primary]), solid white with black content on focus.
  */
 @Composable
 internal fun ClickableSurfaceColors.expressiveControl(
     selected: Boolean = false,
     primary: Boolean = false
-): ClickableSurfaceColors {
-    if (!isExpressiveBuild) return this
-    return ClickableSurfaceDefaults.colors(
-        containerColor = controlRestingFill(selected, primary),
-        contentColor = ExpressiveColors.textPrimary,
-        focusedContainerColor = ExpressiveColors.focus,
-        focusedContentColor = ExpressiveColors.onFocus,
-        pressedContainerColor = ExpressiveColors.secondaryPressed,
-        pressedContentColor = ExpressiveColors.onFocus
-    )
-}
+): ClickableSurfaceColors = moviesSurfaceColors(selected = selected || primary)
 
-/**
- * A control at rest on the box build: frosted, brighter for the main action or a chosen option,
- * so only the focused control is solid white.
- */
-private fun controlRestingFill(selected: Boolean, primary: Boolean): Color =
-    if (primary || selected) ExpressiveColors.frostedStrong else ExpressiveColors.frosted
-
-/** The content colour inside an expressive control, for text and icons that set one. */
+/** The content colour inside a kit control, for text and icons that set one. */
 @Composable
 internal fun expressiveControlContent(focused: Boolean, upstream: Color): Color =
-    if (!isExpressiveBuild) {
-        upstream
-    } else if (focused) {
-        MoviesTheme.colors.OnSecondary
-    } else {
-        MoviesTheme.colors.TextPrimary
-    }
+    if (focused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary
 
 @Composable
-internal fun CardShape.expressiveCard(): CardShape =
-    if (isExpressiveBuild) CardDefaults.shape(ExpressiveCardShape) else this
+internal fun CardShape.expressiveCard(): CardShape = TextCardShape
 
-/** A Card used as a button or chip: a pill that squares its corners a little on focus. */
+/** A Card used as a button or chip: a capsule in every state. */
 @Composable
-internal fun CardShape.expressivePill(): CardShape =
-    if (isExpressiveBuild) {
-        CardDefaults.shape(
-            shape = PillShape,
-            focusedShape = PillShape,
-            pressedShape = PillShape
-        )
-    } else {
-        this
-    }
+internal fun CardShape.expressivePill(): CardShape = CapsuleCardShape
 
 @Composable
-internal fun CardScale.expressiveControlGrow(): CardScale =
-    if (isExpressiveBuild) {
-        CardDefaults.scale(focusedScale = ExpressiveFocus.CONTROL_SCALE)
-    } else {
-        this
-    }
+internal fun CardScale.expressiveControlGrow(): CardScale = moviesCardScale
 
 /** A Card used as a button or chip, coloured like [ClickableSurfaceColors.expressiveControl]. */
 @Composable
 internal fun CardColors.expressiveControl(
     selected: Boolean = false,
     primary: Boolean = false
-): CardColors {
-    if (!isExpressiveBuild) return this
-    return CardDefaults.colors(
-        containerColor = controlRestingFill(selected, primary),
-        contentColor = ExpressiveColors.textPrimary,
-        focusedContainerColor = ExpressiveColors.focus,
-        focusedContentColor = ExpressiveColors.onFocus,
-        pressedContainerColor = ExpressiveColors.secondaryPressed,
-        pressedContentColor = ExpressiveColors.onFocus
-    )
-}
+): CardColors = moviesCardColors(selected = selected || primary)
 
-/** A tv Button in the expressive look; [primary] rests on the accent's container. */
+/** A tv Button in the kit's look; [primary] rests on the brighter frosted fill. */
 @Composable
 internal fun ButtonColors.expressiveControl(primary: Boolean = false): ButtonColors =
-    if (primary) expressivePrimaryButtonColors(this) else expressiveButtonColors(this)
+    moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
 
-/** A tv Button that marks a choice: tonal while [selected], accent on focus. */
+/** A tv Button that marks a choice: brighter frosted while [selected], white on focus. */
 @Composable
 internal fun ButtonColors.expressiveChoice(selected: Boolean): ButtonColors =
-    expressiveButtonColors(this, selected)
+    moviesButtonColors(if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary)
 
-internal fun ButtonShape.expressivePill(): ButtonShape = expressiveButtonShape(this)
+internal fun ButtonShape.expressivePill(): ButtonShape = moviesButtonShape
 
 @Composable
-internal fun ButtonBorder.expressiveRingless(): ButtonBorder = expressiveButtonBorder(this)
+internal fun ButtonBorder.expressiveRingless(): ButtonBorder = moviesButtonBorder()
 
-internal fun ButtonScale.expressiveControlGrow(): ButtonScale = expressiveButtonScale(this)
+internal fun ButtonScale.expressiveControlGrow(): ButtonScale = moviesButtonScale
 
 /**
- * Text or an icon inside an expressive control follows the control's content colour, which turns
- * to on-accent while it is focused; a fixed colour would vanish on the accent fill.
+ * Text or an icon inside a kit control follows the control's content colour, which turns black
+ * while it is focused; a fixed colour would vanish on the white fill.
  */
 @Composable
 @ReadOnlyComposable
-internal fun onControlColor(upstream: Color): Color =
-    if (isExpressiveBuild) LocalContentColor.current else upstream
+internal fun onControlColor(upstream: Color): Color = LocalContentColor.current
 
 /** A plain tile drawn in a fixed grey upstream: the theme's highest surface container. */
 @Composable
 @ReadOnlyComposable
-internal fun expressiveSurfaceOr(upstream: Color): Color =
-    if (isExpressiveBuild) MoviesTheme.colors.SurfaceVariant else upstream
+internal fun expressiveSurfaceOr(upstream: Color): Color = MoviesTheme.colors.SurfaceVariant
 
 @Composable
 @ReadOnlyComposable
-internal fun expressiveErrorOr(upstream: Color): Color =
-    if (isExpressiveBuild) MoviesTheme.colors.Error else upstream
+internal fun expressiveErrorOr(upstream: Color): Color = MoviesTheme.colors.Error
 
 @Composable
 @ReadOnlyComposable
-internal fun expressiveWarningOr(upstream: Color): Color =
-    if (isExpressiveBuild) MoviesTheme.colors.Warning else upstream
+internal fun expressiveWarningOr(upstream: Color): Color = MoviesTheme.colors.Warning
 
 /**
- * A choice card drops its focus ring on the box but keeps its selection readable: an accent
- * outline while [selected], whether focused or not, as M3's selected outlined card.
+ * A choice card has no focus ring but keeps its selection readable: an accent outline while
+ * [selected], whether focused or not, as M3's selected outlined card.
  */
 @Composable
 internal fun CardBorder.expressiveSelection(selected: Boolean): CardBorder {
-    if (!isExpressiveBuild) return this
     val outline = if (selected) {
         Border(
             border = BorderStroke(SelectedOutlineWidth, MoviesTheme.colors.Secondary),
-            shape = ExpressiveCardShape
+            shape = M3eShapes.card
         )
     } else {
         Border.None

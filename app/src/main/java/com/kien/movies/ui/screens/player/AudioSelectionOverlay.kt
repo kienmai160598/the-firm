@@ -2,7 +2,6 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -53,13 +51,13 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.data.local.NightMode
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.util.languageCodeToName
@@ -307,7 +305,7 @@ private fun AudioTrackCard(
         track.sampleRate?.let { "${it / 1000} kHz" }
     ).joinToString(" | ")
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -317,12 +315,8 @@ private fun AudioTrackCard(
             }
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .focusProperties { right = rightFocusRequester }
-            .onFocusChanged { if (it.isFocused) onFocused() }
-            .focusSpringScale(),
-        colors = PlayerListItemStyle.colors(isSelected),
-        shape = PlayerListItemStyle.shape,
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale
+            .onFocusChanged { if (it.isFocused) onFocused() },
+        selected = isSelected
     ) {
         val primaryTextColor = PlayerListItemStyle.labelColor()
         val secondaryTextColor = PlayerListItemStyle.supportingColor()
@@ -603,7 +597,7 @@ private fun AudioControlsContent(
 
             if (isNightModeAvailable) {
                 val nightModeOn = nightMode != NightMode.OFF
-                Card(
+                MoviesCard(
                     onClick = {
                         val levels = NightMode.entries
                         onNightModeChange(levels[(levels.indexOf(nightMode) + 1) % levels.size])
@@ -615,12 +609,8 @@ private fun AudioControlsContent(
                             left = persistLeftFocusRequester
                             up = persistUpFocusRequester
                             down = persistFocusRequester
-                        }
-                        .focusSpringScale(),
-                    colors = PlayerListItemStyle.colors(nightModeOn),
-                    shape = PlayerListItemStyle.shape,
-                    border = PlayerListItemStyle.noBorder(),
-                    scale = PlayerListItemStyle.stillScale
+                        },
+                    selected = nightModeOn
                 ) {
                     Text(
                         text = stringResource(R.string.audio_night_mode_value, nightModeLevelLabel(nightMode)),
@@ -631,7 +621,7 @@ private fun AudioControlsContent(
                 }
             }
 
-            Card(
+            MoviesCard(
                 onClick = { onPersistAmplificationChange(!persistAmplification) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -647,12 +637,8 @@ private fun AudioControlsContent(
                     .focusProperties {
                         left = persistLeftFocusRequester
                         up = if (isNightModeAvailable) nightModeFocusRequester else persistUpFocusRequester
-                    }
-                    .focusSpringScale(),
-                colors = PlayerListItemStyle.colors(persistAmplification),
-                shape = PlayerListItemStyle.shape,
-                border = PlayerListItemStyle.noBorder(),
-                scale = PlayerListItemStyle.stillScale
+                    },
+                selected = persistAmplification
             ) {
                 Text(
                     text = if (persistAmplification) {
@@ -781,7 +767,7 @@ private fun StepCard(
         }
     }
 
-    Card(
+    MoviesCard(
         onClick = {
             if (enabled) {
                 onClick()
@@ -797,12 +783,9 @@ private fun StepCard(
                 right = rightFocusRequester
                 upFocusRequester?.let { up = it }
                 downFocusRequester?.let { down = it }
-            }
-            .focusSpringScale(PlayerFocusLift.CONTROL_SCALE),
-        colors = PlayerControlStyle.stepColors(enabled),
-        shape = CardDefaults.shape(CircleShape),
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale
+            },
+        enabled = enabled,
+        shape = M3eShapes.capsule
     ) {
         Row(
             modifier = Modifier

@@ -9,10 +9,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -96,11 +94,10 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
-import androidx.tv.material3.Switch
-import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.ExperienceMode
@@ -123,22 +120,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeoutOrNull
-import com.kien.movies.ui.screens.settings.expressiveRingless
-import com.kien.movies.ui.screens.settings.expressiveCard
-import com.kien.movies.ui.screens.settings.expressiveCardGrow
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressiveControl
-import com.kien.movies.ui.screens.settings.expressiveChoice
-import com.kien.movies.ui.screens.settings.expressiveCardFocusFill
-import com.kien.movies.ui.screens.settings.expressiveCardShape
-import com.kien.movies.ui.screens.settings.expressivePanelShape
-import com.kien.movies.ui.screens.settings.expressiveNoticeColor
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.components.expressive.MoviesSurface
+import com.kien.movies.ui.components.expressive.MoviesSwitch
+import com.kien.movies.ui.components.expressive.moviesButtonColors
+import com.kien.movies.ui.components.expressive.moviesButtonScale
+import com.kien.movies.ui.components.expressive.moviesButtonShape
 import com.kien.movies.ui.screens.settings.buttonIconSize
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.screens.settings.SettingsExpressiveSwitch
-import com.kien.movies.ui.screens.settings.onControlColor
-import com.kien.movies.ui.theme.isExpressiveBuild
+import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.ExpressiveMotion
@@ -558,9 +551,9 @@ private fun AddonManagerScreenBody(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = expressiveNoticeColor(Color(0xFF1A3A5C))
+                            containerColor = MoviesTheme.colors.FocusBackground
                         ),
-                        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                        shape = M3eShapes.panel
                     ) {
                         Text(
                             text = stringResource(R.string.addon_readonly_notice),
@@ -577,7 +570,7 @@ private fun AddonManagerScreenBody(
                             .fillMaxWidth()
                             .animateContentSize(),
                         colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
-                        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                        shape = M3eShapes.panel
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Text(
@@ -592,32 +585,11 @@ private fun AddonManagerScreenBody(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 // Surface always stays in the tree for stable D-pad focus
-                                Surface(
+                                MoviesSurface(
                                     onClick = { isEditing = true },
                                     modifier = Modifier
                                         .weight(1f)
-                                        .focusRequester(surfaceFocusRequester),
-                                    colors = ClickableSurfaceDefaults.colors(
-                                        containerColor = MoviesTheme.colors.BackgroundElevated,
-                                        focusedContainerColor = expressiveCardFocusFill(
-                                            MoviesTheme.colors.BackgroundElevated
-                                        )
-                                    ),
-                                    border = ClickableSurfaceDefaults.border(
-                                        border = Border(
-                                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                        ),
-                                        focusedBorder = Border(
-                                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                        )
-                                    ).expressiveRingless(),
-                                    shape = ClickableSurfaceDefaults.shape(
-                                        RoundedCornerShape(MoviesTheme.radii.md)
-                                    ).expressiveCard(),
-                                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-                                        .expressiveCardGrow()
+                                        .focusRequester(surfaceFocusRequester)
                                 ) {
                                     Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
                                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -649,7 +621,7 @@ private fun AddonManagerScreenBody(
                                                 textStyle = MaterialTheme.typography.bodyMedium
                                                     .bodyFloor()
                                                     .copy(
-                                                    color = MoviesTheme.colors.TextPrimary,
+                                                    color = LocalContentColor.current,
                                                 textDirection = TextDirection.Content
                                                 ),
                                                 cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
@@ -659,7 +631,7 @@ private fun AddonManagerScreenBody(
                                                             text = stringResource(R.string.addon_install_placeholder),
                                                             style = MaterialTheme.typography
                                                                 .bodyMedium.bodyFloor(),
-                                                            color = MoviesTheme.colors.TextTertiary
+                                                            color = LocalContentColor.current.copy(alpha = 0.64f)
                                                         )
                                                     }
                                                     innerTextField()
@@ -669,7 +641,7 @@ private fun AddonManagerScreenBody(
                                     }
                                 }
 
-                                Button(
+                                MoviesButton(
                                     onClick = {
                                         viewModel.installAddon()
                                         isEditing = false
@@ -679,18 +651,8 @@ private fun AddonManagerScreenBody(
                                     enabled = !uiState.isInstalling,
                                     modifier = Modifier
                                         .focusRequester(installButtonFocusRequester)
-                                        .semantics { role = Role.Button }
-                                        .tvControlHeight(),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = MoviesTheme.colors.BackgroundCard,
-                                        contentColor = MoviesTheme.colors.TextPrimary,
-                                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                                        focusedContentColor = MoviesTheme.colors.Primary
-                                    ).expressiveControl(primary = true),
-                                    shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                                        .expressivePill(),
-                                    border = ButtonDefaults.border().expressiveRingless(),
-                                    scale = ButtonDefaults.scale().expressiveControlGrow()
+                                        .semantics { role = Role.Button },
+                                    style = MoviesButtonStyle.Primary
                                 ) {
                                     Text(text = if (uiState.isInstalling) stringResource(R.string.addon_installing) else stringResource(R.string.addon_install_btn))
                                 }
@@ -866,7 +828,7 @@ private fun AddonManagerScreenBody(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
                 ) {
-                    Button(
+                    MoviesButton(
                         onClick = dismissDeleteDialog,
                         modifier = Modifier
                             .focusRequester(deleteDialogFocusRequester)
@@ -874,7 +836,7 @@ private fun AddonManagerScreenBody(
                     ) {
                         Text(stringResource(R.string.addon_delete_no))
                     }
-                    Button(
+                    MoviesButton(
                         onClick = {
                             val currentAddons = uiState.installedAddons
                             val deletedIndex = currentAddons.indexOfFirst { it.baseUrl == addonUrl }
@@ -887,7 +849,8 @@ private fun AddonManagerScreenBody(
                             viewModel.removeAddon(addonUrl)
                             addonUrlPendingDeletion = null
                         },
-                        modifier = Modifier.semantics { role = Role.Button }
+                        modifier = Modifier.semantics { role = Role.Button },
+                        style = MoviesButtonStyle.Destructive
                     ) {
                         Text(stringResource(R.string.addon_delete_yes))
                     }
@@ -929,9 +892,7 @@ internal fun AddonMessageOverlay(
                         MoviesPrimitives.green700.copy(alpha = 0.92f)
                     }
                 ),
-                shape = ClickableSurfaceDefaults.shape(
-                    RoundedCornerShape(MoviesTheme.radii.md)
-                ).expressiveCard()
+                shape = ClickableSurfaceDefaults.shape(M3eShapes.panel)
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
@@ -964,7 +925,7 @@ private fun ManageFromPhoneCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Surface(
+    MoviesSurface(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -973,19 +934,7 @@ private fun ManageFromPhoneCard(
                 isFocused = it.isFocused
                 onFocusChanged(it.isFocused)
             }
-            .semantics { role = Role.Button },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
-            )
-        ).expressiveRingless(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
+            .semantics { role = Role.Button }
     ) {
         Row(
             modifier = Modifier
@@ -999,19 +948,18 @@ private fun ManageFromPhoneCard(
                     imageVector = Icons.Default.QrCode2,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
+                    tint = LocalContentColor.current.copy(alpha = if (isFocused) 1f else 0.64f)
                 )
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.addon_manage_from_phone_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MoviesTheme.colors.TextSecondary
+                        color = LocalContentColor.current.copy(alpha = 0.64f)
                     )
                 }
             }
@@ -1019,7 +967,7 @@ private fun ManageFromPhoneCard(
                 imageVector = Icons.Default.PhoneAndroid,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = MoviesTheme.colors.TextSecondary
+                tint = LocalContentColor.current.copy(alpha = 0.64f)
             )
         }
     }
@@ -1033,25 +981,13 @@ private fun CatalogOrderEntryCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Surface(
+    MoviesSurface(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focusRequester)
             .onFocusChanged { isFocused = it.isFocused }
-            .semantics { role = Role.Button },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
-            )
-        ).expressiveRingless(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
+            .semantics { role = Role.Button }
     ) {
         Row(
             modifier = Modifier
@@ -1065,19 +1001,18 @@ private fun CatalogOrderEntryCard(
                     imageVector = Icons.Default.Reorder,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
+                    tint = LocalContentColor.current.copy(alpha = if (isFocused) 1f else 0.64f)
                 )
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.addon_reorder_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = stringResource(R.string.addon_reorder_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MoviesTheme.colors.TextSecondary
+                        color = LocalContentColor.current.copy(alpha = 0.64f)
                     )
                 }
             }
@@ -1085,7 +1020,7 @@ private fun CatalogOrderEntryCard(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = MoviesTheme.colors.TextSecondary
+                tint = LocalContentColor.current.copy(alpha = 0.64f)
             )
         }
     }
@@ -1099,25 +1034,13 @@ private fun CollectionsEntryCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Surface(
+    MoviesSurface(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focusRequester)
             .onFocusChanged { isFocused = it.isFocused }
-            .semantics { role = Role.Button },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
-            )
-        ).expressiveRingless(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
+            .semantics { role = Role.Button }
     ) {
         Row(
             modifier = Modifier
@@ -1131,19 +1054,18 @@ private fun CollectionsEntryCard(
                     imageVector = Icons.Default.FolderOpen,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
+                    tint = LocalContentColor.current.copy(alpha = if (isFocused) 1f else 0.64f)
                 )
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.collections_card_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = stringResource(R.string.collections_card_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MoviesTheme.colors.TextSecondary
+                        color = LocalContentColor.current.copy(alpha = 0.64f)
                     )
                 }
             }
@@ -1151,7 +1073,7 @@ private fun CollectionsEntryCard(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = MoviesTheme.colors.TextSecondary
+                tint = LocalContentColor.current.copy(alpha = 0.64f)
             )
         }
     }
@@ -1166,24 +1088,12 @@ private fun RefreshAddonsEntryCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Surface(
+    MoviesSurface(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused }
-            .semantics { role = Role.Button },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
-            )
-        ).expressiveRingless(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
+            .semantics { role = Role.Button }
     ) {
         Row(
             modifier = Modifier
@@ -1197,19 +1107,18 @@ private fun RefreshAddonsEntryCard(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
+                    tint = LocalContentColor.current.copy(alpha = if (isFocused) 1f else 0.64f)
                 )
                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.addon_refresh_action),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MoviesTheme.colors.TextSecondary
+                        color = LocalContentColor.current.copy(alpha = 0.64f)
                     )
                 }
             }
@@ -1217,7 +1126,7 @@ private fun RefreshAddonsEntryCard(
                 imageVector = Icons.Default.Refresh,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = MoviesTheme.colors.TextSecondary
+                tint = LocalContentColor.current.copy(alpha = 0.64f)
             )
         }
     }
@@ -1284,23 +1193,12 @@ internal fun QrCodeOverlay(
 
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
-            Surface(
+            MoviesSurface(
                 onClick = onClose,
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .semantics { role = Role.Button }.tvControlHeight(),
-                colors = ClickableSurfaceDefaults.colors(
-                    containerColor = MoviesTheme.colors.Surface,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground
-                ).expressiveControl(),
-                border = ClickableSurfaceDefaults.border(
-                    focusedBorder = Border(
-                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                        shape = RoundedCornerShape(50)
-                    )
-                ).expressiveRingless(),
-                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
+                shape = M3eShapes.capsule
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
@@ -1309,13 +1207,11 @@ internal fun QrCodeOverlay(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = null,
-                        modifier = Modifier.size(buttonIconSize(18.dp)),
-                        tint = onControlColor(MoviesTheme.colors.TextPrimary)
+                        modifier = Modifier.size(buttonIconSize(18.dp))
                     )
                     Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.addon_qr_close),
-                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
                     )
                 }
@@ -1356,9 +1252,7 @@ internal fun ConfirmAddonChangesDialog(
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = MoviesTheme.colors.SurfaceVariant
             ),
-            shape = ClickableSurfaceDefaults.shape(
-                expressivePanelShape(RoundedCornerShape(MoviesTheme.radii.xl))
-            ).expressiveCard()
+            shape = ClickableSurfaceDefaults.shape(M3eShapes.panel)
         ) {
             Column(
                 modifier = Modifier.padding(MoviesTheme.spacing.xl),
@@ -1386,7 +1280,7 @@ internal fun ConfirmAddonChangesDialog(
                         .heightIn(max = 320.dp)
                         .background(
                             color = MoviesTheme.colors.Surface,
-                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                            shape = M3eShapes.panel
                         )
                 ) {
                     Column(
@@ -1554,21 +1448,10 @@ internal fun ConfirmAddonChangesDialog(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                     ) {
-                        Surface(
+                        MoviesSurface(
                             onClick = onReject,
                             modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
-                            colors = ClickableSurfaceDefaults.colors(
-                                containerColor = MoviesTheme.colors.Surface,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground
-                            ).expressiveControl(),
-                            border = ClickableSurfaceDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(50)
-                                )
-                            ).expressiveRingless(),
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50))
-                                .expressivePill()
+                            shape = M3eShapes.capsule
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
@@ -1577,40 +1460,27 @@ internal fun ConfirmAddonChangesDialog(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = null,
-                                    modifier = Modifier.size(buttonIconSize(18.dp)),
-                                    tint = onControlColor(MoviesTheme.colors.TextPrimary)
+                                    modifier = Modifier.size(buttonIconSize(18.dp))
                                 )
                                 Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                                 Text(
                                     text = stringResource(R.string.addon_confirm_reject),
-                                    color = onControlColor(MoviesTheme.colors.TextPrimary),
                                     style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
                                 )
                             }
                         }
 
-                        Surface(
+                        MoviesSurface(
                             onClick = onConfirm,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
                                 .semantics { role = Role.Button }.tvControlHeight(),
-                            colors = ClickableSurfaceDefaults.colors(
-                                containerColor = MoviesTheme.colors.Secondary,
-                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant
-                            ).expressiveControl(primary = true),
-                            border = ClickableSurfaceDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(50)
-                                )
-                            ).expressiveRingless(),
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50))
-                                .expressivePill()
+                            shape = M3eShapes.capsule,
+                            resting = ExpressiveColors.frostedStrong
                         ) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_confirm),
-                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
-                                color = onControlColor(MoviesTheme.colors.OnSecondary)
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md)
                             )
                         }
                     }
@@ -1638,25 +1508,14 @@ private fun AddonCard(
     removeFocusRequester: FocusRequester? = null
 ) {
     if (isReadOnly) {
-        Surface(
+        MoviesSurface(
             onClick = { },
             modifier = modifier
                 .fillMaxWidth()
                 .animateContentSize(),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
-            ),
-            border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                )
-            ).expressiveRingless(),
-            shape = ClickableSurfaceDefaults.shape(
-                RoundedCornerShape(MoviesTheme.radii.md)
-            ).expressiveCard(),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+            focus = MoviesCardFocus.Frosted,
+            shape = M3eShapes.panel,
+            resting = MoviesTheme.colors.BackgroundCard
         ) {
             AddonCardContent(addon = addon, isReadOnly = true)
         }
@@ -1669,19 +1528,9 @@ private fun AddonCard(
             } else {
                 MoviesTheme.colors.BackgroundCard
             },
-            animationSpec = if (isExpressiveBuild) {
-                ExpressiveMotion.defaultEffects()
-            } else {
-                com.kien.movies.ui.theme.MoviesMotion.focusTween()
-            },
+            animationSpec = ExpressiveMotion.defaultEffects(),
             label = "addonCardColor",
         )
-        val cardBorder = if (isMoving && !isExpressiveBuild) {
-            BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.FocusRing)
-        } else {
-            null
-        }
-
         Card(
             modifier = modifier
                 .fillMaxWidth()
@@ -1690,8 +1539,7 @@ private fun AddonCard(
                     enter = { effectiveToggleFocusRequester }
                 },
             colors = CardDefaults.cardColors(containerColor = cardColor),
-            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md)),
-            border = cardBorder
+            shape = M3eShapes.panel
         ) {
             AddonCardContent(
                 addon = addon,
@@ -1763,11 +1611,12 @@ private fun AddonCardContent(
                 // The card carries the name as visible text, but the toggle is its own node, so
                 // without this a screen reader hears only "switch, on".
                 val toggleLabel = stringResource(R.string.cd_enable_addon, addon.displayName)
+                var isToggleFocused by remember { mutableStateOf(false) }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
+                    MoviesSurface(
                         onClick = {
                             if (actionsEnabled && !isMoving) onEnabledChange(!addon.enabled)
                         },
@@ -1777,28 +1626,16 @@ private fun AddonCardContent(
                                 role = Role.Switch
                                 contentDescription = toggleLabel
                                 toggleableState = if (addon.enabled) ToggleableState.On else ToggleableState.Off
-                            },
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = Color.Transparent,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground
-                        ),
-                        border = ClickableSurfaceDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            )
-                        ).expressiveRingless(),
-                        shape = ClickableSurfaceDefaults.shape(
-                            RoundedCornerShape(MoviesTheme.radii.md)
-                        ).expressivePill(),
-                        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-                            .expressiveControlGrow()
+                            }
+                            .onFocusChanged { isToggleFocused = it.isFocused },
+                        shape = M3eShapes.capsule,
+                        resting = Color.Transparent
                     ) {
                         Box(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            ListToggleSwitch(checked = addon.enabled, focused = false)
+                            ListToggleSwitch(checked = addon.enabled, focused = isToggleFocused)
                         }
                     }
                     if (showReorder) {
@@ -1806,22 +1643,12 @@ private fun AddonCardContent(
                             onClick = if (isMoving) onConfirmMove else onStartMove,
                             enabled = isMoving || (canMove && actionsEnabled),
                             modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
-                            colors = ButtonDefaults.colors(
-                                containerColor = if (isMoving) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
-                                contentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
-                                focusedContainerColor = if (isMoving) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
-                                focusedContentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Primary
-                            ).expressiveChoice(selected = isMoving),
-                            border = ButtonDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
-                                ),
-                                focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                            ).reorderExpressive(),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                                .expressivePill(),
-                            scale = ButtonDefaults.scale().expressiveControlGrow()
+                            colors = moviesButtonColors(
+                                if (isMoving) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
+                            ),
+                            border = reorderButtonBorder(),
+                            shape = moviesButtonShape,
+                            scale = moviesButtonScale
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Reorder,
@@ -1840,22 +1667,10 @@ private fun AddonCardContent(
                         modifier = removeButtonModifier
                             .semantics { role = Role.Button }
                             .tvControlHeight(),
-                        colors = ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            contentColor = MoviesTheme.colors.TextSecondary,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                            focusedContentColor = MoviesTheme.colors.Error
-                        ).expressiveControl(),
-                        border = ButtonDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            ),
-                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
-                        ).reorderExpressive(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                            .expressivePill(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
+                        colors = moviesButtonColors(MoviesButtonStyle.Destructive),
+                        border = reorderButtonBorder(),
+                        shape = moviesButtonShape,
+                        scale = moviesButtonScale
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
@@ -1886,36 +1701,24 @@ private fun AddonCardContent(
     }
 }
 
-/** A switch in a list row: the Settings M3 switch on the expressive build, tv's elsewhere. */
+/** A switch in a list row: the M3E kit switch, drawn inside the focusable row. */
 @Composable
 internal fun ListToggleSwitch(checked: Boolean, focused: Boolean, enabled: Boolean = true) {
-    if (isExpressiveBuild) {
-        SettingsExpressiveSwitch(checked = checked, enabled = enabled, focused = focused)
-        return
-    }
-    Switch(
-        checked = checked,
-        onCheckedChange = null,
-        enabled = enabled,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = MoviesTheme.colors.Secondary,
-            checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f)
-        )
-    )
+    MoviesSwitch(checked = checked, enabled = enabled, focused = focused)
 }
 
 /**
  * A reorder or remove button keeps a faint ring while focused but disabled, the only cue that
- * focus sits on it; every other state drops the ring on the box.
+ * focus sits on it; every other state draws no ring, as in the M3E kit.
  */
 @Composable
-internal fun ButtonBorder.reorderExpressive(): ButtonBorder {
-    if (!isExpressiveBuild) return this
-    val shape = RoundedCornerShape(percent = ExpressiveFocus.FOCUSED_PILL_PERCENT)
+internal fun reorderButtonBorder(): ButtonBorder {
+    val shape = RoundedCornerShape(percent = ExpressiveFocus.PILL_PERCENT)
     return ButtonDefaults.border(
         border = Border.None,
         focusedBorder = Border.None,
         pressedBorder = Border.None,
+        disabledBorder = Border.None,
         focusedDisabledBorder = tvReorderDisabledFocusBorder(shape)
     )
 }

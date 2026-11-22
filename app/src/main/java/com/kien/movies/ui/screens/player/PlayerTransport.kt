@@ -16,13 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 private const val TRANSPORT_SUPPORTING_ALPHA = 0.64f
 private const val TABULAR_FIGURES = "tnum"
-
-/** The Apple TV transport keeps the clock on the scrubber, so the button row drops its own. */
-internal val playerTimesUnderScrubber: Boolean = isExpressiveBuild
 
 /**
  * The bottom scrim behind the transport: clear at the top, deepening to near black at the edge,

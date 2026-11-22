@@ -1,15 +1,8 @@
 package com.kien.movies.ui.screens
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.onFocusChanged
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.expressiveFocusScale
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VideoSettings
@@ -38,20 +30,15 @@ import androidx.compose.ui.unit.dp
 import com.kien.movies.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.data.local.ExperienceModeDataStore
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.domain.model.ExperienceMode
 import com.kien.movies.domain.model.HomeLayout
-import com.kien.movies.ui.theme.isExpressiveBuild
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -136,7 +123,6 @@ fun ExperienceModeSelectionScreen(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ExperienceModeCard(
     title: String,
@@ -145,102 +131,33 @@ private fun ExperienceModeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val experienceCardShape =
-        RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.xl else MoviesTheme.radii.md)
-    var hasFocus by remember { mutableStateOf(false) }
-    val tvosFill = ExpressiveFocus.containerColor(hasFocus, resting = ExpressiveColors.frosted)
-    Surface(
+    MoviesCard(
         onClick = onClick,
-        modifier = modifier
-            .height(210.dp)
-            .onFocusChanged { hasFocus = it.hasFocus }
-            .then(
-                if (isExpressiveBuild) {
-                    Modifier.expressiveFocusScale(hasFocus, EXPERIENCE_CARD_LIFT)
-                } else {
-                    Modifier
-                }
-            ),
-        colors = if (isExpressiveBuild) {
-            ClickableSurfaceDefaults.colors(containerColor = tvosFill, focusedContainerColor = tvosFill)
-        } else {
-            ClickableSurfaceDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                focusedContainerColor = MoviesTheme.colors.FocusBackground
-            )
-        },
-        border = if (isExpressiveBuild) {
-            ClickableSurfaceDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, experienceCardRestingBorder()),
-                shape = experienceCardShape
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = experienceCardShape
-            )
-        ),
-        shape = ClickableSurfaceDefaults.shape(experienceCardShape),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+        modifier = modifier.height(210.dp)
     ) {
-        Card(
-            onClick = onClick,
-            colors = CardDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
-            border = if (isExpressiveBuild) {
-                CardDefaults.border(border = Border.None, focusedBorder = Border.None)
-            } else {
-                CardDefaults.border()
-            },
-            shape = CardDefaults.shape(experienceCardShape),
-            scale = CardDefaults.scale(focusedScale = 1f)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(MoviesTheme.spacing.xl),
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(MoviesTheme.spacing.xl),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = experienceCardText(hasFocus, MoviesTheme.colors.TextSecondary)
-                )
-                Spacer(modifier = Modifier.height(18.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = experienceCardText(hasFocus, MoviesTheme.colors.TextPrimary)
-                )
-                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = experienceCardText(hasFocus, MoviesTheme.colors.TextSecondary)
-                )
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = LocalContentColor.current.copy(alpha = 0.64f)
+            )
+            Spacer(modifier = Modifier.height(18.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = LocalContentColor.current
+            )
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = LocalContentColor.current.copy(alpha = 0.64f)
+            )
         }
     }
 }
-
-@Composable
-private fun experienceCardRestingBorder(): androidx.compose.ui.graphics.Color =
-    if (isExpressiveBuild) {
-        androidx.compose.ui.graphics.Color.Transparent
-    } else {
-        MoviesTheme.colors.Border
-    }
-
-private const val EXPERIENCE_CARD_LIFT = 1.04f
-
-/** On the box build a focused card is solid white, so its text and icon turn black with it. */
-@Composable
-private fun experienceCardText(
-    focused: Boolean,
-    upstream: androidx.compose.ui.graphics.Color
-): androidx.compose.ui.graphics.Color =
-    if (isExpressiveBuild && focused) {
-        MoviesTheme.colors.OnSecondary.copy(alpha = upstream.alpha)
-    } else {
-        upstream
-    }

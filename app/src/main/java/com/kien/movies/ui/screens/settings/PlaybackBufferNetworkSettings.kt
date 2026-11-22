@@ -15,7 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -436,8 +435,8 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
         (MemoryBudget.budgetMb * 1.25f).toInt()
     }
     val usageColor = when (MemoryBudget.getUsageStatus(totalUsageMb, safeLimitMb, warningLimitMb)) {
-        MemoryUsageStatus.DANGER -> expressiveErrorOr(Color(0xFFF44336))
-        MemoryUsageStatus.WARNING -> expressiveWarningOr(Color(0xFFFF9800))
+        MemoryUsageStatus.DANGER -> MoviesTheme.colors.Error
+        MemoryUsageStatus.WARNING -> MoviesTheme.colors.Warning
         MemoryUsageStatus.SAFE -> MoviesPrimitives.success
     }
     val effectiveExoMb = (effectiveBufferMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)

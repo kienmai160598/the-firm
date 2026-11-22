@@ -5,7 +5,6 @@ package com.kien.movies.ui.screens.player
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,9 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -43,15 +39,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.Border
-import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.components.LoadingIndicator
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -166,43 +162,14 @@ private fun SyncPromptPanel(
             color = Color.White
         )
 
-        var syncFocused by remember { mutableStateOf(false) }
-        Card(
+        MoviesCard(
             onClick = onCaptureNow,
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged { syncFocused = it.isFocused }
-                .then(
-                    if (isExpressiveBuild) Modifier.playerFocusLift(syncFocused) else Modifier
-                ),
-            colors = if (isExpressiveBuild) {
-                PlayerPillStyle.colors(syncFocused, resting = Color.White.copy(alpha = 0.14f))
-            } else {
-                CardDefaults.colors(
-                    containerColor = Color.White.copy(alpha = 0.14f),
-                    focusedContainerColor = Color.White.copy(alpha = 0.26f)
-                )
-            },
-            shape = if (isExpressiveBuild) {
-                PlayerPillStyle.shape(syncFocused)
-            } else {
-                CardDefaults.shape(RoundedCornerShape(14.dp))
-            },
-            border = if (isExpressiveBuild) {
-                PlayerListItemStyle.noBorder()
-            } else {
-                CardDefaults.border()
-            },
-            scale = if (isExpressiveBuild) PlayerListItemStyle.stillScale else CardDefaults.scale()
+            modifier = Modifier.focusRequester(focusRequester),
+            shape = M3eShapes.capsule
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = if (isExpressiveBuild) {
-                    ExpressiveFocus.contentColor(syncFocused, resting = Color.White)
-                } else {
-                    Color.White
-                },
                 modifier = Modifier.padding(horizontal = 28.dp, vertical = MoviesTheme.spacing.md)
             )
         }
@@ -270,7 +237,7 @@ private fun CueSelectionPanel(
             Text(
                 text = statusMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isExpressiveBuild) MoviesTheme.colors.Success else Color(0xFF9BE2AF)
+                color = MoviesTheme.colors.Success
             )
         }
 
@@ -278,7 +245,7 @@ private fun CueSelectionPanel(
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isExpressiveBuild) MoviesTheme.colors.Warning else Color(0xFFFFB37A)
+                color = MoviesTheme.colors.Warning
             )
             return
         }
@@ -287,7 +254,7 @@ private fun CueSelectionPanel(
             Text(
                 text = stringResource(R.string.subtitle_timing_select_addon_first),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isExpressiveBuild) MoviesTheme.colors.Warning else Color(0xFFFFB37A)
+                color = MoviesTheme.colors.Warning
             )
             return
         }
@@ -361,40 +328,11 @@ private fun CueRow(
     focusRequester: FocusRequester?,
     onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val focusedContainer = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
-    val focusedTextColor = MaterialTheme.colorScheme.onSecondary
-
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = if (isFocused) {
-                focusedContainer
-            } else {
-                Color.White.copy(alpha = 0.07f)
-            },
-            focusedContainerColor = focusedContainer
-        ),
-        shape = if (isExpressiveBuild) {
-            PlayerListItemStyle.shape
-        } else {
-            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-        },
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, Color.Transparent),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, Color.Transparent),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.015f, pressedScale = 1f)
     ) {
         Row(
             modifier = Modifier
@@ -407,14 +345,13 @@ private fun CueRow(
             Text(
                 text = formatAutoSyncTimestamp(cue.startTimeMs),
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = if (isFocused) focusedTextColor.copy(alpha = 0.9f) else Color.White.copy(alpha = 0.78f),
+                color = LocalContentColor.current.copy(alpha = CUE_TIMESTAMP_ALPHA),
                 modifier = Modifier.width(PlayerTenFoot.atLeast(72.dp, 84.dp))
             )
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Text(
                     text = sanitizeCuePreviewText(cue.text),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (isFocused) focusedTextColor else Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -422,6 +359,8 @@ private fun CueRow(
         }
     }
 }
+
+private const val CUE_TIMESTAMP_ALPHA = 0.78f
 
 private fun sanitizeCuePreviewText(text: String): String {
     val cleaned = text

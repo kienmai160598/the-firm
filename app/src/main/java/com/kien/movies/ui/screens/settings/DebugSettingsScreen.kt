@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,17 +37,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
 import com.kien.movies.R
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Switch
-import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.components.expressive.MoviesSwitch
 import com.kien.movies.ui.screens.account.InputField
 
 @Composable
@@ -231,21 +230,10 @@ fun DebugSettingsContent(
 
 @Composable
 private fun DebugProgressIndicatorCard() {
-    Card(
+    MoviesCard(
         onClick = { },
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
+        focus = MoviesCardFocus.Frosted
     ) {
         Column(
             modifier = Modifier
@@ -301,26 +289,17 @@ private fun DebugToggleCard(
     checked: Boolean,
     onToggle: (Boolean) -> Unit
 ) {
-    Card(
+    var isFocused by remember { mutableStateOf(false) }
+
+    MoviesCard(
         onClick = { onToggle(!checked) },
         modifier = Modifier
             .fillMaxWidth()
             .semantics {
                 role = Role.Switch
                 toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
-            },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
+            }
+            .onFocusChanged { isFocused = it.isFocused }
     ) {
         Row(
             modifier = Modifier
@@ -332,29 +311,19 @@ private fun DebugToggleCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MoviesTheme.colors.TextSecondary
+                    color = LocalContentColor.current.copy(alpha = 0.64f)
                 )
             }
 
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
 
-            Switch(
-                checked = checked,
-                onCheckedChange = null,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MoviesTheme.colors.Secondary,
-                    checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
-                    uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
-                    uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
-                )
-            )
+            MoviesSwitch(checked = checked, enabled = true, focused = isFocused)
         }
     }
 }
@@ -367,23 +336,11 @@ private fun DebugActionCard(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
+            .onFocusChanged { isFocused = it.isFocused }
     ) {
         Column(
             modifier = Modifier
@@ -392,14 +349,13 @@ private fun DebugActionCard(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MoviesTheme.colors.TextPrimary
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MoviesTheme.colors.TextSecondary
+                color = LocalContentColor.current.copy(alpha = 0.64f)
             )
         }
     }
@@ -412,22 +368,16 @@ private fun DebugDialogButton(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Secondary)
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.sm)).expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.0f).expressiveCardGrow()
+        shape = M3eShapes.capsule
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = MoviesTheme.spacing.md, horizontal = MoviesTheme.spacing.lg),

@@ -3,7 +3,6 @@ package com.kien.movies.ui.screens.player
 import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,13 +40,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonBorder
-import androidx.tv.material3.ButtonColors
-import androidx.tv.material3.ButtonDefaults
-import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.isExpressiveBuild
+import androidx.tv.material3.LocalContentColor
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -341,7 +336,7 @@ private fun StreamInfoHudButton(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Button(
+    MoviesButton(
         onClick = onClick,
         // Every direction leads back to this button, so a stray press cannot drop focus onto the
         // transport controls still drawn behind the overlay.
@@ -358,50 +353,11 @@ private fun StreamInfoHudButton(
                 left = FocusRequester.Cancel
                 right = FocusRequester.Cancel
             }
-            .then(
-                if (isExpressiveBuild) {
-                    Modifier
-                        .heightIn(min = HudToggleMinHeight)
-                        .playerFocusLift(isFocused)
-                } else {
-                    Modifier
-                }
-            ),
-        contentPadding = if (isExpressiveBuild) {
-            PaddingValues(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.sm)
-        } else {
-            PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-        },
-        colors = if (isExpressiveBuild) {
-            hudToggleColors(isFocused, enabled)
-        } else ButtonDefaults.colors(
-            containerColor = if (enabled) MoviesTheme.colors.Secondary.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.08f),
-            contentColor = if (enabled) Color.White else Color.White.copy(alpha = 0.7f),
-            focusedContainerColor = if (enabled) MoviesTheme.colors.Secondary else Color.White,
-            focusedContentColor = if (enabled) MoviesTheme.colors.OnSecondary else Color.Black
-        ),
-        shape = if (isExpressiveBuild) {
-            PlayerControlStyle.capsuleShape
-        } else {
-            ButtonDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-        },
-        scale = if (isExpressiveBuild) {
-            PlayerControlStyle.stillScale
-        } else {
-            ButtonDefaults.scale(focusedScale = 1.05f)
-        },
-        border = if (isExpressiveBuild) hudToggleNoBorder() else ButtonDefaults.border(
-            border = Border(
-                border = BorderStroke(
-                    1.dp,
-                    if (enabled) MoviesTheme.colors.Secondary.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.12f)
-                ),
-                shape = RoundedCornerShape(MoviesTheme.radii.sm)
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.sm)
-            )
+            .heightIn(min = HudToggleMinHeight),
+        style = if (enabled) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary,
+        contentPadding = PaddingValues(
+            horizontal = MoviesTheme.spacing.lg,
+            vertical = MoviesTheme.spacing.sm
         )
     ) {
         val statusText = if (enabled) {
@@ -416,11 +372,9 @@ private fun StreamInfoHudButton(
                 .size(8.dp)
                 .clip(CircleShape)
                 .background(
-                    if (enabled) {
-                        if (isFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.FocusRing
-                    } else {
-                        if (isFocused) Color.Black.copy(alpha = 0.35f) else Color.White.copy(alpha = 0.4f)
-                    }
+                    LocalContentColor.current.copy(
+                        alpha = if (enabled) 1f else HUD_OFF_DOT_ALPHA
+                    )
                 )
         )
         Spacer(modifier = Modifier.width(MoviesTheme.spacing.xs))
@@ -433,36 +387,4 @@ private fun StreamInfoHudButton(
 }
 
 private val HudToggleMinHeight = 48.dp
-
-/** On rests in the accent's tonal container, off on the plain surface; focus fills the accent. */
-@Composable
-private fun hudToggleColors(focused: Boolean, enabled: Boolean): ButtonColors {
-    val container = ExpressiveFocus.containerColor(
-        focused = focused,
-        resting = if (enabled) {
-            MoviesTheme.colors.SecondaryVariant
-        } else {
-            MoviesTheme.colors.BackgroundCard
-        }
-    )
-    val content = ExpressiveFocus.contentColor(
-        focused = focused,
-        resting = if (enabled) {
-            MoviesTheme.colors.OnSecondaryVariant
-        } else {
-            MoviesTheme.colors.TextPrimary
-        }
-    )
-    return ButtonDefaults.colors(
-        containerColor = container,
-        contentColor = content,
-        focusedContainerColor = container,
-        focusedContentColor = content
-    )
-}
-
-@Composable
-private fun hudToggleNoBorder(): ButtonBorder = ButtonDefaults.border(
-    border = Border.None,
-    focusedBorder = Border.None
-)
+private const val HUD_OFF_DOT_ALPHA = 0.4f

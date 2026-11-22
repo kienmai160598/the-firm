@@ -1,7 +1,6 @@
 package com.kien.movies.ui.screens.party
 
-import com.kien.movies.ui.screens.detail.spatialSpec
-import com.kien.movies.ui.screens.detail.effectsSpec
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import androidx.activity.compose.BackHandler
@@ -142,9 +141,9 @@ fun PartyScreen(
             AnimatedContent(
                 targetState = mode,
                 transitionSpec = {
-                    val grow = scaleIn(spatialSpec(tween(320)), initialScale = 0.96f)
+                    val grow = scaleIn(ExpressiveMotion.standardDefaultSpatial(), initialScale = 0.96f)
                     (fadeIn(tween(260, delayMillis = 60)) + grow) togetherWith
-                        fadeOut(effectsSpec(tween(140)))
+                        fadeOut(ExpressiveMotion.defaultEffects())
                 },
                 label = "partyScreenMode",
                 modifier = Modifier
@@ -289,9 +288,9 @@ private fun JoinContent(
                 targetState = preview,
                 contentKey = { it != null },
                 transitionSpec = {
-                    val rise = slideInVertically(spatialSpec(tween(300))) { it / 10 }
+                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 10 }
                     (fadeIn(tween(240, delayMillis = 60)) + rise) togetherWith
-                        fadeOut(effectsSpec(tween(140)))
+                        fadeOut(ExpressiveMotion.defaultEffects())
                 },
                 label = "partyJoinPreview",
             ) { current ->
@@ -331,9 +330,9 @@ private fun JoinContent(
             AnimatedContent(
                 targetState = shownError,
                 transitionSpec = {
-                    val drop = slideInVertically(spatialSpec(tween(220))) { -it / 2 }
-                    (fadeIn(effectsSpec(tween(180))) + drop) togetherWith
-                        fadeOut(effectsSpec(tween(120)))
+                    val drop = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { -it / 2 }
+                    (fadeIn(ExpressiveMotion.defaultEffects()) + drop) togetherWith
+                        fadeOut(ExpressiveMotion.defaultEffects())
                 },
                 label = "partyJoinError",
             ) { current ->
@@ -347,8 +346,8 @@ private fun JoinContent(
             ExperimentalNote()
             AnimatedVisibility(
                 visible = preview == null,
-                enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
-                exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.quick))),
+                enter = fadeIn(ExpressiveMotion.defaultEffects()),
+                exit = fadeOut(ExpressiveMotion.defaultEffects()),
             ) {
                 Text(
                     text = stringResource(R.string.party_host_hint),

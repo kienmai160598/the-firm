@@ -26,14 +26,14 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.formatHexColor
 import com.kien.movies.domain.model.parseHexColor
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
@@ -135,7 +135,7 @@ internal fun HexColorEditor(
             "0123456789ABCDEF".chunked(4).forEachIndexed { rowIndex, row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEachIndexed { columnIndex, character ->
-                        Button(
+                        MoviesButton(
                             onClick = { enter(character) },
                             modifier = Modifier
                                 .weight(1f)
@@ -143,10 +143,7 @@ internal fun HexColorEditor(
                                 .then(
                                     if (rowIndex == 0 && columnIndex == 0) Modifier.focusRequester(firstKeyFocusRequester)
                                     else Modifier
-                                ),
-                            scale = ButtonDefaults.scale().expressiveControlGrow(),
-                            shape = ButtonDefaults.shape().expressivePill(),
-                            colors = ButtonDefaults.colors().expressiveControl()
+                                )
                         ) {
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 Text(character.toString(), style = MaterialTheme.typography.bodyMedium)
@@ -161,23 +158,17 @@ internal fun HexColorEditor(
             modifier = Modifier.settingsOptionRow(clearFocusRequester),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(
+            MoviesButton(
                 onClick = { digits = ""; replaceOnInput = false },
                 modifier = Modifier
                     .tvControlHeight()
                     .weight(1f)
                     .height(36.dp)
-                    .focusRequester(clearFocusRequester),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                colors = ButtonDefaults.colors().expressiveControl()
+                    .focusRequester(clearFocusRequester)
             ) { Text(stringResource(R.string.custom_theme_hex_clear)) }
-            Button(
+            MoviesButton(
                 onClick = ::delete,
-                modifier = Modifier.tvControlHeight().weight(1f).height(36.dp),
-                shape = ButtonDefaults.shape().expressivePill(),
-                colors = ButtonDefaults.colors().expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.tvControlHeight().weight(1f).height(36.dp)
             ) {
                 Text(stringResource(R.string.custom_theme_hex_delete))
             }
@@ -186,31 +177,21 @@ internal fun HexColorEditor(
             modifier = Modifier.settingsOptionRow(cancelFocusRequester),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .tvControlHeight()
                     .weight(1f)
                     .height(36.dp)
-                    .focusRequester(cancelFocusRequester),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                colors = ButtonDefaults.colors().expressiveControl()
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = { color?.let(onConfirm) },
                 enabled = color != null,
                 modifier = Modifier.tvControlHeight().weight(1f).height(36.dp),
-                colors = ButtonDefaults.colors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black,
-                    focusedContainerColor = Color.White,
-                    focusedContentColor = Color.Black
-                ).expressiveControl(primary = true),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) { Text(stringResource(R.string.custom_theme_use_color)) }
         }
     }

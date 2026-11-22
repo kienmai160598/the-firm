@@ -1,8 +1,5 @@
 package com.kien.movies
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,23 +39,18 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.ui.components.AutoResizeText
 import com.kien.movies.ui.components.BrandWordmark
 import com.kien.movies.ui.components.ProfileAvatarCircle
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesComponents
-import com.kien.movies.ui.theme.MoviesMotion
-import com.kien.movies.ui.theme.MoviesRadii
 import com.kien.movies.ui.theme.MoviesStrokes
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.util.contentTextDirection
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.draw.drawWithCache
 import com.kien.movies.ui.util.rememberRawSvgPainter
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeInputScale
@@ -242,80 +231,16 @@ private fun SidebarNavigationItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val colors = MoviesTheme.colors
-    val shape = RoundedCornerShape(MoviesRadii.tokens.full)
-    val palette = MoviesTheme.palette
-    val accentColor = palette.secondary
-    val backgroundColorTarget = when {
-        isFocused && selected -> accentColor.copy(alpha = 0.28f)
-        isFocused -> Color.White.copy(alpha = 0.12f)
-        selected -> accentColor.copy(alpha = 0.15f)
-        else -> Color.Transparent
-    }
-    val animatedBackgroundColor by animateColorAsState(
-        targetValue = backgroundColorTarget,
-        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
-        label = "sidebarItemBackground"
-    )
-    val backgroundColor = if (selected && !isFocused) backgroundColorTarget else animatedBackgroundColor
-
-    val contentColorTarget = when {
-        selected -> accentColor
-        isFocused -> colors.TextPrimary
-        else -> colors.text.onOverlay
-    }
-    val animatedContentColor by animateColorAsState(
-        targetValue = contentColorTarget,
-        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
-        label = "sidebarItemContent"
-    )
-    val contentColor = if (selected && !isFocused) contentColorTarget else animatedContentColor
-
-    val iconBrush = if (selected) palette.accentBrush() else null
-    val iconTintTarget = when {
-        selected -> Color.White
-        isFocused -> colors.TextPrimary
-        else -> colors.text.onOverlay
-    }
-    val animatedIconTint by animateColorAsState(
-        targetValue = iconTintTarget,
-        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
-        label = "sidebarItemIconTint"
-    )
-    val iconTint = if (selected && !isFocused) iconTintTarget else animatedIconTint
-    val itemScale by animateFloatAsState(
-        targetValue = if (isFocused) 1.1f else 1f,
-        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast, easing = MoviesMotion.tokens.easings.standard),
-        label = "sidebarItemScale"
-    )
-
-    Card(
+    MoviesSurface(
         onClick = onClick,
         modifier = modifier
-            .graphicsLayer {
-                scaleX = itemScale
-                scaleY = itemScale
-                transformOrigin = TransformOrigin.Center
-            }
             .onFocusChanged {
-                isFocused = it.hasFocus
                 onFocusChanged(it.hasFocus)
             }
             .focusProperties { canFocus = focusEnabled },
-        colors = CardDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-        ),
-        border = CardDefaults.border(
-            border = androidx.tv.material3.Border.None,
-            focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.thin, Color.Transparent),
-                shape = shape
-            )
-        ),
-        shape = CardDefaults.shape(shape = shape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        selected = selected,
+        shape = M3eShapes.capsule,
+        resting = Color.Transparent
     ) {
         Row(
             modifier = Modifier
@@ -337,30 +262,18 @@ private fun SidebarNavigationItem(
                 },
             contentAlignment = Alignment.Center
         ) {
-            val iconModifier = if (iconBrush != null) {
-                Modifier
-                    .size(MoviesComponents.tokens.sidebar.iconSize)
-                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                    .drawWithCache {
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(brush = iconBrush, blendMode = BlendMode.SrcIn)
-                        }
-                    }
-            } else {
-                Modifier.size(MoviesComponents.tokens.sidebar.iconSize)
-            }
+            val iconModifier = Modifier.size(MoviesComponents.tokens.sidebar.iconSize)
             when {
                 icon != null -> Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = iconTint,
+                    tint = LocalContentColor.current,
                     modifier = iconModifier
                 )
                 iconRes != null -> Icon(
                     painter = rememberRawSvgPainter(iconRes),
                     contentDescription = null,
-                    tint = iconTint,
+                    tint = LocalContentColor.current,
                     modifier = iconModifier
                 )
             }
@@ -369,7 +282,7 @@ private fun SidebarNavigationItem(
 
         AutoResizeText(
             text = label,
-            color = contentColor,
+            color = LocalContentColor.current,
             modifier = Modifier
                 .weight(1f)
                 .graphicsLayer { alpha = labelAlpha }
@@ -389,31 +302,15 @@ private fun SidebarProfileItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val colors = MoviesTheme.colors
-    val shape = RoundedCornerShape(MoviesRadii.tokens.full)
-    val backgroundColor = if (isFocused) Color.White.copy(alpha = 0.12f) else Color.Transparent
-    Card(
+    MoviesSurface(
         onClick = onClick,
         modifier = modifier
             .onFocusChanged {
-                isFocused = it.hasFocus
                 onFocusChanged(it.hasFocus)
             }
             .focusProperties { canFocus = focusEnabled },
-        colors = CardDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-        ),
-        border = CardDefaults.border(
-            border = androidx.tv.material3.Border.None,
-            focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.thin, Color.Transparent),
-                shape = shape
-            )
-        ),
-        shape = CardDefaults.shape(shape = shape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        shape = M3eShapes.capsule,
+        resting = Color.Transparent
     ) {
         Row(
             modifier = Modifier
@@ -440,7 +337,7 @@ private fun SidebarProfileItem(
         Spacer(modifier = Modifier.width(SidebarProfileContentGap))
         AutoResizeText(
             text = profileName,
-            color = colors.text.onOverlay,
+            color = LocalContentColor.current,
             modifier = Modifier
                 .weight(1f)
                 .graphicsLayer { alpha = labelAlpha },

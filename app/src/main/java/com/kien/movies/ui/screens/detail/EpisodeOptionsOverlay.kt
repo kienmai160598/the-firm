@@ -6,7 +6,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -68,7 +67,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -82,6 +80,8 @@ import com.kien.movies.core.tracking.TrackingRatingState
 import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.BlurTransformation
 import com.kien.movies.ui.util.contentTextDirection
@@ -510,8 +510,8 @@ internal fun EpisodeOptionsOverlay(
                     transitionSpec = {
                         val forward = targetState
                         val motion = spring<IntOffset>(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow)
-                        val enterFade = fadeIn(effectsSpec(tween(180)))
-                        val exitFade = fadeOut(effectsSpec(tween(120)))
+                        val enterFade = fadeIn(ExpressiveMotion.defaultEffects())
+                        val exitFade = fadeOut(ExpressiveMotion.defaultEffects())
                         val shift = { width: Int -> if (forward) width / 3 else -width / 3 }
                         val slideIn = slideInHorizontally(motion) { shift(it) }
                         val slideOut = slideOutHorizontally(motion) { -shift(it) }
@@ -547,7 +547,7 @@ internal fun EpisodeOptionsOverlay(
                             verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                         ) {
                             actions.forEachIndexed { index, action ->
-                                Button(
+                                MoviesButton(
                                     onClick = action.onClick,
                                     enabled = action.enabled,
                                     modifier = Modifier
@@ -580,7 +580,6 @@ internal fun EpisodeOptionsOverlay(
                                                 Modifier
                                             }
                                         ),
-                                    colors = tonalButtonColors(),
                                     contentPadding = tvButtonPadding()
                                 ) {
                                     Text(action.label, style = buttonLabelStyle())

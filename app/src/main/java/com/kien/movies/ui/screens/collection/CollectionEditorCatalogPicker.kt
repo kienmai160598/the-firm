@@ -1,11 +1,10 @@
 package com.kien.movies.ui.screens.collection
 
-import com.kien.movies.ui.components.expressiveOptionCardBorder
-import com.kien.movies.ui.components.expressiveOptionCardColors
-import com.kien.movies.ui.components.expressiveOptionCardShape
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -43,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
@@ -59,11 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -157,7 +151,7 @@ fun CatalogPickerContent(
                 val isAdded = alreadyAdded.any {
                     it is AddonCatalogCollectionSource && it.addonId == catalog.addonId && catalogTypesMatch(it.type, catalog.type) && it.catalogId == catalog.catalogId
                 }
-                Card(
+                MoviesCard(
                     onClick = { onToggle(catalog) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -167,24 +161,8 @@ fun CatalogPickerContent(
                             role = Role.Checkbox
                             toggleableState = if (isAdded) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = expressiveOptionCardColors(CardDefaults.colors(
-                        containerColor = if (isAdded) MoviesTheme.colors.Secondary.copy(alpha = 0.15f) else MoviesTheme.colors.BackgroundCard,
-                        focusedContainerColor = MoviesTheme.colors.FocusBackground
-                    ), selected = isAdded),
-                    border = expressiveOptionCardBorder(CardDefaults.border(
-                        border = if (isAdded) Border(
-                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Secondary.copy(alpha = 0.5f)),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        ) else Border.None,
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(MoviesTheme.radii.md)
-                        )
-                    )),
-                    shape = expressiveOptionCardShape(
-                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                    ),
-                    scale = CardDefaults.scale(focusedScale = 1.01f)
+                    selected = isAdded,
+                    focus = MoviesCardFocus.Frosted
                 ) {
                     Row(
                         modifier = Modifier

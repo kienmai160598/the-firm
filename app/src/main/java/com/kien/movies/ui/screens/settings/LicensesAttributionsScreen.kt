@@ -9,7 +9,6 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -50,11 +48,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.rememberAsyncImagePainter
@@ -64,6 +60,7 @@ import com.kien.movies.R
 import com.kien.movies.core.cloud.PremiumizeCloudLibraryPosterUrl
 import com.kien.movies.core.cloud.TorboxCloudLibraryPosterUrl
 import com.kien.movies.core.cloud.cloudLibraryDisplayArtworkUrl
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
 private const val NuvioRepositoryUrl = "https://github.com/NuvioMedia/NuvioTV"
@@ -243,26 +240,13 @@ private fun AttributionDetailRow(
 ) {
     val context = LocalContext.current
 
-    Card(
+    MoviesCard(
         onClick = {
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
         },
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 76.dp),
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius))
-            .expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+            .heightIn(min = 76.dp)
     ) {
         Row(
             modifier = Modifier
@@ -282,7 +266,6 @@ private fun AttributionDetailRow(
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -290,12 +273,12 @@ private fun AttributionDetailRow(
                 Text(
                     text = item.body,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MoviesTheme.colors.TextSecondary
+                    color = LocalContentColor.current.copy(alpha = 0.64f)
                 )
                 Text(
                     text = item.url,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MoviesTheme.colors.Primary,
+                    color = LocalContentColor.current.copy(alpha = 0.64f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -305,7 +288,7 @@ private fun AttributionDetailRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = MoviesTheme.colors.TextTertiary,
+                tint = LocalContentColor.current.copy(alpha = 0.64f),
                 modifier = Modifier
                     .padding(top = MoviesTheme.spacing.xxs)
                     .size(18.dp)
@@ -322,7 +305,7 @@ private fun AttributionLogo(
         modifier = Modifier
             .size(52.dp)
             .clip(RoundedCornerShape(MoviesTheme.radii.md))
-            .background(expressiveSurfaceOr(Color(0xFF24272E))),
+            .background(MoviesTheme.colors.SurfaceVariant),
         contentAlignment = Alignment.Center
     ) {
         Image(

@@ -16,7 +16,6 @@ import com.kien.movies.ui.theme.LocalMoviesTextStyles
 import com.kien.movies.ui.theme.TvSizeFloors
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.buildMoviesTextStyles
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.rowTitleFloor
 import com.kien.movies.ui.theme.screenTitleFloor
@@ -24,14 +23,10 @@ import com.kien.movies.ui.theme.screenTitleFloor
 /**
  * Raises the small steps of the type scale in [content] to the box's 10-foot floors, so the
  * settings, account, addon, plugin and TMDB screens need no per-Text change. A floor only raises
- * a style, so one the theme already raised stays as it is. Other builds compose [content] as is.
+ * a style, so one the theme already raised stays as it is.
  */
 @Composable
 internal fun TenFootTypography(content: @Composable () -> Unit) {
-    if (!isExpressiveBuild) {
-        content()
-        return
-    }
     val base = MaterialTheme.typography
     val floored = remember(base) { base.withTenFootFloors() }
     val textStyles = remember(floored) { buildMoviesTextStyles(floored) }
@@ -46,7 +41,7 @@ internal fun TenFootTypography(content: @Composable () -> Unit) {
     }
 }
 
-/** A settings row's title: a row title on the box, upstream's body style elsewhere. */
+/** A settings row's title: the body style raised to the row title floor. */
 @Composable
 @ReadOnlyComposable
 internal fun settingsRowTitleStyle(): TextStyle =
@@ -62,9 +57,9 @@ private fun Typography.withTenFootFloors(): Typography = copy(
     labelSmall = labelSmall.metaFloor()
 )
 
-/** A hard-coded secondary text size, raised to the meta floor on the box. */
+/** A hard-coded secondary text size, raised to the meta floor. */
 internal fun metaFontSize(upstream: TextUnit): TextUnit =
-    if (isExpressiveBuild && upstream.value < TvSizeFloors.metaText.value) {
+    if (upstream.value < TvSizeFloors.metaText.value) {
         TvSizeFloors.metaText
     } else {
         upstream

@@ -55,7 +55,6 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.util.LocalRecompositionHighlighterEnabled
 import com.kien.movies.ui.util.contentTextDirection
@@ -400,7 +399,7 @@ private fun HeroTitleContent(
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
-    val descriptionMaxLines = if (isExpressiveBuild) BOX_HERO_DESCRIPTION_LINES else 4
+    val descriptionMaxLines = BOX_HERO_DESCRIPTION_LINES
     val descriptionScale = if (portraitMode) 0.90f else 1f
     val titleScale = if (portraitMode) 0.92f else 1f
     val metaScale = 1f
@@ -831,7 +830,7 @@ private fun HeroMetaDivider(
     )
 }
 
-private val HeroBadgeShape = RoundedCornerShape(if (isExpressiveBuild) 8.dp else 6.dp)
+private val HeroBadgeShape = RoundedCornerShape(8.dp)
 
 internal const val HOME_HERO_TRAILER_OWNER = "home_hero"
 

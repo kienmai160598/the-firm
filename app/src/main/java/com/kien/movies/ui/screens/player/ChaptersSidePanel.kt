@@ -36,8 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 
@@ -134,13 +134,10 @@ private fun ChapterItem(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
-    Card(
+    MoviesCard(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().focusSpringScale(),
-        colors = PlayerListItemStyle.colors(isCurrent),
-        border = PlayerListItemStyle.noBorder(),
-        scale = PlayerListItemStyle.stillScale,
-        shape = PlayerListItemStyle.shape
+        modifier = modifier.fillMaxWidth(),
+        selected = isCurrent
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(

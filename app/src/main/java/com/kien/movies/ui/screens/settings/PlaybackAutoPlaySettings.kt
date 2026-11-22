@@ -5,8 +5,6 @@ package com.kien.movies.ui.screens.settings
 import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,13 +52,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import com.kien.movies.R
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.core.build.AppFeaturePolicy
@@ -70,9 +64,13 @@ import com.kien.movies.data.local.NextEpisodeThresholdMode
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import kotlin.math.roundToInt
 import java.util.Locale
-import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
 internal fun PlaybackStreamSelectionSection(
@@ -613,7 +611,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 .heightIn(max = 420.dp),
             verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Card(
+            MoviesCard(
                 onClick = { selected = emptySet() },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -622,13 +620,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                         role = Role.RadioButton
                         this.selected = selected.isEmpty()
                     },
-                colors = CardDefaults.colors(
-                    containerColor = if (selected.isEmpty()) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground
-                ),
-                shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
-                    .expressiveCard(),
-                scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+                selected = selected.isEmpty()
             ) {
                 Row(
                     modifier = Modifier
@@ -638,7 +630,6 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 ) {
                     Text(
                         text = allLabel,
-                        color = if (selected.isEmpty()) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
@@ -646,7 +637,6 @@ private fun StreamAutoPlayProviderSelectionDialog(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
-                            tint = MoviesTheme.colors.Primary,
                             modifier = Modifier.height(20.dp)
                         )
                     }
@@ -670,7 +660,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                         key = { it }
                     ) { item ->
                         val isSelected = item in selected
-                        Card(
+                        MoviesCard(
                             onClick = {
                                 selected = if (isSelected) {
                                     selected - item
@@ -685,13 +675,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                     role = Role.Checkbox
                                     toggleableState = if (isSelected) ToggleableState.On else ToggleableState.Off
                                 },
-                            colors = CardDefaults.colors(
-                                containerColor = if (isSelected) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground
-                            ),
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
-                                .expressiveCard(),
-                            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+                            selected = isSelected
                         ) {
                             Row(
                                 modifier = Modifier
@@ -701,7 +685,6 @@ private fun StreamAutoPlayProviderSelectionDialog(
                             ) {
                                 Text(
                                     text = item,
-                                    color = if (isSelected) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary,
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -709,7 +692,6 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = null,
-                                        tint = MoviesTheme.colors.Primary,
                                         modifier = Modifier.height(18.dp)
                                     )
                                 }
@@ -805,14 +787,12 @@ private fun StreamRegexDialog(
                         items = presets,
                         key = { _, preset -> preset.first }
                     ) { presetIndex, (label, pattern) ->
-                        var isFocused by remember { mutableStateOf(false) }
-                        Card(
+                        MoviesCard(
                             onClick = {
                                 regex = pattern
                                 regexError = null
                             },
                             modifier = Modifier
-                                .onFocusChanged { isFocused = it.isFocused }
                                 .then(
                                     if (presetIndex == 0) {
                                         Modifier.focusRequester(firstPresetFocusRequester)
@@ -820,54 +800,23 @@ private fun StreamRegexDialog(
                                         Modifier
                                     }
                                 ),
-                            colors = CardDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundElevated,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground
-                            ),
-                            border = CardDefaults.border(
-                                focusedBorder = Border(
-                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(20.dp)
-                                )
-                            ).expressiveRingless(),
-                            shape = CardDefaults.shape(RoundedCornerShape(20.dp))
-                                .expressiveCard(),
-                            scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
+                            shape = M3eShapes.capsule
                         ) {
                             Text(
                                 text = label,
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = if (isFocused) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary
+                                style = MaterialTheme.typography.labelLarge
                             )
                         }
                     }
                 }
 
-                Card(
+                MoviesCard(
                     onClick = { inputFocusRequester.requestFocus() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
-                    colors = CardDefaults.colors(
-                        containerColor = MoviesTheme.colors.BackgroundElevated,
-                        focusedContainerColor = expressiveCardFocusFill(
-                            MoviesTheme.colors.BackgroundElevated
-                        )
-                    ),
-                    border = CardDefaults.border(
-                        border = Border(
-                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                            shape = RoundedCornerShape(10.dp)
-                        ),
-                        focusedBorder = Border(
-                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                    ).expressiveRingless(),
-                    shape = CardDefaults.shape(RoundedCornerShape(10.dp))
-                        .expressiveCard(),
-                    scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+                    focus = MoviesCardFocus.Frosted
                 ) {
                     Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                         BasicTextField(
@@ -891,7 +840,7 @@ private fun StreamRegexDialog(
                             keyboardActions = KeyboardActions(
                                 onDone = { keyboardController?.hide() }
                             ),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = MoviesTheme.colors.TextPrimary,
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = LocalContentColor.current,
                                             textDirection = TextDirection.Content),
                             cursorBrush = SolidColor(if (isInputFocused) MoviesTheme.colors.Primary else Color.Transparent),
                             decorationBox = { innerTextField ->
@@ -899,7 +848,7 @@ private fun StreamRegexDialog(
                                     Text(
                                         text = "4K|2160p|Remux",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = MoviesTheme.colors.TextTertiary
+                                        color = LocalContentColor.current.copy(alpha = SETTINGS_TERTIARY_TEXT_ALPHA)
                                     )
                                 }
                                 innerTextField()
@@ -920,63 +869,32 @@ private fun StreamRegexDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Button(
-                        modifier = Modifier.tvControlHeight(),
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundElevated,
-                            contentColor = MoviesTheme.colors.TextPrimary,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                            focusedContentColor = MoviesTheme.colors.Primary
-                        ).expressiveControl(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
-                            .expressivePill(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
-                    ) {
+                    MoviesButton(onClick = onDismiss) {
                         Text(stringResource(R.string.action_cancel))
                     }
                     Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-                    Button(
-                        modifier = Modifier.tvControlHeight(),
+                    MoviesButton(
                         onClick = {
                             regex = ""
                             regexError = null
-                        },
-                        colors = ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundElevated,
-                            contentColor = MoviesTheme.colors.TextPrimary,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                            focusedContentColor = MoviesTheme.colors.Primary
-                        ).expressiveControl(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
-                            .expressivePill(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
+                        }
                     ) {
                         Text(stringResource(R.string.action_none))
                     }
                     Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-                    Button(
-                        modifier = Modifier.tvControlHeight(),
+                    MoviesButton(
                         onClick = {
                             val value = regex.trim()
                             if (value.isNotEmpty()) {
                                 val valid = runCatching { Regex(value, RegexOption.IGNORE_CASE) }.isSuccess
                                 if (!valid) {
                                     regexError = strInvalidRegex
-                                    return@Button
+                                    return@MoviesButton
                                 }
                             }
                             onSave(value)
                         },
-                        colors = ButtonDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundCard,
-                            contentColor = MoviesTheme.colors.TextPrimary,
-                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                            focusedContentColor = MoviesTheme.colors.Primary
-                        ).expressiveControl(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
-                            .expressivePill(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
+                        style = MoviesButtonStyle.Primary
                     ) {
                         Text(stringResource(R.string.action_save))
                     }

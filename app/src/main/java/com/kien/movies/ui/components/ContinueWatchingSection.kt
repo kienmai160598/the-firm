@@ -65,11 +65,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import com.kien.movies.ui.screens.home.canMarkWatched
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.MoviesTheme
 import androidx.compose.ui.platform.LocalContext
@@ -78,7 +78,6 @@ import coil3.request.ImageRequest
 import coil3.request.transformations
 import coil3.request.crossfade
 import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.rememberMetaFloor
 import kotlin.math.roundToInt
 import java.util.concurrent.TimeUnit
@@ -88,7 +87,6 @@ import com.kien.movies.ui.util.rememberLongPressKeyTracker
 import com.kien.movies.ui.util.computeAirDateBadgeText
 import com.kien.movies.ui.util.computeAirDateBadgeTextShort
 import com.kien.movies.domain.model.ContinueWatchingCardStyle
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
@@ -97,23 +95,17 @@ import androidx.compose.ui.text.TextStyle
 import com.kien.movies.domain.model.CardDepthStyle
 import kotlinx.coroutines.delay
 
-private val BadgeShape =
-    RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.sm else MoviesTheme.radii.xs)
+private val BadgeShape = RoundedCornerShape(MoviesTheme.radii.sm)
 
-private fun newSeasonBadgeColor(): Color =
-    if (isExpressiveBuild) ExpressiveColors.tertiaryContainer else CwNewSeasonBadgeColor
-private val CwNewEpisodeBadgeColor = Color(0xFF1D4ED8)
+private fun newSeasonBadgeColor(): Color = ExpressiveColors.tertiaryContainer
 
-/** Netflix red over a translucent white track on the box build; upstream's accent elsewhere. */
+/** Netflix red over a translucent white track. */
 @Composable
-private fun progressFillColor(): Color =
-    if (isExpressiveBuild) ExpressiveColors.accentRed else MoviesTheme.colors.Secondary
+private fun progressFillColor(): Color = ExpressiveColors.accentRed
 
-private fun progressTrackColor(): Color =
-    if (isExpressiveBuild) Color.White.copy(alpha = 0.24f) else Color.Black.copy(alpha = 0.3f)
-private val CwNewSeasonBadgeColor = Color(0xFFB45309)
+private fun progressTrackColor(): Color = Color.White.copy(alpha = 0.24f)
 
-/** URLs that failed to load — skip them immediately on next recomposition. */
+/** URLs that failed to load: skip them immediately on next recomposition. */
 internal val brokenImageUrls = java.util.Collections.synchronizedSet(mutableSetOf<String>())
 
 // How long a focused card waits before its title starts scrolling, so briefly passing focus stays still.
@@ -625,8 +617,7 @@ fun ContinueWatchingCard(
     }
 
     val bgColor = MoviesTheme.colors.Background
-    val newEpisodeBadgeColor =
-        if (isExpressiveBuild) ExpressiveColors.accentRed else CwNewEpisodeBadgeColor
+    val newEpisodeBadgeColor = ExpressiveColors.accentRed
     val badgeBackground = remember(bgColor, newEpisodeBadgeColor, nextUp) {
         when {
             nextUp?.isNewSeasonRelease == true -> newSeasonBadgeColor()
@@ -751,16 +742,6 @@ fun ContinueWatchingCard(
                         }
                     )
                     .clip(cwClipShape)
-                    .then(
-                        if (textBelowArtwork && isFocused && !isExpressiveBuild) {
-                            Modifier.border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = cwClipShape
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
             ) {
                 // Background image with size hints for efficient decoding
                 if (effectiveImageModel.isNullOrBlank()) {
@@ -804,7 +785,7 @@ fun ContinueWatchingCard(
                         fallback = backgroundPainter,
                         contentScale = ContentScale.Crop,
                         onError = {
-                            // Primary image failed (e.g. broken thumbnail URL) — remember and try fallback.
+                            // Primary image failed (e.g. broken thumbnail URL): remember and try fallback.
                             if (!usesFallbackImage && effectiveImageModel != null) {
                                 brokenImageUrls.add(effectiveImageModel)
                                 if (fallbackImageModel != null && fallbackImageModel != effectiveImageModel) {
@@ -1172,26 +1153,18 @@ fun ContinueWatchingOptionsDialog(
         title = title,
         subtitle = stringResource(R.string.cw_dialog_subtitle)
     ) {
-        Button(
+        MoviesButton(
             onClick = onDetails,
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(detailsFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                contentColor = MoviesTheme.colors.TextPrimary
-            )
+                .focusRequester(detailsFocusRequester)
         ) {
             Text(stringResource(R.string.cw_action_go_to_details))
         }
 
         if (showPlayManually && isPlayEnabled) {
-            Button(
+            MoviesButton(
                 onClick = onPlayManually,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.play_manually))
@@ -1199,12 +1172,8 @@ fun ContinueWatchingOptionsDialog(
         }
 
         if (item is ContinueWatchingItem.InProgress && isPlayEnabled) {
-            Button(
+            MoviesButton(
                 onClick = onStartFromBeginning,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.cw_action_start_from_beginning))
@@ -1212,25 +1181,18 @@ fun ContinueWatchingOptionsDialog(
         }
 
         if (item.canMarkWatched()) {
-            Button(
+            MoviesButton(
                 onClick = onMarkWatched,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.hero_mark_watched))
             }
         }
 
-        Button(
+        MoviesButton(
             onClick = onRemove,
-            colors = ButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                contentColor = MoviesTheme.colors.TextPrimary
-            ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            style = MoviesButtonStyle.Destructive
         ) {
             Text(stringResource(R.string.cw_action_remove))
         }

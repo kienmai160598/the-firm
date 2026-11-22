@@ -2,17 +2,13 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.screens.settings.expressiveCard
-import com.kien.movies.ui.screens.settings.expressiveCardFocusFill
-import com.kien.movies.ui.screens.settings.expressiveRingless
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.tvControlHeight
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,11 +31,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
-import androidx.tv.material3.Border
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 
 @Composable
@@ -64,26 +58,10 @@ internal fun InputField(
         }
     }
 
-    Surface(
+    MoviesSurface(
         onClick = { isEditing = true },
         modifier = modifier.tvControlHeight(),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
-        ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        ).expressiveRingless(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-            .expressiveCard(),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+        scale = 1f
     ) {
         BasicTextField(
             value = value,
@@ -116,7 +94,7 @@ internal fun InputField(
                 }
             ),
             textStyle = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
-                color = MoviesTheme.colors.TextPrimary,
+                color = LocalContentColor.current,
                 textDirection = TextDirection.Content
             ),
             cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Secondary else Color.Transparent),
@@ -126,7 +104,7 @@ internal fun InputField(
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                        color = MoviesTheme.colors.TextTertiary
+                        color = LocalContentColor.current.copy(alpha = 0.64f)
                     )
                 }
                 innerTextField()

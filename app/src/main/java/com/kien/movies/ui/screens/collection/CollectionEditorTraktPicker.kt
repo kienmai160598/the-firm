@@ -1,5 +1,6 @@
 package com.kien.movies.ui.screens.collection
 
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement

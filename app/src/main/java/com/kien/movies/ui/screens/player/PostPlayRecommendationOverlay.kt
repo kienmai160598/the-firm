@@ -35,8 +35,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -44,8 +42,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.focus.onFocusChanged
-import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -72,12 +68,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
-import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -717,46 +711,12 @@ private fun PostPlayRecommendationNavigationButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    IconButton(
+    MoviesIconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
             .size(MoviesTheme.spacing.xxxl)
             .focusRequester(focusRequester)
-            .onFocusChanged { isFocused = it.isFocused }
-            .then(if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier),
-        colors = if (isExpressiveBuild) {
-            PlayerControlStyle.iconButtonColors(MoviesTheme.colors.TextPrimary)
-        } else {
-            IconButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                focusedContainerColor = MoviesTheme.colors.Secondary,
-                contentColor = MoviesTheme.colors.TextPrimary,
-                focusedContentColor = MoviesTheme.colors.OnSecondary
-            )
-        },
-        border = IconButtonDefaults.border(
-            focusedBorder = if (isExpressiveBuild) {
-                Border.None
-            } else {
-                Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = CircleShape
-                )
-            }
-        ),
-        shape = if (isExpressiveBuild) {
-            PlayerControlStyle.capsuleShape
-        } else {
-            IconButtonDefaults.shape(shape = CircleShape)
-        },
-        scale = if (isExpressiveBuild) {
-            PlayerControlStyle.stillScale
-        } else {
-            IconButtonDefaults.scale()
-        }
     ) {
         Icon(
             imageVector = icon,
@@ -776,11 +736,9 @@ private fun PostPlayRecommendationButton(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(MoviesTheme.spacing.xxl)
-    var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
-    Button(
+    MoviesButton(
         onClick = {
             if (longPressTriggered) {
                 longPressTriggered = false
@@ -790,8 +748,6 @@ private fun PostPlayRecommendationButton(
         },
         modifier = modifier
             .focusRequester(focusRequester)
-            .onFocusChanged { isFocused = it.isFocused }
-            .then(if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier)
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
                 if (onLongPress != null &&
@@ -822,32 +778,7 @@ private fun PostPlayRecommendationButton(
                 }
                 false
             },
-        colors = if (isExpressiveBuild) {
-            PlayerControlStyle.pillButtonColors(isFocused, primary)
-        } else {
-            ButtonDefaults.colors(
-                containerColor = if (primary) Color.White else MoviesTheme.colors.BackgroundCard,
-                focusedContainerColor = if (primary) Color.White else MoviesTheme.colors.Secondary,
-                contentColor = if (primary) Color.Black else MoviesTheme.colors.TextPrimary,
-                focusedContentColor = if (primary) Color.Black else MoviesTheme.colors.OnSecondary
-            )
-        },
-        shape = if (isExpressiveBuild) {
-            PlayerControlStyle.capsuleShape
-        } else {
-            ButtonDefaults.shape(shape = shape)
-        },
-        border = ButtonDefaults.border(
-            focusedBorder = if (isExpressiveBuild) {
-                Border.None
-            } else {
-                Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = shape
-                )
-            }
-        ),
-        scale = if (isExpressiveBuild) PlayerControlStyle.stillScale else ButtonDefaults.scale(),
+        style = if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary,
         contentPadding = PaddingValues(
             horizontal = MoviesTheme.spacing.lg,
             vertical = 14.dp

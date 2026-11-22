@@ -1,20 +1,16 @@
 package com.kien.movies.ui.screens.collection
 
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.components.expressiveOptionCardBorder
-import com.kien.movies.ui.components.expressiveOptionCardColors
-import com.kien.movies.ui.components.expressiveOptionCardShape
 import com.kien.movies.ui.theme.MoviesTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +29,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -53,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
@@ -69,11 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -195,7 +184,7 @@ fun TmdbSourcePickerContent(
                 ) {
                     items(TmdbBuilderMode.values().toList()) { mode ->
                         val selected = uiState.tmdbBuilderMode == mode
-                        Button(
+                        MoviesButton(
                             onClick = { onModeChange(mode) },
                             modifier = Modifier
                                 .focusRequester(modeFocusRequesters[mode]!!)
@@ -206,18 +195,7 @@ fun TmdbSourcePickerContent(
                                 .onFocusChanged {
                                     if (it.isFocused) lastFocusedMode = mode
                                 }.tvControlHeight(),
-                            colors = expressiveButtonColors(ButtonDefaults.colors(
-                                containerColor = if (selected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
-                                contentColor = if (selected) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary,
-                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                                focusedContentColor = MoviesTheme.colors.Primary
-                            ), selected = selected),
-                            shape = expressiveButtonShape(
-                                ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-                            ),
-                            scale = expressiveButtonScale(
-                                ButtonDefaults.scale(focusedScale = 1f)
-                            )
+                            style = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
                         ) {
                             Text(tmdbModeLabel(mode))
                         }
@@ -809,29 +787,10 @@ fun TmdbActionButton(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
         modifier = modifier.tvControlHeight(),
-        colors = expressiveButtonColors(ButtonDefaults.colors(
-            containerColor = if (primary) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
-            contentColor = if (primary) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
-            focusedContainerColor = if (primary) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
-            focusedContentColor = if (primary) MoviesTheme.colors.OnSecondaryVariant else MoviesTheme.colors.Primary
-        ), selected = primary),
-        border = expressiveButtonBorder(ButtonDefaults.border(
-            focusedBorder = Border(
-                border = if (primary) {
-                    BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.SecondaryVariant)
-                } else {
-                    MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs)
-                },
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        )),
-        shape = expressiveButtonShape(
-            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-        ),
-        scale = expressiveButtonScale(ButtonDefaults.scale(focusedScale = 1f))
+        style = if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             content()
@@ -1052,23 +1011,14 @@ fun TmdbChoiceButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.semantics {
             role = Role.RadioButton
             this.selected = selected
         }.tvControlHeight(),
-        colors = expressiveButtonColors(ButtonDefaults.colors(
-            containerColor = if (selected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
-            contentColor = if (selected) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-            focusedContentColor = MoviesTheme.colors.Primary
-        ), selected = selected),
-        shape = expressiveButtonShape(
-            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-        ),
-        scale = expressiveButtonScale(ButtonDefaults.scale(focusedScale = 1f))
+        style = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary
     ) {
         Text(label)
     }
@@ -1077,25 +1027,12 @@ fun TmdbChoiceButton(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TmdbPickerCard(title: String, subtitle: String, onClick: () -> Unit) {
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .blockHorizontalFocus(),
-        colors = expressiveOptionCardColors(CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        )),
-        border = expressiveOptionCardBorder(CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.md)
-            )
-        )),
-        shape = expressiveOptionCardShape(
-            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
-        ),
-        scale = CardDefaults.scale(focusedScale = 1f)
+        focus = MoviesCardFocus.Frosted
     ) {
         Column(modifier = Modifier.padding(MoviesTheme.spacing.lg), verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
             Text(

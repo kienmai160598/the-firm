@@ -2,25 +2,22 @@
 
 package com.kien.movies.ui.screens.account
 
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.rowTitleFloor
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.screens.settings.TenFootTypography
 import com.kien.movies.ui.screens.settings.metaFontSize
 import com.kien.movies.ui.screens.settings.buttonIconSize
-import com.kien.movies.ui.screens.settings.expressiveCard
-import com.kien.movies.ui.screens.settings.expressiveCardGrow
-import com.kien.movies.ui.screens.settings.expressiveCardShape
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
 import com.kien.movies.ui.util.contentTextDirection
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,7 +34,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CheckCircle
@@ -59,11 +55,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.domain.model.AuthState
@@ -215,18 +209,18 @@ private fun SyncOverviewCard(overview: SyncOverview) {
             .fillMaxWidth()
             .background(
                 color = MoviesTheme.colors.BackgroundCard,
-                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
+                shape = M3eShapes.panel
             )
             .padding(10.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            // Totals row — layout matches ProfileSyncRow columns
+            // Totals row: layout matches ProfileSyncRow columns
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         color = MoviesTheme.colors.BackgroundElevated,
-                        shape = expressiveRowShape(RoundedCornerShape(6.dp))
+                        shape = M3eShapes.card
                     )
                     .padding(horizontal = MoviesTheme.spacing.sm, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -281,7 +275,7 @@ private fun SyncStatChip(label: String, value: String) {
 private fun ProfileSyncRow(profile: ProfileSyncStats) {
     val color = runCatching { Color(android.graphics.Color.parseColor(profile.avatarColorHex)) }
         .getOrDefault(MoviesPrimitives.blue500)
-    val rowShape = expressiveRowShape(RoundedCornerShape(6.dp))
+    val rowShape = M3eShapes.card
     var isFocused by remember { mutableStateOf(false) }
 
     Row(
@@ -291,16 +285,7 @@ private fun ProfileSyncRow(profile: ProfileSyncStats) {
             .onFocusChanged { isFocused = it.isFocused }
             .focusable()
             .background(
-                color = if (isFocused) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundElevated,
-                shape = rowShape
-            )
-            .border(
-                width = MoviesTheme.spacing.xxs,
-                color = if (isFocused && !isExpressiveBuild) {
-                    MoviesTheme.colors.FocusRing
-                } else {
-                    Color.Transparent
-                },
+                color = if (isFocused) ExpressiveColors.frostedFocused else MoviesTheme.colors.BackgroundElevated,
                 shape = rowShape
             )
             .padding(horizontal = MoviesTheme.spacing.sm, vertical = 6.dp),
@@ -374,7 +359,7 @@ private fun SyncOverviewLoadingCard() {
             .fillMaxWidth()
             .background(
                 color = MoviesTheme.colors.BackgroundCard,
-                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
+                shape = M3eShapes.panel
             )
             .padding(10.dp),
         contentAlignment = Alignment.Center
@@ -397,25 +382,12 @@ private fun SettingsActionButton(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .tvControlHeight()
-            .onFocusChanged { isFocused = it.isFocused },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                shape = RoundedCornerShape(MoviesTheme.radii.sm)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-            .expressiveCard(),
-        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
+            .onFocusChanged { isFocused = it.isFocused }
     ) {
         Row(
             modifier = Modifier
@@ -427,20 +399,19 @@ private fun SettingsActionButton(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(22.dp),
-                tint = if (isFocused) MoviesTheme.colors.Primary else MoviesTheme.colors.TextSecondary
+                tint = LocalContentColor.current.copy(alpha = if (isFocused) 1f else 0.64f)
             )
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium.rowTitleFloor(),
-                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = subtitle,
                     fontSize = metaFontSize(11.sp),
-                    color = MoviesTheme.colors.TextSecondary
+                    color = LocalContentColor.current.copy(alpha = 0.64f)
                 )
             }
         }
@@ -454,7 +425,7 @@ private fun StatusCard(label: String, value: String) {
             .fillMaxWidth()
             .background(
                 color = MoviesTheme.colors.Secondary.copy(alpha = 0.1f),
-                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
+                shape = M3eShapes.panel
             )
             .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
@@ -485,24 +456,11 @@ private fun SignOutSettingsButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    MoviesButton(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().tvControlHeight(),
-        colors = CardDefaults.colors(
-            containerColor = accountErrorContainer(MoviesPrimitives.red600.copy(alpha = 0.12f)),
-            focusedContainerColor = accountFocusedErrorContainer(
-                MoviesPrimitives.red600.copy(alpha = 0.25f)
-            )
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(MoviesTheme.spacing.xxs, Color(0xFFF44336).copy(alpha = 0.5f)),
-                shape = RoundedCornerShape(MoviesTheme.radii.sm)
-            )
-        ).expressiveRingless(),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
-            .expressivePill(),
-        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
+        modifier = modifier.fillMaxWidth(),
+        style = MoviesButtonStyle.Destructive,
+        contentPadding = PaddingValues(0.dp)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
@@ -511,14 +469,12 @@ private fun SignOutSettingsButton(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Logout,
                 contentDescription = null,
-                modifier = Modifier.size(buttonIconSize(18.dp)),
-                tint = accountErrorContent(Color(0xFFF44336))
+                modifier = Modifier.size(buttonIconSize(18.dp))
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = stringResource(R.string.account_sign_out),
                 style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                color = accountErrorContent(Color(0xFFF44336)),
                 fontWeight = FontWeight.Medium
             )
         }

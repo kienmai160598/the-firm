@@ -71,6 +71,7 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
@@ -78,6 +79,9 @@ import com.kien.movies.R
 import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.ui.components.EmptyScreenState
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalCardDepthStyle
@@ -302,7 +306,6 @@ private fun DiscoverDropdownPicker(
     onSelect: (DiscoverOption) -> Unit,
     blockFocus: Boolean = false
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     var anchorSize by remember { mutableStateOf(IntSize.Zero) }
     // Seed focused option with the current selection so reopen highlights the right row
     // even before focus lands (fixes #2848 / incomplete #2507 race on TV).
@@ -334,25 +337,16 @@ private fun DiscoverDropdownPicker(
     }
 
     Box(modifier = modifier) {
-        Card(
+        MoviesCard(
             onClick = { onExpandedChange(!expanded) },
             modifier = Modifier
                 .fillMaxWidth()
                 .onSizeChanged { anchorSize = it }
-                .onFocusChanged { state ->
-                    isFocused = state.isFocused
-                }
                 .then(
                     if (blockFocus) Modifier.focusProperties { canFocus = false }
                     else Modifier
                 ),
-            shape = CardDefaults.shape(shape = DiscoverFieldShape),
-            colors = discoverFieldColors(isFocused),
-            border = discoverFieldBorder(),
-            scale = CardDefaults.scale(
-                focusedScale = 1.0f,
-                pressedScale = 1.0f
-            )
+            shape = DiscoverFieldShape
         ) {
             Column(
                 modifier = Modifier
@@ -363,7 +357,7 @@ private fun DiscoverDropdownPicker(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = discoverFieldContent(isFocused, MoviesTheme.colors.TextTertiary)
+                    color = LocalContentColor.current.copy(alpha = FIELD_LABEL_ALPHA)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -375,15 +369,13 @@ private fun DiscoverDropdownPicker(
                         style = MaterialTheme.typography.titleMedium.copy(
                             textDirection = value.contentTextDirection()
                         ),
-                        color = discoverFieldContent(isFocused, MoviesTheme.colors.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                        modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
-                        tint = discoverFieldIconTint(isFocused)
+                        modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
                     )
                 }
             }
@@ -402,19 +394,19 @@ private fun DiscoverDropdownPicker(
             containerColor = MoviesTheme.colors.BackgroundCard,
             tonalElevation = MoviesTheme.spacing.none,
             shadowElevation = MoviesTheme.spacing.sm,
-            border = discoverMenuBorder()
+            border = null
         ) {
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
-                val itemTextColor = when {
-                    isOptionFocused -> MoviesTheme.colors.OnSecondary
-                    isSelected -> MoviesTheme.colors.TextPrimary
-                    else -> MoviesTheme.colors.TextPrimary
+                val itemTextColor = if (isOptionFocused) {
+                    ExpressiveColors.onFocus
+                } else {
+                    ExpressiveColors.textPrimary
                 }
                 val itemBackgroundColor = when {
-                    isOptionFocused -> MoviesTheme.colors.Secondary
-                    isSelected -> MoviesTheme.colors.FocusBackground
+                    isOptionFocused -> ExpressiveColors.focus
+                    isSelected -> ExpressiveColors.frostedStrong
                     else -> Color.Transparent
                 }
 
@@ -432,7 +424,7 @@ private fun DiscoverDropdownPicker(
                         .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = M3eShapes.card
                         )
                         .onFocusChanged { state ->
                             val hasFocus = state.isFocused || state.hasFocus
@@ -463,6 +455,8 @@ private fun DiscoverDropdownPicker(
         }
     }
 }
+
+private const val FIELD_LABEL_ALPHA = 0.64f
 
 private data class DiscoverOption(
     val label: String,

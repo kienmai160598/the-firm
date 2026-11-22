@@ -2,12 +2,12 @@
 
 package com.kien.movies.ui.screens.settings
 
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -217,7 +216,7 @@ internal fun LazyListScope.diagnosticsCardItems(
                 diagnostics.result,
                 valueColor = when {
                     diagnostics.result.startsWith("Error", ignoreCase = true) ->
-                        expressiveErrorOr(Color(0xFFF44336))
+                        MoviesTheme.colors.Error
                     diagnostics.result == "Played" -> MoviesPrimitives.success
                     else -> MoviesTheme.colors.TextPrimary
                 }
@@ -231,7 +230,6 @@ private fun DiagnosticsSectionCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val shape = RoundedCornerShape(10.dp)
 
     // Read-only: it carries no action, so it is a plain Surface rather than a clickable Card,
     // which would be announced as a button. It still takes focus, because the D-pad can only
@@ -240,20 +238,10 @@ private fun DiagnosticsSectionCard(
         modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused }
-            .focusable()
-            .then(
-                if (isFocused) {
-                    Modifier.border(
-                        MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs, alpha = 0.5f),
-                        shape
-                    )
-                } else {
-                    Modifier
-                }
-            ),
-        shape = shape,
+            .focusable(),
+        shape = M3eShapes.card,
         colors = SurfaceDefaults.colors(
-            containerColor = if (isFocused) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
+            containerColor = if (isFocused) ExpressiveColors.frostedFocused else ExpressiveColors.frosted,
             contentColor = MoviesTheme.colors.TextPrimary
         )
     ) {
@@ -313,7 +301,7 @@ private fun DiagnosticRow(
 }
 
 private fun formatTimestamp(ms: Long): String {
-    if (ms == 0L) return "—"
+    if (ms == 0L) return "-"
     return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(ms))
 }
 

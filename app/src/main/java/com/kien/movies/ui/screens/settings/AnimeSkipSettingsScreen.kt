@@ -41,16 +41,15 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -150,28 +149,10 @@ private fun AnimeSkipClientIdDialog(
         subtitle = stringResource(R.string.animeskip_dialog_subtitle),
         width = 700.dp
     ) {
-        Card(
+        MoviesCard(
             onClick = { inputFocusRequester.requestFocus() },
             modifier = Modifier.fillMaxWidth().onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
-            colors = CardDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundElevated,
-                focusedContainerColor = expressiveCardFocusFill(
-                    MoviesTheme.colors.BackgroundElevated
-                )
-            ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = androidx.compose.foundation.BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
-                ),
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
-                )
-            ).expressiveRingless(),
-            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
-                .expressiveCard(),
-            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+            focus = MoviesCardFocus.Frosted
         ) {
             Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                 BasicTextField(
@@ -210,37 +191,20 @@ private fun AnimeSkipClientIdDialog(
         }
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            Button(
+            MoviesButton(
                 modifier = Modifier.tvControlHeight(),
-                onClick = onDismiss,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundElevated,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                onClick = onDismiss
             ) { Text(stringResource(R.string.action_cancel)) }
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-            Button(
+            MoviesButton(
                 modifier = Modifier.tvControlHeight(),
-                onClick = onClear,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundElevated,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                onClick = onClear
             ) { Text(stringResource(R.string.action_clear)) }
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
-            Button(
+            MoviesButton(
                 modifier = Modifier.tvControlHeight(),
                 onClick = { if (!validating) viewModel.validateAndSave(value, onSaved) },
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(if (validating) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
             }

@@ -13,13 +13,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.ExperienceMode
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.theme.tvControlHeight
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 
 @Composable
 internal fun ExperienceModeConfirmationDialog(
@@ -54,33 +53,21 @@ internal fun ExperienceModeConfirmationDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
-                modifier = Modifier.tvControlHeight().weight(1f),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                modifier = Modifier.weight(1f)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = {
                     onConfirm()
                     onDismiss()
                 },
                 modifier = Modifier
-                    .tvControlHeight()
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                shape = ButtonDefaults.shape().expressivePill()
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(
                     stringResource(

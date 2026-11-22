@@ -7,7 +7,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
@@ -46,27 +43,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
-import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.ServerConfiguration
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesIconButton
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.ExpressiveFocus
+import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.screens.settings.expressiveCardShape
-import com.kien.movies.ui.screens.settings.expressiveControl
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
 import kotlinx.coroutines.delay
 
 @Composable
@@ -97,27 +87,9 @@ internal fun ServerOptionsMenuHost(
     }
 
     Box(modifier = modifier) {
-        IconButton(
+        MoviesIconButton(
             onClick = { expanded = true },
-            modifier = Modifier.size(48.dp),
-            colors = IconButtonDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = if (isExpressiveBuild) {
-                    MoviesTheme.colors.Secondary
-                } else {
-                    Color.Transparent
-                },
-                contentColor = MoviesTheme.colors.TextSecondary,
-                focusedContentColor = if (isExpressiveBuild) {
-                    MoviesTheme.colors.OnSecondary
-                } else {
-                    MoviesTheme.colors.FocusRing
-                }
-            ),
-            scale = IconButtonDefaults.scale(
-                focusedScale = if (isExpressiveBuild) ExpressiveFocus.CONTROL_SCALE else 1.12f
-            ),
-            shape = IconButtonDefaults.shape(shape = CircleShape)
+            modifier = Modifier.size(48.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
@@ -131,7 +103,7 @@ internal fun ServerOptionsMenuHost(
             onDismissRequest = { expanded = false },
             offset = DpOffset(x = 0.dp, y = 12.dp),
             modifier = Modifier.width(320.dp),
-            shape = expressiveCardShape(RoundedCornerShape(14.dp)),
+            shape = M3eShapes.panel,
             containerColor = MoviesTheme.colors.BackgroundCard,
             tonalElevation = 0.dp,
             shadowElevation = MoviesTheme.spacing.sm,
@@ -201,24 +173,15 @@ private fun ServerMenuItem(
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val itemColor = if (isFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextPrimary
+    val itemColor = if (isFocused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary
 
     DropdownMenuItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
             .background(
-                color = if (isFocused) MoviesTheme.colors.Secondary else Color.Transparent,
-                shape = expressiveRowShape(RoundedCornerShape(10.dp))
-            )
-            .border(
-                width = if (isFocused) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
-                color = if (isFocused && !isExpressiveBuild) {
-                    MoviesTheme.colors.FocusRing
-                } else {
-                    Color.Transparent
-                },
-                shape = RoundedCornerShape(10.dp)
+                color = if (isFocused) ExpressiveColors.focus else Color.Transparent,
+                shape = M3eShapes.card
             )
             .onFocusChanged { state -> isFocused = state.isFocused || state.hasFocus },
         text = {
@@ -284,38 +247,25 @@ private fun ServerConnectionDialog(
         uiState.error?.let {
             ServerMessage(
                 text = it,
-                containerColor = accountErrorContainer(Color(0x33C62828)),
-                contentColor = accountErrorContent(Color(0xFFFF8A80))
+                containerColor = accountErrorContainer(),
+                contentColor = accountErrorContent()
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
-                modifier = Modifier.weight(1f).tvControlHeight(),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.weight(1f)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = { onDiscover(serverUrl) },
                 enabled = canDiscover,
-                modifier = Modifier.weight(1f).tvControlHeight(),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.weight(1f),
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(
                     if (uiState.isDiscovering) {
@@ -354,7 +304,7 @@ private fun ServerTrustConfirmationDialog(
             icon = Icons.Default.CheckCircle,
             label = stringResource(R.string.custom_server_verified_label),
             value = server.backendUrl,
-            tint = accountSuccessColor(Color(0xFF7CFF9B))
+            tint = accountSuccessColor()
         )
         ServerDetailRow(
             icon = Icons.Default.Lock,
@@ -366,42 +316,28 @@ private fun ServerTrustConfirmationDialog(
         error?.let {
             ServerMessage(
                 text = it,
-                containerColor = accountErrorContainer(Color(0x33C62828)),
-                contentColor = accountErrorContent(Color(0xFFFF8A80))
+                containerColor = accountErrorContainer(),
+                contentColor = accountErrorContent()
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
                 enabled = !isSwitching,
                 modifier = Modifier
                     .weight(1f)
-                    .tvControlHeight()
-                    .focusRequester(cancelFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = onConnect,
                 enabled = !isSwitching,
-                modifier = Modifier.weight(1f).tvControlHeight(),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.weight(1f),
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(
                     if (isSwitching) {
@@ -426,22 +362,14 @@ private fun ServerWarning(server: ServerConfiguration) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(
-                1.dp,
-                accountMessageOutline(Color(0x66FFB74D)),
-                expressiveCardShape(RoundedCornerShape(14.dp))
-            )
-            .background(
-                accountWarningContainer(Color(0x1FFF9800)),
-                expressiveCardShape(RoundedCornerShape(14.dp))
-            )
+            .background(accountWarningContainer(), M3eShapes.panel)
             .padding(MoviesTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
         Text(
             text = stringResource(R.string.custom_server_warning_title),
             style = MaterialTheme.typography.titleSmall,
-            color = accountWarningContent(Color(0xFFFFCC80)),
+            color = accountWarningContent(),
             fontWeight = FontWeight.SemiBold
         )
         Text(
@@ -479,42 +407,28 @@ private fun OfficialServerConfirmationDialog(
         error?.let {
             ServerMessage(
                 text = it,
-                containerColor = accountErrorContainer(Color(0x33C62828)),
-                contentColor = accountErrorContent(Color(0xFFFF8A80))
+                containerColor = accountErrorContainer(),
+                contentColor = accountErrorContent()
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onDismiss,
                 enabled = !isSwitching,
                 modifier = Modifier
                     .weight(1f)
-                    .tvControlHeight()
-                    .focusRequester(cancelFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            MoviesButton(
                 onClick = onConfirm,
                 enabled = !isSwitching,
-                modifier = Modifier.weight(1f).tvControlHeight(),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    contentColor = MoviesTheme.colors.TextPrimary
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape().expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow()
+                modifier = Modifier.weight(1f),
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(
                     if (isSwitching) {
@@ -567,10 +481,7 @@ private fun ServerMessage(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                containerColor,
-                expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
-            )
+            .background(containerColor, M3eShapes.panel)
             .padding(horizontal = MoviesTheme.spacing.md, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {

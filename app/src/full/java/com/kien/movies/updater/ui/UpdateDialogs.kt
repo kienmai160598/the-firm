@@ -38,12 +38,12 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.mikepenz.markdown.m3.markdownTypography
 import com.kien.movies.R
 import com.kien.movies.ui.components.MoviesDialog
@@ -162,29 +162,16 @@ internal fun UpdateUnknownSourcesDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
-            Button(
+            MoviesButton(
                 onClick = onOpenSettings,
                 modifier = Modifier.focusRequester(settingsFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                style = MoviesButtonStyle.Primary
             ) {
                 Text(stringResource(R.string.update_open_settings))
             }
 
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.BackgroundCard,
-                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                    contentColor = MoviesTheme.colors.TextPrimary,
-                    focusedContentColor = MoviesTheme.colors.Primary
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+            MoviesButton(
+                onClick = onDismiss
             ) {
                 Text(stringResource(R.string.update_close))
             }

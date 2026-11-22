@@ -50,6 +50,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
@@ -84,9 +85,9 @@ import com.kien.movies.ui.util.localizeEpisodeTitle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.CardScale
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -103,11 +104,14 @@ import com.kien.movies.ui.components.StreamsSkeletonList
 import com.kien.movies.ui.screens.player.LoadingOverlay
 import com.kien.movies.ui.screens.player.AddonFilterChips
 import com.kien.movies.ui.screens.player.focusChip
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.moviesCardColors
+import com.kien.movies.ui.components.expressive.moviesCardScale
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
-import com.kien.movies.ui.screens.detail.forBuild
 import com.kien.movies.ui.navigation.sourceSelectionRestoreTarget
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -128,7 +132,8 @@ import dev.chrisbanes.haze.hazeSource
 
 
 // A 16 sp label is 22 sp tall on the box, so 13 dp above and below keeps the 48 dp control.
-private val RetryVerticalPadding = forBuild(upstream = 10.dp, expressive = 13.dp)
+private val RetryVerticalPadding = 13.dp
+private const val ROW_SUPPORTING_ALPHA = 0.64f
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -895,7 +900,7 @@ private fun RightStreamSection(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(StreamPanelStyle.radius()))
+                    .clip(M3eShapes.panel)
                     .then(
                         if (hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) {
@@ -1043,19 +1048,13 @@ private fun ErrorState(
 
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
-        var isFocused by remember { mutableStateOf(false) }
-        Card(
+        MoviesCard(
             onClick = onRetry,
-            modifier = Modifier.streamPillFocusScale(isFocused).onFocusChanged { isFocused = it.isFocused },
-            colors = streamPillColors(isFocused, resting = MoviesTheme.colors.BackgroundCard),
-            border = streamCardBorder(Border.None),
-            shape = streamPillShape(isFocused),
-            scale = CardScale.None
+            shape = M3eShapes.capsule
         ) {
             Text(
                 text = stringResource(R.string.stream_retry),
                 style = MaterialTheme.typography.labelLarge.atLeastOnBox(TvSizeFloors.bodyText),
-                color = streamPillContentColor(isFocused),
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = RetryVerticalPadding)
             )
         }
@@ -1371,8 +1370,7 @@ private fun StreamCard(
     val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
-    val cardShape = RoundedCornerShape(MoviesTheme.radii.xl)
-    val hasGradientFocusRing = streamCardUsesFocusRing()
+    val cardShape = M3eShapes.card
 
     var isFocused by remember { mutableStateOf(false) }
 
@@ -1401,7 +1399,6 @@ private fun StreamCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .streamCardFocusScale(isFocused)
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .onFocusChanged {
                 isFocused = it.isFocused
@@ -1412,20 +1409,10 @@ private fun StreamCard(
                     onUpKey(); true
                 } else false
             } else Modifier),
-        colors = streamCardColors(),
+        colors = moviesCardColors(),
         shape = CardDefaults.shape(shape = cardShape),
-        border = if (hasGradientFocusRing) {
-            CardDefaults.border(
-                border = outlineBorder(outlined, cardShape),
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = cardShape
-                )
-            )
-        } else {
-            streamCardBorder(outlineBorder(outlined, cardShape))
-        },
-        scale = CardDefaults.scale(focusedScale = 1f)
+        border = streamCardBorder(outlineBorder(outlined, cardShape)),
+        scale = moviesCardScale
     ) {
         Row(
             modifier = Modifier
@@ -1464,7 +1451,7 @@ private fun StreamCard(
                         style = MaterialTheme.typography.titleMedium.copy(
                             textDirection = streamName.contentTextDirection()
                         ),
-                        color = streamRowTextColor(isFocused)
+                        color = LocalContentColor.current
                     )
                     if (label != null) {
                         StreamLabelBadge(label)
@@ -1479,7 +1466,7 @@ private fun StreamCard(
                             style = MaterialTheme.typography.bodySmall
                                 .atLeastOnBox(TvSizeFloors.metaText)
                                 .copy(textDirection = description.contentTextDirection()),
-                            color = streamRowSupportingColor(isFocused)
+                            color = LocalContentColor.current.copy(alpha = ROW_SUPPORTING_ALPHA)
                         )
                     }
                 }
@@ -1524,7 +1511,7 @@ private fun StreamCard(
                         style = MaterialTheme.typography.labelSmall
                             .atLeastOnBox(TvSizeFloors.metaText)
                             .copy(textDirection = stream.addonName.contentTextDirection()),
-                        color = streamAddonNameColor(isFocused),
+                        color = LocalContentColor.current.copy(alpha = ROW_SUPPORTING_ALPHA),
                         maxLines = 1
                     )
                 }
@@ -1534,7 +1521,7 @@ private fun StreamCard(
 }
 
 @Composable
-private fun outlineBorder(outlined: Boolean, shape: RoundedCornerShape): Border =
+private fun outlineBorder(outlined: Boolean, shape: Shape): Border =
     if (outlined) {
         Border(
             border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Primary.copy(alpha = 0.65f)),
@@ -1559,7 +1546,7 @@ internal fun PlayerChoiceDialog(
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(MoviesTheme.radii.xxl))
+                .clip(M3eShapes.panel)
                 .background(MoviesTheme.colors.BackgroundCard)
         ) {
             Column(
@@ -1581,23 +1568,16 @@ internal fun PlayerChoiceDialog(
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    var internalFocused by remember { mutableStateOf(false) }
-                    Card(
+                    MoviesCard(
                         onClick = onInternalSelected,
                         modifier = Modifier
                             .weight(1f)
-                            .focusRequester(focusRequester)
-                            .streamPillFocusScale(internalFocused)
-                            .onFocusChanged { internalFocused = it.isFocused },
-                        colors = streamPillColors(internalFocused, resting = MoviesTheme.colors.BackgroundElevated),
-                        border = streamCardBorder(Border.None),
-                        shape = streamPillShape(internalFocused),
-                        scale = CardScale.None
+                            .focusRequester(focusRequester),
+                        shape = M3eShapes.capsule
                     ) {
                         Text(
                             text = stringResource(R.string.stream_player_internal),
                             style = MaterialTheme.typography.titleMedium,
-                            color = streamPillContentColor(internalFocused),
                             modifier = Modifier
                                 .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
@@ -1605,22 +1585,14 @@ internal fun PlayerChoiceDialog(
                         )
                     }
 
-                    var externalFocused by remember { mutableStateOf(false) }
-                    Card(
+                    MoviesCard(
                         onClick = onExternalSelected,
-                        modifier = Modifier
-                            .weight(1f)
-                            .streamPillFocusScale(externalFocused)
-                            .onFocusChanged { externalFocused = it.isFocused },
-                        colors = streamPillColors(externalFocused, resting = MoviesTheme.colors.BackgroundElevated),
-                        border = streamCardBorder(Border.None),
-                        shape = streamPillShape(externalFocused),
-                        scale = CardScale.None
+                        modifier = Modifier.weight(1f),
+                        shape = M3eShapes.capsule
                     ) {
                         Text(
                             text = stringResource(R.string.stream_player_external),
                             style = MaterialTheme.typography.titleMedium,
-                            color = streamPillContentColor(externalFocused),
                             modifier = Modifier
                                 .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),

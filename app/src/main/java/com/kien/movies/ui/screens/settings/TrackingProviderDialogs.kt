@@ -50,10 +50,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
@@ -63,13 +62,14 @@ import com.kien.movies.data.simkl.SIMKL_AUTOMATIC_REFRESH_INTERVAL_MINUTES
 import com.kien.movies.data.simkl.SimklConnectionMode
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.MoviesDialog
-import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.rememberRawSvgPainter
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
-import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
 internal fun TraktAccountDialog(
@@ -173,7 +173,7 @@ internal fun SimklAccountDialog(
         ) {
             Crossfade(
                 targetState = showSyncInfo,
-                animationSpec = settingsDetailFade(MoviesMotion.tokens.durations.fast),
+                animationSpec = ExpressiveMotion.defaultEffects(),
                 label = "SimklSyncInfo"
             ) { infoVisible ->
                 Column(
@@ -686,22 +686,13 @@ private fun TrackingBrandPrimaryButton(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
-        enabled = enabled,
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
-        colors = ButtonDefaults.colors(
-            containerColor = Color.White,
-            focusedContainerColor = Color.White,
-            contentColor = TrackingBrandButtonContent,
-            focusedContentColor = TrackingBrandButtonContent,
-            disabledContainerColor = Color.White.copy(alpha = 0.34f),
-            disabledContentColor = Color.White.copy(alpha = 0.7f)
-        ),
-        scale = ButtonDefaults.scale(focusedScale = 1.02f),
-        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)),
+        style = MoviesButtonStyle.Primary,
+        enabled = enabled,
         contentPadding = PaddingValues(0.dp)
     ) {
         Row(
@@ -712,7 +703,7 @@ private fun TrackingBrandPrimaryButton(
             if (loading) {
                 LoadingIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = TrackingBrandButtonContent
+                    color = LocalContentColor.current
                 )
             } else {
                 Icon(
@@ -739,19 +730,10 @@ private fun TrackingBrandFooterButton(
     enabled: Boolean = true,
     fillContentWidth: Boolean = false
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
+        modifier = modifier,
         enabled = enabled,
-        modifier = modifier.tvControlHeight(),
-        colors = ButtonDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = Color.White.copy(alpha = 0.18f),
-            contentColor = Color.White.copy(alpha = 0.84f),
-            focusedContentColor = Color.White,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = Color.White.copy(alpha = 0.38f)
-        ),
-        scale = ButtonDefaults.scale(focusedScale = 1.02f),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Box(
@@ -937,5 +919,4 @@ internal fun formatTrackingDuration(valueMs: Long): String {
 private const val TRAKT_ACTIVATION_URL = "https://trakt.tv/activate"
 private const val SIMKL_WEBSITE_URL = "https://simkl.com"
 private const val SIMKL_SYNC_GUIDE_URL = "https://api.simkl.org/guides/sync"
-private val TrackingBrandButtonContent = Color(0xFF171717)
 private val TrackingBrandError = Color(0xFFFFDAD6)

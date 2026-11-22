@@ -4,6 +4,7 @@ package com.kien.movies.ui.screens.settings
 
 import com.kien.movies.ui.screens.party.PartySettingsContent
 import com.kien.movies.ui.screens.party.PartyViewModel
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
@@ -128,7 +129,6 @@ private const val SETTINGS_RAIL_FOCUS_RETRY_WINDOW_MS = 200L
 private const val NO_RAIL_FALLBACK = -1L
 private const val SETTINGS_TAB_FOCUS_SELECT_DELAY_MS = 140L
 private const val SETTINGS_DETAIL_ANIM_IN_DURATION_MS = 200
-private const val SETTINGS_DETAIL_ANIM_OUT_DURATION_MS = 180
 
 // The focus window has two parts: SETTINGS_DETAIL_FOCUS_DELAY_MS before the first request, then
 // this long retrying once per frame, so a category has both added together before focus falls
@@ -597,17 +597,15 @@ fun SettingsScreen(
                                 val order = visibleSections.map { it.category }
                                 val forward = order.indexOf(targetState) >= order.indexOf(initialState)
                                 val toStart = forward != isRtl
-                                val inMillis = SETTINGS_DETAIL_ANIM_IN_DURATION_MS
-                                val outMillis = SETTINGS_DETAIL_ANIM_OUT_DURATION_MS
                                 (slideInHorizontally(
-                                    animationSpec = settingsDetailSlide(inMillis)
+                                    animationSpec = ExpressiveMotion.standardDefaultSpatial()
                                 ) { fullWidth -> if (toStart) fullWidth / 4 else -fullWidth / 4 } +
-                                    fadeIn(settingsDetailFade(inMillis)))
+                                    fadeIn(ExpressiveMotion.defaultEffects()))
                                     .togetherWith(
                                         slideOutHorizontally(
-                                            animationSpec = settingsDetailSlide(outMillis)
+                                            animationSpec = ExpressiveMotion.standardDefaultSpatial()
                                         ) { fullWidth -> if (toStart) -fullWidth / 4 else fullWidth / 4 } +
-                                            fadeOut(settingsDetailFade(outMillis))
+                                            fadeOut(ExpressiveMotion.defaultEffects())
                                     )
                             },
                             label = "settingsDetailTransition"

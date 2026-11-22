@@ -7,7 +7,6 @@ import com.kien.movies.ui.theme.MoviesTheme
 import android.content.Context
 import android.view.KeyEvent
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -56,9 +54,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -83,6 +78,8 @@ import com.kien.movies.domain.model.DebridStreamSortDirection
 import com.kien.movies.domain.model.DebridStreamSortKey
 import com.kien.movies.domain.model.DebridStreamVisualTag
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.ui.screens.addon.QrCodeOverlay
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -921,17 +918,10 @@ private fun DebridTextListDialog(
         width = 560.dp,
         suppressFirstKeyUp = false
     ) {
-        Card(
+        MoviesCard(
             onClick = { inputFocusRequester.requestFocus() },
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundElevated,
-                focusedContainerColor = expressiveCardFocusFill(
-                    MoviesTheme.colors.BackgroundElevated
-                )
-            ),
-            shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
-            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+            focus = MoviesCardFocus.Frosted
         ) {
             Box(modifier = Modifier.padding(14.dp)) {
                 BasicTextField(
@@ -1512,29 +1502,12 @@ private fun DebridApiKeyDialog(
         width = 700.dp,
         suppressFirstKeyUp = false
     ) {
-        Card(
+        MoviesCard(
             onClick = { inputFocusRequester.requestFocus() },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
-            colors = CardDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundElevated,
-                focusedContainerColor = expressiveCardFocusFill(
-                    MoviesTheme.colors.BackgroundElevated
-                )
-            ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                    shape = RoundedCornerShape(10.dp)
-                ),
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = RoundedCornerShape(10.dp)
-                )
-            ).expressiveRingless(),
-            shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
-            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
+            focus = MoviesCardFocus.Frosted
         ) {
             Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                 BasicTextField(

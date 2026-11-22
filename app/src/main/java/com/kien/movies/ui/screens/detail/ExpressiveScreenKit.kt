@@ -26,31 +26,33 @@ import androidx.tv.material3.MaterialTheme
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
-// Shared by the detail, stream, search, library, profile, party, cast and ambient screens: each
-// helper gives the Material 3 Expressive value on the box build and upstream's value elsewhere,
-// so a call site changes in one line and other builds keep upstream's look.
+// Shared by the detail, stream, search, library, profile, party, cast and ambient screens. Every
+// build has the Material 3 Expressive look; the helpers that still take an upstream value ignore
+// it and stay only until their last callers move to the expressive value or the M3E kit.
 
-/** [expressive] on the box build, [upstream] on every other build. */
-internal fun <T> forBuild(upstream: T, expressive: T): T =
-    if (isExpressiveBuild) expressive else upstream
+/** Always [expressive]: kept for callers not yet moved off it. */
+@Suppress("UNUSED_PARAMETER")
+internal fun <T> forBuild(upstream: T, expressive: T): T = expressive
 
-/** Colour and opacity changes ride the M3E effects spring on the box build. */
+/** Colour and opacity changes ride the M3E effects spring. */
+@Suppress("UNUSED_PARAMETER")
 internal fun <T> effectsSpec(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-    forBuild(upstream, ExpressiveMotion.defaultEffects())
+    ExpressiveMotion.defaultEffects()
 
-/** Large surfaces that move or resize ride the M3E standard spatial spring on the box build. */
+/** Large surfaces that move or resize ride the M3E standard spatial spring. */
+@Suppress("UNUSED_PARAMETER")
 internal fun <T> spatialSpec(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-    forBuild(upstream, ExpressiveMotion.standardDefaultSpatial())
+    ExpressiveMotion.standardDefaultSpatial()
 
-/** Small parts that move or scale ride the M3E fast spatial spring on the box build. */
+/** Small parts that move or scale ride the M3E fast spatial spring. */
+@Suppress("UNUSED_PARAMETER")
 internal fun <T> fastSpatialSpec(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-    forBuild(upstream, ExpressiveMotion.expressiveFastSpatial())
+    ExpressiveMotion.expressiveFastSpatial()
 
 /**
  * The box renders 960 by 540 dp and is read from across a room, so nothing on it may be
- * smaller than these. Other builds keep upstream's sizes.
+ * smaller than these.
  */
 internal object TvSizeFloors {
     val metaText: TextUnit = 14.sp
@@ -61,14 +63,14 @@ internal object TvSizeFloors {
     val buttonIcon: Dp = 24.dp
 }
 
-internal fun Dp.atLeastOnBox(floor: Dp): Dp = if (isExpressiveBuild) max(this, floor) else this
+internal fun Dp.atLeastOnBox(floor: Dp): Dp = max(this, floor)
 
 internal fun TextUnit.atLeastOnBox(floor: TextUnit): TextUnit =
-    if (isExpressiveBuild && this.isSpecified && this.value < floor.value) floor else this
+    if (this.isSpecified && this.value < floor.value) floor else this
 
-/** Raises the font to [floor] on the box build; the line height grows by the same step. */
+/** Raises the font to [floor]; the line height grows by the same step. */
 internal fun TextStyle.atLeastOnBox(floor: TextUnit): TextStyle {
-    if (!isExpressiveBuild || !fontSize.isSpecified || fontSize.value >= floor.value) return this
+    if (!fontSize.isSpecified || fontSize.value >= floor.value) return this
 
     val step = floor.value - fontSize.value
     val raisedLineHeight = if (lineHeight.isSpecified) (lineHeight.value + step).sp else lineHeight
@@ -85,7 +87,7 @@ internal fun tonalCardColors(resting: Color): CardColors {
     return CardDefaults.colors(
         containerColor = resting,
         focusedContainerColor = focused,
-        pressedContainerColor = forBuild(resting, focused)
+        pressedContainerColor = focused
     )
 }
 
@@ -96,17 +98,9 @@ internal fun noRingCardBorder(): CardBorder = CardDefaults.border(
     pressedBorder = Border.None
 )
 
-/** A tonal dialog button; on the box build it rests frosted and turns white on focus. */
+/** A tonal dialog button: rests frosted and turns white on focus. */
 @Composable
-internal fun tonalButtonColors(
-    resting: Color = forBuild(MoviesTheme.colors.BackgroundCard, ExpressiveColors.frosted)
-): ButtonColors {
-    if (!isExpressiveBuild) {
-        return ButtonDefaults.colors(
-            containerColor = resting,
-            contentColor = MoviesTheme.colors.TextPrimary
-        )
-    }
+internal fun tonalButtonColors(resting: Color = ExpressiveColors.frosted): ButtonColors {
     return ButtonDefaults.colors(
         containerColor = resting,
         contentColor = MoviesTheme.colors.TextPrimary,
@@ -117,40 +111,32 @@ internal fun tonalButtonColors(
     )
 }
 
-/** A tv-material Button's own label style, raised to the TV floor on the box build. */
+/** A tv-material Button's own label style, raised to the TV floor. */
 @Composable
 internal fun buttonLabelStyle(): TextStyle =
     MaterialTheme.typography.labelLarge.atLeastOnBox(TvSizeFloors.bodyText)
 
 /**
- * A tv-material Button whose [selected] state stays tonal on the box build, the M3E selected
- * look, so only the focused one carries the accent. Upstream fills a selected one instead.
+ * A tv-material Button whose [selected] state stays tonal, the M3E selected look, so only the
+ * focused one carries the accent. The upstream colours are ignored.
  */
+@Suppress("UNUSED_PARAMETER")
 @Composable
 internal fun selectableButtonColors(
     selected: Boolean,
-    upstreamSelected: Color = MoviesTheme.colors.Secondary,
-    upstreamSelectedContent: Color = MoviesTheme.colors.OnSecondary
+    upstreamSelected: Color = Color.Unspecified,
+    upstreamSelectedContent: Color = Color.Unspecified
 ): ButtonColors {
-    val resting = MoviesTheme.colors.BackgroundCard
-    if (!isExpressiveBuild) {
-        return ButtonDefaults.colors(
-            containerColor = if (selected) upstreamSelected else resting,
-            contentColor = if (selected) upstreamSelectedContent else MoviesTheme.colors.TextPrimary
-        )
-    }
     return tonalButtonColors(
         if (selected) ExpressiveColors.frostedStrong else ExpressiveColors.frosted
     )
 }
 
 /** Focusable controls on the box are at least [TvSizeFloors.control] tall. */
-internal fun Modifier.tvControlHeight(): Modifier =
-    if (isExpressiveBuild) heightIn(min = TvSizeFloors.control) else this
+internal fun Modifier.tvControlHeight(): Modifier = heightIn(min = TvSizeFloors.control)
 
 // A tv-material Button's label is 22 sp tall on the box, so 13 dp above and below makes 48 dp.
 private val BoxButtonPadding = PaddingValues(horizontal = 16.dp, vertical = 13.dp)
 
-/** A tv-material Button's padding, tall enough for the TV control height on the box build. */
-internal fun tvButtonPadding(): PaddingValues =
-    forBuild(ButtonDefaults.ContentPadding, BoxButtonPadding)
+/** A tv-material Button's padding, tall enough for the TV control height. */
+internal fun tvButtonPadding(): PaddingValues = BoxButtonPadding

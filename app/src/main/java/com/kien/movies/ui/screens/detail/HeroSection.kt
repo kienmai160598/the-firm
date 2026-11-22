@@ -1,7 +1,5 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.MoviesMotion
-
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -47,10 +45,8 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -74,7 +70,10 @@ import com.kien.movies.ui.components.ImdbRatingSourceLabel
 import com.kien.movies.ui.components.MDBListRatingsRow
 import com.kien.movies.ui.components.SynopsisDescription
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesIconButton
+import com.kien.movies.ui.theme.ExpressiveMotion
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Shuffle
@@ -169,17 +168,17 @@ fun HeroContentSection(
     // Animate logo properties for trailer mode
     val logoHeight by animateDpAsState(
         targetValue = if (isTrailerPlaying) 60.dp else 100.dp,
-        animationSpec = spatialSpec(tween(600)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "logoHeight"
     )
     val logoBottomPadding by animateDpAsState(
         targetValue = if (isTrailerPlaying) MoviesTheme.spacing.xl else MoviesTheme.spacing.lg,
-        animationSpec = spatialSpec(tween(600)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "logoPadding"
     )
     val logoMaxWidth by animateFloatAsState(
         targetValue = if (isTrailerPlaying) 0.25f else 0.4f,
-        animationSpec = spatialSpec(tween(600)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "logoWidth"
     )
     // During a trailer the hero fills the screen so the logo sits at the bottom
@@ -187,7 +186,7 @@ fun HeroContentSection(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val heroHeight by animateDpAsState(
         targetValue = if (isTrailerPlaying) maxOf(540.dp, screenHeight) else 540.dp,
-        animationSpec = spatialSpec(tween(600)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "heroHeight"
     )
     Column(
@@ -200,7 +199,7 @@ fun HeroContentSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(
-                    animationSpec = spatialSpec(tween(600))
+                    animationSpec = ExpressiveMotion.standardDefaultSpatial()
                 )
                 .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
             verticalArrangement = Arrangement.Bottom
@@ -222,8 +221,8 @@ fun HeroContentSection(
                 // Text title hides entirely during trailer
                 AnimatedVisibility(
                     visible = !isTrailerPlaying,
-                    enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.overlay))),
-                    exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.overlay)))
+                    enter = fadeIn(ExpressiveMotion.defaultEffects()),
+                    exit = fadeOut(ExpressiveMotion.defaultEffects())
                 ) {
                     Text(
                         text = meta.name,
@@ -252,19 +251,17 @@ fun HeroContentSection(
             // Everything below the logo fades out during trailer
             AnimatedVisibility(
                 visible = !isTrailerPlaying,
-                enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.overlay))),
-                exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.overlay)))
+                enter = fadeIn(ExpressiveMotion.defaultEffects()),
+                exit = fadeOut(ExpressiveMotion.defaultEffects())
             ) {
                 Column {
-                    if (isExpressiveBuild) {
-                        MetaInfoRow(
-                            meta = meta,
-                            hideImdbRating = hideMetaInfoImdb,
-                            showFullReleaseDate = showFullReleaseDate,
-                            tmdbRating = tmdbRating
-                        )
-                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-                    }
+                    MetaInfoRow(
+                        meta = meta,
+                        hideImdbRating = hideMetaInfoImdb,
+                        showFullReleaseDate = showFullReleaseDate,
+                        tmdbRating = tmdbRating
+                    )
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
@@ -374,19 +371,10 @@ fun HeroContentSection(
                             upFocusRequester = playButtonFocusRequester,
                             onFocused = onHeroActionFocused,
                             onTruncationChanged = onTruncationChanged,
-                            maxLines = forBuild(DESCRIPTION_MAX_LINES, BOX_DESCRIPTION_MAX_LINES),
+                            maxLines = BOX_DESCRIPTION_MAX_LINES,
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
                                 .padding(bottom = MoviesTheme.spacing.md)
-                        )
-                    }
-
-                    if (!isExpressiveBuild) {
-                        MetaInfoRow(
-                            meta = meta,
-                            hideImdbRating = hideMetaInfoImdb,
-                            showFullReleaseDate = showFullReleaseDate,
-                            tmdbRating = tmdbRating
                         )
                     }
                 }
@@ -395,7 +383,6 @@ fun HeroContentSection(
     }
 }
 
-private const val DESCRIPTION_MAX_LINES = 8
 private const val BOX_DESCRIPTION_MAX_LINES = 3
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -420,9 +407,9 @@ internal fun PlayButton(
         }
     }
     val playPainter = rememberRawSvgPainter(rawIconRes = com.kien.movies.R.raw.ic_player_play)
-    val look = heroPlayLook()
 
-    Button(
+    MoviesButton(
+        style = MoviesButtonStyle.Primary,
         enabled = enabled,
         onClick = {
             if (longPressTriggered) {
@@ -433,7 +420,6 @@ internal fun PlayButton(
         },
         modifier = modifier
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .then(look.focusScale)
             .onFocusChanged {
                 if (it.isFocused) {
                     onFocusRestored()
@@ -479,22 +465,13 @@ internal fun PlayButton(
                     Modifier
                 }
             ),
-        colors = look.colors,
-        shape = look.shape,
-        scale = look.scale,
-        interactionSource = look.interactionSource,
         contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xl, vertical = 14.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
             modifier = Modifier.animateContentSize(
-                animationSpec = fastSpatialSpec(
-                    tween(
-                        durationMillis = MoviesMotion.tokens.durations.fast,
-                        easing = MoviesMotion.tokens.easings.standard
-                    )
-                )
+                animationSpec = ExpressiveMotion.expressiveFastSpatial()
             )
         ) {
             Icon(
@@ -506,8 +483,8 @@ internal fun PlayButton(
             )
             AnimatedVisibility(
                 visible = text != null,
-                enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
-                exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.quick)))
+                enter = fadeIn(ExpressiveMotion.defaultEffects()),
+                exit = fadeOut(ExpressiveMotion.defaultEffects())
             ) {
                 Text(
                     text = text ?: "",
@@ -528,21 +505,15 @@ private fun ActionIconButtonPainter(
     onFocused: () -> Unit = {},
     enabled: Boolean = true
 ) {
-    val look = heroIconLook()
-    IconButton(
+    MoviesIconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier
             .size(MoviesTheme.spacing.xxxl)
-            .then(look.focusScale)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
             }
-            .focusProperties { up = FocusRequester.Cancel },
-        colors = look.colors,
-        shape = look.shape,
-        scale = look.scale,
-        interactionSource = look.interactionSource
+            .focusProperties { up = FocusRequester.Cancel }
     ) {
         Icon(
             painter = painter,
@@ -570,9 +541,9 @@ private fun ActionIconButton(
 ) {
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
-    val look = heroIconLook(selected)
 
-    IconButton(
+    MoviesIconButton(
+        style = if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary,
         onClick = {
             if (longPressTriggered) {
                 longPressTriggered = false
@@ -584,7 +555,6 @@ private fun ActionIconButton(
         modifier = Modifier
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .size(MoviesTheme.spacing.xxxl)
-            .then(look.focusScale)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
             }
@@ -626,11 +596,7 @@ private fun ActionIconButton(
                     role = Role.Checkbox
                     toggleableState = if (selected) ToggleableState.On else ToggleableState.Off
                 }
-            },
-        colors = look.colors,
-        shape = look.shape,
-        scale = look.scale,
-        interactionSource = look.interactionSource
+            }
     ) {
         when {
             painter != null -> Icon(

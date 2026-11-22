@@ -13,27 +13,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.screens.settings.expressiveControl
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
-import com.kien.movies.ui.theme.tvControlHeight
-import com.kien.movies.ui.screens.settings.expressivePanelShape
 
 @Composable
 fun AuthSignInScreen(
@@ -52,7 +46,7 @@ fun AuthSignInScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = MoviesTheme.colors.BackgroundElevated,
-                    shape = expressivePanelShape(RoundedCornerShape(20.dp))
+                    shape = M3eShapes.panel
                 )
                 .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -71,18 +65,10 @@ fun AuthSignInScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(22.dp))
-            Button(
+            MoviesButton(
                 onClick = onNavigateToQrSignIn,
-                colors = ButtonDefaults.colors(
-                    containerColor = MoviesTheme.colors.Secondary,
-                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
-                    contentColor = MoviesTheme.colors.OnSecondary,
-                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
-                ).expressiveControl(primary = true),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-                border = ButtonDefaults.border().expressiveRingless(),
-                scale = ButtonDefaults.scale().expressiveControlGrow(),
-                modifier = Modifier.fillMaxWidth().tvControlHeight()
+                style = MoviesButtonStyle.Primary,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(R.string.auth_signin_qr_btn),

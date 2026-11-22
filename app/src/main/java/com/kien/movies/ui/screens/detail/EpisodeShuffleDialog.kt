@@ -14,7 +14,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.EpisodeShuffleSettings
@@ -23,6 +22,7 @@ import com.kien.movies.domain.model.RandomEpisodePicker
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -105,10 +105,9 @@ internal fun EpisodeShuffleDialog(
             readyPicker == null -> Text(stringResource(R.string.random_episode_loading))
             allCount == 0 -> {
                 Text(stringResource(R.string.random_episode_empty_subtitle))
-                Button(
+                MoviesButton(
                     onClick = onDismiss,
                     modifier = Modifier.focusRequester(focusRequester).tvControlHeight(),
-                    colors = tonalOnBoxButtonColors(),
                     contentPadding = tvButtonPadding()
                 ) {
                     Text(stringResource(R.string.action_close), style = buttonLabelStyle())
@@ -116,7 +115,7 @@ internal fun EpisodeShuffleDialog(
             }
             else -> {
                 for (include in listOf(false, true)) {
-                    Button(
+                    MoviesButton(
                         onClick = {
                             includeWatched = include
                             selectedEpisode = readyPicker.pick(include)
@@ -131,7 +130,6 @@ internal fun EpisodeShuffleDialog(
                                 }
                             )
                             .tvControlHeight(),
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(

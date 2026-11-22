@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -44,11 +43,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -61,8 +58,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -70,31 +65,15 @@ import com.kien.movies.BuildConfig
 import com.kien.movies.R
 import com.kien.movies.domain.model.AuthState
 import com.kien.movies.ui.components.BrandWordmark
-import com.kien.movies.ui.components.expressiveButtonBorder
-import com.kien.movies.ui.components.expressiveButtonColors
-import com.kien.movies.ui.components.expressiveButtonScale
-import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.components.expressivePrimaryButtonColors
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.settings.TenFootTypography
-import com.kien.movies.ui.screens.settings.expressiveCardShape
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.metaFloor
-import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.components.SkeletonBar
 import com.kien.movies.ui.components.rememberShimmerBrush
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlinx.coroutines.delay
-
-private val AuthTextPrimary = Color(0xFFF5F7F8)
-private val AuthTextSecondary = Color(0xFF969CA3)
-private val AuthPaneBackground = Color.White.copy(alpha = 0.022f)
-private val AuthPaneBorder = Color.White.copy(alpha = 0.07f)
-private val AuthSecondaryButtonBackground = Color.White.copy(alpha = 0.05f)
-private val AuthSecondaryButtonBorder = Color.White.copy(alpha = 0.09f)
 
 @Composable
 fun AuthQrSignInScreen(
@@ -181,22 +160,16 @@ fun AuthQrSignInScreen(
         }
     }
 
-    val paneBorder = accountOutlineColor(AuthPaneBorder)
-    val screenBase = accountScreenBase(Color.Black)
-    val gradientAccent = accountGradientAccent(Color(0xFF21113B))
+    val paneBorder = accountOutlineColor()
+    val screenBase = accountScreenBase()
+    val gradientAccent = accountGradientAccent()
 
     TenFootTypography {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(screenBase)
-            .then(
-                if (isExpressiveBuild) {
-                    Modifier.accountGradientBackground(gradientAccent, screenBase)
-                } else {
-                    Modifier.authGradientBackground()
-                }
-            )
+            .accountGradientBackground(gradientAccent, screenBase)
     ) {
         Row(
             modifier = Modifier
@@ -216,7 +189,7 @@ fun AuthQrSignInScreen(
                 modifier = Modifier
                     .width(460.dp)
                     .fillMaxHeight()
-                    .background(accountPaneColor(AuthPaneBackground))
+                    .background(accountPaneColor())
                     .drawBehind {
                         drawLine(
                             color = paneBorder,
@@ -296,7 +269,7 @@ private fun AuthQrBrandPanel(
             text = stringResource(R.string.auth_qr_tagline),
             modifier = Modifier.widthIn(max = 440.dp),
             style = MaterialTheme.typography.displayLarge.copy(
-                color = accountTextPrimary(AuthTextPrimary),
+                color = accountTextPrimary(),
                 fontSize = 40.sp,
                 lineHeight = 45.sp,
                 fontWeight = FontWeight.SemiBold
@@ -312,7 +285,7 @@ private fun AuthQrBrandPanel(
                 },
                 modifier = Modifier.widthIn(max = 400.dp),
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = accountTextSecondary(AuthTextSecondary),
+                    color = accountTextSecondary(),
                     fontSize = 17.sp,
                     lineHeight = 26.sp,
                     fontWeight = FontWeight.Normal
@@ -324,13 +297,13 @@ private fun AuthQrBrandPanel(
             Text(
                 text = fullAccount.email,
                 style = MaterialTheme.typography.titleMedium,
-                color = accountSuccessColor(Color(0xFF7CFF9B))
+                color = accountSuccessColor()
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = fullAccount.userId,
                 style = MaterialTheme.typography.bodySmall,
-                color = accountTextSecondary(AuthTextSecondary)
+                color = accountTextSecondary()
             )
         }
     }
@@ -364,7 +337,7 @@ private fun AuthQrLoginPane(
                 stringResource(R.string.auth_qr_scan_instruction)
             },
             style = MaterialTheme.typography.bodyLarge.copy(
-                color = accountTextSecondary(AuthTextSecondary),
+                color = accountTextSecondary(),
                 fontSize = 15.sp,
                 lineHeight = 21.sp
             ),
@@ -380,8 +353,8 @@ private fun AuthQrLoginPane(
         } else if (isSignedIn && isOnboardingMode) {
             StatusPill(
                 text = stringResource(R.string.auth_qr_finishing),
-                containerColor = accountControlColor(AuthSecondaryButtonBackground),
-                contentColor = accountTextSecondary(AuthTextSecondary)
+                containerColor = accountControlColor(),
+                contentColor = accountTextSecondary()
             )
         } else if (useEmailLogin) {
             AuthEmailLoginForm(
@@ -399,11 +372,10 @@ private fun AuthQrLoginPane(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (isSignedIn || !useEmailLogin) {
-                Button(
+                MoviesButton(
                     onClick = onRefreshOrSignOut,
                     enabled = !uiState.isLoading,
                     modifier = Modifier
-                        .tvControlHeight()
                         .then(
                             if (focusMainAction) {
                                 Modifier.focusRequester(initialFocusRequester)
@@ -411,21 +383,11 @@ private fun AuthQrLoginPane(
                                 Modifier
                             }
                         ),
-                    colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = AuthSecondaryButtonBackground,
-                        focusedContainerColor = Color.White,
-                        contentColor = accountTextPrimary(AuthTextPrimary),
-                        focusedContentColor = Color.Black,
-                        disabledContainerColor = AuthSecondaryButtonBackground.copy(alpha = 0.45f)
-                    )),
-                    border = expressiveButtonBorder(ButtonDefaults.border(
-                        border = androidx.tv.material3.Border(
-                            border = androidx.compose.foundation.BorderStroke(1.dp, AuthSecondaryButtonBorder),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                    )),
-                    shape = expressiveButtonShape(ButtonDefaults.shape()),
-                    scale = expressiveButtonScale(ButtonDefaults.scale())
+                    style = if (isSignedIn) {
+                        MoviesButtonStyle.Destructive
+                    } else {
+                        MoviesButtonStyle.Secondary
+                    }
                 ) {
                     Text(
                         when {
@@ -436,31 +398,16 @@ private fun AuthQrLoginPane(
                     )
                 }
             }
-            Button(
+            MoviesButton(
                 onClick = onBackOrContinue,
                 modifier = Modifier
-                    .tvControlHeight()
                     .then(
                         if (!focusEmail && !focusMainAction) {
                             Modifier.focusRequester(initialFocusRequester)
                         } else {
                             Modifier
                         }
-                    ),
-                colors = expressiveButtonColors(ButtonDefaults.colors(
-                    containerColor = AuthSecondaryButtonBackground,
-                    focusedContainerColor = Color.White,
-                    contentColor = accountTextPrimary(AuthTextPrimary),
-                    focusedContentColor = Color.Black
-                )),
-                border = expressiveButtonBorder(ButtonDefaults.border(
-                    border = androidx.tv.material3.Border(
-                        border = androidx.compose.foundation.BorderStroke(1.dp, AuthSecondaryButtonBorder),
-                        shape = RoundedCornerShape(16.dp)
                     )
-                )),
-                shape = expressiveButtonShape(ButtonDefaults.shape()),
-                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
                 Text(
                     if (isOnboardingMode) {
@@ -510,21 +457,11 @@ private fun AuthEmailLoginForm(
             imeAction = ImeAction.Done,
             onImeAction = submit
         )
-        Button(
+        MoviesButton(
             onClick = submit,
             enabled = canSignIn,
-            modifier = Modifier.fillMaxWidth().tvControlHeight(),
-            colors = expressivePrimaryButtonColors(ButtonDefaults.colors(
-                containerColor = Color.White,
-                focusedContainerColor = Color.White,
-                contentColor = Color.Black,
-                focusedContentColor = Color.Black,
-                disabledContainerColor = Color.White.copy(alpha = 0.12f),
-                disabledContentColor = AuthTextPrimary.copy(alpha = 0.58f)
-            )),
-            shape = expressiveButtonShape(ButtonDefaults.shape(RoundedCornerShape(16.dp))),
-            border = expressiveButtonBorder(ButtonDefaults.border()),
-            scale = expressiveButtonScale(ButtonDefaults.scale())
+            modifier = Modifier.fillMaxWidth(),
+            style = MoviesButtonStyle.Primary
         ) {
             Box(
                 modifier = Modifier
@@ -546,8 +483,8 @@ private fun AuthEmailLoginForm(
         uiState.error?.takeIf { it.isNotBlank() }?.let { error ->
             StatusPill(
                 text = error,
-                containerColor = accountErrorContainer(Color(0x33C62828)),
-                contentColor = accountErrorContent(Color(0xFFFF6E6E))
+                containerColor = accountErrorContainer(),
+                contentColor = accountErrorContent()
             )
         }
     }
@@ -564,7 +501,7 @@ private fun AuthQrCodeBlock(
             contentDescription = stringResource(R.string.cd_qr_login),
             modifier = Modifier
                 .size(206.dp)
-                .background(Color.White, expressiveCardShape(RoundedCornerShape(8.dp)))
+                .background(Color.White, M3eShapes.panel)
                 .padding(8.dp),
             contentScale = ContentScale.Fit
         )
@@ -573,19 +510,19 @@ private fun AuthQrCodeBlock(
             modifier = Modifier
                 .size(206.dp)
                 .background(
-                    accountControlColor(AuthSecondaryButtonBackground),
-                    expressiveCardShape(RoundedCornerShape(8.dp))
+                    accountControlColor(),
+                    M3eShapes.panel
                 )
                 .border(
                     1.dp,
-                    accountOutlineColor(AuthSecondaryButtonBorder),
-                    expressiveCardShape(RoundedCornerShape(8.dp))
+                    accountOutlineColor(),
+                    M3eShapes.panel
                 ),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = if (uiState.isLoading) stringResource(R.string.auth_qr_generating) else stringResource(R.string.auth_qr_unavailable),
-                color = accountTextSecondary(AuthTextSecondary),
+                color = accountTextSecondary(),
                 textAlign = TextAlign.Center
             )
         }
@@ -605,14 +542,14 @@ private fun AuthQrCodeBlock(
         if (uiState.error != null) {
             StatusPill(
                 text = statusText,
-                containerColor = accountErrorContainer(Color(0x33C62828)),
-                contentColor = accountErrorContent(Color(0xFFFF6E6E))
+                containerColor = accountErrorContainer(),
+                contentColor = accountErrorContent()
             )
         } else {
             Text(
                 text = statusText,
                 style = MaterialTheme.typography.bodySmall,
-                color = accountTextSecondary(AuthTextSecondary),
+                color = accountTextSecondary(),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -639,7 +576,7 @@ private fun AuthQrManualCodeDetails(
             Text(
                 text = stringResource(R.string.auth_qr_manual_instruction, displayVerificationUri(displayUri)),
                 style = MaterialTheme.typography.bodyMedium,
-                color = accountTextSecondary(AuthTextSecondary),
+                color = accountTextSecondary(),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -649,7 +586,7 @@ private fun AuthQrManualCodeDetails(
                     fontSize = if (displayCode.length == 6) 24.sp else 14.sp,
                     letterSpacing = if (displayCode.length == 6) 3.sp else 0.sp
                 ),
-                color = accountTextPrimary(AuthTextPrimary),
+                color = accountTextPrimary(),
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
             )
@@ -703,7 +640,7 @@ private fun AuthQrExpiresText(expiresAtMillis: Long) {
     Text(
         text = stringResource(R.string.auth_qr_expires, formatDuration(remainingMillis)),
         style = MaterialTheme.typography.bodySmall,
-        color = accountTextSecondary(AuthTextSecondary)
+        color = accountTextSecondary()
     )
 }
 
@@ -724,15 +661,7 @@ private fun StatusPill(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(
-                MoviesTheme.spacing.hairline,
-                MoviesTheme.colors.Border.copy(alpha = if (isExpressiveBuild) 0f else 0.35f),
-                expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
-            )
-            .background(
-                containerColor,
-                expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
-            )
+            .background(containerColor, M3eShapes.panel)
             .padding(horizontal = MoviesTheme.spacing.md, vertical = 10.dp)
             .semantics { liveRegion = LiveRegionMode.Polite },
         contentAlignment = Alignment.Center
@@ -831,39 +760,6 @@ private fun AccountStatItem(
             color = MoviesTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
-    }
-}
-
-private fun Modifier.authGradientBackground(): Modifier = drawWithCache {
-    val angleRadians = 122.0 * PI / 180.0
-    val directionX = sin(angleRadians).toFloat()
-    val directionY = (-cos(angleRadians)).toFloat()
-    val halfLength = (abs(size.width * directionX) + abs(size.height * directionY)) / 2f
-    val center = Offset(size.width / 2f, size.height / 2f)
-    val start = Offset(
-        x = center.x - directionX * halfLength,
-        y = center.y - directionY * halfLength
-    )
-    val end = Offset(
-        x = center.x + directionX * halfLength,
-        y = center.y + directionY * halfLength
-    )
-    val brush = Brush.linearGradient(
-        colorStops = arrayOf(
-            0f to Color(0xFF21113B),
-            0.14f to Color(0xFF21113B),
-            0.26f to Color(0xFF1A0E2F),
-            0.36f to Color(0xFF130A23),
-            0.48f to Color(0xFF0A060F),
-            0.60f to Color(0xFF050408),
-            0.70f to Color.Black,
-            1f to Color.Black
-        ),
-        start = start,
-        end = end
-    )
-    onDrawBehind {
-        drawRect(brush = brush)
     }
 }
 

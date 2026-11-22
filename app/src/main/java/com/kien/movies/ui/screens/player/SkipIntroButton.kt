@@ -2,9 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -14,18 +12,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.runtime.Composable
@@ -36,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -46,15 +38,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardBorder
-import androidx.tv.material3.CardColors
-import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.CardScale
-import androidx.tv.material3.CardShape
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
@@ -96,7 +83,6 @@ fun SkipIntroButton(
     var manuallyDismissed by remember { mutableStateOf(false) }
     val internalFocusRequester = remember { FocusRequester() }
     val activeFocusRequester = focusRequester ?: internalFocusRequester
-    var isFocused by remember { mutableStateOf(false) }
     val progress = remember { Animatable(1f) }
 
     // Reset auto-hide and progress when interval category changes (opening/ending/recap),
@@ -158,14 +144,16 @@ fun SkipIntroButton(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(PlayerMotion.effects(300)) +
-            scaleIn(PlayerMotion.pop(300), initialScale = 0.8f),
-        exit = fadeOut(PlayerMotion.effects(200)) +
-            scaleOut(PlayerMotion.effects(200), targetScale = 0.8f),
+        enter = fadeIn(PlayerMotion.effects()) +
+            scaleIn(PlayerMotion.pop(), initialScale = 0.8f),
+        exit = fadeOut(PlayerMotion.effects()) +
+            scaleOut(PlayerMotion.effects(), targetScale = 0.8f),
         modifier = modifier
     ) {
-        Card(
+        MoviesSurface(
             onClick = onSkip,
+            shape = M3eShapes.capsule,
+            resting = PlayerSurfaceStyle.floatingContainer(),
             modifier = Modifier
                 .focusRequester(activeFocusRequester)
                 .focusProperties {
@@ -205,34 +193,19 @@ fun SkipIntroButton(
                     }
                 }
                 .onFocusChanged {
-                    isFocused = it.isFocused
                     if (it.isFocused) onFocused?.invoke()
                 }
-                .then(
-                    if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier
-                ),
-            colors = skipButtonColors(isFocused),
-            shape = skipButtonShape(isFocused),
-            border = skipButtonBorder(),
-            scale = skipButtonScale()
         ) {
             val countdownRunning = !(controlsVisible || autoHidden || dismissed)
-            val contentColor = if (isFocused) MoviesTheme.colors.OnSecondary else Color.White
             androidx.compose.foundation.layout.Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
             ) {
                 Row(
                     modifier = Modifier
                         .heightIn(min = PlayerTenFoot.atLeast(0.dp, SkipButtonMinHeight))
-                        .then(
-                            if (isExpressiveBuild) {
-                                Modifier.skipCountdownFill(countdownRunning) { progress.value }
-                            } else {
-                                Modifier
-                            }
-                        )
+                        .skipCountdownFill(countdownRunning) { progress.value }
                         .padding(
-                            horizontal = skipButtonHorizontalPadding(),
+                            horizontal = MoviesTheme.spacing.xl,
                             vertical = MoviesTheme.spacing.md
                         ),
                     verticalAlignment = Alignment.CenterVertically
@@ -240,18 +213,13 @@ fun SkipIntroButton(
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = null,
-                        tint = contentColor,
                         modifier = Modifier.size(PlayerTenFoot.atLeast(20.dp, SkipIconSize))
                     )
                     Text(
                         text = getSkipLabel(lastType, targetsPostCredits),
-                        color = contentColor,
                         fontSize = PlayerTenFoot.atLeast(14.sp, PlayerTenFoot.bodyText),
                         modifier = Modifier.padding(start = MoviesTheme.spacing.sm)
                     )
-                }
-                if (!isExpressiveBuild) {
-                    UpstreamSkipCountdownBar(countdownRunning) { progress.value }
                 }
             }
         }
@@ -272,37 +240,6 @@ private val SkipButtonMinHeight = 48.dp
 private val SkipIconSize = 24.dp
 private val CountdownRemainingColor = Color.White.copy(alpha = 0.12f)
 
-@Composable
-private fun skipButtonColors(focused: Boolean): CardColors = if (isExpressiveBuild) {
-    PlayerPillStyle.colors(
-        focused = focused,
-        resting = PlayerSurfaceStyle.floatingContainer(MoviesPrimitives.neutral875)
-    )
-} else {
-    CardDefaults.colors(
-        containerColor = MoviesPrimitives.neutral875.copy(alpha = 0.85f),
-        focusedContainerColor = MoviesTheme.colors.Secondary
-    )
-}
-
-@Composable
-private fun skipButtonShape(focused: Boolean): CardShape = if (isExpressiveBuild) {
-    PlayerPillStyle.shape(focused)
-} else {
-    CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-}
-
-@Composable
-private fun skipButtonBorder(): CardBorder =
-    if (isExpressiveBuild) PlayerListItemStyle.noBorder() else CardDefaults.border()
-
-private fun skipButtonScale(): CardScale =
-    if (isExpressiveBuild) PlayerListItemStyle.stillScale else CardDefaults.scale()
-
-@Composable
-private fun skipButtonHorizontalPadding(): Dp =
-    if (isExpressiveBuild) MoviesTheme.spacing.xl else 18.dp
-
 /**
  * The time left before the button hides, as a faint fill inside the pill that shrinks toward
  * its end. The countdown is read only while drawing, so its ten second run recomposes nothing.
@@ -317,28 +254,3 @@ private fun Modifier.skipCountdownFill(running: Boolean, progress: () -> Float):
             size = Size(size.width - start, size.height)
         )
     }
-
-@Composable
-private fun UpstreamSkipCountdownBar(running: Boolean, progress: () -> Float) {
-    val trackAlpha = if (running) 0.15f else 0f
-    val fillColor = MoviesPrimitives.neutral875.copy(alpha = if (running) 0.85f else 0f)
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(MoviesTheme.spacing.xs)
-            .clip(
-                RoundedCornerShape(
-                    bottomStart = MoviesTheme.spacing.md,
-                    bottomEnd = MoviesTheme.spacing.md
-                )
-            )
-            .background(Color.White.copy(alpha = trackAlpha))
-            .drawBehind {
-                drawRect(
-                    color = fillColor,
-                    size = Size(size.width * progress().coerceIn(0f, 1f), size.height)
-                )
-            }
-    )
-}

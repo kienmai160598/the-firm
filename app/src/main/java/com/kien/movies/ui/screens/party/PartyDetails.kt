@@ -2,11 +2,7 @@
 
 package com.kien.movies.ui.screens.party
 
-import androidx.tv.material3.CardColors
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.isExpressiveBuild
-import com.kien.movies.ui.screens.detail.spatialSpec
-import com.kien.movies.ui.screens.detail.effectsSpec
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import androidx.compose.animation.AnimatedContent
@@ -58,13 +54,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.MoviesCard
+import com.kien.movies.ui.components.expressive.MoviesCardFocus
 import com.kien.movies.core.party.ActiveParty
 import com.kien.movies.core.party.PartyMember
 import com.kien.movies.core.qr.QrCodeGenerator
@@ -76,10 +72,6 @@ import com.kien.movies.ui.screens.settings.SettingsDialogActionButton
 import com.kien.movies.ui.screens.settings.SettingsDialogActionRow
 import com.kien.movies.ui.screens.settings.SettingsNote
 import com.kien.movies.ui.screens.settings.SettingsToggleRow
-import com.kien.movies.ui.screens.settings.SettingsRowRestFill
-import com.kien.movies.ui.screens.settings.settingsRowBorder
-import com.kien.movies.ui.screens.settings.settingsRowColors
-import com.kien.movies.ui.screens.settings.settingsRowShape
 import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
@@ -93,7 +85,7 @@ internal fun CodeSection(
         AnimatedContent(
             targetState = connected,
             transitionSpec = {
-                fadeIn(effectsSpec(tween(200))) togetherWith fadeOut(effectsSpec(tween(150)))
+                fadeIn(ExpressiveMotion.defaultEffects()) togetherWith fadeOut(ExpressiveMotion.defaultEffects())
             },
             label = "partyCodeLabel",
         ) { isConnected ->
@@ -252,10 +244,10 @@ private fun MemberRow(
             AnimatedContent(
                 targetState = status,
                 transitionSpec = {
-                    val rise = slideInVertically(spatialSpec(tween(240))) { it / 2 }
-                    val leave = slideOutVertically(spatialSpec(tween(160))) { -it / 2 }
-                    (fadeIn(effectsSpec(tween(200))) + rise) togetherWith
-                        (fadeOut(effectsSpec(tween(120))) + leave)
+                    val rise = slideInVertically(ExpressiveMotion.standardDefaultSpatial()) { it / 2 }
+                    val leave = slideOutVertically(ExpressiveMotion.standardDefaultSpatial()) { -it / 2 }
+                    (fadeIn(ExpressiveMotion.defaultEffects()) + rise) togetherWith
+                        (fadeOut(ExpressiveMotion.defaultEffects()) + leave)
                 },
                 label = "partyMemberStatus",
             ) { label ->
@@ -290,18 +282,16 @@ private fun MemberRow(
     }
 }
 
+/** A member row keeps white text in its status and host label, so it focuses frosted. */
 @Composable
 private fun PartyRow(
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ) {
-    Card(
+    MoviesCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = partyRowColors(),
-        border = settingsRowBorder(),
-        shape = CardDefaults.shape(settingsRowShape()),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f),
+        focus = MoviesCardFocus.Frosted,
     ) {
         Row(
             modifier = Modifier
@@ -314,27 +304,13 @@ private fun PartyRow(
     }
 }
 
-/**
- * A member row keeps white text in its status and host label on the box build, so it focuses to
- * a bright frosted fill rather than the settings rows' solid white.
- */
-@Composable
-private fun partyRowColors(): CardColors = if (isExpressiveBuild) {
-    CardDefaults.colors(
-        containerColor = SettingsRowRestFill,
-        focusedContainerColor = ExpressiveColors.frostedFocused
-    )
-} else {
-    settingsRowColors()
-}
-
 @Composable
 private fun SeatDots(filled: Int, total: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
         repeat(total) { index ->
             val color by animateColorAsState(
                 targetValue = if (index < filled) MoviesTheme.colors.Secondary else MoviesTheme.colors.Border,
-                animationSpec = effectsSpec(tween(300)),
+                animationSpec = ExpressiveMotion.defaultEffects(),
                 label = "seatDot",
             )
             Box(

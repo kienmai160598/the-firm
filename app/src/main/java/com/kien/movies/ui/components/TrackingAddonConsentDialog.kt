@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckBox
@@ -39,13 +38,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
@@ -70,7 +69,7 @@ fun TrackingAddonConsentDialog(
         AmbientDialogEffect(onDismiss)
         Box(
             modifier = Modifier
-                .clip(expressiveDialogShape(RoundedCornerShape(MoviesTheme.radii.xl)))
+                .clip(M3eShapes.panel)
                 .background(MoviesTheme.colors.BackgroundCard)
         ) {
             Column(
@@ -107,7 +106,7 @@ fun TrackingAddonConsentDialog(
                     val checkboxState = stringResource(
                         if (accepted) R.string.addon_tracking_consent_checked else R.string.addon_tracking_consent_unchecked
                     )
-                    Card(
+                    MoviesCard(
                         onClick = { accepted = !accepted },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -115,21 +114,7 @@ fun TrackingAddonConsentDialog(
                             .semantics {
                                 role = Role.Checkbox
                                 stateDescription = checkboxState
-                            },
-                        colors = expressiveOptionCardColors(CardDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundElevated,
-                            focusedContainerColor = MoviesTheme.colors.BackgroundElevated
-                        )),
-                        border = expressiveOptionCardBorder(CardDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            )
-                        )),
-                        shape = expressiveOptionCardShape(
-                            CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-                        ),
-                        scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.02f))
+                            }
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp),
@@ -140,12 +125,11 @@ fun TrackingAddonConsentDialog(
                                 imageVector = if (accepted) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
-                                tint = if (accepted) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
+                                tint = LocalContentColor.current.copy(alpha = if (accepted) 1f else 0.64f)
                             )
                             Text(
                                 text = stringResource(R.string.addon_tracking_consent_checkbox),
                                 style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                                color = MoviesTheme.colors.TextPrimary,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -158,28 +142,14 @@ fun TrackingAddonConsentDialog(
                     horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Card(
+                    MoviesCard(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
-                        colors = expressiveActionCardColors(CardDefaults.colors(
-                            containerColor = MoviesTheme.colors.BackgroundElevated,
-                            focusedContainerColor = MoviesTheme.colors.BackgroundElevated
-                        )),
-                        border = expressiveActionCardBorder(CardDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            )
-                        )),
-                        shape = expressiveActionCardShape(
-                            CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-                        ),
-                        scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.05f))
+                        shape = M3eShapes.capsule
                     ) {
                         Text(
                             text = stringResource(R.string.addon_tracking_consent_cancel),
                             style = MaterialTheme.typography.titleMedium,
-                            color = actionCardContentColor(MoviesTheme.colors.TextPrimary),
                             modifier = Modifier
                                 .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
@@ -188,39 +158,17 @@ fun TrackingAddonConsentDialog(
                     }
 
                     var installFocused by remember { mutableStateOf(false) }
-                    Card(
+                    MoviesCard(
                         onClick = { if (accepted) onInstall() },
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { installFocused = it.isFocused },
-                        colors = expressiveActionCardColors(
-                            CardDefaults.colors(
-                                containerColor = MoviesTheme.colors.BackgroundElevated,
-                                focusedContainerColor = if (accepted) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundElevated
-                            ),
-                            enabled = accepted
-                        ),
-                        border = expressiveActionCardBorder(CardDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                                shape = RoundedCornerShape(MoviesTheme.radii.md)
-                            )
-                        )),
-                        shape = expressiveActionCardShape(
-                            CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
-                        ),
-                        scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.05f))
+                        enabled = accepted,
+                        shape = M3eShapes.capsule
                     ) {
                         Text(
                             text = stringResource(R.string.addon_tracking_consent_install),
                             style = MaterialTheme.typography.titleMedium,
-                            color = actionCardContentColor(
-                                when {
-                                    !accepted -> MoviesTheme.colors.TextTertiary
-                                    installFocused -> MoviesTheme.colors.OnSecondary
-                                    else -> MoviesTheme.colors.TextPrimary
-                                }
-                            ),
                             modifier = Modifier
                                 .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),

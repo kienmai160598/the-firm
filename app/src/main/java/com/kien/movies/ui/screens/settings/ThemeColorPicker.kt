@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,11 +44,12 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.formatHexColor
-import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.components.expressive.MoviesCard
 import kotlin.math.roundToInt
 import com.kien.movies.ui.theme.TvSizeFloors
 
@@ -155,8 +155,7 @@ private fun ColorChannelSlider(
     onValueChange: (Int) -> Unit,
     step: Int = 1
 ) {
-    val shape = RoundedCornerShape(10.dp)
-    Card(
+    MoviesCard(
         onClick = {},
         modifier = Modifier
             .fillMaxWidth()
@@ -180,24 +179,19 @@ private fun ColorChannelSlider(
                     onValueChange(target.roundToInt().coerceIn(0, maximum))
                     true
                 }
-            },
-        colors = CardDefaults.colors(
-            containerColor = MoviesTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
-        ),
-        shape = CardDefaults.shape(shape).expressiveCard(),
-        border = CardDefaults.border(
-            focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = shape)
-        ).expressiveRingless(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
+            }
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(title, style = MaterialTheme.typography.labelMedium, color = MoviesTheme.colors.TextPrimary)
-                Text(valueLabel, style = MaterialTheme.typography.labelSmall, color = MoviesTheme.colors.TextSecondary)
+                Text(title, style = MaterialTheme.typography.labelMedium)
+                Text(
+                    valueLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = LocalContentColor.current.copy(alpha = SETTINGS_SECONDARY_TEXT_ALPHA)
+                )
             }
             Box(
                 Modifier

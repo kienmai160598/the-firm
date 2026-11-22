@@ -10,7 +10,6 @@ import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -128,8 +127,7 @@ import androidx.metrics.performance.PerformanceMetricsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -195,10 +193,10 @@ import com.kien.movies.ui.screens.addon.EssentialAddonSetupScreen
 import com.kien.movies.ui.screens.profile.ProfileSelectionScreen
 import com.kien.movies.ui.theme.MoviesComponents
 import com.kien.movies.ui.theme.MoviesLayout
+import com.kien.movies.ui.components.expressive.MoviesSurface
 import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesRadii
-import com.kien.movies.ui.theme.MoviesStrokes
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
@@ -368,7 +366,7 @@ open class MainActivity : ComponentActivity() {
             config.setLocale(locale)
             super.attachBaseContext(newBase.createConfigurationContext(config))
         } else {
-            // Cache not ready yet (very early cold start) — use system locale
+            // Cache not ready yet (very early cold start): use system locale
             // The IO coroutine in Application.onCreate will finish before any activity
             // is usually created, but if not, we just use system locale until next launch
             super.attachBaseContext(newBase)
@@ -1629,28 +1627,29 @@ private fun LegacySidebarScaffold(
                             Spacer(modifier = Modifier.height(30.dp))
                             if (showProfileSelector && activeProfileName.isNotEmpty()) {
                                 var isProfileFocused by remember { mutableStateOf(false) }
-                                val profileItemShape = MoviesTheme.shapes.navItem
                                 val profileLeadingInset = MoviesTheme.spacing.lg + MoviesTheme.spacing.xxs
                                 val profileAvatarSize = MoviesTheme.sizes.sidebar.leadingVisual
                                 val profileLabelStart = 60.dp
                                 val profileGapAfterAvatar =
                                     (profileLabelStart - profileLeadingInset - profileAvatarSize).coerceAtLeast(MoviesTheme.spacing.none)
-                                val profileBgColor = if (isProfileFocused) MoviesTheme.colors.FocusBackground else Color.Transparent
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Row(
+                                    MoviesSurface(
+                                        onClick = {
+                                            onSwitchProfile()
+                                            drawerState.setValue(DrawerValue.Closed)
+                                        },
                                         modifier = Modifier
                                             .width(itemWidth)
                                             .height(sidebarTokens.itemHeight)
-                                            .background(color = profileBgColor, shape = profileItemShape)
                                             .onFocusChanged { isProfileFocused = it.isFocused }
-                                            .clickable {
-                                                onSwitchProfile()
-                                                drawerState.setValue(DrawerValue.Closed)
-                                            }
                                             .semantics { role = Role.Button },
+                                        resting = Color.Transparent
+                                    ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxSize(),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Spacer(modifier = Modifier.width(profileLeadingInset))
@@ -1664,12 +1663,15 @@ private fun LegacySidebarScaffold(
                                         Spacer(modifier = Modifier.width(profileGapAfterAvatar))
                                         Text(
                                             text = activeProfileName,
-                                            color = if (isProfileFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
+                                            color = LocalContentColor.current.copy(
+                                                alpha = if (isProfileFocused) 1f else 0.64f
+                                            ),
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                             textAlign = TextAlign.Start,
                                             fontWeight = FontWeight.SemiBold
                                         )
+                                    }
                                     }
                                 }
                             } else {
@@ -1808,69 +1810,19 @@ private fun LegacySidebarButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val itemShape = MoviesTheme.shapes.navItem
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isFocused -> MoviesTheme.colors.FocusBackground
-            expanded && selected -> MoviesTheme.colors.Secondary
-            else -> Color.Transparent
-        },
-        label = "legacySidebarItemBackground"
-    )
-    val contentColor by animateColorAsState(
-        targetValue = when {
-            isFocused -> MoviesTheme.colors.TextPrimary
-            expanded && selected -> MoviesTheme.colors.OnSecondary
-            else -> MoviesTheme.colors.TextSecondary
-        },
-        label = "legacySidebarItemContent"
-    )
-    val iconTint by animateColorAsState(
-        targetValue = when {
-            isFocused -> MoviesTheme.colors.TextPrimary
-            expanded && selected -> MoviesTheme.colors.OnSecondary
-            selected -> MoviesTheme.colors.Secondary
-            !expanded -> MoviesTheme.colors.TextTertiary
-            else -> MoviesTheme.colors.TextSecondary
-        },
-        label = "legacySidebarItemIconTint"
-    )
     val selectedCollapsedIconBrush = if (selected && !expanded) {
         MoviesTheme.palette.accentBrush()
     } else {
         null
     }
-    val itemScale by animateFloatAsState(
-        targetValue = if (isFocused && expanded) 1.1f else 1f,
-        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast, easing = MoviesMotion.tokens.easings.standard),
-        label = "legacySidebarItemScale"
-    )
 
-    Card(
+    MoviesSurface(
         onClick = onClick,
         modifier = modifier
             .height(MoviesComponents.tokens.sidebar.itemHeight)
-            .graphicsLayer {
-                scaleX = itemScale
-                scaleY = itemScale
-                transformOrigin = TransformOrigin.Center
-            }
-            .focusProperties { canFocus = expanded }
-            .onFocusChanged { isFocused = it.hasFocus },
-        colors = CardDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-        ),
-        border = CardDefaults.border(
-            border = androidx.tv.material3.Border.None,
-            focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.thin, Color.Transparent),
-                shape = itemShape
-            )
-        ),
-        shape = CardDefaults.shape(shape = itemShape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            .focusProperties { canFocus = expanded },
+        selected = expanded && selected,
+        resting = Color.Transparent
     ) {
         Box(
             modifier = Modifier
@@ -1884,7 +1836,11 @@ private fun LegacySidebarButton(
         DrawerItemIcon(
             iconRes = iconRes,
             icon = icon,
-            tint = iconTint,
+            tint = if (expanded || selected) {
+                LocalContentColor.current
+            } else {
+                LocalContentColor.current.copy(alpha = 0.64f)
+            },
             brush = selectedCollapsedIconBrush,
             modifier = Modifier
                 .size(MoviesComponents.tokens.sidebar.iconSize)
@@ -1894,7 +1850,7 @@ private fun LegacySidebarButton(
         if (expanded) {
             com.kien.movies.ui.components.AutoResizeText(
                 text = label,
-                color = contentColor,
+                color = LocalContentColor.current,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -2041,7 +1997,7 @@ private fun ModernSidebarScaffold(
         targetState = isSidebarExpanded,
         label = "sidebarTransition"
     )
-    // Labels and icons are always at full size — the panel is rendered
+    // Labels and icons are always at full size: the panel is rendered
     // complete and the open/close animation is purely graphicsLayer.
     val sidebarLabelAlpha = 1f
     val sidebarExpandProgress by sidebarTransition.animateFloat(
@@ -2057,7 +2013,7 @@ private fun ModernSidebarScaffold(
         if (expanded) 1f else 0f
     }
 
-    // derivedStateOf prevents per-frame recomposition — only triggers when the boolean crosses the threshold
+    // derivedStateOf prevents per-frame recomposition: only triggers when the boolean crosses the threshold
     val sidebarBlocksContentKeys by remember { derivedStateOf { sidebarExpandProgress > 0.2f } }
     val sidebarShowExpandedPanel by remember { derivedStateOf { sidebarExpandProgress > 0.01f } }
     val sidebarShowCollapsedPill by remember { derivedStateOf { sidebarExpandProgress < 0.98f } }
@@ -2237,7 +2193,7 @@ private fun ModernSidebarScaffold(
 
                             Key.DirectionDown -> {
                                 if (focusedDrawerIndex == drawerItems.lastIndex) {
-                                    // Already at the bottom drawer item — stay put.
+                                    // Already at the bottom drawer item: stay put.
                                     true
                                 } else if (focusedDrawerIndex == drawerItems.size && hasSidebarProfileItem) {
                                     // Profile → first drawer item: skip moveFocus (the

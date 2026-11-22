@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -48,6 +47,9 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.TrailerPlayer
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesTextButton
+import com.kien.movies.ui.theme.ExpressiveMotion
 import kotlinx.coroutines.delay
 import android.view.KeyEvent
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
@@ -248,9 +250,11 @@ fun SharedTrailerOverlay(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
-                    Button(onClick = onRetry) {
-                        Text(text = stringResource(R.string.action_retry))
-                    }
+                    MoviesTextButton(
+                        text = stringResource(R.string.action_retry),
+                        onClick = onRetry,
+                        style = MoviesButtonStyle.Primary
+                    )
                 }
             }
 
@@ -271,8 +275,8 @@ fun TrailerSeekOverlayHost(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = effectsSpec(tween(150))),
-        exit = fadeOut(animationSpec = effectsSpec(tween(150))),
+        enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
+        exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects()),
         modifier = modifier
     ) {
         TrailerSeekOverlay(

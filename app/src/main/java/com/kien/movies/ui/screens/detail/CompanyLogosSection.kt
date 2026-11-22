@@ -70,9 +70,7 @@ import com.kien.movies.ui.theme.MoviesTheme
 
 // Logos keep their white tile, which most brand marks are drawn for; the box rounds it like
 // M3's medium cards.
-private val LogoTileShape = RoundedCornerShape(
-    forBuild(upstream = MoviesTheme.radii.sm, expressive = MoviesTheme.radii.md)
-)
+private val LogoTileShape = RoundedCornerShape(MoviesTheme.radii.md)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

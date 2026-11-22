@@ -2,16 +2,14 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.screens.settings.TenFootTypography
 import com.kien.movies.ui.screens.settings.buttonIconSize
-import com.kien.movies.ui.screens.settings.expressiveCardShape
-import com.kien.movies.ui.screens.settings.expressiveControlGrow
-import com.kien.movies.ui.screens.settings.expressivePill
-import com.kien.movies.ui.screens.settings.expressiveRingless
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -29,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.LinkOff
@@ -46,15 +43,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
@@ -215,19 +210,7 @@ private fun AccountActionCard(
     description: String,
     onClick: () -> Unit
 ) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.colors(
-            containerColor = MoviesTheme.colors.BackgroundCard,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-            contentColor = MoviesTheme.colors.TextPrimary,
-            focusedContentColor = MoviesTheme.colors.TextPrimary
-        ),
-        shape = ButtonDefaults.shape(
-            expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
-        ),
-        border = ButtonDefaults.border().expressiveRingless()
-    ) {
+    MoviesCard(onClick = onClick) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -237,21 +220,19 @@ private fun AccountActionCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = MoviesTheme.colors.Secondary
+                modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MoviesTheme.colors.TextSecondary
+                    color = LocalContentColor.current.copy(alpha = 0.64f)
                 )
             }
         }
@@ -265,7 +246,7 @@ private fun AccountInfoCard(label: String, value: String) {
             .fillMaxWidth()
             .background(
                 color = MoviesTheme.colors.BackgroundCard,
-                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
+                shape = M3eShapes.panel
             )
             .padding(MoviesTheme.spacing.lg)
     ) {
@@ -321,7 +302,7 @@ private fun LinkedDevicesSection(
                         .fillMaxWidth()
                         .background(
                             color = MoviesTheme.colors.BackgroundCard,
-                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
+                            shape = M3eShapes.panel
                         )
                         .padding(MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
@@ -333,19 +314,9 @@ private fun LinkedDevicesSection(
                         color = MoviesTheme.colors.TextPrimary,
                         modifier = Modifier.weight(1f)
                     )
-                    Button(
+                    MoviesButton(
                         onClick = { onUnlink(device.deviceUserId) },
-                        modifier = Modifier.tvControlHeight(),
-                        colors = accountDestructiveColors(ButtonDefaults.colors(
-                            containerColor = MoviesPrimitives.red600.copy(alpha = 0.2f),
-                            focusedContainerColor = MoviesPrimitives.red600.copy(alpha = 0.4f),
-                            contentColor = Color(0xFFF44336),
-                            focusedContentColor = Color(0xFFF44336)
-                        )),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.sm))
-                            .expressivePill(),
-                        border = ButtonDefaults.border().expressiveRingless(),
-                        scale = ButtonDefaults.scale().expressiveControlGrow()
+                        style = MoviesButtonStyle.Destructive
                     ) {
                         Icon(
                             imageVector = Icons.Default.LinkOff,
@@ -367,19 +338,7 @@ private fun LinkedDevicesSection(
 
 @Composable
 private fun SignOutButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.tvControlHeight(),
-        colors = accountDestructiveColors(ButtonDefaults.colors(
-            containerColor = MoviesPrimitives.red600.copy(alpha = 0.15f),
-            focusedContainerColor = MoviesPrimitives.red600.copy(alpha = 0.3f),
-            contentColor = Color(0xFFF44336),
-            focusedContentColor = Color(0xFFF44336)
-        )),
-        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressivePill(),
-        border = ButtonDefaults.border().expressiveRingless(),
-        scale = ButtonDefaults.scale().expressiveControlGrow()
-    ) {
+    MoviesButton(onClick = onClick, style = MoviesButtonStyle.Destructive) {
         Row(
             modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically

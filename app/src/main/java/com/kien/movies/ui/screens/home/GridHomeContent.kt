@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.items
 import com.kien.movies.LocalContentFocusRequester
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
@@ -1120,7 +1119,7 @@ private fun GridCollectionFolderCard(
                 var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                 val gifAlpha by animateFloatAsState(
                     targetValue = if (gifLoaded) 1f else 0f,
-                    animationSpec = ExpressiveMotion.effectsOr(tween(durationMillis = 200)),
+                    animationSpec = ExpressiveMotion.defaultEffects(),
                     label = "gifFadeIn"
                 )
                 AsyncImage(

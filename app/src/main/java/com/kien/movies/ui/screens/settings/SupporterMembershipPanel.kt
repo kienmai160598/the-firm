@@ -40,8 +40,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -51,13 +49,14 @@ import com.kien.movies.domain.model.MemberTier
 import com.kien.movies.domain.model.MembershipOverview
 import com.kien.movies.domain.model.MembershipOverviewState
 import com.kien.movies.ui.components.badgeStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.rememberMemberBadgeGradientBrush
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import com.kien.movies.ui.theme.tvControlHeight
 
 internal const val PatreonMembershipUrl = "https://www.patreon.com/settings/memberships"
 
@@ -363,11 +362,10 @@ private fun MembershipRefreshButton(
     isVisible: Boolean,
     onRefresh: () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onRefresh,
         enabled = !isRefreshing,
         modifier = Modifier
-            .tvControlHeight()
             .fillMaxWidth()
             .then(
                 if (focusRequester != null) {
@@ -379,15 +377,7 @@ private fun MembershipRefreshButton(
             .focusProperties {
                 canFocus = isVisible
                 if (downFocusRequester != null) down = downFocusRequester
-            },
-        colors = ButtonDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = MoviesTheme.colors.FocusBackground,
-            contentColor = MembershipSecondaryText,
-            focusedContentColor = MoviesTheme.colors.Primary
-        ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-        scale = ButtonDefaults.scale().expressiveControlGrow()
+            }
     ) {
         Text(
             text = stringResource(
@@ -410,21 +400,13 @@ private fun MembershipPrimaryButton(
     isVisible: Boolean,
     onClick: () -> Unit
 ) {
-    Button(
+    MoviesButton(
         onClick = onClick,
         modifier = Modifier
-            .tvControlHeight()
             .focusRequester(focusRequester)
             .focusProperties { canFocus = isVisible }
             .fillMaxWidth(),
-        colors = ButtonDefaults.colors(
-            containerColor = MembershipPrimaryText,
-            focusedContainerColor = MoviesTheme.colors.Primary,
-            contentColor = MembershipCardColor,
-            focusedContentColor = MoviesTheme.colors.OnPrimary
-        ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-        scale = ButtonDefaults.scale().expressiveControlGrow()
+        style = MoviesButtonStyle.Primary
     ) {
         Text(
             text = label,
@@ -485,21 +467,12 @@ private fun MembershipPanelBack(
             )
         }
         Spacer(modifier = Modifier.height(18.dp))
-        Button(
+        MoviesButton(
             onClick = onHideQr,
             modifier = Modifier
-                .tvControlHeight()
                 .focusRequester(backFocusRequester)
                 .focusProperties { canFocus = isVisible }
-                .fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = MoviesTheme.colors.BackgroundCard,
-                focusedContainerColor = MoviesTheme.colors.FocusBackground,
-                contentColor = MoviesTheme.colors.TextPrimary,
-                focusedContentColor = MoviesTheme.colors.Primary
-            ).expressiveControl(),
-            shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
-            scale = ButtonDefaults.scale().expressiveControlGrow()
+                .fillMaxWidth()
         ) {
             Text(
                 text = stringResource(R.string.supporters_contributors_back_button),

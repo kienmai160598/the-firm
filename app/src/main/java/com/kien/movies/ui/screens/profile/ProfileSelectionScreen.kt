@@ -1,12 +1,14 @@
 package com.kien.movies.ui.screens.profile
 
+import com.kien.movies.ui.theme.expressiveFocusScale
+import com.kien.movies.ui.theme.ExpressiveColors
+import com.kien.movies.ui.components.expressive.M3eShapes
+import com.kien.movies.ui.components.expressive.MoviesButtonStyle
+import com.kien.movies.ui.components.expressive.MoviesButton
+import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
-import com.kien.movies.ui.screens.detail.effectsSpec
-import com.kien.movies.ui.screens.detail.spatialSpec
-import com.kien.movies.ui.screens.detail.forBuild
-import com.kien.movies.ui.screens.detail.tonalButtonColors
 import com.kien.movies.ui.screens.detail.tvButtonPadding
 import androidx.tv.material3.MaterialTheme
 import com.kien.movies.ui.theme.MoviesPrimitives
@@ -14,12 +16,8 @@ import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.theme.MoviesMotion
 
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.brandWordmarkResource
-import com.kien.movies.ui.theme.createFocusRingStyle
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.isExpressiveBuild
-import com.kien.movies.ui.components.destructiveButtonColors
 
 import android.graphics.Rect
 import android.view.KeyEvent as AndroidKeyEvent
@@ -120,7 +118,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.tv.material3.Button
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
@@ -151,16 +148,12 @@ private object ProfileSelectionSpacing {
     val HeadingToSubheading = MoviesTheme.spacing.md
     val GridItemGap = 28.dp
     val CompactGridItemGap = MoviesTheme.spacing.md
-    val CardWidth = forBuild(152.dp, 176.dp)
-    val CompactCardWidth = forBuild(128.dp, 136.dp)
+    val CardWidth = 176.dp
+    val CompactCardWidth = 136.dp
     val CardPaddingHorizontal = 10.dp
     val CardPaddingVertical = MoviesTheme.spacing.sm
-    val AvatarContainer = forBuild(126.dp, 152.dp)
-    val CompactAvatarContainer = forBuild(104.dp, 116.dp)
-    val CompactAvatarSize = 82.dp
-    val CompactFocusedAvatarSize = 88.dp
-    val CompactOuterAvatarSize = 98.dp
-    val CompactFocusedOuterAvatarSize = 104.dp
+    val AvatarContainer = 152.dp
+    val CompactAvatarContainer = 116.dp
     val AvatarToName = MoviesTheme.spacing.md
     val CompactAvatarToName = 10.dp
     val NameToMeta = MoviesTheme.spacing.sm
@@ -169,7 +162,6 @@ private object ProfileSelectionSpacing {
     val EditorPanelGap = 28.dp
     val EditorPreviewWidth = 280.dp
     val EditorPreviewAvatarSize = 112.dp
-    val EditorFieldRadius = forBuild(14.dp, MoviesTheme.radii.lg)
     val EditorPreviewTopOffset = 28.dp
     val EditorDividerHeight = 320.dp
     val EditorDividerSpacing = 18.dp
@@ -387,13 +379,13 @@ fun ProfileSelectionScreen(
         AnimatedContent(
             targetState = pinOverlayState,
             transitionSpec = {
-                val entering = fadeIn(effectsSpec(tween(240))) + slideInHorizontally(
+                val entering = fadeIn(ExpressiveMotion.defaultEffects()) + slideInHorizontally(
                     animationSpec = tween(320, easing = ProfileCardFocusEasing),
                     initialOffsetX = { fullWidth ->
                         if (targetState == null) -fullWidth / 10 else fullWidth / 12
                     }
                 )
-                val exitFade = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.fast)))
+                val exitFade = fadeOut(ExpressiveMotion.defaultEffects())
                 val exiting = exitFade + slideOutHorizontally(
                     animationSpec = tween(240),
                     targetOffsetX = { fullWidth ->
@@ -562,8 +554,8 @@ fun ProfileSelectionScreen(
         // Create Profile Overlay
         AnimatedVisibility(
             visibleState = createOverlayVisibility,
-            enter = fadeIn(effectsSpec(tween(200))),
-            exit = fadeOut(effectsSpec(tween(150)))
+            enter = fadeIn(ExpressiveMotion.defaultEffects()),
+            exit = fadeOut(ExpressiveMotion.defaultEffects())
         ) {
             CreateProfileOverlay(
                 profiles = profiles,
@@ -628,8 +620,8 @@ fun ProfileSelectionScreen(
 
         AnimatedVisibility(
             visible = profileActionMessage != null,
-            enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
-            exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
+            enter = fadeIn(ExpressiveMotion.defaultEffects()),
+            exit = fadeOut(ExpressiveMotion.defaultEffects()),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             profileActionMessage?.let { message ->
@@ -638,11 +630,6 @@ fun ProfileSelectionScreen(
                         .padding(bottom = 34.dp)
                         .clip(RoundedCornerShape(999.dp))
                         .background(profileToastFill())
-                        .borderOffOnBox(
-                            width = MoviesTheme.spacing.hairline,
-                            color = Color.White.copy(alpha = 0.14f),
-                            shape = RoundedCornerShape(999.dp)
-                        )
                         .padding(horizontal = MoviesTheme.spacing.xl, vertical = 14.dp)
                 ) {
                     Text(
@@ -668,7 +655,7 @@ fun ProfileSelectionScreen(
                 width = 360.dp,
                 suppressFirstKeyUp = suppressOptionsDialogFirstKeyUp
             ) {
-                Button(
+                MoviesButton(
                     onClick = {
                         longPressedProfile = null
                         profileToEdit = profile
@@ -676,21 +663,19 @@ fun ProfileSelectionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(primaryDialogFocusRequester),
-                    colors = tonalButtonColors(),
                     contentPadding = tvButtonPadding()
                 ) {
                     Text(stringResource(R.string.profile_edit_label), style = buttonLabelStyle())
                 }
 
                 if (profiles.size > 1) {
-                    Button(
+                    MoviesButton(
                         onClick = {
                             longPressedProfile = null
                             settingsCopyError = null
                             settingsCopyTarget = profile
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -700,7 +685,7 @@ fun ProfileSelectionScreen(
                     }
                 }
 
-                Button(
+                MoviesButton(
                     onClick = {
                         longPressedProfile = null
                         pinOverlayError = null
@@ -711,7 +696,6 @@ fun ProfileSelectionScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = tonalButtonColors(),
                     contentPadding = tvButtonPadding()
                 ) {
                     Text(
@@ -725,14 +709,13 @@ fun ProfileSelectionScreen(
                 }
 
                 if (profilePinEnabled[profile.id] == true) {
-                    Button(
+                    MoviesButton(
                         onClick = {
                             longPressedProfile = null
                             pinOverlayError = null
                             pinOverlayState = ProfilePinOverlayState.VerifyCurrentForRemove(profile)
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = tonalButtonColors(),
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(
@@ -743,7 +726,7 @@ fun ProfileSelectionScreen(
                 }
 
                 if (!profile.isPrimary) {
-                    Button(
+                    MoviesButton(
                         onClick = {
                             longPressedProfile = null
                             if (profilePinEnabled[profile.id] == true) {
@@ -754,7 +737,7 @@ fun ProfileSelectionScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = destructiveButtonColors(),
+                        style = MoviesButtonStyle.Destructive,
                         contentPadding = tvButtonPadding()
                     ) {
                         Text(stringResource(R.string.profile_delete), style = buttonLabelStyle())
@@ -810,7 +793,7 @@ fun ProfileSelectionScreen(
                 width = 420.dp,
                 suppressFirstKeyUp = false
             ) {
-                Button(
+                MoviesButton(
                     onClick = {
                         viewModel.deleteProfile(profile.id)
                         profileToDelete = null
@@ -818,7 +801,7 @@ fun ProfileSelectionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(primaryDialogFocusRequester),
-                    colors = destructiveButtonColors(),
+                    style = MoviesButtonStyle.Destructive,
                     contentPadding = tvButtonPadding()
                 ) {
                     Text(stringResource(R.string.profile_delete_btn), style = buttonLabelStyle())
@@ -850,7 +833,7 @@ private fun ProfileSelectionBackground(
     AnimatedContent(
         targetState = profileBackground,
         transitionSpec = {
-            fadeIn(effectsSpec(tween(320))) togetherWith fadeOut(effectsSpec(tween(240)))
+            fadeIn(ExpressiveMotion.defaultEffects()) togetherWith fadeOut(ExpressiveMotion.defaultEffects())
         },
         contentKey = { background ->
             when (background) {
@@ -1117,29 +1100,7 @@ private fun ProfileCard(
         label = "profileFocusProgress"
     )
     val focusProgress by focusProgressState
-    val profileFocusRing = remember(profileTheme) {
-        profileTheme?.let {
-            createFocusRingStyle(ThemeColors.getColorPalette(it))
-        }
-    }
-    val avatarSize = if (isExpressiveBuild) {
-        profilePickerAvatarSize(compact)
-    } else {
-        androidx.compose.ui.unit.lerp(
-            if (compact) ProfileSelectionSpacing.CompactAvatarSize else 96.dp,
-            if (compact) ProfileSelectionSpacing.CompactFocusedAvatarSize else 102.dp,
-            focusProgress
-        )
-    }
-    val outerAvatarSize = if (isExpressiveBuild) {
-        avatarSize
-    } else {
-        androidx.compose.ui.unit.lerp(
-            if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp,
-            if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
-            focusProgress
-        )
-    }
+    val avatarSize = profilePickerAvatarSize(compact)
     val nameColor = lerp(
         MoviesTheme.colors.TextSecondary,
         MoviesTheme.colors.TextPrimary,
@@ -1208,15 +1169,11 @@ private fun ProfileCard(
             ),
             contentAlignment = Alignment.Center
         ) {
-            FocusMorphingProfileAvatar(
+            ProfilePickerAvatar(
                 name = profile.name,
                 colorHex = profile.avatarColorHex,
                 avatarImageUrl = avatarImageUrl,
-                focused = isFocused,
-                focusProgress = focusProgress,
-                avatarSize = avatarSize,
-                haloSize = outerAvatarSize,
-                halo = profileFocusRing ?: MoviesTheme.focusRing
+                avatarSize = avatarSize
             )
 
             if (profile.isPrimary) {
@@ -1305,22 +1262,14 @@ private fun AddProfileCard(
         label = "addFocusProgress"
     )
     val focusProgress by focusProgressState
-    val outerAvatarSize = if (isExpressiveBuild) {
-        profilePickerAvatarSize(compact)
-    } else {
-        androidx.compose.ui.unit.lerp(
-            if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp,
-            if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
-            focusProgress
-        )
-    }
+    val outerAvatarSize = profilePickerAvatarSize(compact)
     val nameColor = lerp(
         MoviesTheme.colors.TextTertiary,
         MoviesTheme.colors.TextPrimary,
         focusProgress
     )
     val plusColor = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextTertiary)
-    val addBackgroundColor = ExpressiveFocus.containerColor(isFocused, resting = addProfileRestingFill())
+    val addBackgroundColor = ExpressiveFocus.containerColor(isFocused, resting = addProfileRestingFill)
 
     Column(
         modifier = Modifier
@@ -1358,7 +1307,7 @@ private fun AddProfileCard(
             Box(
                 modifier = Modifier
                     .size(outerAvatarSize)
-                    .background(addBackgroundColor, profileAvatarShape(isFocused)),
+                    .background(addBackgroundColor, ProfileAvatarShape),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -1467,11 +1416,6 @@ internal fun CreateProfileOverlay(
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
                 .clip(profilePanelShape())
                 .background(MoviesTheme.colors.BackgroundElevated)
-                .borderOffOnBox(
-                    MoviesTheme.spacing.hairline,
-                    MoviesTheme.colors.Border,
-                    profilePanelShape()
-                )
                 .pointerInput(Unit) { detectTapGestures { } }
                 .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -1650,12 +1594,7 @@ internal fun CreateProfileOverlay(
                                 .fillMaxWidth()
                                 .height(160.dp)
                                 .clip(profileTileShape())
-                                .background(MoviesTheme.colors.BackgroundCard)
-                                .borderOffOnBox(
-                                    MoviesTheme.spacing.hairline,
-                                    MoviesTheme.colors.Border,
-                                    profileTileShape()
-                                ),
+                                .background(MoviesTheme.colors.BackgroundCard),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -1832,11 +1771,6 @@ internal fun EditProfileOverlay(
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
                 .clip(profilePanelShape())
                 .background(MoviesTheme.colors.BackgroundElevated)
-                .borderOffOnBox(
-                    MoviesTheme.spacing.hairline,
-                    MoviesTheme.colors.Border,
-                    profilePanelShape()
-                )
                 .pointerInput(Unit) { detectTapGestures { } }
                 .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -2019,12 +1953,7 @@ internal fun EditProfileOverlay(
                                         .fillMaxWidth()
                                         .height(160.dp)
                                         .clip(profileTileShape())
-                                        .background(MoviesTheme.colors.BackgroundCard)
-                                        .borderOffOnBox(
-                                            MoviesTheme.spacing.hairline,
-                                            MoviesTheme.colors.Border,
-                                            profileTileShape()
-                                        ),
+                                        .background(MoviesTheme.colors.BackgroundCard),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -2135,17 +2064,17 @@ private fun ProfilePinOverlay(
     val shouldUseCompactLayout = keyboardState.isVisible
     val headerFontSize by animateFloatAsState(
         targetValue = if (shouldUseCompactLayout) 28f else 42f,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinHeaderFontSize"
     )
     val headerLineHeight by animateFloatAsState(
         targetValue = if (shouldUseCompactLayout) 34f else 48f,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinHeaderLineHeight"
     )
     val supportFontSize by animateFloatAsState(
         targetValue = if (shouldUseCompactLayout) 16f else 18f,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinSupportFontSize"
     )
     val topPadding by animateDpAsState(
@@ -2155,22 +2084,22 @@ private fun ProfilePinOverlay(
     )
     val headingGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 10.dp else ProfileSelectionSpacing.PinKickerToHeading,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinHeadingGap"
     )
     val boxesGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) MoviesTheme.spacing.xl else ProfileSelectionSpacing.PinHeadingToBoxes,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinBoxesGap"
     )
     val supportGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 18.dp else ProfileSelectionSpacing.PinBoxesToSupport,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinSupportGap"
     )
     val backHintGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 10.dp else 14.dp,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinBackHintGap"
     )
     val contentBottomPadding = if (keyboardState.isVisible) {
@@ -2432,22 +2361,22 @@ private fun ProfilePinBoxes(
 ) {
     val boxSize by animateDpAsState(
         targetValue = if (compactMode) 90.dp else ProfileSelectionSpacing.PinBoxSize,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinBoxSize"
     )
     val boxGap by animateDpAsState(
         targetValue = if (compactMode) 10.dp else ProfileSelectionSpacing.PinBoxGap,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinBoxGap"
     )
     val activeCursorHeight by animateDpAsState(
         targetValue = if (compactMode) 28.dp else 40.dp,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinCursorHeight"
     )
     val dotSize by animateDpAsState(
         targetValue = if (compactMode) MoviesTheme.spacing.md else MoviesTheme.spacing.lg,
-        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
+        animationSpec = ExpressiveMotion.standardDefaultSpatial(),
         label = "pinDotSize"
     )
 
@@ -2470,7 +2399,7 @@ private fun ProfilePinBoxes(
                     isActive -> Color.White
                     else -> Color.White.copy(alpha = 0.72f)
                 },
-                animationSpec = effectsSpec(tween(140)),
+                animationSpec = ExpressiveMotion.defaultEffects(),
                 label = "pinBoxBorder"
             )
             val backgroundColor by animateColorAsState(
@@ -2480,12 +2409,12 @@ private fun ProfilePinBoxes(
                     isActive -> Color.White.copy(alpha = 0.04f)
                     else -> Color.Transparent
                 },
-                animationSpec = effectsSpec(tween(140)),
+                animationSpec = ExpressiveMotion.defaultEffects(),
                 label = "pinBoxBackground"
             )
             val borderWidth by animateDpAsState(
                 targetValue = if (isActive || isErrorState) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
-                animationSpec = effectsSpec(tween(140)),
+                animationSpec = ExpressiveMotion.defaultEffects(),
                 label = "pinBoxBorderWidth"
             )
 
@@ -2495,11 +2424,7 @@ private fun ProfilePinBoxes(
                     .clip(pinBoxShape())
                     .background(backgroundColor)
                     .border(
-                        border = if (isActive && !isErrorState) {
-                            MoviesTheme.focusRing.border(borderWidth)
-                        } else {
-                            BorderStroke(borderWidth, borderColor)
-                        },
+                        border = BorderStroke(borderWidth, borderColor),
                         shape = pinBoxShape()
                     ),
                 contentAlignment = Alignment.Center
@@ -2555,32 +2480,19 @@ private fun ProfileNameField(
     val moveToAvatarsKey = if (isRtl) AndroidKeyEvent.KEYCODE_DPAD_LEFT else AndroidKeyEvent.KEYCODE_DPAD_RIGHT
     val backgroundColor by animateColorAsState(
         targetValue = if (isFocused) {
-            MoviesTheme.colors.FocusBackground
+            ExpressiveColors.frostedFocused
         } else {
-            profileFieldRestingFill()
+            ExpressiveColors.frosted
         },
-        animationSpec = effectsSpec(tween(120)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "profileNameBackground"
-    )
-    val borderWidth by animateDpAsState(
-        targetValue = if (isFocused) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
-        animationSpec = effectsSpec(tween(120)),
-        label = "profileNameBorderWidth"
     )
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(ProfileSelectionSpacing.EditorFieldRadius))
+            .clip(M3eShapes.card)
             .background(backgroundColor)
-            .border(
-                border = if (isFocused) {
-                    MoviesTheme.focusRing.border(borderWidth)
-                } else {
-                    BorderStroke(borderWidth, profileFieldRestingBorder())
-                },
-                shape = RoundedCornerShape(ProfileSelectionSpacing.EditorFieldRadius)
-            )
             .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
     ) {
         if (value.isEmpty()) {
@@ -2644,39 +2556,17 @@ private fun OverlayButton(
 
     val bgColor by animateColorAsState(
         targetValue = overlayButtonFill(enabled, isPrimary, isFocused),
-        animationSpec = effectsSpec(tween(120)),
+        animationSpec = ExpressiveMotion.defaultEffects(),
         label = "btnBg"
     )
-    val borderColor by animateColorAsState(
-        targetValue = when {
-            !enabled -> MoviesTheme.colors.Border
-            isFocused -> MoviesTheme.colors.FocusRing
-            isPrimary -> MoviesTheme.colors.Secondary
-            else -> MoviesTheme.colors.Border
-        },
-        animationSpec = effectsSpec(tween(120)),
-        label = "btnBorder"
-    )
-    val borderWidth by animateDpAsState(
-        targetValue = if (isFocused) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
-        animationSpec = effectsSpec(tween(120)),
-        label = "btnBorderWidth"
-    )
-    val textColor = overlayButtonContent(enabled, isPrimary, isFocused)
+    val textColor = overlayButtonContent(enabled, isFocused)
 
     Box(
         modifier = modifier
             .heightIn(min = 48.dp)
-            .clip(profileButtonShape())
+            .expressiveFocusScale(isFocused && enabled)
+            .clip(M3eShapes.capsule)
             .background(bgColor)
-            .borderOffOnBox(
-                border = if (isFocused && enabled) {
-                    MoviesTheme.focusRing.border(borderWidth)
-                } else {
-                    BorderStroke(borderWidth, borderColor)
-                },
-                shape = profileButtonShape()
-            )
             .onFocusChanged { isFocused = it.isFocused }
             .focusable(enabled = enabled, interactionSource = interactionSource)
             .onPreviewKeyEvent { event ->
