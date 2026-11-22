@@ -19,6 +19,8 @@ struct RootTabView: View {
                 .tabItem { Text("Search") }
             PlaceholderView(title: "Library")
                 .tabItem { Text("Library") }
+            AddonsView()
+                .tabItem { Text("Addons") }
             PlaceholderView(title: "Settings")
                 .tabItem { Text("Settings") }
         }
