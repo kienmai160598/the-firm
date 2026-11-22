@@ -24,6 +24,9 @@ test pattern (no third-party content):
     tvostest-dropout   a 3 minute H.264 file sent slowly through /flaky/, where the
                        server closes the connection part way, so playback fails mid-way
 
+The same 3 minute file plays the test series episodes and the Big Buck Bunny stream,
+so progress and Continue Watching tests never wait on the network.
+
 serve_test_addon.py supports HTTP Range requests and the /flaky/ and /stall/ routes these
 streams need; a plain static file server does not.
 """
@@ -41,9 +44,10 @@ LOCAL_HOST = "http://127.0.0.1"
 LOCAL_MEDIA = f"{LOCAL_HOST}:8765/media"
 STALLED_LINK = f"{LOCAL_HOST}:8765/stall/stalled-stream"
 FLAKY_ROUTE = f"{LOCAL_HOST}:8765/flaky"
-DROPOUT_FILE = "dropout-test-pattern.mp4"
-DROPOUT_SECONDS = 180
-DROPOUT_CUT_FRACTION = 0.3
+PATTERN_FILE = "test-pattern-3min.mp4"
+PATTERN_SECONDS = 180
+PATTERN_URL = f"{LOCAL_MEDIA}/{PATTERN_FILE}"
+DROPOUT_CUT_FRACTION = 0.15
 DROPOUT_RATE_FACTOR = 1.5
 TEST_PATTERN = "testsrc2=size=640x360:rate=30"
 TEST_TONE = "sine=frequency=440:sample_rate=48000"
@@ -76,13 +80,12 @@ TEST_MOVIES = {
 }
 TEST_MOVIE_NOTE = "Synthetic test data: ffmpeg test pattern media, not a film."
 
-BIG_BUCK_BUNNY = f"{ARCHIVE}/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4"
 SINTEL = f"{ARCHIVE}/Sintel/sintel-2048-stereo.mp4"
 TEARS_OF_STEEL = f"{ARCHIVE}/Tears-of-Steel/tears_of_steel_720p.mp4"
 
 FILMS = {
     "tt1254207": [
-        ("720p MP4", "Big Buck Bunny 720p", BIG_BUCK_BUNNY),
+        ("Pattern MP4", "Local 3 minute test pattern, not the film", PATTERN_URL),
     ],
     "tt1727587": [
         ("1080p MP4", "Sintel 2048 stereo", SINTEL),
@@ -104,12 +107,12 @@ SINTEL_INFO_HASH = "08ada5a7a6183aae1e09d831df6748d566095a10"  # webtorrent.io/f
 
 SERIES_ID = "tvostest-series"
 SERIES_NAME = "Movies tvOS Test Series"
-SERIES_NOTE = "Synthetic test data: not a real show. Episodes reuse CC Blender films."
+SERIES_NOTE = "Synthetic test data: not a real show. Episodes play a local test pattern."
 
 EPISODES = [
-    (1, "Bunny Day", "BigBuckBunny_124", BIG_BUCK_BUNNY, "2008-05-30T00:00:00.000Z"),
-    (2, "Dragon Search", "Sintel", SINTEL, "2010-09-27T00:00:00.000Z"),
-    (3, "Steel Rain", "Tears-of-Steel", TEARS_OF_STEEL, "2012-09-26T00:00:00.000Z"),
+    (1, "Bunny Day", "BigBuckBunny_124", PATTERN_URL, "2008-05-30T00:00:00.000Z"),
+    (2, "Dragon Search", "Sintel", PATTERN_URL, "2010-09-27T00:00:00.000Z"),
+    (3, "Steel Rain", "Tears-of-Steel", PATTERN_URL, "2012-09-26T00:00:00.000Z"),
 ]
 
 MANIFEST = {
@@ -211,17 +214,17 @@ def write_codec_samples(media_dir):
     return streams, content_types
 
 
-def write_dropout_sample(media_dir):
-    output = media_dir / DROPOUT_FILE
+def write_pattern_sample(media_dir):
+    output = media_dir / PATTERN_FILE
     codec_args = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-b:v", "900k",
                   "-maxrate", "900k", "-bufsize", "1800k", "-movflags", "+faststart"]
-    result = run_ffmpeg(output, DROPOUT_SECONDS, codec_args)
+    result = run_ffmpeg(output, PATTERN_SECONDS, codec_args)
     if result.returncode != 0:
-        raise SystemExit(f"ffmpeg failed for {DROPOUT_FILE}: {result.stderr.strip()}")
+        raise SystemExit(f"ffmpeg failed for {PATTERN_FILE}: {result.stderr.strip()}")
     size = output.stat().st_size
     cut = int(size * DROPOUT_CUT_FRACTION)
-    rate = int(size / DROPOUT_SECONDS * DROPOUT_RATE_FACTOR)
-    url = f"{FLAKY_ROUTE}/{cut}/{rate}/media/{DROPOUT_FILE}"
+    rate = int(size / PATTERN_SECONDS * DROPOUT_RATE_FACTOR)
+    url = f"{FLAKY_ROUTE}/{cut}/{rate}/media/{PATTERN_FILE}"
     return [stream_entry("Dropout MP4", "Server closes the connection part way", url)]
 
 
@@ -234,7 +237,7 @@ def write_test_movies(out_dir):
     write_json(media_dir / "content-types.json", content_types)
     streams_by_movie = {
         "tvostest-codecs": codec_streams,
-        "tvostest-dropout": write_dropout_sample(media_dir),
+        "tvostest-dropout": write_pattern_sample(media_dir),
     }
     for movie_id, (name, archive_item) in TEST_MOVIES.items():
         write_json(out_dir / "meta" / "movie" / f"{movie_id}.json",

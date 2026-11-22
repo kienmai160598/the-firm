@@ -7,6 +7,24 @@ enum DebugLaunch {
     private static var hasOpenedStreams = false
     private static var hasOpenedFirstStream = false
 
+    private static let payloadDirectory = "Payloads"
+
+    static func eraseStateWhenAsked() {
+        guard defaults.bool(forKey: "MoviesDebugFreshState"),
+              let bundleId = Bundle.main.bundleIdentifier
+        else { return }
+        defaults.removePersistentDomain(forName: bundleId)
+        let fileManager = FileManager.default
+        let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let payloads = caches.appendingPathComponent(payloadDirectory)
+        guard fileManager.fileExists(atPath: payloads.path) else { return }
+        do {
+            try fileManager.removeItem(at: payloads)
+        } catch {
+            assertionFailure("Could not erase \(payloads.path): \(error)")
+        }
+    }
+
     static var initialRoute: AppRoute? {
         guard let route = defaults.string(forKey: "MoviesDebugRoute") else { return nil }
         let parts = route.split(separator: "/", maxSplits: 2).map(String.init)

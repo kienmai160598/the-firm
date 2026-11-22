@@ -75,6 +75,22 @@ targets:
           fi
           cd "$SRCROOT/../../shared"
           ./gradlew :tvosShared:embedAndSignAppleFrameworkForXcode
+  NuvioTvTests:
+    type: bundle.unit-test
+    platform: tvOS
+    sources:
+      - Tests
+    dependencies:
+      - target: NuvioTv
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kien.movies.tvos.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/NuvioTv.app/NuvioTv"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../../shared/apple-tv-bridge/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
   NuvioTvUITests:
     type: bundle.ui-testing
     platform: tvOS
@@ -96,4 +112,5 @@ schemes:
       enableGPUValidationMode: disabled
     test:
       targets:
+        - NuvioTvTests
         - NuvioTvUITests
