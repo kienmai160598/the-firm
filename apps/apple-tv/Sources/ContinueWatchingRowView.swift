@@ -5,6 +5,7 @@ struct ContinueWatchingRowView: View {
     let row: TvosContinueWatchingRow
     let onRemove: (TvosContinueWatchingItem) -> Void
     @FocusState private var focusedKey: String?
+    @State private var removalAfterMenuCloses: TvosContinueWatchingItem?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -12,7 +13,7 @@ struct ContinueWatchingRowView: View {
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: ShelfMetrics.spacing) {
                     ForEach(row.items, id: \.key) { item in
-                        ContinueWatchingCard(item: item, onRemove: onRemove)
+                        ContinueWatchingCard(item: item) { removalAfterMenuCloses = $0 }
                             .focused($focusedKey, equals: item.key)
                     }
                 }
@@ -23,6 +24,28 @@ struct ContinueWatchingRowView: View {
         }
         .focusSection()
         .defaultFocus($focusedKey, row.items.first?.key, priority: .userInitiated)
+        .onChange(of: focusedKey) { _, key in
+            if key != nil { removeAfterMenuClosed() }
+        }
+    }
+
+    private func removeAfterMenuClosed() {
+        guard let item = removalAfterMenuCloses else { return }
+        removalAfterMenuCloses = nil
+        let keys = row.items.map(\.key)
+        if let neighbor = RowNeighbor.key(beside: item.key, in: keys) {
+            focusedKey = neighbor
+        }
+        onRemove(item)
+    }
+}
+
+enum RowNeighbor {
+    static func key(beside key: String, in keys: [String]) -> String? {
+        guard let index = keys.firstIndex(of: key) else { return nil }
+        let after = keys.index(after: index)
+        if after < keys.endIndex { return keys[after] }
+        return index > keys.startIndex ? keys[keys.index(before: index)] : nil
     }
 }
 
