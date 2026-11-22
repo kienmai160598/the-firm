@@ -1,5 +1,8 @@
 package com.kien.movies.ui.screens.search
 
+import com.kien.movies.ui.components.posterFocusBorder
+import com.kien.movies.ui.components.posterFocusLift
+import com.kien.movies.ui.components.posterFocusScale
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.screens.home.HeroBackdropState
 
@@ -754,6 +757,7 @@ private fun DiscoverActionCard(
                         event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN &&
                         event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_DPAD_RIGHT
                 }
+                .posterFocusLift(cardShape, posterCardStyle.focusedScale)
                 .onFocusChanged { state -> if (state.isFocused) onFocused() }
                 .then(
                     if (focusRequester != null) Modifier.focusRequester(focusRequester)
@@ -764,13 +768,8 @@ private fun DiscoverActionCard(
                 containerColor = MoviesTheme.colors.BackgroundCard,
                 focusedContainerColor = MoviesTheme.colors.FocusBackground
             ),
-            border = CardDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                    shape = cardShape
-                )
-            ),
-            scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+            border = posterFocusBorder(),
+            scale = posterFocusScale
         ) {
             Box(
                 modifier = Modifier

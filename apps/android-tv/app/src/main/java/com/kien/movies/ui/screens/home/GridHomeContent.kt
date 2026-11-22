@@ -1,5 +1,8 @@
 package com.kien.movies.ui.screens.home
 
+import com.kien.movies.ui.components.posterFocusBorder
+import com.kien.movies.ui.components.posterFocusLift
+import com.kien.movies.ui.components.posterFocusScale
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
@@ -972,6 +975,7 @@ private fun SeeAllGridCard(
                     if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
                     else Modifier.width(posterCardStyle.width).height(effectiveCardHeight)
                 )
+                .posterFocusLift(seeAllCardShape, posterCardStyle.focusedScale)
                 .onFocusChanged { if (it.isFocused) onFocused() }
                 .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier),
             shape = CardDefaults.shape(
@@ -981,15 +985,8 @@ private fun SeeAllGridCard(
                 containerColor = MoviesTheme.colors.BackgroundCard,
                 focusedContainerColor = MoviesTheme.colors.BackgroundCard
             ),
-            border = CardDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                    shape = seeAllCardShape
-                )
-            ),
-            scale = CardDefaults.scale(
-                focusedScale = posterCardStyle.focusedScale
-            )
+            border = posterFocusBorder(),
+            scale = posterFocusScale
         ) {
             Box(
                 modifier = Modifier
@@ -1063,6 +1060,7 @@ private fun GridCollectionFolderCard(
             .fillMaxWidth()
             .aspectRatio(folderAspectRatio)
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+            .posterFocusLift(cardShape, posterCardStyle.focusedScale)
             .onFocusChanged {
                 isFocused = it.isFocused
                 if (it.isFocused) onFocused()
@@ -1072,13 +1070,8 @@ private fun GridCollectionFolderCard(
             containerColor = MoviesTheme.colors.BackgroundCard,
             focusedContainerColor = MoviesTheme.colors.BackgroundCard
         ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                shape = cardShape
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale),
+        border = posterFocusBorder(),
+        scale = posterFocusScale,
         glow = cardGlow
     ) {
         Box(
