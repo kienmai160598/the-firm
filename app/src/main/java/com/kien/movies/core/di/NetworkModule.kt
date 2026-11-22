@@ -112,7 +112,7 @@ object NetworkModule {
             .addInterceptor { chain ->
                 val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
                 val request = chain.request().newBuilder()
-                    .header("User-Agent", "Nuvio/$version")
+                    .header("User-Agent", "Movies/$version")
                     .header("Accept-Language", buildAcceptLanguageHeader())
                     .build()
                 chain.proceed(request)
@@ -175,7 +175,7 @@ object NetworkModule {
         .addInterceptor { chain ->
             val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
             val request = chain.request().newBuilder()
-                .header("User-Agent", "Nuvio/$version")
+                .header("User-Agent", "Movies/$version")
                 .header("Accept-Language", buildAcceptLanguageHeader())
                 .build()
             chain.proceed(request)
@@ -198,7 +198,7 @@ object NetworkModule {
             .addInterceptor { chain ->
                 val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
                 val request = chain.request().newBuilder()
-                    .header("User-Agent", "Nuvio/$version")
+                    .header("User-Agent", "Movies/$version")
                     .header("Accept-Language", buildAcceptLanguageHeader())
                     .build()
                 chain.proceed(request)
@@ -250,7 +250,7 @@ object NetworkModule {
             val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
             val newRequest = request.newBuilder()
                 .header("Content-Type", "application/json")
-                .header("User-Agent", "Nuvio/$version")
+                .header("User-Agent", "Movies/$version")
                 .header("trakt-api-key", BuildConfig.TRAKT_CLIENT_ID)
                 .header("trakt-api-version", "2")
                 .build()
@@ -509,7 +509,7 @@ object NetworkModule {
     @Named("supporters")
     fun provideSupportersRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
         Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.SUPPORTERS_API_BASE_URL, "https://nuvio.tv/"))
+            .baseUrl(normalizedBaseUrl(BuildConfig.SUPPORTERS_API_BASE_URL, "http://localhost/"))
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

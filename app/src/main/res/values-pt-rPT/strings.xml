@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Nuvio</string>
+    <string name="app_name">Movies</string>
     <string name="tv_channel_continue_watching">Continuar a ver</string>
     <string name="type_movie">Filme</string>
     <string name="type_movies">Filmes</string>
@@ -98,7 +98,7 @@
 
     <string name="home_no_addons">Nenhuma extensão instalada. Adiciona uma para começar.</string>
     <string name="home_no_catalog_addons">Nenhuma extensão de catálogo instalada. Instala uma para veres conteúdos.</string>
-    <string name="auth_notice_nuvio_logged_out">A tua sessão no Nuvio terminou. Inicia sessão novamente.</string>
+    <string name="auth_notice_nuvio_logged_out">A tua sessão no Movies terminou. Inicia sessão novamente.</string>
     <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt terminou. Volta a associar a conta.</string>
     <string name="error_generic">Ocorreu um erro</string>
 
@@ -369,7 +369,7 @@
     <string name="appearance_settings_style">Estilo das definições</string>
     <string name="appearance_settings_style_subtitle">Escolhe como os ecrãs de definições são apresentados</string>
     <string name="appearance_launcher_artwork">Grafismo no ecrã principal</string>
-    <string name="appearance_launcher_artwork_subtitle">Escolhe como o Nuvio aparece no ecrã principal da tua TV</string>
+    <string name="appearance_launcher_artwork_subtitle">Escolhe como o Movies aparece no ecrã principal da tua TV</string>
     <string name="ambient_mode_title">Modo ambiente</string>
     <string name="ambient_mode_subtitle">Mostrar imagens dos teus catálogos enquanto a TV está inativa</string>
     <string name="ambient_mode_enabled_subtitle">Preencher o ecrã com imagens de fundo após um período sem interação com o comando</string>
@@ -389,7 +389,7 @@
     <string name="appearance_app_icon_picker_title">Escolher ícone e faixa da aplicação</string>
     <string name="appearance_app_icon_picker_subtitle">Cada estilo inclui um ícone quadrado e uma faixa para TV a combinar</string>
     <string name="appearance_app_icon_confirmation_title">Alterar ícone da aplicação?</string>
-    <string name="appearance_app_icon_confirmation_message">Mudar para %1$s irá fechar o Nuvio. A faixa da TV poderá exigir o reinício do dispositivo antes de atualizar. Seleciona OK para continuar.</string>
+    <string name="appearance_app_icon_confirmation_message">Mudar para %1$s irá fechar o Movies. A faixa da TV poderá exigir o reinício do dispositivo antes de atualizar. Seleciona OK para continuar.</string>
     <string name="appearance_app_icon_change_failed">Não foi possível alterar o ícone e a faixa. Tenta novamente.</string>
     <string name="appearance_app_icon_original">Original</string>
     <string name="appearance_app_icon_arctic_blue">Azul ártico</string>
@@ -430,13 +430,13 @@
     <string name="update_channel_beta_description">Atualizações antecipadas que podem conter erros, afetar funcionalidades ou ter um comportamento inesperado.</string>
     <string name="about_privacy_policy">Política de Privacidade</string>
     <string name="about_privacy_policy_subtitle">Ver a nossa política de privacidade</string>
-    <string name="support_nuvio_name">Apoiar o Nuvio</string>
-    <string name="about_supporters_contributors">Apoiar o Nuvio</string>
+    <string name="support_nuvio_name">Apoiar o Movies</string>
+    <string name="about_supporters_contributors">Apoiar o Movies</string>
     <string name="about_supporters_contributors_subtitle">Apoia o projeto e vê os créditos da comunidade</string>
     <string name="about_licenses_attributions">Licenças e atribuições</string>
     <string name="about_licenses_attributions_subtitle">Fontes de dados, agradecimentos e licenças Android</string>
     <string name="licenses_attributions_title">Licenças e atribuições</string>
-    <string name="licenses_attributions_subtitle">Fornecedores de dados, créditos de serviços e licenças de reprodução Android usados pelo Nuvio TV.</string>
+    <string name="licenses_attributions_subtitle">Fornecedores de dados, créditos de serviços e licenças de reprodução Android usados pelo Movies.</string>
     <string name="licenses_attributions_section_app">LICENÇA DA APLICAÇÃO</string>
     <string name="licenses_attributions_section_data">DADOS E SERVIÇOS</string>
     <string name="licenses_attributions_section_playback">LICENÇAS DE REPRODUÇÃO ANDROID</string>
@@ -446,21 +446,21 @@
     <string name="licenses_attributions_nuvio_title">Nuvio TV</string>
     <string name="licenses_attributions_nuvio_body">O código-fonte e os termos da licença estão disponíveis no repositório do projeto. Licenciado sob a GNU General Public License v3.0.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
-    <string name="licenses_attributions_tmdb_body">O Nuvio usa a API do TMDB para metadados de filmes e séries, grafismo, trailers, elenco, detalhes de produção, coleções e recomendações. Este produto usa a API do TMDB, mas não é aprovado nem certificado pelo TMDB.</string>
+    <string name="licenses_attributions_tmdb_body">O Movies usa a API do TMDB para metadados de filmes e séries, grafismo, trailers, elenco, detalhes de produção, coleções e recomendações. Este produto usa a API do TMDB, mas não é aprovado nem certificado pelo TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
-    <string name="licenses_attributions_trakt_body">O Nuvio liga-se ao Trakt para autenticação de conta, histórico de visualizações, sincronização de progresso, dados da biblioteca, classificações, listas e comentários. O Nuvio não é afiliado nem aprovado pelo Trakt.</string>
+    <string name="licenses_attributions_trakt_body">O Movies liga-se ao Trakt para autenticação de conta, histórico de visualizações, sincronização de progresso, dados da biblioteca, classificações, listas e comentários. O Movies não é afiliado nem aprovado pelo Trakt.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
-    <string name="licenses_attributions_simkl_body">O Nuvio liga-se ao Simkl para autenticação de conta, listas de interesses, histórico de visualizações, progresso de reprodução e scrobbling. Os dados de acompanhamento de filmes, séries e anime são fornecidos pelo Simkl. O Nuvio não é afiliado nem aprovado pelo Simkl.</string>
+    <string name="licenses_attributions_simkl_body">O Movies liga-se ao Simkl para autenticação de conta, listas de interesses, histórico de visualizações, progresso de reprodução e scrobbling. Os dados de acompanhamento de filmes, séries e anime são fornecidos pelo Simkl. O Movies não é afiliado nem aprovado pelo Simkl.</string>
     <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">O Nuvio liga-se ao Premiumize para autenticação de conta, acesso à biblioteca na nuvem, verificações de cache e funcionalidades de reprodução na nuvem. O Nuvio não é afiliado nem aprovado pelo Premiumize.</string>
+    <string name="licenses_attributions_premiumize_body">O Movies liga-se ao Premiumize para autenticação de conta, acesso à biblioteca na nuvem, verificações de cache e funcionalidades de reprodução na nuvem. O Movies não é afiliado nem aprovado pelo Premiumize.</string>
     <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">O Nuvio liga-se ao TorBox para autenticação de conta, acesso à biblioteca na nuvem, verificações de cache e funcionalidades de reprodução na nuvem. O Nuvio não é afiliado nem aprovado pelo TorBox.</string>
+    <string name="licenses_attributions_torbox_body">O Movies liga-se ao TorBox para autenticação de conta, acesso à biblioteca na nuvem, verificações de cache e funcionalidades de reprodução na nuvem. O Movies não é afiliado nem aprovado pelo TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
-    <string name="licenses_attributions_mdblist_body">O Nuvio usa o MDBList para classificações, histórico de visualizações e acompanhamento de reprodução. O Nuvio não é afiliado nem aprovado pelo MDBList.</string>
+    <string name="licenses_attributions_mdblist_body">O Movies usa o MDBList para classificações, histórico de visualizações e acompanhamento de reprodução. O Movies não é afiliado nem aprovado pelo MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
-    <string name="licenses_attributions_introdb_body">O Nuvio usa a API do IntroDB para marcas temporais fornecidas pela comunidade de introduções, resumos, créditos e pré-visualizações usadas nos controlos para ignorar. O Nuvio não é afiliado nem aprovado pelo IntroDB.</string>
+    <string name="licenses_attributions_introdb_body">O Movies usa a API do IntroDB para marcas temporais fornecidas pela comunidade de introduções, resumos, créditos e pré-visualizações usadas nos controlos para ignorar. O Movies não é afiliado nem aprovado pelo IntroDB.</string>
     <string name="licenses_attributions_imdb_title">IMDb Non-Commercial Datasets</string>
-    <string name="licenses_attributions_imdb_body">O Nuvio usa conjuntos de dados não comerciais do IMDb, incluindo title.ratings.tsv.gz, para classificações e contagens de votos do IMDb. Informação cortesia do IMDb (https://www.imdb.com). Usado com permissão. Os dados do IMDb destinam-se a uso pessoal e não comercial ao abrigo dos termos do IMDb.</string>
+    <string name="licenses_attributions_imdb_body">O Movies usa conjuntos de dados não comerciais do IMDb, incluindo title.ratings.tsv.gz, para classificações e contagens de votos do IMDb. Informação cortesia do IMDb (https://www.imdb.com). Usado com permissão. Os dados do IMDb destinam-se a uso pessoal e não comercial ao abrigo dos termos do IMDb.</string>
     <string name="licenses_attributions_exoplayer_title">AndroidX Media3 ExoPlayer 1.8.0</string>
     <string name="licenses_attributions_exoplayer_body">Usado como motor de reprodução Android. Licenciado sob a Licença Apache, Versão 2.0.</string>
     <string name="licenses_attributions_libmpv_title">libmpv / libmpv-android</string>
@@ -485,7 +485,7 @@
     <string name="tracking_accounts_title">Contas</string>
     <string name="tracking_accounts_subtitle">Liga e gere serviços de acompanhamento</string>
     <string name="tracking_sources_title">Fontes</string>
-    <string name="tracking_sources_subtitle">Escolhe onde o Nuvio lê a tua biblioteca e o progresso de visualização. A reprodução faz scrobble para todos os serviços ligados.</string>
+    <string name="tracking_sources_subtitle">Escolhe onde o Movies lê a tua biblioteca e o progresso de visualização. A reprodução faz scrobble para todos os serviços ligados.</string>
     <string name="tracking_trakt_features_title">Funcionalidades do Trakt</string>
     <string name="tracking_trakt_features_subtitle">Histórico, críticas e recomendações específicas do Trakt</string>
     <string name="tracking_simkl_features_title">Funcionalidades do Simkl</string>
@@ -502,8 +502,8 @@
     <string name="tracking_status_connecting">A ligar</string>
     <string name="tracking_finish_connection">Concluir aprovação da ligação</string>
     <string name="tracking_connecting_provider">A iniciar ligação ao %1$s…</string>
-    <string name="tracking_watch_progress_dialog_subtitle">Escolhe o serviço que o Nuvio lê para retomar e Continuar a ver. O scrobbling mantém-se ativo para todos os serviços ligados.</string>
-    <string name="tracking_library_source_dialog_subtitle">Escolhe o serviço que o Nuvio lê para a tua Biblioteca. A reprodução faz scrobble para todos os serviços ligados.</string>
+    <string name="tracking_watch_progress_dialog_subtitle">Escolhe o serviço que o Movies lê para retomar e Continuar a ver. O scrobbling mantém-se ativo para todos os serviços ligados.</string>
+    <string name="tracking_library_source_dialog_subtitle">Escolhe o serviço que o Movies lê para a tua Biblioteca. A reprodução faz scrobble para todos os serviços ligados.</string>
     <string name="tracking_trakt_progress_required">Disponível quando o Trakt é a fonte de progresso de visualização</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
@@ -513,7 +513,7 @@
     <string name="settings_advanced_subtitle">Desempenho, navegação, cache e diagnóstico</string>
     <string name="experience_mode_essential">Essencial</string>
     <string name="experience_mode_advanced">Avançado</string>
-    <string name="experience_mode_choose_title">Escolhe a tua experiência Nuvio</string>
+    <string name="experience_mode_choose_title">Escolhe a tua experiência Movies</string>
     <string name="experience_mode_choose_subtitle">Começa de forma simples ou desbloqueia toda a personalização. Podes mudar a qualquer momento.</string>
     <string name="experience_mode_essential_card_subtitle">Configuração focada, extensões, definições básicas de reprodução, Trakt e conta.</string>
     <string name="experience_mode_advanced_card_subtitle">Definições completas, controlos de disposição, ordem dos catálogos, coleções, plugins e diagnóstico.</string>
@@ -623,8 +623,8 @@
     <string name="buffer_safe_status">Seguro: dentro do limite recomendado para o teu dispositivo.</string>
     <string name="buffer_unsafe_warning">Aviso: excede o limite seguro recomendado (%1$d MB) para o teu dispositivo %2$s. Pode provocar falhas na aplicação.</string>
     <string name="buffer_auto_limit_active">Limite seguro ajustado automaticamente: %d MB</string>
-    <string name="advanced_nuvio_focus_scroll">Deslocamento de foco Nuvio</string>
-    <string name="advanced_nuvio_focus_scroll_subtitle">Usar a animação e o posicionamento personalizados de deslocamento global de foco do Nuvio.</string>
+    <string name="advanced_nuvio_focus_scroll">Deslocamento de foco Movies</string>
+    <string name="advanced_nuvio_focus_scroll_subtitle">Usar a animação e o posicionamento personalizados de deslocamento global de foco do Movies.</string>
     <string name="advanced_rgb565">Descodificação de imagens RGB565</string>
     <string name="advanced_rgb565_subtitle">Usar cor de 16 bits com menor consumo de memória para imagens opacas elegíveis. Alterar esta opção reinicia a aplicação.</string>
     <string name="advanced_memory_only_vertical_scroll">Deslocamento vertical apenas em memória</string>
@@ -666,21 +666,21 @@
     <string name="action_back">Voltar</string>
     <string name="action_close">Fechar</string>
 
-    <string name="supporters_contributors_title">Apoiar o Nuvio</string>
-    <string name="supporters_contributors_subtitle">As pessoas que apoiam o Nuvio e os colaboradores que o desenvolvem para TV e dispositivos móveis.</string>
+    <string name="supporters_contributors_title">Apoiar o Movies</string>
+    <string name="supporters_contributors_subtitle">As pessoas que apoiam o Movies e os colaboradores que o desenvolvem para TV e dispositivos móveis.</string>
     <string name="supporters_contributors_supporters_copy">Os apoiantes e doadores ajudam a manter o projeto ativo, financiam a infraestrutura e abrem espaço para funcionalidades ambiciosas.</string>
-    <string name="supporters_contributors_donate_copy">O Nuvio continuará gratuito e de código aberto. Se quiseres apoiar o projeto, podes ajudar a cobrir o tempo e a infraestrutura por trás dele.</string>
+    <string name="supporters_contributors_donate_copy">O Movies continuará gratuito e de código aberto. Se quiseres apoiar o projeto, podes ajudar a cobrir o tempo e a infraestrutura por trás dele.</string>
     <string name="supporters_contributors_donation_progress_title">Servidor e manutenção deste mês</string>
     <string name="supporters_contributors_donation_progress_complete">Coberto. O apoio adicional reverte agora para o desenvolvimento.</string>
     <string name="supporters_contributors_donation_progress_remaining">Após os 100%, o apoio adicional reverte para o desenvolvimento.</string>
     <string name="supporters_contributors_loading_donation_progress">A carregar progresso de financiamento...</string>
-    <string name="supporters_contributors_donate_button">Apoiar o Nuvio</string>
+    <string name="supporters_contributors_donate_button">Apoiar o Movies</string>
     <string name="supporters_contributors_qr_title">Lê o código para apoiar</string>
-    <string name="supporters_contributors_qr_subtitle">Abre a ligação no teu telemóvel para apoiar o Nuvio.</string>
+    <string name="supporters_contributors_qr_subtitle">Abre a ligação no teu telemóvel para apoiar o Movies.</string>
     <string name="supporters_contributors_qr_hint">Aponta a câmara para o código QR ou usa o botão abaixo.</string>
     <string name="supporters_contributors_back_button">Voltar aos detalhes</string>
-    <string name="supporter_membership_title">Subscrição de Apoiante Nuvio</string>
-    <string name="supporter_membership_description">Apoiar o Nuvio ajuda a cobrir a infraestrutura e o desenvolvimento contínuo, mantendo a experiência principal gratuita para todos.</string>
+    <string name="supporter_membership_title">Subscrição de Apoiante Movies</string>
+    <string name="supporter_membership_description">Apoiar o Movies ajuda a cobrir a infraestrutura e o desenvolvimento contínuo, mantendo a experiência principal gratuita para todos.</string>
     <string name="supporter_membership_view">Ver subscrição</string>
     <string name="supporter_membership_manage">Gerir subscrição</string>
     <string name="supporter_membership_refresh">Atualizar</string>
@@ -693,7 +693,7 @@
     <string name="supporter_membership_tier_supporter">Apoiante</string>
     <string name="supporter_membership_tier_supporter_plus">Apoiante Plus</string>
     <string name="supporter_membership_connected_title">O Patreon está ligado</string>
-    <string name="supporter_membership_connected_description">Não foi encontrado nenhum nível ativo do Nuvio nesta conta Patreon. Vê as opções disponíveis ou atualiza após alterares a tua subscrição no Patreon.</string>
+    <string name="supporter_membership_connected_description">Não foi encontrado nenhum nível ativo do Movies nesta conta Patreon. Vê as opções disponíveis ou atualiza após alterares a tua subscrição no Patreon.</string>
     <string name="supporter_membership_scan_support">Lê o código para ver a subscrição</string>
     <string name="supporter_membership_scan_support_description">Abre a página de Subscrição de Apoiante no teu telemóvel.</string>
     <string name="supporter_membership_scan_manage">Lê o código para gerir a subscrição</string>
@@ -708,13 +708,13 @@
     <string name="supporters_no_message">Nenhuma mensagem partilhada.</string>
     <string name="supporters_level_supporter">Apoiante</string>
     <string name="supporters_level_supporter_plus">Apoiante+</string>
-    <string name="supporters_since">A apoiar o Nuvio desde %1$s</string>
-    <string name="supporters_since_unknown">A apoiar o Nuvio com orgulho</string>
+    <string name="supporters_since">A apoiar o Movies desde %1$s</string>
+    <string name="supporters_since_unknown">A apoiar o Movies com orgulho</string>
     <string name="supporters_open_donations">Abrir página de apoio</string>
     <string name="sponsors_loading">A carregar patrocinadores…</string>
     <string name="sponsors_empty">Ainda não foram encontrados patrocinadores.</string>
     <string name="sponsors_error_title">Não foi possível carregar os patrocinadores</string>
-    <string name="sponsors_detail_copy">Os patrocinadores ajudam o Nuvio a avançar através do apoio às diferentes áreas de desenvolvimento.</string>
+    <string name="sponsors_detail_copy">Os patrocinadores ajudam o Movies a avançar através do apoio às diferentes áreas de desenvolvimento.</string>
     <string name="sponsors_channel_unavailable">Canal do patrocinador indisponível.</string>
     <string name="sponsors_open_channel">Abrir canal do patrocinador</string>
     <string name="contributors_loading">A carregar colaboradores do GitHub…</string>
@@ -789,7 +789,7 @@
     <string name="autoplay_fallback_next_source_blocked_by_engine_switch">Desativa a mudança automática de motor em caso de erro de arranque para usar esta opção.</string>
     <string name="player_error_source_startup_timeout">A fonte não iniciou dentro de %1$d segundos.</string>
     <string name="playback_release_decoder_on_background">Libertar descodificador em segundo plano</string>
-    <string name="playback_release_decoder_on_background_sub">Libertar o descodificador de vídeo quando o Nuvio passa para segundo plano. Ativa esta opção se a reprodução falhar com erro de descodificador ao regressar à aplicação. O leitor recarrega ao voltar, também após a proteção de ecrã</string>
+    <string name="playback_release_decoder_on_background_sub">Libertar o descodificador de vídeo quando o Movies passa para segundo plano. Ativa esta opção se a reprodução falhar com erro de descodificador ao regressar à aplicação. O leitor recarrega ao voltar, também após a proteção de ecrã</string>
     <string name="playback_external_forward_subtitles">Reencaminhar legendas para leitor externo</string>
     <string name="playback_external_forward_subtitles_sub">Obter legendas no teu idioma preferido a partir das extensões e enviá-las para o leitor externo.</string>
     <string name="playback_external_send_skip_segments">Enviar marcas temporais de introdução e encerramento</string>
@@ -816,8 +816,8 @@
     <string name="playback_player_ask_desc">Escolher o leitor de cada vez</string>
     <string name="playback_player_auto">Automático (Melhor para o conteúdo)</string>
     <string name="playback_player_auto_desc">ExoPlayer para Filmes e Séries · MPV para Anime</string>
-    <string name="playback_engine_exoplayer_desc">Melhor compatibilidade com as funcionalidades atuais do Nuvio.</string>
-    <string name="playback_engine_mvplayer_desc">Usa o libmpv com os controlos OSD do Nuvio. Experimental.</string>
+    <string name="playback_engine_exoplayer_desc">Melhor compatibilidade com as funcionalidades atuais do Movies.</string>
+    <string name="playback_engine_mvplayer_desc">Usa o libmpv com os controlos OSD do Movies. Experimental.</string>
 
     <string name="video_section">Vídeo</string>
     <string name="playback_true_black_letterbox">Barras em preto puro</string>
@@ -1381,7 +1381,7 @@
     <string name="debrid_disconnect">Desligar</string>
     <string name="debrid_device_auth_connected">%1$s está ligado neste dispositivo.</string>
     <string name="debrid_device_auth_starting">A iniciar sessão segura...</string>
-    <string name="debrid_device_auth_instructions">Lê o código QR e introduz este código para aprovar o Nuvio.</string>
+    <string name="debrid_device_auth_instructions">Lê o código QR e introduz este código para aprovar o Movies.</string>
     <string name="debrid_device_auth_code_copied">Código copiado.</string>
     <string name="debrid_device_auth_waiting">A aguardar aprovação...</string>
     <string name="debrid_device_auth_failed">Não foi possível iniciar sessão.</string>
@@ -1576,21 +1576,21 @@
     <string name="trakt_watch_progress_title">Progresso de visualização</string>
     <string name="trakt_watch_progress_subtitle">Escolhe qual a fonte de progresso que alimenta a retoma e o continuar a ver</string>
     <string name="trakt_watch_progress_dialog_title">Progresso de visualização</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Escolhe se a retoma e o continuar a ver devem usar o Trakt ou a Sincronização Nuvio, enquanto o scrobbling do Trakt se mantém ativo.</string>
+    <string name="trakt_watch_progress_dialog_subtitle">Escolhe se a retoma e o continuar a ver devem usar o Trakt ou a Sincronização Movies, enquanto o scrobbling do Trakt se mantém ativo.</string>
     <string name="trakt_watch_progress_source_trakt">Trakt</string>
-    <string name="trakt_watch_progress_source_nuvio">Sincronização Nuvio</string>
+    <string name="trakt_watch_progress_source_nuvio">Sincronização Movies</string>
     <string name="trakt_library_source_title">Fonte da biblioteca</string>
-    <string name="trakt_library_source_subtitle">Escolhe qual a fonte que o Nuvio lê para a tua Biblioteca</string>
+    <string name="trakt_library_source_subtitle">Escolhe qual a fonte que o Movies lê para a tua Biblioteca</string>
     <string name="trakt_library_source_dialog_title">Fonte da biblioteca</string>
     <string name="trakt_library_source_dialog_subtitle">Escolhe onde guardar e gerir os itens da tua biblioteca</string>
     <string name="trakt_library_source_trakt">Trakt</string>
-    <string name="trakt_library_source_nuvio">Biblioteca Nuvio</string>
+    <string name="trakt_library_source_nuvio">Biblioteca Movies</string>
     <string name="trakt_library_source_trakt_selected">Biblioteca Trakt selecionada</string>
-    <string name="trakt_library_source_nuvio_selected">Biblioteca Nuvio selecionada</string>
+    <string name="trakt_library_source_nuvio_selected">Biblioteca Movies selecionada</string>
     <string name="trakt_setting_on">Ativado</string>
     <string name="trakt_setting_off">Desativado</string>
     <string name="trakt_watch_progress_trakt_selected">Fonte de progresso de visualização definida para Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">Fonte de progresso de visualização definida para Sincronização Nuvio</string>
+    <string name="trakt_watch_progress_nuvio_selected">Fonte de progresso de visualização definida para Sincronização Movies</string>
     <string name="trakt_continue_watching_window">Janela de Continuar a ver</string>
     <string name="trakt_continue_watching_subtitle">Histórico do Trakt considerado para continuar a ver</string>
     <string name="trakt_unaired_next_up">Episódios seguintes por estrear</string>
@@ -1619,7 +1619,7 @@
     <string name="trakt_stat_watched_hours">Horas vistas</string>
     <string name="trakt_disconnect">Desligar</string>
     <string name="trakt_disconnect_title">Desligar Trakt?</string>
-    <string name="trakt_disconnect_subtitle">Isto irá desligar a tua conta Trakt do Nuvio.</string>
+    <string name="trakt_disconnect_subtitle">Isto irá desligar a tua conta Trakt do Movies.</string>
     <string name="trakt_login">Iniciar sessão</string>
     <string name="trakt_retry">Tentar novamente</string>
     <string name="trakt_back">Voltar</string>
@@ -1696,11 +1696,11 @@
     <string name="profile_addons">extensões</string>
     <string name="profile_plugins">plugins</string>
     <string name="profile_choose_avatar">Escolher avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Os URLs de avatares personalizados podem ser configurados a partir do painel web do Nuvio.</string>
+    <string name="profile_custom_avatar_web_panel_note">Os URLs de avatares personalizados podem ser configurados a partir do painel web do Movies.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Fundo</string>
     <string name="profile_choose_background">Escolher fundo do perfil</string>
-    <string name="profile_background_member_note">Os URLs de fundo personalizados podem ser configurados a partir do painel web do Nuvio.</string>
+    <string name="profile_background_member_note">Os URLs de fundo personalizados podem ser configurados a partir do painel web do Movies.</string>
     <string name="profile_background_normal">Normal</string>
     <string name="profile_background_custom">Personalizado</string>
     <string name="profile_avatar_none_selected">Nenhum avatar selecionado</string>
@@ -1768,7 +1768,7 @@
     <string name="profile_pin_overlay_set_support">Este PIN será necessário antes de abrir este perfil.</string>
     <string name="profile_pin_overlay_confirm_support">Volta a introduzir os mesmos 4 dígitos para concluir a configuração.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Introduz um novo PIN novamente.</string>
-    <string name="profile_pin_overlay_forgot_hint">Esqueceste-te do PIN? Repõe-o a partir da tua conta Nuvio no website do Nuvio.</string>
+    <string name="profile_pin_overlay_forgot_hint">Esqueceste-te do PIN? Repõe-o a partir da tua conta Movies no website do Movies.</string>
     <string name="profile_pin_overlay_back_hint">Prime voltar para cancelar</string>
 
 
@@ -1789,7 +1789,7 @@
     <string name="addon_install_btn">Instalar</string>
     <string name="addon_install_success">"%1$s" instalada</string>
     <string name="addon_tracking_consent_title">Extensão de acompanhamento</string>
-    <string name="addon_tracking_consent_body">O %1$s é uma extensão de acompanhamento. O Nuvio irá enviar-lhe a tua atividade: o que reproduzes, pausas e paras com a posição de reprodução, o que adicionas ou removes da tua biblioteca, e o que marcaste como visto ou por ver. Estes dados saem do Nuvio e são geridos pelo programador da extensão e pelo serviço a que se liga.</string>
+    <string name="addon_tracking_consent_body">O %1$s é uma extensão de acompanhamento. O Movies irá enviar-lhe a tua atividade: o que reproduzes, pausas e paras com a posição de reprodução, o que adicionas ou removes da tua biblioteca, e o que marcaste como visto ou por ver. Estes dados saem do Movies e são geridos pelo programador da extensão e pelo serviço a que se liga.</string>
     <string name="addon_tracking_consent_checkbox">Concordo em partilhar a minha atividade de visualização e biblioteca com esta extensão</string>
     <string name="addon_tracking_consent_checked">Marcado</string>
     <string name="addon_tracking_consent_unchecked">Não marcado</string>
@@ -1858,7 +1858,7 @@
     <string name="stream_type_torrent">Torrent</string>
     <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">Streaming P2P</string>
-    <string name="p2p_consent_body">Esta transmissão utiliza tecnologia ponto a ponto (P2P). Ao ativar o P2P, reconheces e concordas que:\n\n\u2022 O teu endereço IP ficará visível para outros pares na rede\n\u2022 És o único responsável pelo conteúdo a que acedes\n\u2022 Confirmas que tens o direito legal de transmitir este conteúdo na tua jurisdição\n\u2022 O Nuvio não aloja, distribui nem controla qualquer conteúdo P2P\n\u2022 O Nuvio não assume qualquer responsabilidade por quaisquer consequências legais decorrentes da tua utilização do streaming P2P\n\nUtilizas esta funcionalidade inteiramente por tua conta e risco. O P2P pode ser desativado a qualquer momento nas Definições.</string>
+    <string name="p2p_consent_body">Esta transmissão utiliza tecnologia ponto a ponto (P2P). Ao ativar o P2P, reconheces e concordas que:\n\n\u2022 O teu endereço IP ficará visível para outros pares na rede\n\u2022 És o único responsável pelo conteúdo a que acedes\n\u2022 Confirmas que tens o direito legal de transmitir este conteúdo na tua jurisdição\n\u2022 O Movies não aloja, distribui nem controla qualquer conteúdo P2P\n\u2022 O Movies não assume qualquer responsabilidade por quaisquer consequências legais decorrentes da tua utilização do streaming P2P\n\nUtilizas esta funcionalidade inteiramente por tua conta e risco. O P2P pode ser desativado a qualquer momento nas Definições.</string>
     <string name="p2p_consent_enable">Ativar P2P</string>
     <string name="p2p_consent_cancel">Cancelar</string>
     <string name="settings_p2p_title">Streaming P2P</string>
@@ -2452,7 +2452,7 @@
     <string name="catalog_see_all_empty_title">Nenhum item disponível</string>
     <string name="catalog_see_all_empty_subtitle">Experimenta um catálogo diferente ou volta mais tarde</string>
 
-    <string name="layout_selection_welcome">Bem-vindo ao Nuvio</string>
+    <string name="layout_selection_welcome">Bem-vindo ao Movies</string>
     <string name="layout_selection_subtitle">Escolhe o layout do teu ecrã inicial</string>
     <string name="layout_selection_continue">Continuar</string>
 
@@ -2469,7 +2469,7 @@
     <string name="update_unknown_sources">Permite instalações de fontes desconhecidas para continuar.</string>
     <!-- AccountScreen -->
     <string name="account_title">Conta</string>
-    <string name="account_sign_in_description">Inicia sessão para sincronizar a tua biblioteca, progresso de visualização, extensões e plugins entre dispositivos. A sincronização da biblioteca usa a Sincronização Nuvio quando o Trakt não está ligado, e o progresso de visualização pode usar o Trakt ou a Sincronização Nuvio.</string>
+    <string name="account_sign_in_description">Inicia sessão para sincronizar a tua biblioteca, progresso de visualização, extensões e plugins entre dispositivos. A sincronização da biblioteca usa a Sincronização Movies quando o Trakt não está ligado, e o progresso de visualização pode usar o Trakt ou a Sincronização Movies.</string>
     <string name="account_sync_code_title">Código de sincronização</string>
     <string name="account_sync_code_description">Sincroniza entre dispositivos sem criar uma conta.</string>
     <string name="account_linked_devices">Dispositivos ligados (%1$d)</string>
@@ -2649,7 +2649,7 @@
     <string name="cd_trailer_controls">Controlos do trailer</string>
     <string name="cd_seek_bar">Barra de progresso</string>
     <string name="cd_unlink">Desligar</string>
-    <string name="cd_nuvio_logo">NuvioTV</string>
+    <string name="cd_nuvio_logo">Movies</string>
     <string name="cd_trakt_logo">Logótipo do Trakt</string>
     <string name="cd_trakt_qr">QR de ativação do Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -2661,7 +2661,7 @@
     <string name="cd_expand">Expandir %1$s</string>
     <string name="cd_collapse">Recolher %1$s</string>
     <string name="cd_qr_login">Código de início de sessão por QR</string>
-    <string name="cd_nuvio">Nuvio</string>
+    <string name="cd_nuvio">Movies</string>
 
     <string name="debug_signin_success">Sessão iniciada com sucesso</string>
     <string name="debug_generate_description">Item %1$s #%2$d gerado por depuração</string>
@@ -2804,7 +2804,7 @@
     <string name="collections_editor_tmdb_list_helper">Exemplo: https://www.themoviedb.org/list/8504994 ou 8504994.</string>
     <string name="collections_editor_tmdb_person_id">ID de pessoa</string>
     <string name="collections_editor_tmdb_person_helper">Exemplo: https://www.themoviedb.org/person/31-tom-hanks ou 31.</string>
-    <string name="collections_editor_tmdb_title_helper">Apresentado como o nome da fila/separador. Se estiver em branco, o Nuvio cria um a partir da fonte.</string>
+    <string name="collections_editor_tmdb_title_helper">Apresentado como o nome da fila/separador. Se estiver em branco, o Movies cria um a partir da fonte.</string>
     <string name="collections_editor_tmdb_quick_genres">Géneros rápidos</string>
     <string name="collections_editor_tmdb_quick_languages">Idiomas rápidos</string>
     <string name="collections_editor_tmdb_quick_countries">Países rápidos</string>
@@ -2986,7 +2986,7 @@
     <string name="autoplay_regex_preset_no_remux_hdr">Sem REMUX/HDR</string>
 
     <!-- Playback settings sections -->
-    <string name="playback_player_internal_desc">Usar o leitor incorporado do NuvioTV</string>
+    <string name="playback_player_internal_desc">Usar o leitor incorporado do Movies</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
     <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
@@ -3091,9 +3091,9 @@
     <string name="simkl_visit">Visitar Simkl</string>
     <string name="simkl_sync_info_action">Como funciona a sincronização</string>
     <string name="simkl_sync_info_title">Como funciona a sincronização do Simkl</string>
-    <string name="simkl_sync_info_description">O Nuvio verifica automaticamente o Simkl no máximo uma vez a cada %1$d minutos. As alterações feitas através de outra aplicação ou do site do Simkl podem demorar esse tempo a aparecer.</string>
+    <string name="simkl_sync_info_description">O Movies verifica automaticamente o Simkl no máximo uma vez a cada %1$d minutos. As alterações feitas através de outra aplicação ou do site do Simkl podem demorar esse tempo a aparecer.</string>
     <string name="simkl_sync_info_activity">Cada atualização verifica primeiro se o Simkl reporta alguma alteração e transfere apenas as atualizações. Isto cumpre as regras da API do Simkl, reduz o uso desnecessário de dados e ajuda a manter o serviço estável.</string>
-    <string name="simkl_sync_info_manual">As alterações feitas no Nuvio são enviadas para o Simkl imediatamente. Usa Sincronizar agora sempre que quiseres que o Nuvio verifique alterações remotas mais cedo.</string>
+    <string name="simkl_sync_info_manual">As alterações feitas no Movies são enviadas para o Simkl imediatamente. Usa Sincronizar agora sempre que quiseres que o Movies verifique alterações remotas mais cedo.</string>
     <string name="simkl_sync_info_library_statuses">As séries colocadas nas listas Em pausa ou Abandonado do Simkl são ocultadas de Continuar a ver. Permanecem ocultadas durante o tempo que permanecerem em qualquer uma das listas.</string>
     <string name="simkl_sync_info_docs">Ler o guia de sincronização do Simkl</string>
     <string name="error_open_browser_failed">Falha ao abrir o navegador</string>

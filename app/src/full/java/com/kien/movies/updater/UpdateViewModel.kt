@@ -1,5 +1,7 @@
 package com.kien.movies.updater
 
+import com.kien.movies.core.build.AppFeaturePolicy
+
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -62,7 +64,10 @@ class UpdateViewModel @Inject constructor(
     private var updateCheckJob: Job? = null
 
     init {
-        viewModelScope.launch {
+        if (!AppFeaturePolicy.inAppUpdatesEnabled) {
+            UpdateJobService.cancelPeriodicCheck(context)
+            UpdateJobService.cancelIdleInstall(context)
+        } else viewModelScope.launch {
             val enabled = updatePreferences.updateBannerEnabled.first()
             val channel = updatePreferences.getOrInitializeUpdateChannel()
             val autoInstallEnabled = updatePreferences.autoInstallEnabled.first()
@@ -87,6 +92,7 @@ class UpdateViewModel @Inject constructor(
     }
 
     fun checkForUpdates(force: Boolean, showNoUpdateFeedback: Boolean) {
+        if (!AppFeaturePolicy.inAppUpdatesEnabled) return
         if (!force && !_uiState.value.updateBannerEnabled) return
 
         updateCheckJob?.cancel()

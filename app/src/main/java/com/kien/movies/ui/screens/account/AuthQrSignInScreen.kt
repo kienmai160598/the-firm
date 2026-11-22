@@ -543,7 +543,6 @@ private fun AuthEmailLoginForm(
                 )
             }
         }
-        AuthTermsAcknowledgement()
         uiState.error?.takeIf { it.isNotBlank() }?.let { error ->
             StatusPill(
                 text = error,
@@ -599,8 +598,6 @@ private fun AuthQrCodeBlock(
         isLoading = uiState.isLoading
     )
 
-    Spacer(modifier = Modifier.height(12.dp))
-    AuthTermsAcknowledgement()
 
     val statusText = uiState.error ?: uiState.qrLoginStatus
     if (!statusText.isNullOrBlank()) {
@@ -717,40 +714,6 @@ private fun displayVerificationUri(value: String): String = value
     .removePrefix("https://")
     .removePrefix("http://")
     .trimEnd('/')
-
-@Composable
-private fun AuthTermsAcknowledgement() {
-    val context = LocalContext.current
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.auth_qr_terms_prefix),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = accountTextSecondary(AuthTextSecondary),
-                fontSize = 13.sp,
-                lineHeight = 18.sp
-            ).metaFloor()
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = stringResource(R.string.auth_qr_terms_link),
-            modifier = Modifier
-                .clickable {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://nuvio.tv/terms")))
-                }
-                .semantics { role = Role.Button },
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = accountTextPrimary(AuthTextPrimary),
-                fontSize = 13.sp,
-                lineHeight = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            ).metaFloor()
-        )
-    }
-}
 
 @Composable
 private fun StatusPill(

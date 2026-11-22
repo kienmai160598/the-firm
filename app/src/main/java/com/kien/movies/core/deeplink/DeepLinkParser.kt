@@ -18,7 +18,7 @@ object DeepLinkParser {
                 null
             }
         }
-        if (scheme != "nuvio") return null
+        if (scheme != "movies") return null
 
         val host = parsedUrl.host?.lowercase().orEmpty()
         val pathSegments = parsedUrl.rawPath
