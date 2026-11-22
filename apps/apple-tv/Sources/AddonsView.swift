@@ -89,6 +89,6 @@ private struct AddonRow: View {
     private var summary: String {
         if let error = addon.errorMessage { return error }
         let streams = addon.providesStreams ? "Streams" : "No streams"
-        return addon.description.isEmpty ? streams : "\(streams) · \(addon.description)"
+        return addon.summary.isEmpty ? streams : "\(streams) · \(addon.summary)"
     }
 }

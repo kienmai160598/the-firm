@@ -63,6 +63,39 @@ final class RemoteNavigationTests: XCTestCase {
         XCTAssertTrue(isHeroFocused, "Up from first row: \(focusedElement.label)")
     }
 
+    func testMenuOnHomeOpensSidebarAndAddonsTabIsReachable() {
+        app.launch()
+        XCTAssertTrue(heroButton.waitForExistence(timeout: 60), "No hero")
+        XCTAssertTrue(waitForFocus())
+        focusHero()
+
+        remote.press(.menu)
+        XCTAssertTrue(waitForFocus())
+        XCTAssertEqual(focusedTabTitle, "Home", "Menu on Home did not open the sidebar")
+        saveScreenshot("menu-1-sidebar")
+
+        for _ in 0..<3 {
+            press(.down)
+        }
+        XCTAssertEqual(focusedTabTitle, "Addons")
+        remote.press(.select)
+        XCTAssertTrue(app.staticTexts["Add an addon"].waitForExistence(timeout: 10))
+        XCTAssertTrue(waitForFocus())
+        XCTAssertFalse(isTabBarFocused, "Select on Addons kept focus in the sidebar")
+        print("Addons focus: \(focusedElement.debugDescription)")
+        saveScreenshot("menu-2-addons")
+        press(.down)
+        press(.right)
+        saveScreenshot("menu-3-addons-walk")
+
+        for _ in 0..<6 where !isTabBarFocused {
+            remote.press(.menu)
+        }
+        XCTAssertEqual(focusedTabTitle, "Addons", "Menu in Addons did not reach the sidebar")
+        remote.press(.menu)
+        XCTAssertTrue(app.wait(for: .runningBackground, timeout: 10), "Menu in sidebar kept the app")
+    }
+
     func testSeasonPickerAndEpisodeCardOpenEpisodeStreams() {
         app.launchArguments = ["-MoviesDebugRoute", "details/series/tt0903747"]
         app.launch()

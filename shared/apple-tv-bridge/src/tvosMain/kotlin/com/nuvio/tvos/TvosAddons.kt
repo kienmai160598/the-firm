@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 data class TvosAddon(
     val manifestUrl: String,
     val name: String,
-    val description: String,
+    val summary: String,
     val providesStreams: Boolean,
     val enabled: Boolean,
     val errorMessage: String?,
@@ -68,7 +68,7 @@ object TvosAddons {
 private fun ManagedAddon.toTvosAddon(): TvosAddon = TvosAddon(
     manifestUrl = manifestUrl,
     name = displayTitle(),
-    description = manifest?.description.orEmpty(),
+    summary = manifest?.description.orEmpty(),
     providesStreams = manifest?.resources.orEmpty().any { resource -> resource.name == "stream" },
     enabled = enabled,
     errorMessage = errorMessage,
