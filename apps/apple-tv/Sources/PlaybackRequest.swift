@@ -12,6 +12,10 @@ struct PlaybackRequest: Identifiable {
         guard let playableUrl = stream.playableUrl, let url = URL(string: playableUrl) else {
             return nil
         }
+        self.init(target: target, stream: stream, url: url, resumes: resumes)
+    }
+
+    init(target: TvosStreamTarget, stream: TvosStream, url: URL, resumes: Bool) {
         self.target = target
         self.stream = stream
         self.url = url

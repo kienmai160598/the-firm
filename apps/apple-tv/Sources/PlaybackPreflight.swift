@@ -36,6 +36,14 @@ enum PlaybackPreflight {
         }
     }
 
+    static func refusal(forFilename filename: String?) -> StreamNotice? {
+        guard let fileExtension = filename.map({ ($0 as NSString).pathExtension.lowercased() }),
+              unplayableExtensions.contains(fileExtension)
+        else { return nil }
+        log.notice("Refused torrent file .\(fileExtension, privacy: .public) by extension")
+        return formatNotice(fileExtension)
+    }
+
     private static func knownExtension(of request: PlaybackRequest) -> String? {
         let filenameExtension = request.stream.filename.map { ($0 as NSString).pathExtension }
         return [request.url.pathExtension, filenameExtension]

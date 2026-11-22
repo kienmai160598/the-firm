@@ -20,6 +20,7 @@ struct StreamsView: View {
     @State private var playbackFailure: StreamSheet?
     @State private var checkingStreamKey: String?
     @State private var directResume: TvosResumePoint?
+    @StateObject private var torrent = TorrentSession()
 
     private let resumesDirectly: Bool
 
@@ -36,7 +37,8 @@ struct StreamsView: View {
                 StreamsHeader(
                     target: model.target,
                     resume: directResume,
-                    isChecking: checkingStreamKey != nil
+                    isChecking: checkingStreamKey != nil,
+                    torrentStatus: torrent.startingStreamKey == nil ? nil : torrent.status
                 )
                 .frame(width: 560, alignment: .leading)
                 content
@@ -66,7 +68,10 @@ struct StreamsView: View {
             model.observe()
             loadDirectResume()
         }
-        .onDisappear(perform: model.stop)
+        .onDisappear {
+            model.stop()
+            torrent.stop()
+        }
         #if DEBUG
         .onChange(of: model.groups) { _, groups in openDebugStream(in: groups) }
         #endif
@@ -99,12 +104,47 @@ struct StreamsView: View {
 
     private func select(_ stream: TvosStream) {
         guard checkingStreamKey == nil else { return }
+        if stream.playableUrl == nil, stream.infoHash != nil {
+            startTorrent(stream)
+            return
+        }
         guard let probe = PlaybackRequest(target: model.target, stream: stream, resumes: false)
         else {
             sheet = StreamSheet(stream: stream, notice: nil)
             return
         }
         checkingStreamKey = stream.key
+        preflight(probe)
+    }
+
+    private func startTorrent(_ stream: TvosStream) {
+        if let refusal = PlaybackPreflight.refusal(forFilename: stream.filename) {
+            sheet = StreamSheet(stream: stream, notice: refusal)
+            return
+        }
+        checkingStreamKey = stream.key
+        torrent.start(stream) { result in
+            switch result {
+            case let .success(url):
+                preflight(PlaybackRequest(
+                    target: model.target,
+                    stream: stream,
+                    url: url,
+                    resumes: false
+                ))
+            case let .failure(error):
+                checkingStreamKey = nil
+                sheet = StreamSheet(stream: stream, notice: torrentNotice(error))
+            }
+        }
+    }
+
+    private func torrentNotice(_ error: TorrentStartError) -> StreamNotice {
+        StreamNotice(title: "The torrent did not start", message: error.message)
+    }
+
+    private func preflight(_ probe: PlaybackRequest) {
+        let stream = probe.stream
         Task { @MainActor in
             let verdict = await PlaybackPreflight.check(probe)
             checkingStreamKey = nil
@@ -112,6 +152,7 @@ struct StreamsView: View {
             case .playable:
                 chooseStart(stream)
             case let .unplayable(notice):
+                torrent.stop()
                 sheet = StreamSheet(stream: stream, notice: notice)
             }
         }
@@ -143,7 +184,19 @@ struct StreamsView: View {
 
     private func start(_ stream: TvosStream, resumes: Bool) {
         pendingResume = nil
-        playback = PlaybackRequest(target: model.target, stream: stream, resumes: resumes)
+        playback = playbackRequest(for: stream, resumes: resumes)
+    }
+
+    private func playbackRequest(for stream: TvosStream, resumes: Bool) -> PlaybackRequest? {
+        guard let torrentUrl = torrent.localUrl(for: stream) else {
+            return PlaybackRequest(target: model.target, stream: stream, resumes: resumes)
+        }
+        return PlaybackRequest(
+            target: model.target,
+            stream: stream,
+            url: torrentUrl,
+            resumes: resumes
+        )
     }
 
     private func fail(_ request: PlaybackRequest, notice: StreamNotice) {
@@ -152,6 +205,7 @@ struct StreamsView: View {
     }
 
     private func afterPlayback() {
+        torrent.stop()
         loadDirectResume()
         guard let failure = playbackFailure else { return }
         playbackFailure = nil
@@ -173,6 +227,7 @@ private struct StreamsHeader: View {
     let target: TvosStreamTarget
     let resume: TvosResumePoint?
     let isChecking: Bool
+    let torrentStatus: TvosTorrentStatus?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -197,7 +252,9 @@ private struct StreamsHeader: View {
             Text("Streams")
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            if isChecking {
+            if let torrentStatus {
+                TorrentProgressView(status: torrentStatus)
+            } else if isChecking {
                 CheckingStreamView()
             }
         }
@@ -226,5 +283,33 @@ private struct StreamsLoadingView: View {
                 .font(.headline)
                 .foregroundStyle(.secondary)
         }
+    }
+}
+
+private struct TorrentProgressView: View {
+    let status: TvosTorrentStatus
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 24) {
+                ProgressView()
+                Text(status.step ?? "Starting torrent")
+                    .font(.headline)
+                    .lineLimit(2)
+            }
+            Text(details)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            ProgressView(value: Double(status.bufferFraction))
+                .frame(width: 360)
+        }
+        .padding(.horizontal, 32)
+        .padding(.vertical, 24)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
+        .padding(.top, 20)
+    }
+
+    private var details: String {
+        "\(status.peers) peers, \(status.seeds) seeds, \(status.downloadSpeedLabel)"
     }
 }
