@@ -9,9 +9,11 @@ final class MpvPlaybackController: ObservableObject {
     private static let startupLimit: Duration = .seconds(60)
     private static let seekStepSeconds = 10
     private static let minimumTickAdvanceMs: Int64 = 1000
+    private static let endToleranceMs: Int64 = 5000
     private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Mpv")
     private static let notStarted = "The stream did not start within 60 seconds."
     private static let cannotCreate = "The video player could not be created."
+    private static let stoppedEarly = "The stream stopped sending data before the end."
 
     @Published private(set) var positionSeconds = 0
     @Published private(set) var durationSeconds = 0
@@ -202,6 +204,10 @@ final class MpvPlaybackController: ObservableObject {
 
     private func updateEnd(_ isAtEnd: Bool) {
         guard isAtEnd != hasEnded else { return }
+        guard !isAtEnd || isNearEnd else {
+            fail(Self.stoppedEarly)
+            return
+        }
         hasEnded = isAtEnd
         if isAtEnd { save(syncRemote: true, reason: "end") }
     }
@@ -259,6 +265,10 @@ final class MpvPlaybackController: ObservableObject {
     private func enterBackground() {
         mpv?.setFlag(MpvProperty.pause, true)
         mpv?.setString(MpvProperty.video, "no")
+    }
+
+    private var isNearEnd: Bool {
+        durationMs <= 0 || currentMs >= durationMs - Self.endToleranceMs
     }
 
     private static func milliseconds(_ seconds: Double) -> Int64 {
