@@ -1,0 +1,108 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeContinueWatchingSection.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeContinueWatchingSection.kt
+index abb8ca38..adb3c242 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeContinueWatchingSection.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeContinueWatchingSection.kt
+@@ -70,7 +70,6 @@ import com.nuvio.app.features.watchprogress.WatchProgressCompletionPercentThresh
+ import com.nuvio.app.features.watchprogress.continueWatchingItemKey
+ import com.nuvio.app.features.watchprogress.CurrentDateProvider
+ import com.nuvio.app.features.watchprogress.computeAirDateBadgeText
+-import kotlin.math.roundToInt
+ import nuvio.composeapp.generated.resources.*
+ import org.jetbrains.compose.resources.stringResource
+ import com.nuvio.app.core.i18n.localizedEpisodeTitle
+@@ -119,9 +118,6 @@ internal fun continueWatchingHeroViewportReserveHeight(
+     ) + bottomNavigationClearance
+ }
+ 
+-private fun continueWatchingProgressPercent(progressFraction: Float): Int =
+-    (progressFraction * 100f).roundToInt().coerceIn(1, 99)
+-
+ @Composable
+ private fun localizedContinueWatchingMetaLine(item: ContinueWatchingItem): String =
+     when {
+@@ -854,26 +850,21 @@ private fun continueWatchingCardBadgeText(
+     item: ContinueWatchingItem,
+     airDateText: String?,
+ ): String {
+-    if (item.progressFraction > 0f) {
+-        if (item.durationMs <= 0L) {
+-            return stringResource(
+-                Res.string.home_continue_watching_watched,
+-                "${continueWatchingProgressPercent(item.progressFraction)}%",
+-            )
+-        }
+-        val effectivePositionMs = when {
+-            item.resumePositionMs > 0L -> item.resumePositionMs
+-            else -> (item.durationMs * item.progressFraction.coerceIn(0f, 1f)).toLong()
+-        }
+-        val remainingMinutes = ((item.durationMs - effectivePositionMs).coerceAtLeast(0L) / 60_000L)
+-            .coerceAtLeast(1L)
+-        val hours = remainingMinutes / 60L
+-        val minutes = remainingMinutes % 60L
+-        return if (hours > 0L) {
+-            stringResource(Res.string.home_continue_watching_hours_minutes_left, hours, minutes)
+-        } else {
+-            stringResource(Res.string.home_continue_watching_minutes_left, remainingMinutes)
+-        }
++    when (val progressBadge = item.continueWatchingProgressBadge()) {
++        is ContinueWatchingProgressBadge.WatchedPercent -> return stringResource(
++            Res.string.home_continue_watching_watched,
++            "${progressBadge.percent}%",
++        )
++        is ContinueWatchingProgressBadge.HoursMinutesLeft -> return stringResource(
++            Res.string.home_continue_watching_hours_minutes_left,
++            progressBadge.hours,
++            progressBadge.minutes,
++        )
++        is ContinueWatchingProgressBadge.MinutesLeft -> return stringResource(
++            Res.string.home_continue_watching_minutes_left,
++            progressBadge.minutes,
++        )
++        null -> Unit
+     }
+ 
+     return when {
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/ContinueWatchingProgressBadge.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/ContinueWatchingProgressBadge.kt
+new file mode 100644
+index 00000000..5d489a83
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/ContinueWatchingProgressBadge.kt
+@@ -0,0 +1,38 @@
++package com.nuvio.app.features.home.components
++
++import com.nuvio.app.features.watchprogress.ContinueWatchingItem
++import kotlin.math.roundToInt
++
++internal sealed interface ContinueWatchingProgressBadge {
++    data class WatchedPercent(val percent: Int) : ContinueWatchingProgressBadge
++    data class HoursMinutesLeft(val hours: Long, val minutes: Long) : ContinueWatchingProgressBadge
++    data class MinutesLeft(val minutes: Long) : ContinueWatchingProgressBadge
++}
++
++internal fun continueWatchingProgressPercent(progressFraction: Float): Int =
++    (progressFraction * 100f).roundToInt().coerceIn(1, 99)
++
++internal fun ContinueWatchingItem.continueWatchingProgressBadge(): ContinueWatchingProgressBadge? {
++    if (progressFraction > 0f) {
++        if (durationMs <= 0L) {
++            return ContinueWatchingProgressBadge.WatchedPercent(
++                continueWatchingProgressPercent(progressFraction),
++            )
++        }
++        val effectivePositionMs = when {
++            resumePositionMs > 0L -> resumePositionMs
++            else -> (durationMs * progressFraction.coerceIn(0f, 1f)).toLong()
++        }
++        val remainingMinutes = ((durationMs - effectivePositionMs).coerceAtLeast(0L) / 60_000L)
++            .coerceAtLeast(1L)
++        val hours = remainingMinutes / 60L
++        val minutes = remainingMinutes % 60L
++        return if (hours > 0L) {
++            ContinueWatchingProgressBadge.HoursMinutesLeft(hours, minutes)
++        } else {
++            ContinueWatchingProgressBadge.MinutesLeft(remainingMinutes)
++        }
++    }
++
++    return null
++}

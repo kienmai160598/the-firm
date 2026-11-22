@@ -1,0 +1,97 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt
+index d8b8aab5..76460d68 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt
+@@ -1,9 +1,6 @@
+ package com.nuvio.app.features.watchprogress
+ 
+ import androidx.compose.runtime.Composable
+-import com.nuvio.app.core.format.formatReleaseDateWithoutYear
+-import com.nuvio.app.core.time.daysUntilEpisodeRelease
+-import com.nuvio.app.core.time.parseEpisodeReleaseEpochMs
+ import nuvio.composeapp.generated.resources.*
+ import org.jetbrains.compose.resources.pluralStringResource
+ import org.jetbrains.compose.resources.stringResource
+@@ -12,29 +9,12 @@ import org.jetbrains.compose.resources.stringResource
+ fun computeAirDateBadgeText(
+     releasedIso: String?,
+     todayIsoDate: String,
+-): String? {
+-    if (releasedIso.isNullOrBlank() || todayIsoDate.isBlank()) {
+-        return null
++): String? =
++    when (val badge = airDateBadge(releasedIso, todayIsoDate)) {
++        AirDateBadge.Today -> stringResource(Res.string.cw_airs_today)
++        AirDateBadge.Tomorrow -> stringResource(Res.string.cw_airs_tomorrow)
++        is AirDateBadge.InDays ->
++            pluralStringResource(Res.plurals.cw_airs_in_days, badge.days, badge.days)
++        is AirDateBadge.OnDate -> stringResource(Res.string.cw_airs_date, badge.formattedDate)
++        null -> null
+     }
+-
+-    val releaseEpoch = parseEpisodeReleaseEpochMs(releasedIso)
+-    if (releaseEpoch != null && WatchProgressClock.nowEpochMs() >= releaseEpoch) {
+-        return null
+-    }
+-
+-    val daysUntil = daysUntilEpisodeRelease(
+-        todayIsoDate = todayIsoDate,
+-        releasedDate = releasedIso,
+-    ) ?: return null
+-
+-    return when {
+-        daysUntil < 0 -> null
+-        daysUntil == 0 -> stringResource(Res.string.cw_airs_today)
+-        daysUntil == 1 -> stringResource(Res.string.cw_airs_tomorrow)
+-        daysUntil in 2..7 -> pluralStringResource(Res.plurals.cw_airs_in_days, daysUntil, daysUntil)
+-        else -> {
+-            val formattedDate = formatReleaseDateWithoutYear(releasedIso)
+-            stringResource(Res.string.cw_airs_date, formattedDate)
+-        }
+-    }
+-}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadge.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadge.kt
+new file mode 100644
+index 00000000..17c6b194
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadge.kt
+@@ -0,0 +1,39 @@
++package com.nuvio.app.features.watchprogress
++
++import com.nuvio.app.core.format.formatReleaseDateWithoutYear
++import com.nuvio.app.core.time.daysUntilEpisodeRelease
++import com.nuvio.app.core.time.parseEpisodeReleaseEpochMs
++
++internal sealed interface AirDateBadge {
++    data object Today : AirDateBadge
++    data object Tomorrow : AirDateBadge
++    data class InDays(val days: Int) : AirDateBadge
++    data class OnDate(val formattedDate: String) : AirDateBadge
++}
++
++internal fun airDateBadge(
++    releasedIso: String?,
++    todayIsoDate: String,
++): AirDateBadge? {
++    if (releasedIso.isNullOrBlank() || todayIsoDate.isBlank()) {
++        return null
++    }
++
++    val releaseEpoch = parseEpisodeReleaseEpochMs(releasedIso)
++    if (releaseEpoch != null && WatchProgressClock.nowEpochMs() >= releaseEpoch) {
++        return null
++    }
++
++    val daysUntil = daysUntilEpisodeRelease(
++        todayIsoDate = todayIsoDate,
++        releasedDate = releasedIso,
++    ) ?: return null
++
++    return when {
++        daysUntil < 0 -> null
++        daysUntil == 0 -> AirDateBadge.Today
++        daysUntil == 1 -> AirDateBadge.Tomorrow
++        daysUntil in 2..7 -> AirDateBadge.InDays(daysUntil)
++        else -> AirDateBadge.OnDate(formatReleaseDateWithoutYear(releasedIso))
++    }
++}

@@ -1,0 +1,49 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileModels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileModels.kt
+index 7e4faeb5..19ef5ea1 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileModels.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileModels.kt
+@@ -1,6 +1,5 @@
+ package com.nuvio.app.features.profiles
+ 
+-import androidx.compose.ui.graphics.Color
+ import kotlinx.serialization.SerialName
+ import kotlinx.serialization.Serializable
+ import kotlinx.serialization.Transient
+@@ -67,17 +66,6 @@ data class AvatarCatalogItem(
+     @Transient val memberOnly: Boolean = false,
+ )
+ 
+-fun parseHexColor(hex: String): Color {
+-    val cleaned = hex.removePrefix("#")
+-    return runCatching {
+-        when (cleaned.length) {
+-            6 -> Color(("FF$cleaned").toLong(16))
+-            8 -> Color(cleaned.toLong(16))
+-            else -> Color(0xFF1E88E5)
+-        }
+-    }.getOrDefault(Color(0xFF1E88E5))
+-}
+-
+ val PROFILE_COLORS = listOf(
+     "#1E88E5", "#E53935", "#43A047", "#FB8C00",
+     "#8E24AA", "#00ACC1", "#F4511E", "#3949AB",
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileColors.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileColors.kt
+new file mode 100644
+index 00000000..722a71b2
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/profiles/ProfileColors.kt
+@@ -0,0 +1,14 @@
++package com.nuvio.app.features.profiles
++
++import androidx.compose.ui.graphics.Color
++
++fun parseHexColor(hex: String): Color {
++    val cleaned = hex.removePrefix("#")
++    return runCatching {
++        when (cleaned.length) {
++            6 -> Color(("FF$cleaned").toLong(16))
++            8 -> Color(cleaned.toLong(16))
++            else -> Color(0xFF1E88E5)
++        }
++    }.getOrDefault(Color(0xFF1E88E5))
++}

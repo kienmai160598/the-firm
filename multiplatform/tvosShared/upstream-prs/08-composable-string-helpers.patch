@@ -1,0 +1,264 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateUtils.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateUtils.kt
+index 99b21491..80199aaf 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateUtils.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateUtils.kt
+@@ -1,43 +1,6 @@
+ package com.nuvio.app.features.watchprogress
+ 
+-import androidx.compose.runtime.Composable
+-import com.nuvio.app.core.format.formatReleaseDateWithoutYear
+-import com.nuvio.app.core.time.daysUntilEpisodeRelease
+ import com.nuvio.app.core.time.parseEpisodeReleaseEpochMs
+-import nuvio.composeapp.generated.resources.*
+-import org.jetbrains.compose.resources.pluralStringResource
+-import org.jetbrains.compose.resources.stringResource
+-
+-@Composable
+-fun computeAirDateBadgeText(
+-    releasedIso: String?,
+-    todayIsoDate: String,
+-): String? {
+-    if (releasedIso.isNullOrBlank() || todayIsoDate.isBlank()) {
+-        return null
+-    }
+-
+-    val releaseEpoch = parseEpisodeReleaseEpochMs(releasedIso)
+-    if (releaseEpoch != null && WatchProgressClock.nowEpochMs() >= releaseEpoch) {
+-        return null
+-    }
+-
+-    val daysUntil = daysUntilEpisodeRelease(
+-        todayIsoDate = todayIsoDate,
+-        releasedDate = releasedIso,
+-    ) ?: return null
+-
+-    return when {
+-        daysUntil < 0 -> null
+-        daysUntil == 0 -> stringResource(Res.string.cw_airs_today)
+-        daysUntil == 1 -> stringResource(Res.string.cw_airs_tomorrow)
+-        daysUntil in 2..7 -> pluralStringResource(Res.plurals.cw_airs_in_days, daysUntil, daysUntil)
+-        else -> {
+-            val formattedDate = formatReleaseDateWithoutYear(releasedIso)
+-            stringResource(Res.string.cw_airs_date, formattedDate)
+-        }
+-    }
+-}
+ 
+ fun parseReleaseDateToEpochMs(raw: String?): Long? {
+     return parseEpisodeReleaseEpochMs(raw)
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt
+new file mode 100644
+index 00000000..d8b8aab5
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/watchprogress/AirDateBadgeText.kt
+@@ -0,0 +1,40 @@
++package com.nuvio.app.features.watchprogress
++
++import androidx.compose.runtime.Composable
++import com.nuvio.app.core.format.formatReleaseDateWithoutYear
++import com.nuvio.app.core.time.daysUntilEpisodeRelease
++import com.nuvio.app.core.time.parseEpisodeReleaseEpochMs
++import nuvio.composeapp.generated.resources.*
++import org.jetbrains.compose.resources.pluralStringResource
++import org.jetbrains.compose.resources.stringResource
++
++@Composable
++fun computeAirDateBadgeText(
++    releasedIso: String?,
++    todayIsoDate: String,
++): String? {
++    if (releasedIso.isNullOrBlank() || todayIsoDate.isBlank()) {
++        return null
++    }
++
++    val releaseEpoch = parseEpisodeReleaseEpochMs(releasedIso)
++    if (releaseEpoch != null && WatchProgressClock.nowEpochMs() >= releaseEpoch) {
++        return null
++    }
++
++    val daysUntil = daysUntilEpisodeRelease(
++        todayIsoDate = todayIsoDate,
++        releasedDate = releasedIso,
++    ) ?: return null
++
++    return when {
++        daysUntil < 0 -> null
++        daysUntil == 0 -> stringResource(Res.string.cw_airs_today)
++        daysUntil == 1 -> stringResource(Res.string.cw_airs_tomorrow)
++        daysUntil in 2..7 -> pluralStringResource(Res.plurals.cw_airs_in_days, daysUntil, daysUntil)
++        else -> {
++            val formattedDate = formatReleaseDateWithoutYear(releasedIso)
++            stringResource(Res.string.cw_airs_date, formattedDate)
++        }
++    }
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerLanguagePreferences.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerLanguagePreferences.kt
+index e03c2eaa..e744b027 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerLanguagePreferences.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerLanguagePreferences.kt
+@@ -1,6 +1,5 @@
+ package com.nuvio.app.features.player
+ 
+-import androidx.compose.runtime.Composable
+ import nuvio.composeapp.generated.resources.Res
+ import nuvio.composeapp.generated.resources.lang_afrikaans
+ import nuvio.composeapp.generated.resources.lang_albanian
+@@ -88,7 +87,6 @@ import nuvio.composeapp.generated.resources.settings_playback_option_original
+ import nuvio.composeapp.generated.resources.subtitle_language_unknown
+ import org.jetbrains.compose.resources.StringResource
+ import org.jetbrains.compose.resources.getString
+-import org.jetbrains.compose.resources.stringResource
+ 
+ data class LanguagePreferenceOption(
+     val code: String,
+@@ -454,23 +452,6 @@ internal fun languageLabelResForCode(code: String?): StringResource? {
+     }?.labelRes
+ }
+ 
+-@Composable
+-fun languageLabelForCode(code: String?): String = when {
+-    code.isNullOrBlank() || code.equals(SubtitleLanguageOption.NONE, ignoreCase = true) ->
+-        stringResource(Res.string.settings_playback_option_none)
+-    code.equals(SubtitleLanguageOption.FORCED, ignoreCase = true) ->
+-        stringResource(Res.string.settings_playback_option_forced)
+-    code.equals(AudioLanguageOption.DEFAULT, ignoreCase = true) ->
+-        stringResource(Res.string.settings_playback_option_default)
+-    code.equals(AudioLanguageOption.DEVICE, ignoreCase = true) ||
+-        code.equals(SubtitleLanguageOption.DEVICE, ignoreCase = true) ->
+-        stringResource(Res.string.settings_playback_option_device_language)
+-    code.equals(AudioLanguageOption.ORIGINAL, ignoreCase = true) ->
+-        stringResource(Res.string.settings_playback_option_original)
+-    else -> languageLabelResForCode(code)?.let { stringResource(it) }
+-        ?: stringResource(Res.string.subtitle_language_unknown)
+-}
+-
+ suspend fun getLanguageLabelForCode(code: String?): String = when {
+     code.isNullOrBlank() || code.equals(SubtitleLanguageOption.NONE, ignoreCase = true) ->
+         getString(Res.string.settings_playback_option_none)
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/LanguageLabels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/LanguageLabels.kt
+new file mode 100644
+index 00000000..0af4ca90
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/LanguageLabels.kt
+@@ -0,0 +1,28 @@
++package com.nuvio.app.features.player
++
++import androidx.compose.runtime.Composable
++import nuvio.composeapp.generated.resources.Res
++import nuvio.composeapp.generated.resources.settings_playback_option_default
++import nuvio.composeapp.generated.resources.settings_playback_option_device_language
++import nuvio.composeapp.generated.resources.settings_playback_option_forced
++import nuvio.composeapp.generated.resources.settings_playback_option_none
++import nuvio.composeapp.generated.resources.settings_playback_option_original
++import nuvio.composeapp.generated.resources.subtitle_language_unknown
++import org.jetbrains.compose.resources.stringResource
++
++@Composable
++fun languageLabelForCode(code: String?): String = when {
++    code.isNullOrBlank() || code.equals(SubtitleLanguageOption.NONE, ignoreCase = true) ->
++        stringResource(Res.string.settings_playback_option_none)
++    code.equals(SubtitleLanguageOption.FORCED, ignoreCase = true) ->
++        stringResource(Res.string.settings_playback_option_forced)
++    code.equals(AudioLanguageOption.DEFAULT, ignoreCase = true) ->
++        stringResource(Res.string.settings_playback_option_default)
++    code.equals(AudioLanguageOption.DEVICE, ignoreCase = true) ||
++        code.equals(SubtitleLanguageOption.DEVICE, ignoreCase = true) ->
++        stringResource(Res.string.settings_playback_option_device_language)
++    code.equals(AudioLanguageOption.ORIGINAL, ignoreCase = true) ->
++        stringResource(Res.string.settings_playback_option_original)
++    else -> languageLabelResForCode(code)?.let { stringResource(it) }
++        ?: stringResource(Res.string.subtitle_language_unknown)
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModels.kt
+index c21e0eee..5d38917c 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModels.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModels.kt
+@@ -1,17 +1,5 @@
+ package com.nuvio.app.features.player
+ 
+-import androidx.compose.runtime.Composable
+-import nuvio.composeapp.generated.resources.Res
+-import nuvio.composeapp.generated.resources.player_ios_hardware_decoder_off
+-import nuvio.composeapp.generated.resources.player_ios_preset_compatibility_desc
+-import nuvio.composeapp.generated.resources.player_ios_preset_compatibility_label
+-import nuvio.composeapp.generated.resources.player_ios_preset_custom_desc
+-import nuvio.composeapp.generated.resources.player_ios_preset_custom_label
+-import nuvio.composeapp.generated.resources.player_ios_preset_native_edr_desc
+-import nuvio.composeapp.generated.resources.player_ios_preset_native_edr_label
+-import nuvio.composeapp.generated.resources.player_ios_preset_sdr_tone_mapped_desc
+-import nuvio.composeapp.generated.resources.player_ios_preset_sdr_tone_mapped_label
+-import org.jetbrains.compose.resources.stringResource
+ import kotlin.time.Duration.Companion.milliseconds
+ import kotlin.time.TimeMark
+ import kotlin.time.TimeSource
+@@ -264,28 +252,6 @@ enum class IosAudioOutputMode(
+     }
+ }
+ 
+-@Composable
+-fun IosVideoOutputPreset.localizedLabel(): String = when (this) {
+-    IosVideoOutputPreset.NativeEdr -> stringResource(Res.string.player_ios_preset_native_edr_label)
+-    IosVideoOutputPreset.SdrToneMapped -> stringResource(Res.string.player_ios_preset_sdr_tone_mapped_label)
+-    IosVideoOutputPreset.Compatibility -> stringResource(Res.string.player_ios_preset_compatibility_label)
+-    IosVideoOutputPreset.Custom -> stringResource(Res.string.player_ios_preset_custom_label)
+-}
+-
+-@Composable
+-fun IosVideoOutputPreset.localizedDescription(): String = when (this) {
+-    IosVideoOutputPreset.NativeEdr -> stringResource(Res.string.player_ios_preset_native_edr_desc)
+-    IosVideoOutputPreset.SdrToneMapped -> stringResource(Res.string.player_ios_preset_sdr_tone_mapped_desc)
+-    IosVideoOutputPreset.Compatibility -> stringResource(Res.string.player_ios_preset_compatibility_desc)
+-    IosVideoOutputPreset.Custom -> stringResource(Res.string.player_ios_preset_custom_desc)
+-}
+-
+-@Composable
+-fun IosHardwareDecoderMode.localizedLabel(): String = when (this) {
+-    IosHardwareDecoderMode.Off -> stringResource(Res.string.player_ios_hardware_decoder_off)
+-    else -> label
+-}
+-
+ internal data class PlaybackKey(
+     val sourceIdentity: String,
+     val videoId: String?,
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModelLabels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModelLabels.kt
+new file mode 100644
+index 00000000..973f009c
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerModelLabels.kt
+@@ -0,0 +1,36 @@
++package com.nuvio.app.features.player
++
++import androidx.compose.runtime.Composable
++import nuvio.composeapp.generated.resources.Res
++import nuvio.composeapp.generated.resources.player_ios_hardware_decoder_off
++import nuvio.composeapp.generated.resources.player_ios_preset_compatibility_desc
++import nuvio.composeapp.generated.resources.player_ios_preset_compatibility_label
++import nuvio.composeapp.generated.resources.player_ios_preset_custom_desc
++import nuvio.composeapp.generated.resources.player_ios_preset_custom_label
++import nuvio.composeapp.generated.resources.player_ios_preset_native_edr_desc
++import nuvio.composeapp.generated.resources.player_ios_preset_native_edr_label
++import nuvio.composeapp.generated.resources.player_ios_preset_sdr_tone_mapped_desc
++import nuvio.composeapp.generated.resources.player_ios_preset_sdr_tone_mapped_label
++import org.jetbrains.compose.resources.stringResource
++
++@Composable
++fun IosVideoOutputPreset.localizedLabel(): String = when (this) {
++    IosVideoOutputPreset.NativeEdr -> stringResource(Res.string.player_ios_preset_native_edr_label)
++    IosVideoOutputPreset.SdrToneMapped -> stringResource(Res.string.player_ios_preset_sdr_tone_mapped_label)
++    IosVideoOutputPreset.Compatibility -> stringResource(Res.string.player_ios_preset_compatibility_label)
++    IosVideoOutputPreset.Custom -> stringResource(Res.string.player_ios_preset_custom_label)
++}
++
++@Composable
++fun IosVideoOutputPreset.localizedDescription(): String = when (this) {
++    IosVideoOutputPreset.NativeEdr -> stringResource(Res.string.player_ios_preset_native_edr_desc)
++    IosVideoOutputPreset.SdrToneMapped -> stringResource(Res.string.player_ios_preset_sdr_tone_mapped_desc)
++    IosVideoOutputPreset.Compatibility -> stringResource(Res.string.player_ios_preset_compatibility_desc)
++    IosVideoOutputPreset.Custom -> stringResource(Res.string.player_ios_preset_custom_desc)
++}
++
++@Composable
++fun IosHardwareDecoderMode.localizedLabel(): String = when (this) {
++    IosHardwareDecoderMode.Off -> stringResource(Res.string.player_ios_hardware_decoder_off)
++    else -> label
++}
