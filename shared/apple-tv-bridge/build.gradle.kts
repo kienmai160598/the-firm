@@ -1,0 +1,143 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+
+plugins {
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinxSerialization)
+}
+
+val upstreamSrc = rootProject.file("core/src")
+val upstreamRuntimeConfig = rootProject.file("core/build/generated/runtime-config/kotlin")
+val cinteropDir = upstreamSrc.resolve("nativeInterop/cinterop")
+
+fun excludedUpstreamPaths(): Set<String> =
+    listOf("excluded-by-rule.txt", "excluded-by-compiler.txt")
+        .map(project::file)
+        .filter(File::exists)
+        .flatMap(File::readLines)
+        .map { line -> line.substringBefore('\t').trim() }
+        .filter(String::isNotEmpty)
+        .map { key -> upstreamSrc.resolve(key).absolutePath }
+        .toSet()
+
+abstract class GenerateEnglishResShim : DefaultTask() {
+    @get:InputDirectory
+    abstract val valuesDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val xml = valuesDir.get().asFile.listFiles { file -> file.extension == "xml" }
+            .orEmpty().sortedBy(File::getName).joinToString("\n", transform = File::readText)
+        val strings = stringEntry.findAll(xml).map { match ->
+            stringProperty(match.groupValues[1], match.groupValues[2])
+        }
+        val plurals = pluralEntry.findAll(xml).map { match ->
+            pluralProperty(match.groupValues[1], match.groupValues[2])
+        }
+        val target = outputDir.get().asFile.resolve("TvosEnglishRes.kt")
+        target.parentFile.mkdirs()
+        target.writeText((listOf(header) + strings + plurals).joinToString("\n"))
+    }
+
+    private fun stringProperty(name: String, text: String): String =
+        "val Res.string.$name: StringResource get() = StringResource(\"$name\", ${literal(text)})"
+
+    private fun pluralProperty(name: String, body: String): String {
+        val items = pluralItem.findAll(body).associate { it.groupValues[1] to it.groupValues[2] }
+        val other = items["other"].orEmpty()
+        val one = items["one"] ?: other
+        return "val Res.plurals.$name: PluralStringResource get() = " +
+            "PluralStringResource(\"$name\", ${literal(one)}, ${literal(other)})"
+    }
+
+    private fun literal(xmlText: String): String {
+        val text = xmlText.trim()
+            .replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"")
+            .replace("&apos;", "'").replace("&amp;", "&")
+            .replace("\\'", "'").replace("\\\"", "\"").replace("\\n", "\n")
+        val escaped = text.replace("\\", "\\\\").replace("\"", "\\\"")
+            .replace("$", "\\$").replace("\n", "\\n")
+        return "\"$escaped\""
+    }
+
+    private companion object {
+        val stringEntry = Regex("""<string name="([^"]+)"[^>]*>(.*?)</string>""", RegexOption.DOT_MATCHES_ALL)
+        val pluralEntry = Regex("""<plurals name="([^"]+)"[^>]*>(.*?)</plurals>""", RegexOption.DOT_MATCHES_ALL)
+        val pluralItem = Regex("""<item quantity="([^"]+)">(.*?)</item>""", RegexOption.DOT_MATCHES_ALL)
+        val header = listOf(
+            "package nuvio.composeapp.generated.resources",
+            "import org.jetbrains.compose.resources.PluralStringResource",
+            "import org.jetbrains.compose.resources.StringResource",
+            "object Res { object string\n object plurals }",
+        ).joinToString("\n")
+    }
+}
+
+val generateEnglishResShim = tasks.register<GenerateEnglishResShim>("generateEnglishResShim") {
+    valuesDir.set(upstreamSrc.resolve("commonMain/composeResources/values"))
+    outputDir.set(layout.buildDirectory.dir("generated/tvos-res-shim/kotlin"))
+}
+
+kotlin {
+    tvosArm64()
+    tvosSimulatorArm64()
+
+    targets.withType<KotlinNativeTarget>().configureEach {
+        compilations.getByName("main").cinterops.create("commoncrypto") {
+            defFile(cinteropDir.resolve("commoncrypto.def"))
+            compilerOpts("-I${cinteropDir.absolutePath}")
+        }
+        binaries.framework {
+            baseName = "NuvioTvShared"
+            isStatic = true
+            freeCompilerArgs += "-Xbinary=bundleId=com.nuvio.tvos.shared"
+        }
+    }
+
+    sourceSets {
+        val excludedPaths = excludedUpstreamPaths()
+        val isExcluded = Spec<FileTreeElement> { element ->
+            element.file.absolutePath in excludedPaths
+        }
+        commonMain {
+            kotlin.srcDir(upstreamSrc.resolve("commonMain/kotlin"))
+            kotlin.srcDir(upstreamRuntimeConfig)
+            kotlin.srcDir(generateEnglishResShim.map { task -> task.outputDir })
+            kotlin.exclude(isExcluded)
+            dependencies {
+                implementation(libs.compose.runtime)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.atomicfu)
+                implementation(libs.kermit)
+                implementation(libs.supabase.postgrest)
+                implementation(libs.supabase.auth)
+                implementation(libs.supabase.functions)
+                implementation(libs.supabase.storage)
+                implementation(libs.supabase.realtime)
+            }
+        }
+        tvosMain {
+            kotlin.srcDir(upstreamSrc.resolve("iosMain/kotlin"))
+            kotlin.srcDir(upstreamSrc.resolve("iosAppStore/kotlin"))
+            kotlin.exclude(isExcluded)
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
+        }
+        tvosTest {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+    }
+}
+
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    dependsOn(":composeApp:generateRuntimeConfigs")
+}

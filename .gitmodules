@@ -1,4 +1,0 @@
-[submodule "multiplatform/MPVKit"]
-	path = multiplatform/MPVKit
-	url = https://github.com/NuvioMedia/MPVKit.git
-	branch = Nuvio
