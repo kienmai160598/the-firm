@@ -55,14 +55,17 @@ struct StreamsView: View {
             titleVisibility: .visible,
             presenting: pendingResume
         ) { pending in
-            Button(pending.point.label) { start(pending.stream, resumes: true) }
-            Button(pending.point.startOverLabel) { start(pending.stream, resumes: false) }
+            Button(pending.point.label) {
+                start(pending.stream, resumes: true, engine: pending.engine)
+            }
+            Button(pending.point.startOverLabel) {
+                start(pending.stream, resumes: false, engine: pending.engine)
+            }
         }
         .fullScreenCover(item: $playback, onDismiss: afterPlayback) { request in
-            PlayerView(request: request) { notice in
+            PlaybackScreen(request: request) { notice in
                 fail(request, notice: notice)
             }
-            .ignoresSafeArea()
         }
         .onAppear {
             model.observe()
@@ -118,10 +121,6 @@ struct StreamsView: View {
     }
 
     private func startTorrent(_ stream: TvosStream) {
-        if let refusal = PlaybackPreflight.refusal(forFilename: stream.filename) {
-            sheet = StreamSheet(stream: stream, notice: refusal)
-            return
-        }
         checkingStreamKey = stream.key
         torrent.start(stream) { result in
             switch result {
@@ -146,28 +145,22 @@ struct StreamsView: View {
     private func preflight(_ probe: PlaybackRequest) {
         let stream = probe.stream
         Task { @MainActor in
-            let verdict = await PlaybackPreflight.check(probe)
+            let engine = await PlaybackPreflight.engine(for: probe)
             checkingStreamKey = nil
-            switch verdict {
-            case .playable:
-                chooseStart(stream)
-            case let .unplayable(notice):
-                torrent.stop()
-                sheet = StreamSheet(stream: stream, notice: notice)
-            }
+            chooseStart(stream, engine: engine)
         }
     }
 
-    private func chooseStart(_ stream: TvosStream) {
+    private func chooseStart(_ stream: TvosStream, engine: PlayerEngine) {
         guard !resumesDirectly else {
-            start(stream, resumes: true)
+            start(stream, resumes: true, engine: engine)
             return
         }
         TvosPlayback.shared.resumePoint(target: model.target) { point in
             if let point {
-                offerResume(PendingResume(stream: stream, point: point))
+                offerResume(PendingResume(stream: stream, point: point, engine: engine))
             } else {
-                start(stream, resumes: false)
+                start(stream, resumes: false, engine: engine)
             }
         }
     }
@@ -175,27 +168,37 @@ struct StreamsView: View {
     private func offerResume(_ pending: PendingResume) {
         #if DEBUG
         if let resumes = DebugLaunch.resumeChoice {
-            start(pending.stream, resumes: resumes)
+            start(pending.stream, resumes: resumes, engine: pending.engine)
             return
         }
         #endif
         pendingResume = pending
     }
 
-    private func start(_ stream: TvosStream, resumes: Bool) {
+    private func start(_ stream: TvosStream, resumes: Bool, engine: PlayerEngine) {
         pendingResume = nil
-        playback = playbackRequest(for: stream, resumes: resumes)
+        playback = playbackRequest(for: stream, resumes: resumes, engine: engine)
     }
 
-    private func playbackRequest(for stream: TvosStream, resumes: Bool) -> PlaybackRequest? {
+    private func playbackRequest(
+        for stream: TvosStream,
+        resumes: Bool,
+        engine: PlayerEngine
+    ) -> PlaybackRequest? {
         guard let torrentUrl = torrent.localUrl(for: stream) else {
-            return PlaybackRequest(target: model.target, stream: stream, resumes: resumes)
+            return PlaybackRequest(
+                target: model.target,
+                stream: stream,
+                resumes: resumes,
+                engine: engine
+            )
         }
         return PlaybackRequest(
             target: model.target,
             stream: stream,
             url: torrentUrl,
-            resumes: resumes
+            resumes: resumes,
+            engine: engine
         )
     }
 

@@ -6,7 +6,6 @@ final class FailurePathTests: XCTestCase {
     private static let dropoutMovie = "details/movie/tvostest-dropout"
     private static let tearsOfSteel = "details/movie/tt2285752"
     private static let tearsOfSteelStreams = "streams/movie/tt2285752"
-    private static let sentNoData = "The stream sent no data for 20 seconds"
     private static let noticeTitle = "Apple TV cannot play this stream"
     private static let failureTitle = "Playback failed"
     private static let unsupportedFormat = "The player does not support this stream"
@@ -15,8 +14,8 @@ final class FailurePathTests: XCTestCase {
     ]
     private static let codecExpectations = [
         ("Codec H.264 control", "played", "s5-1-codec-h264-plays"),
-        ("Codec MPEG-2 video", "notice: \(unsupportedFormat)", "s5-2-codec-mpeg2-notice"),
-        ("Codec MPEG-1 video", "notice: \(unsupportedFormat)", "s5-3-codec-mpeg1-notice"),
+        ("Codec MPEG-2 video", "played", "s5-2-codec-mpeg2-mpv"),
+        ("Codec MPEG-1 video", "played", "s5-3-codec-mpeg1-mpv"),
     ]
 
     private let app = XCUIApplication()
@@ -89,9 +88,6 @@ final class FailurePathTests: XCTestCase {
         XCTAssertTrue(failure.waitForExistence(timeout: 70))
         print("Stalled link failed after \(Date().timeIntervalSince(selectedAt)) s")
         XCTAssertTrue(staticText(beginningWith: "The player stopped with an error").exists)
-        XCTAssertTrue(app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS %@", Self.sentNoData)
-        ).firstMatch.exists)
         waitUntilSheetSettles()
         saveScreenshot("s6-1-stalled-startup-deadline")
         remote.press(.menu)

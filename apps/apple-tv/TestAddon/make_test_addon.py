@@ -11,10 +11,11 @@ The series "tvostest-series" is SYNTHETIC TEST DATA made up for this addon: it i
 real show. Each of its three episodes points at one of the CC films so the series flow
 (resume, next up, per-episode progress) can be tested end to end.
 
-More test streams check playback errors: an .mkv link the app must refuse before
-opening the player, a "broken.mp4" file of random bytes the player must fail on, and two
-links without a file extension that the app has to probe: a file of random bytes and a
-link the server never answers.
+More test streams check the mpv player and playback errors: an .mkv file made with
+ffmpeg (HEVC 10-bit, AC-3 and DTS audio, an ASS subtitle track) that mpv must play, a
+"broken.mp4" file of random bytes the player must fail on, and two links without a file
+extension that the app has to probe: a file of random bytes and a link the server never
+answers.
 
 Two synthetic test movies hold media generated locally with ffmpeg from its built-in
 test pattern (no third-party content):
@@ -46,6 +47,22 @@ DROPOUT_CUT_FRACTION = 0.3
 DROPOUT_RATE_FACTOR = 1.5
 TEST_PATTERN = "testsrc2=size=640x360:rate=30"
 TEST_TONE = "sine=frequency=440:sample_rate=48000"
+SECOND_TONE = "sine=frequency=660:sample_rate=48000"
+MKV_SAMPLE = "mkv-hevc10-ac3-dts-ass.mkv"
+MKV_SECONDS = 120
+ASS_SUBTITLES = """[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, Bold, Outline, Alignment
+Style: Default,Helvetica,48,&H0000FFFF,&H00000000,1,3,2
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:02:00.00,Default,Phụ đề ASS thử nghiệm (test subtitle)
+"""
 
 CODEC_SAMPLES = [
     ("codec-h264-control", "H.264 control", ["-c:v", "libx264", "-pix_fmt", "yuv420p"]),
@@ -73,8 +90,8 @@ FILMS = {
     ],
     "tt2285752": [
         ("720p MP4", "Tears of Steel 720p", TEARS_OF_STEEL),
-        ("MKV (unplayable)", "Test link to an MKV file, which Apple TV cannot play",
-         f"{LOCAL_MEDIA}/unplayable-sample.mkv"),
+        ("MKV HEVC 10-bit", "Test MKV: HEVC 10-bit, AC-3 and DTS audio, ASS subtitles",
+         f"{LOCAL_MEDIA}/{MKV_SAMPLE}"),
         ("Broken MP4", "Test file of random bytes, so the player fails",
          f"{LOCAL_MEDIA}/broken.mp4"),
         ("Garbage no extension", "Test file of random bytes without an extension",
@@ -225,6 +242,30 @@ def write_test_movies(out_dir):
                    {"streams": streams_by_movie[movie_id]})
 
 
+def write_mkv_sample(media_dir):
+    subtitles = media_dir / "mkv-sample.ass"
+    subtitles.write_text(ASS_SUBTITLES)
+    command = [
+        "ffmpeg", "-nostdin", "-loglevel", "error", "-y",
+        "-f", "lavfi", "-i", f"{TEST_PATTERN}:duration={MKV_SECONDS}",
+        "-f", "lavfi", "-i", f"{TEST_TONE}:duration={MKV_SECONDS}",
+        "-f", "lavfi", "-i", f"{SECOND_TONE}:duration={MKV_SECONDS}",
+        "-i", str(subtitles),
+        "-map", "0:v", "-map", "1:a", "-map", "2:a", "-map", "3:s",
+        "-c:v", "libx265", "-pix_fmt", "yuv420p10le", "-x265-params", "log-level=error",
+        "-c:a:0", "ac3", "-c:a:1", "dca", "-strict", "-2", "-ar:a:1", "48000",
+        "-c:s", "ass",
+        "-metadata:s:a:0", "language=eng", "-metadata:s:a:0", "title=English AC-3",
+        "-metadata:s:a:1", "language=vie", "-metadata:s:a:1", "title=Vietnamese DTS",
+        "-metadata:s:s:0", "language=vie", "-metadata:s:s:0", "title=Vietnamese ASS",
+        str(media_dir / MKV_SAMPLE),
+    ]
+    result = subprocess.run(command, capture_output=True, text=True)
+    subtitles.unlink()
+    if result.returncode != 0:
+        raise SystemExit(f"ffmpeg failed for {MKV_SAMPLE}: {result.stderr.strip()}")
+
+
 def write_json(path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n")
@@ -250,6 +291,7 @@ def main():
         write_json(out_dir / "stream" / "series" / f"{video_id}.json", payload)
     write_broken_media(out_dir)
     write_test_movies(out_dir)
+    write_mkv_sample(out_dir / "media")
     print(f"Wrote test addon to {out_dir}")
 
 

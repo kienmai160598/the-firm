@@ -66,17 +66,26 @@ final class SeriesContinueWatchingTests: XCTestCase {
         XCTAssertTrue(continueWatchingCard.waitForExistence(timeout: 10))
     }
 
-    func testB_UnplayableAndBrokenStreamsShowMessages() {
+    func testB_MkvPlaysInMpvAndBrokenStreamShowsFailure() {
         launch(route: Self.tearsOfSteelStreams)
         let mkv = streamButton("Test MKV")
         XCTAssertTrue(mkv.waitForExistence(timeout: 60))
         focus(mkv)
         remote.press(.select)
-        let notice = app.staticTexts["Apple TV cannot play this stream"]
-        XCTAssertTrue(notice.waitForExistence(timeout: 10))
-        XCTAssertTrue(staticText(beginningWith: "MKV files are not supported").exists)
-        saveScreenshot("s4-9-unplayable-mkv")
-        remote.press(.menu)
+        startOverWhenOffered()
+        XCTAssertTrue(app.buttons["mpv-player"].waitForExistence(timeout: 20))
+        sleep(6)
+        saveScreenshot("s4-9-mkv-playing")
+        remote.press(.up)
+        XCTAssertTrue(staticText(beginningWith: "Audio: ").waitForExistence(timeout: 3))
+        saveScreenshot("s4-9b-mkv-audio-track")
+        remote.press(.down)
+        XCTAssertTrue(staticText(beginningWith: "Subtitles: ").waitForExistence(timeout: 3))
+        saveScreenshot("s4-9c-mkv-subtitle-track")
+        remote.press(.select)
+        sleep(1)
+        saveScreenshot("s4-9d-mkv-paused")
+        dismissPlayer(returningTo: mkv)
 
         let broken = streamButton("Test Broken MP4")
         XCTAssertTrue(broken.waitForExistence(timeout: 10))
@@ -118,8 +127,9 @@ final class SeriesContinueWatchingTests: XCTestCase {
         XCTAssertTrue(garbage.waitForExistence(timeout: 60))
         focus(garbage)
         remote.press(.select)
-        let notice = app.staticTexts["Apple TV cannot play this stream"]
-        XCTAssertTrue(notice.waitForExistence(timeout: 15))
+        startOverWhenOffered()
+        let failure = app.staticTexts["Playback failed"]
+        XCTAssertTrue(failure.waitForExistence(timeout: 30))
         saveScreenshot("s4-13-probe-garbage")
         remote.press(.menu)
 
@@ -142,7 +152,8 @@ final class SeriesContinueWatchingTests: XCTestCase {
         dismissPlayer(returningTo: stalled)
         focus(garbage)
         remote.press(.select)
-        XCTAssertTrue(notice.waitForExistence(timeout: 15))
+        startOverWhenOffered()
+        XCTAssertTrue(failure.waitForExistence(timeout: 30))
         remote.press(.menu)
     }
 

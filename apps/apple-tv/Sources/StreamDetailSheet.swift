@@ -3,11 +3,11 @@ import NuvioTvShared
 
 struct StreamDetailSheet: View {
     private static let torrentNote =
-        "This is a torrent. Movies on Apple TV streams it with its built-in torrent engine; " +
-        "the player handles MP4, MOV and HLS files."
+        "This is a torrent. Movies on Apple TV streams it with its built-in torrent engine " +
+        "and plays MP4, MKV, WebM and most other video files."
     private static let unsupportedNote =
-        "Movies on Apple TV cannot play this source yet. It plays direct HTTP(S) links " +
-        "such as MP4 files and HLS playlists."
+        "Movies on Apple TV cannot play this source yet. It plays torrents and direct " +
+        "HTTP(S) links such as MP4, MKV and HLS."
 
     let stream: TvosStream
     var notice: StreamNotice?
