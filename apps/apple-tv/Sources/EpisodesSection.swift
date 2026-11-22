@@ -105,27 +105,37 @@ private struct EpisodeShelf: View {
 
 private struct EpisodeCard: View {
     static let width: CGFloat = 400
+    static let cornerRadius: CGFloat = 18
 
     let episode: TvosEpisode
 
     var body: some View {
+        RouteLink(value: AppRoute.streams(episode.streamTarget)) {
+            thumbnail
+            captions
+        }
+        .buttonStyle(.borderless)
+        .buttonBorderShape(.roundedRectangle(radius: Self.cornerRadius))
+        .accessibilityIdentifier("episode-\(episode.videoId)")
+        .accessibilityLabel(heading)
+        .accessibilityValue(watchState)
+    }
+
+    private var thumbnail: some View {
+        ArtworkImage(url: episode.thumbnailUrl)
+            .frame(width: Self.width, height: Self.width * 9 / 16)
+            .opacity(episode.isReleased ? 1 : 0.5)
+            .overlay(alignment: .topTrailing) { watchedMark }
+            .overlay(alignment: .bottom) { progressBar }
+            .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
+            .hoverEffect(.highlight)
+    }
+
+    private var captions: some View {
         VStack(alignment: .leading, spacing: 10) {
-            RouteLink(value: AppRoute.streams(episode.streamTarget)) {
-                ArtworkImage(url: episode.thumbnailUrl)
-                    .frame(width: Self.width, height: Self.width * 9 / 16)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .opacity(episode.isReleased ? 1 : 0.5)
-                    .overlay(alignment: .topTrailing) { watchedMark }
-                    .overlay(alignment: .bottom) { progressBar }
-            }
-            .buttonStyle(.card)
-            .accessibilityIdentifier("episode-\(episode.videoId)")
-            .accessibilityLabel(heading)
-            .accessibilityValue(watchState)
             Text(heading)
                 .font(.system(size: 25, weight: .semibold))
                 .lineLimit(1)
-                .padding(.top, 6)
             if let overview = episode.overview {
                 Text(overview)
                     .font(.system(size: 21))

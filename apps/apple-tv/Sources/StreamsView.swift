@@ -30,22 +30,18 @@ struct StreamsView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            BackdropView(url: model.target.backdropUrl, dimming: 0.7)
-            HStack(alignment: .top, spacing: 80) {
-                StreamsHeader(
-                    target: model.target,
-                    resume: directResume,
-                    isChecking: checkingStreamKey != nil,
-                    torrentStatus: torrent.startingStreamKey == nil ? nil : torrent.status
-                )
-                .frame(width: 560, alignment: .leading)
-                content
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            }
-            .padding(.top, 40)
+        HStack(alignment: .top, spacing: 80) {
+            StreamsHeaderPane(
+                target: model.target,
+                resume: directResume,
+                isChecking: checkingStreamKey != nil,
+                torrentStatus: torrent.startingStreamKey == nil ? nil : torrent.status
+            )
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
+        .animation(.smooth, value: checkingStreamKey)
+        .background { StreamsBackground(backdropUrl: model.target.backdropUrl) }
         .sheet(item: $sheet) { sheet in
             StreamDetailSheet(stream: sheet.stream, notice: sheet.notice)
         }
@@ -226,93 +222,21 @@ struct StreamsView: View {
     #endif
 }
 
-private struct StreamsHeader: View {
-    let target: TvosStreamTarget
-    let resume: TvosResumePoint?
-    let isChecking: Bool
-    let torrentStatus: TvosTorrentStatus?
+private struct StreamsBackground: View {
+    let backdropUrl: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text(target.title)
-                .font(.title2.bold())
-                .lineLimit(3)
-            if let subtitle = target.subtitle {
-                Text(subtitle)
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-            if let resume {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(resume.label)
-                        .font(.headline)
-                    WatchProgressBar(fraction: Double(resume.watchedFraction))
-                        .frame(width: 360)
-                }
-                .padding(.vertical, 8)
-            }
-            Text("Streams")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            if let torrentStatus {
-                TorrentProgressView(status: torrentStatus)
-            } else if isChecking {
-                CheckingStreamView()
-            }
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.13, green: 0.14, blue: 0.17),
+                    Color(red: 0.08, green: 0.09, blue: 0.1),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            BackdropView(url: backdropUrl, isReceded: true)
         }
-    }
-}
-
-private struct CheckingStreamView: View {
-    var body: some View {
-        HStack(spacing: 24) {
-            ProgressView()
-            Text("Checking stream")
-                .font(.headline)
-        }
-        .padding(.horizontal, 32)
-        .padding(.vertical, 24)
-        .glassPanel(cornerRadius: 24)
-        .padding(.top, 20)
-    }
-}
-
-private struct StreamsLoadingView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            ProgressView()
-            Text("Finding streams")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-        }
-    }
-}
-
-private struct TorrentProgressView: View {
-    let status: TvosTorrentStatus
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 24) {
-                ProgressView()
-                Text(status.step ?? "Starting torrent")
-                    .font(.headline)
-                    .lineLimit(2)
-            }
-            Text(details)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            ProgressView(value: Double(status.bufferFraction))
-                .frame(width: 360)
-        }
-        .padding(.horizontal, 32)
-        .padding(.vertical, 24)
-        .glassPanel(cornerRadius: 24)
-        .padding(.top, 20)
-    }
-
-    private var details: String {
-        "\(status.peers) peers, \(status.seeds) seeds, \(status.downloadSpeedLabel)"
+        .ignoresSafeArea()
     }
 }

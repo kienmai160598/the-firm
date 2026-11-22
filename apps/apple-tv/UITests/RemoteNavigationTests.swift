@@ -204,12 +204,15 @@ final class RemoteNavigationTests: XCTestCase {
         XCTAssertTrue(isCastFocused, "Focused: \(focusedElement.label)")
         press(.right)
         let castMember = focusedElement.label
-        let liftedWidth = focusedElement.frame.width
+        let caption = app.staticTexts[castMember].firstMatch
+        let focusedCaptionY = caption.frame.minY
         saveScreenshot("s6b-1-cast-card-focus")
         press(.left)
-        let restingWidth = app.buttons[castMember].firstMatch.frame.width
-        print("Cast \(castMember) width focused \(liftedWidth) resting \(restingWidth)")
-        XCTAssertGreaterThan(liftedWidth, restingWidth + 10, "Focused cast card is not lifted")
+        let restingCaptionY = caption.frame.minY
+        print("Cast \(castMember) caption y focused \(focusedCaptionY) resting \(restingCaptionY)")
+        XCTAssertGreaterThan(
+            focusedCaptionY, restingCaptionY + 4, "Focused cast caption did not move down"
+        )
 
         remote.press(.menu)
         XCTAssertTrue(app.staticTexts["Popular - Movies"].waitForExistence(timeout: 30))
@@ -246,12 +249,8 @@ final class RemoteNavigationTests: XCTestCase {
         XCTAssertEqual(focusedElement.frame.midY, startFrame.midY, accuracy: 40, "Right left row")
         press(.left)
         let rowCard = focusedElement.label
-        let liftedWidth = focusedElement.frame.width
         press(.down)
         XCTAssertNotEqual(focusedElement.label, rowCard, "Down did not move")
-        let restingWidth = app.buttons[rowCard].firstMatch.frame.width
-        print("Card \(rowCard) width focused \(liftedWidth) resting \(restingWidth)")
-        XCTAssertGreaterThan(liftedWidth, restingWidth + 10, "Focused card is not lifted")
         press(.up)
         XCTAssertEqual(focusedElement.label, rowCard, "Up did not return to the same card")
     }

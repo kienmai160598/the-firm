@@ -9,6 +9,7 @@ enum MpvProperty {
     static let endReached = "eof-reached"
     static let cacheTime = "demuxer-cache-time"
     static let subtitlePosition = "sub-pos"
+    static let colorspaceHint = "target-colorspace-hint"
 }
 
 enum MpvOptions {

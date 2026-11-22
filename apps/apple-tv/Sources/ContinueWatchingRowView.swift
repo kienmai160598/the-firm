@@ -28,33 +28,44 @@ struct ContinueWatchingRowView: View {
 
 private struct ContinueWatchingCard: View {
     static let width: CGFloat = 400
+    static let cornerRadius: CGFloat = 18
     static let removeTitle = "Remove from Continue Watching"
 
     let item: TvosContinueWatchingItem
     let onRemove: (TvosContinueWatchingItem) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            RouteLink(value: AppRoute.streams(item.target, resumesDirectly: true)) {
-                ArtworkImage(url: item.imageUrl)
-                    .frame(width: Self.width, height: Self.width * 9 / 16)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .overlay(alignment: .bottom) {
-                        if !item.isNextUp {
-                            WatchProgressBar(fraction: Double(item.progressFraction))
-                                .padding(20)
-                        }
-                    }
+        RouteLink(value: AppRoute.streams(item.target, resumesDirectly: true)) {
+            artwork
+            captions
+        }
+        .buttonStyle(.borderless)
+        .buttonBorderShape(.roundedRectangle(radius: Self.cornerRadius))
+        .contextMenu {
+            Button(Self.removeTitle, systemImage: "minus.circle", role: .destructive) {
+                onRemove(item)
             }
-            .buttonStyle(.card)
-            .contextMenu {
-                Button(Self.removeTitle, systemImage: "minus.circle", role: .destructive) {
-                    onRemove(item)
+        }
+        .accessibilityIdentifier("continueWatchingCard")
+        .accessibilityLabel(item.title)
+        .accessibilityValue(item.progressLabel ?? "")
+    }
+
+    private var artwork: some View {
+        ArtworkImage(url: item.imageUrl)
+            .frame(width: Self.width, height: Self.width * 9 / 16)
+            .overlay(alignment: .bottom) {
+                if !item.isNextUp {
+                    WatchProgressBar(fraction: Double(item.progressFraction))
+                        .padding(20)
                 }
             }
-            .accessibilityIdentifier("continueWatchingCard")
-            .accessibilityLabel(item.title)
-            .accessibilityValue(item.progressLabel ?? "")
+            .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
+            .hoverEffect(.highlight)
+    }
+
+    private var captions: some View {
+        VStack(alignment: .leading, spacing: 14) {
             Text(item.title)
                 .font(.system(size: 26, weight: .semibold))
                 .lineLimit(1)

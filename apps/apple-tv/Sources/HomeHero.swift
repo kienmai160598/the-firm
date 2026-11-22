@@ -11,6 +11,8 @@ struct HomeHero: View {
     let onFocus: () -> Void
     @State private var currentId: String?
     @State private var advanceTask: Task<Void, Never>?
+    @State private var hasTakenLaunchFocus = false
+    @EnvironmentObject private var router: Router
     @FocusState private var focusedId: String?
 
     init(rows: [TvosRow], onFocus: @escaping () -> Void) {
@@ -57,13 +59,21 @@ struct HomeHero: View {
 
     private func start() {
         if currentId == nil { currentId = items.first?.metaId }
+        takeLaunchFocus()
         scheduleAdvance()
+    }
+
+    private func takeLaunchFocus() {
+        guard !hasTakenLaunchFocus, router.path.isEmpty, let first = items.first?.metaId
+        else { return }
+        hasTakenLaunchFocus = true
+        DispatchQueue.main.async { focusedId = first }
     }
 
     private func follow(_ id: String?) {
         if id != nil { onFocus() }
         if let id, id != currentId {
-            withAnimation(.easeInOut(duration: 0.5)) { currentId = id }
+            withAnimation(.smooth(duration: 0.5)) { currentId = id }
         }
         scheduleAdvance()
     }
@@ -80,7 +90,7 @@ struct HomeHero: View {
     private func advance() {
         if focusedId == nil {
             let next = items[(currentIndex + 1) % items.count]
-            withAnimation(.easeInOut(duration: 0.8)) { currentId = next.metaId }
+            withAnimation(.smooth(duration: 0.8)) { currentId = next.metaId }
         }
         scheduleAdvance()
     }

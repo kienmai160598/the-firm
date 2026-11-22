@@ -47,7 +47,7 @@ struct HomeView: View {
     }
 
     private func revealHero(using proxy: ScrollViewProxy) {
-        withAnimation(.easeInOut(duration: 0.35)) { proxy.scrollTo(Self.heroId, anchor: .top) }
+        withAnimation(.smooth(duration: 0.35)) { proxy.scrollTo(Self.heroId, anchor: .top) }
     }
 
     private var continueWatchingRows: [TvosContinueWatchingRow] {

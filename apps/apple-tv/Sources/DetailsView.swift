@@ -16,7 +16,7 @@ struct DetailsView: View {
             BackdropView(url: model.details?.backdropUrl, isReceded: !isActionFocused)
             content
         }
-        .animation(.easeInOut(duration: 0.4), value: isActionFocused)
+        .animation(.smooth(duration: 0.4), value: isActionFocused)
         .onAppear(perform: model.observe)
         .onDisappear(perform: model.stop)
         #if DEBUG

@@ -23,32 +23,37 @@ struct CastSection: View {
 
 private struct CastCard: View {
     static let size: CGFloat = 180
+    static let captionWidth: CGFloat = size + 40
 
     let member: TvosCastMember
 
     var body: some View {
-        VStack(spacing: 16) {
-            Button(action: {}) {
-                ArtworkImage(url: member.photoUrl)
-                    .frame(width: Self.size, height: Self.size)
-                    .overlay { initialsIfNoPhoto }
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.card)
-            .buttonBorderShape(.circle)
-            .accessibilityLabel(member.name)
+        Button(action: {}) {
+            portrait
             Text(member.name)
                 .font(.system(size: 24, weight: .medium))
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
+                .frame(width: Self.captionWidth)
             if let role = member.role {
                 Text(role)
                     .font(.system(size: 21))
                     .foregroundStyle(.white.opacity(0.5))
                     .lineLimit(1)
+                    .frame(width: Self.captionWidth)
             }
         }
-        .frame(width: Self.size + 40)
+        .buttonStyle(.borderless)
+        .buttonBorderShape(.circle)
+        .accessibilityLabel(member.name)
+    }
+
+    private var portrait: some View {
+        ArtworkImage(url: member.photoUrl)
+            .frame(width: Self.size, height: Self.size)
+            .overlay { initialsIfNoPhoto }
+            .clipShape(Circle())
+            .hoverEffect(.highlight)
     }
 
     @ViewBuilder

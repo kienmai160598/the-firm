@@ -9,43 +9,49 @@ struct StreamGroupList: View {
         ScrollView(.vertical) {
             LazyVStack(alignment: .leading, spacing: 48) {
                 ForEach(groups, id: \.addonId) { group in
-                    StreamGroupSection(group: group, onSelect: onSelect)
+                    StreamGroupSection(
+                        group: group,
+                        isAwaitingFirstStream: isAwaitingFirstStream,
+                        onSelect: onSelect
+                    )
                 }
             }
-            .padding(.vertical, 20)
-            .padding(.trailing, 40)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 60)
         }
+        .scrollClipDisabled()
+        .focusSection()
+    }
+
+    private var isAwaitingFirstStream: Bool {
+        groups.allSatisfy { $0.streams.isEmpty }
     }
 }
 
 private struct StreamGroupSection: View {
     let group: TvosStreamGroup
+    let isAwaitingFirstStream: Bool
     let onSelect: (TvosStream) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack(spacing: 20) {
-                Text(group.addonName)
-                    .font(.title3)
-                if group.isLoading {
-                    ProgressView()
-                }
+            StreamGroupHeader(title: group.addonName, isLoading: group.isLoading)
+            VStack(alignment: .leading, spacing: 16) {
+                rows
             }
-            groupBody
         }
-        .focusSection()
     }
 
     @ViewBuilder
-    private var groupBody: some View {
+    private var rows: some View {
         if let errorMessage = group.errorMessage {
-            Text(errorMessage)
-                .font(.body)
-                .foregroundStyle(.secondary)
-        } else if group.streams.isEmpty && !group.isLoading {
-            Text("No streams from this addon")
-                .font(.body)
-                .foregroundStyle(.secondary)
+            StreamGroupMessageRow(text: errorMessage, systemImage: "exclamationmark.triangle")
+        } else if group.streams.isEmpty && group.isLoading {
+            if isAwaitingFirstStream {
+                StreamsLoadingRow()
+            }
+        } else if group.streams.isEmpty {
+            StreamGroupMessageRow(text: "No streams from this addon", systemImage: "tray")
         } else {
             ForEach(group.streams) { stream in
                 Button {
@@ -53,50 +59,50 @@ private struct StreamGroupSection: View {
                 } label: {
                     StreamRow(stream: stream)
                 }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.roundedRectangle(radius: 28))
             }
         }
     }
 }
 
-private struct StreamRow: View {
-    let stream: TvosStream
+private struct StreamGroupHeader: View {
+    let title: String
+    let isLoading: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 16) {
-                Text(stream.name)
-                    .font(.headline)
-                    .lineLimit(2)
-                Spacer(minLength: 20)
-                ForEach(chips, id: \.self) { chip in
-                    StreamChip(text: chip)
-                }
-            }
-            if let detail = stream.detail ?? stream.title {
-                Text(detail)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
+        HStack(spacing: 20) {
+            Text(title)
+                .font(.system(size: 31, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.6))
+                .accessibilityAddTraits(.isHeader)
+            if isLoading {
+                ProgressView()
+                    .scaleEffect(0.6)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 8)
-    }
-
-    private var chips: [String] {
-        stream.badges + [stream.sizeLabel, stream.kind].compactMap { $0 }
     }
 }
 
-private struct StreamChip: View {
+private struct StreamGroupMessageRow: View {
     let text: String
+    let systemImage: String
 
     var body: some View {
-        Text(text)
-            .font(.subheadline.bold())
-            .padding(.horizontal, 14)
-            .padding(.vertical, 4)
-            .overlay(Capsule().strokeBorder(.secondary, lineWidth: 2))
+        Label(text, systemImage: systemImage)
+            .font(.system(size: 29))
+            .foregroundStyle(.secondary)
+    }
+}
+
+private struct StreamsLoadingRow: View {
+    var body: some View {
+        HStack(spacing: 24) {
+            ProgressView()
+            Text("Finding streams")
+                .font(.system(size: 29, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+        .focusable()
     }
 }

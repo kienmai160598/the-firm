@@ -12,7 +12,7 @@ struct PosterCard: View {
         RouteLink(value: AppRoute.details(type: item.type, id: item.metaId)) {
             PosterArtwork(item: item)
         }
-        .buttonStyle(.card)
+        .buttonStyle(.borderless)
         .accessibilityLabel(item.name)
     }
 }
@@ -32,6 +32,7 @@ private struct PosterArtwork: View {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: PosterCard.cornerRadius, style: .continuous))
+            .hoverEffect(.highlight)
     }
 
     private func genreLabel(_ genre: String) -> some View {

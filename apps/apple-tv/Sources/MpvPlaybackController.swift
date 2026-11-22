@@ -7,6 +7,8 @@ import os
 final class MpvPlaybackController: ObservableObject {
     private static let tickInterval: Duration = .seconds(10)
     private static let startupLimit: Duration = .seconds(60)
+    private static let videoFormatLimit: Duration = .seconds(2)
+    private static let videoFormatPoll: Duration = .milliseconds(100)
     private static let seekStepSeconds = 10
     private static let minimumTickAdvanceMs: Int64 = 1000
     private static let endToleranceMs: Int64 = 5000
@@ -28,6 +30,8 @@ final class MpvPlaybackController: ObservableObject {
     private var mpv: MpvHandle?
     private var tickTask: Task<Void, Never>?
     private var startupTask: Task<Void, Never>?
+    private var startTask: Task<Void, Never>?
+    private let displayMatcher = MpvDisplayMatcher()
     private var lifecycleObservers: [NSObjectProtocol] = []
     private var currentMs: Int64 = 0
     private var durationMs: Int64 = 0
@@ -72,7 +76,8 @@ final class MpvPlaybackController: ObservableObject {
         save(syncRemote: true, reason: "dismiss")
         isFinished = true
         UIApplication.shared.isIdleTimerDisabled = false
-        [tickTask, startupTask].forEach { $0?.cancel() }
+        [tickTask, startupTask, startTask].forEach { $0?.cancel() }
+        displayMatcher.reset()
         lifecycleObservers.forEach(NotificationCenter.default.removeObserver)
         lifecycleObservers = []
         mpv?.close()
@@ -142,7 +147,37 @@ final class MpvPlaybackController: ObservableObject {
         if startMs > 0 {
             mpv.command("seek", String(Double(startMs) / 1000), "absolute+exact")
         }
-        mpv.setFlag(MpvProperty.pause, false)
+        startTask = Task { [weak self] in await self?.matchDisplayThenPlay() }
+    }
+
+    private func matchDisplayThenPlay() async {
+        guard let format = await firstVideoFormat() else { return play() }
+        Self.log.notice(
+            """
+            Video \(format.width, privacy: .public)x\(format.height, privacy: .public) \
+            \(format.framesPerSecond, privacy: .public) fps \
+            hdr=\(format.dynamicRange.isHighDynamicRange, privacy: .public)
+            """
+        )
+        await displayMatcher.match(format)
+        if format.dynamicRange.isHighDynamicRange, displayMatcher.canShowHighDynamicRange {
+            mpv?.setString(MpvProperty.colorspaceHint, "yes")
+        }
+        play()
+    }
+
+    private func firstVideoFormat() async -> MpvVideoFormat? {
+        let deadline = ContinuousClock.now + Self.videoFormatLimit
+        while !isFinished, ContinuousClock.now < deadline {
+            if let mpv, let format = MpvVideoFormat.read(from: mpv) { return format }
+            try? await Task.sleep(for: Self.videoFormatPoll)
+        }
+        return nil
+    }
+
+    private func play() {
+        guard !isFinished else { return }
+        mpv?.setFlag(MpvProperty.pause, false)
     }
 
     private func startPositionMs() -> Int64 {

@@ -26,7 +26,7 @@ struct DetailsInfoSection: View {
                 .padding(.horizontal, -28)
                 .focusable()
                 .focused($isFocused)
-                .animation(.easeOut(duration: 0.15), value: isFocused)
+                .animation(.smooth(duration: 0.2), value: isFocused)
             }
         }
     }

@@ -10,22 +10,32 @@ struct StreamsEmptyView: View {
     let onRetry: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
-            Image(systemName: "play.slash.fill")
-                .font(.system(size: 72))
-                .foregroundStyle(.secondary)
-            Text(emptyState.title)
-                .font(.title3.bold())
-            Text(emptyState.message)
-                .font(.body)
-            if emptyState.isMissingStreamAddon {
-                Text(Self.missingAddonHint)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
+        ContentUnavailableView {
+            Label(emptyState.title, systemImage: "play.slash")
+        } description: {
+            VStack(spacing: 16) {
+                Text(emptyState.message)
+                if emptyState.isMissingStreamAddon {
+                    Text(Self.missingAddonHint)
+                        .foregroundStyle(.secondary)
+                }
             }
+        } actions: {
             Button("Try Again", systemImage: "arrow.clockwise", action: onRetry)
-                .padding(.top, 12)
         }
-        .frame(maxWidth: 1000, alignment: .leading)
+        .frame(maxWidth: 1000)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct StreamsLoadingView: View {
+    var body: some View {
+        ProgressView {
+            Text("Finding streams")
+                .font(.system(size: 29, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+        .focusable()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

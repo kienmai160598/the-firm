@@ -15,26 +15,25 @@ struct StreamDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
+        VStack(alignment: .leading, spacing: 36) {
             if let notice {
                 StreamNoticeView(notice: notice)
             }
             Text(stream.name)
-                .font(.title2.bold())
-            ForEach(fields, id: \.label) { field in
-                StreamField(label: field.label, value: field.value)
-            }
+                .font(.system(size: 48, weight: .bold))
+                .lineLimit(2)
+            StreamFieldGrid(fields: fields)
             if notice == nil {
                 Text(playbackNote)
-                    .font(.callout)
+                    .font(.system(size: 25))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Button("Close", action: { dismiss() })
-                .padding(.top, 12)
+                .padding(.top, 8)
         }
-        .frame(maxWidth: 1400, alignment: .leading)
-        .padding(60)
+        .frame(maxWidth: 1300, alignment: .leading)
+        .padding(64)
     }
 
     private var playbackNote: String {
@@ -64,33 +63,37 @@ private struct StreamNoticeView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 28) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 56))
-                .foregroundStyle(.yellow)
-            VStack(alignment: .leading, spacing: 12) {
+                .font(.system(size: 52))
+                .symbolRenderingMode(.multicolor)
+            VStack(alignment: .leading, spacing: 10) {
                 Text(notice.title)
-                    .font(.title3.bold())
+                    .font(.system(size: 38, weight: .semibold))
                 Text(notice.message)
-                    .font(.body)
+                    .font(.system(size: 29))
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.bottom, 12)
     }
 }
 
-private struct StreamField: View {
-    let label: String
-    let value: String
+private struct StreamFieldGrid: View {
+    let fields: [(label: String, value: String)]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(label)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.body)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
+        Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 40, verticalSpacing: 20) {
+            ForEach(fields, id: \.label) { field in
+                GridRow {
+                    Text(field.label)
+                        .font(.system(size: 25, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .gridColumnAlignment(.trailing)
+                    Text(field.value)
+                        .font(.system(size: 29))
+                        .lineLimit(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
     }
 }
