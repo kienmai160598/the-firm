@@ -2,17 +2,19 @@ import NuvioTvShared
 import SwiftUI
 
 struct HomeHero: View {
-    static let height: CGFloat = 880
-    static let contentInset: CGFloat = 160
+    static let contentInset: CGFloat = 80
+    private static let nextShelfPeek: CGFloat = 150
     private static let advanceInterval: Duration = .seconds(8)
     private static let maxItems = 6
 
     let items: [TvosItem]
+    let onFocus: () -> Void
     @State private var currentId: String?
     @State private var advanceTask: Task<Void, Never>?
     @FocusState private var focusedId: String?
 
-    init(rows: [TvosRow]) {
+    init(rows: [TvosRow], onFocus: @escaping () -> Void) {
+        self.onFocus = onFocus
         let featured = rows.first?.items.filter { $0.backdropUrl != nil } ?? []
         items = Array(featured.prefix(Self.maxItems))
     }
@@ -20,11 +22,11 @@ struct HomeHero: View {
     var body: some View {
         if !items.isEmpty {
             pages
-                .overlay(alignment: .bottomTrailing) {
+                .overlay(alignment: .bottom) {
                     PageIndicator(count: items.count, index: currentIndex)
-                        .padding(.bottom, 80)
+                        .padding(.bottom, 36)
                 }
-                .frame(height: Self.height)
+                .containerRelativeFrame(.vertical) { height, _ in height - Self.nextShelfPeek }
                 .onAppear(perform: start)
                 .onDisappear { advanceTask?.cancel() }
                 .onChange(of: focusedId) { _, id in follow(id) }
@@ -59,6 +61,7 @@ struct HomeHero: View {
     }
 
     private func follow(_ id: String?) {
+        if id != nil { onFocus() }
         if let id, id != currentId {
             withAnimation(.easeInOut(duration: 0.5)) { currentId = id }
         }

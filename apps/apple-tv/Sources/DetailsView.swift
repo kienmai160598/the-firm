@@ -4,6 +4,7 @@ import NuvioTvShared
 struct DetailsView: View {
     @StateObject private var model: DetailsModel
     @EnvironmentObject private var router: Router
+    @FocusState private var isActionFocused: Bool
 
     init(type: String, id: String) {
         _model = StateObject(wrappedValue: DetailsModel(type: type, id: id))
@@ -11,10 +12,11 @@ struct DetailsView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            BackdropView(url: model.details?.backdropUrl)
+            DetailsBackground()
+            BackdropView(url: model.details?.backdropUrl, isReceded: !isActionFocused)
             content
         }
+        .animation(.easeInOut(duration: 0.4), value: isActionFocused)
         .onAppear(perform: model.observe)
         .onDisappear(perform: model.stop)
         #if DEBUG
@@ -25,7 +27,7 @@ struct DetailsView: View {
     @ViewBuilder
     private var content: some View {
         if let details = model.details {
-            DetailsContentView(details: details)
+            DetailsContentView(details: details, isActionFocused: $isActionFocused)
         } else if model.isLoading {
             ProgressView()
         } else {
@@ -42,13 +44,18 @@ struct DetailsView: View {
 }
 
 private struct DetailsContentView: View {
+    private static let heroScreenFraction: CGFloat = 0.88
+
     let details: TvosMetaDetails
+    let isActionFocused: FocusState<Bool>.Binding
 
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 40) {
-                DetailsHeroView(details: details)
-                    .frame(minHeight: heroMinHeight, alignment: .bottomLeading)
+            VStack(alignment: .leading, spacing: 56) {
+                DetailsHeroView(details: details, isActionFocused: isActionFocused)
+                    .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in
+                        height * Self.heroScreenFraction
+                    }
                 if !details.seasons.isEmpty {
                     EpisodesSection(
                         seasons: details.seasons,
@@ -58,17 +65,28 @@ private struct DetailsContentView: View {
                 if !details.cast.isEmpty {
                     CastSection(cast: details.cast)
                 }
+                DetailsInfoSection(details: details)
             }
-            .padding(.bottom, 40)
+            .padding(.bottom, 80)
         }
-    }
-
-    private var heroMinHeight: CGFloat {
-        details.seasons.isEmpty ? 860 : 480
     }
 
     private var preferredSeasonNumber: Int32? {
         details.primaryAction?.target.seasonNumber?.int32Value
+    }
+}
+
+private struct DetailsBackground: View {
+    var body: some View {
+        LinearGradient(
+            colors: [
+                Color(red: 0.13, green: 0.14, blue: 0.17),
+                Color(red: 0.08, green: 0.09, blue: 0.1),
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
     }
 }
 

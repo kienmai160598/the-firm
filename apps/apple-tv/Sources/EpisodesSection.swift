@@ -91,7 +91,7 @@ private struct EpisodeShelf: View {
 
     var body: some View {
         ScrollView(.horizontal) {
-            LazyHStack(alignment: .top, spacing: 48) {
+            LazyHStack(alignment: .top, spacing: 40) {
                 ForEach(episodes, id: \.videoId) { episode in
                     EpisodeCard(episode: episode)
                 }
@@ -104,15 +104,16 @@ private struct EpisodeShelf: View {
 }
 
 private struct EpisodeCard: View {
-    static let width: CGFloat = 360
+    static let width: CGFloat = 400
 
     let episode: TvosEpisode
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 10) {
             RouteLink(value: AppRoute.streams(episode.streamTarget)) {
                 ArtworkImage(url: episode.thumbnailUrl)
                     .frame(width: Self.width, height: Self.width * 9 / 16)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .opacity(episode.isReleased ? 1 : 0.5)
                     .overlay(alignment: .topTrailing) { watchedMark }
                     .overlay(alignment: .bottom) { progressBar }
@@ -122,12 +123,19 @@ private struct EpisodeCard: View {
             .accessibilityLabel(heading)
             .accessibilityValue(watchState)
             Text(heading)
-                .font(.callout)
+                .font(.system(size: 25, weight: .semibold))
                 .lineLimit(1)
+                .padding(.top, 6)
+            if let overview = episode.overview {
+                Text(overview)
+                    .font(.system(size: 21))
+                    .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(3)
+            }
             if !detailLine.isEmpty {
                 Text(detailLine)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.45))
                     .lineLimit(1)
             }
         }

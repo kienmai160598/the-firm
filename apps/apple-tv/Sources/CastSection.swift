@@ -5,9 +5,8 @@ struct CastSection: View {
     let cast: [TvosCastMember]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Cast & Crew")
-                .font(.title3.weight(.semibold))
+        VStack(alignment: .leading, spacing: 4) {
+            ShelfHeader(title: "Cast & Crew")
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: 40) {
                     ForEach(Array(cast.enumerated()), id: \.offset) { _, member in
@@ -39,13 +38,13 @@ private struct CastCard: View {
             .buttonBorderShape(.circle)
             .accessibilityLabel(member.name)
             Text(member.name)
-                .font(.subheadline)
+                .font(.system(size: 24, weight: .medium))
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
             if let role = member.role {
                 Text(role)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 21))
+                    .foregroundStyle(.white.opacity(0.5))
                     .lineLimit(1)
             }
         }

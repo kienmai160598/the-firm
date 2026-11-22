@@ -8,18 +8,16 @@ struct ContinueWatchingRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(row.title)
-                .font(.title3.weight(.semibold))
-                .padding(.horizontal, 80)
+            ShelfHeader(title: row.title)
             ScrollView(.horizontal) {
-                LazyHStack(alignment: .top, spacing: 48) {
+                LazyHStack(alignment: .top, spacing: ShelfMetrics.spacing) {
                     ForEach(row.items, id: \.key) { item in
                         ContinueWatchingCard(item: item, onRemove: onRemove)
                             .focused($focusedKey, equals: item.key)
                     }
                 }
-                .padding(.horizontal, 80)
-                .padding(.vertical, 30)
+                .padding(.horizontal, ShelfMetrics.inset)
+                .padding(.vertical, 34)
             }
             .scrollClipDisabled()
         }
@@ -29,7 +27,7 @@ struct ContinueWatchingRowView: View {
 }
 
 private struct ContinueWatchingCard: View {
-    static let width: CGFloat = 480
+    static let width: CGFloat = 400
     static let removeTitle = "Remove from Continue Watching"
 
     let item: TvosContinueWatchingItem
@@ -40,6 +38,7 @@ private struct ContinueWatchingCard: View {
             RouteLink(value: AppRoute.streams(item.target, resumesDirectly: true)) {
                 ArtworkImage(url: item.imageUrl)
                     .frame(width: Self.width, height: Self.width * 9 / 16)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .overlay(alignment: .bottom) {
                         if !item.isNextUp {
                             WatchProgressBar(fraction: Double(item.progressFraction))
@@ -57,11 +56,11 @@ private struct ContinueWatchingCard: View {
             .accessibilityLabel(item.title)
             .accessibilityValue(item.progressLabel ?? "")
             Text(item.title)
-                .font(.callout.bold())
+                .font(.system(size: 26, weight: .semibold))
                 .lineLimit(1)
             Text(detailLine)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(.system(size: 22))
+                .foregroundStyle(.white.opacity(0.55))
                 .lineLimit(1)
         }
         .frame(width: Self.width, alignment: .leading)

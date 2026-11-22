@@ -17,7 +17,7 @@ enum MpvControl: CaseIterable, Hashable {
     var symbol: String {
         switch self {
         case .subtitles: "captions.bubble"
-        case .audio: "speaker.wave.2"
+        case .audio: "waveform"
         case .info: "info.circle"
         }
     }
@@ -26,39 +26,35 @@ enum MpvControl: CaseIterable, Hashable {
 enum MpvFocus: Hashable {
     case surface
     case control(MpvControl)
-    case option(String)
-}
-
-enum MpvPanel: Equatable {
-    case tracks(MpvTrackKind)
-    case info
-
-    var control: MpvControl {
-        switch self {
-        case .tracks(.subtitles): .subtitles
-        case .tracks(.audio): .audio
-        case .info: .info
-        }
-    }
 }
 
 struct MpvPlayerScreen: View {
     private static let hideDelay: Duration = .seconds(5)
     private static let infoRefresh: Duration = .seconds(1)
+    private static let horizontalInset: CGFloat = 84
+    private static let bottomInset: CGFloat = 96
+    private static let panelGap: CGFloat = 24
+    private static let controlsRise: CGFloat = 28
+    private static let controlsAnimation: Animation = .smooth(duration: 0.4)
 
     private let target: TvosStreamTarget
+    private let subtitleLine: String
     private let source: String
     @StateObject private var controller: MpvPlaybackController
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focus: MpvFocus?
     @State private var isControlsShown = true
-    @State private var panel: MpvPanel?
-    @State private var trackOptions: [MpvTrackOption] = []
+    @State private var isScrubbing = false
+    @State private var isInfoOpen = false
+    @State private var subtitleOptions: [MpvTrackOption] = []
+    @State private var audioOptions: [MpvTrackOption] = []
     @State private var infoRows: [MpvInfoRow] = []
     @State private var hideTask: Task<Void, Never>?
 
     init(request: PlaybackRequest, onFailure: @escaping (StreamNotice) -> Void) {
         target = request.target
+        subtitleLine = request.target.subtitle
+            ?? [request.stream.name, request.stream.addonName].joined(separator: "  ·  ")
         source = [request.stream.addonName, request.stream.filename ?? request.stream.name]
             .joined(separator: " · ")
         _controller = StateObject(
@@ -75,13 +71,16 @@ struct MpvPlayerScreen: View {
                     .allowsHitTesting(false)
             }
             if isControlsShown {
-                controls
+                scrim
                     .transition(.opacity)
+                controls
+                    .transition(.opacity.combined(with: .offset(y: Self.controlsRise)))
             }
         }
         .ignoresSafeArea()
-        .animation(.easeInOut(duration: 0.25), value: isControlsShown)
-        .animation(.easeInOut(duration: 0.2), value: panel)
+        .animation(Self.controlsAnimation, value: isControlsShown)
+        .animation(.smooth(duration: 0.3), value: isScrubbing)
+        .animation(.smooth(duration: 0.3), value: isInfoOpen)
         .onPlayPauseCommand(perform: togglePause)
         .onExitCommand(perform: back)
         .onAppear {
@@ -90,10 +89,14 @@ struct MpvPlayerScreen: View {
             scheduleHide()
         }
         .onDisappear(perform: controller.finish)
-        .onChange(of: focus) { _, _ in scheduleHide() }
+        .onChange(of: focus) { _, newFocus in
+            closeInfoIfFocusLeft(newFocus)
+            refreshTracksIfOnControl(newFocus)
+            scheduleHide()
+        }
         .onChange(of: controller.isPaused) { _, _ in scheduleHide() }
         .onChange(of: isControlsShown) { _, isShown in controller.liftSubtitles(isShown) }
-        .task(id: panel) { await refreshInfoWhileOpen() }
+        .task(id: isInfoOpen) { await refreshInfoWhileOpen() }
     }
 
     private var surface: some View {
@@ -106,95 +109,105 @@ struct MpvPlayerScreen: View {
         .accessibilityIdentifier("mpv-player")
     }
 
+    private var scrim: some View {
+        LinearGradient(
+            colors: [.clear, .black.opacity(0.55)],
+            startPoint: UnitPoint(x: 0.5, y: 0.55),
+            endPoint: .bottom
+        )
+        .allowsHitTesting(false)
+    }
+
     private var controls: some View {
-        ZStack(alignment: .bottom) {
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.75)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
-            .allowsHitTesting(false)
-            VStack(alignment: .leading, spacing: 28) {
-                panelView
-                HStack(alignment: .bottom) {
-                    titleBlock
-                    Spacer()
-                    controlButtons
-                }
-                MpvTransportBar(controller: controller, isFocused: focus == .surface)
-                    .allowsHitTesting(false)
+        VStack(alignment: .leading, spacing: 34) {
+            Spacer(minLength: 0)
+            if !isScrubbing {
+                infoRow
+                    .transition(.opacity.combined(with: .offset(y: Self.controlsRise / 2)))
             }
-            .padding(.horizontal, 90)
-            .padding(.bottom, 60)
+            MpvTransportBar(controller: controller, isScrubbing: isScrubbing)
+                .allowsHitTesting(false)
+        }
+        .padding(.horizontal, Self.horizontalInset)
+        .padding(.bottom, Self.bottomInset)
+    }
+
+    private var infoRow: some View {
+        HStack(alignment: .bottom) {
+            titleBlock
+            Spacer(minLength: 40)
+            controlButtons
+        }
+        .overlay(alignment: .topTrailing) {
+            panelView
+                .alignmentGuide(.top) { dimensions in dimensions[.bottom] + Self.panelGap }
         }
     }
 
     @ViewBuilder
     private var panelView: some View {
-        switch panel {
-        case let .tracks(kind):
-            HStack {
-                Spacer()
-                MpvTrackMenu(kind: kind, options: trackOptions, focus: $focus) { option in
-                    choose(option, of: kind)
-                }
-            }
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
-        case .info:
-            MpvInfoPanel(
-                title: target.title,
-                subtitle: target.subtitle,
-                source: source,
-                rows: infoRows
-            )
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
-        case .none:
-            EmptyView()
+        if isInfoOpen {
+            MpvInfoMenu(source: source, rows: infoRows)
+                .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottomTrailing)))
         }
     }
 
     private var titleBlock: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if let subtitle = target.subtitle {
-                Text(subtitle)
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.75))
-            }
-            Text(target.title)
-                .font(.title2.bold())
+        VStack(alignment: .leading, spacing: 10) {
+            Text(subtitleLine)
+                .font(.system(size: 23, weight: .medium))
                 .lineLimit(1)
+            Text(target.title)
+                .font(.system(size: 54, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
+        .foregroundStyle(.white)
+        .shadow(color: .black.opacity(0.35), radius: 8)
         .allowsHitTesting(false)
     }
 
     private var controlButtons: some View {
-        HStack(spacing: 22) {
-            ForEach(MpvControl.allCases, id: \.self) { control in
-                Button { open(control) } label: {
-                    Image(systemName: control.symbol)
-                        .font(.title3)
-                        .frame(width: 40, height: 40)
-                }
-                .glassCircleButtonStyle()
-                .focused($focus, equals: .control(control))
-                .accessibilityLabel(control.label)
+        HStack(spacing: 20) {
+            trackMenu(.subtitles, options: subtitleOptions)
+            trackMenu(.audio, options: audioOptions)
+            Button(action: toggleInfo) {
+                Image(systemName: MpvControl.info.symbol)
             }
+            .buttonStyle(MpvCircleButtonStyle(isOpen: isInfoOpen))
+            .focused($focus, equals: .control(.info))
+            .accessibilityLabel(MpvControl.info.label)
         }
         .focusSection()
     }
 
+    private func trackMenu(_ kind: MpvTrackKind, options: [MpvTrackOption]) -> some View {
+        MpvTrackMenu(kind: kind, options: options) { option in
+            choose(option, of: kind)
+        }
+        .focused($focus, equals: .control(kind.control))
+    }
+
     private func togglePause() {
+        isScrubbing = false
         controller.togglePause()
         showControls()
     }
 
     private func moveOnSurface(_ direction: MoveCommandDirection) {
+        guard isControlsShown else {
+            seekIfHorizontal(direction)
+            showControls()
+            return
+        }
         switch direction {
-        case .left:
-            controller.seek(bySteps: -1)
-        case .right:
-            controller.seek(bySteps: 1)
-        case .up where isControlsShown:
+        case .left, .right:
+            seekIfHorizontal(direction)
+        case .down:
+            isScrubbing = true
+        case .up where isScrubbing:
+            isScrubbing = false
+        case .up:
             focus = .control(.subtitles)
         default:
             break
@@ -202,44 +215,53 @@ struct MpvPlayerScreen: View {
         showControls()
     }
 
-    private func open(_ control: MpvControl) {
-        guard panel?.control != control else {
-            closePanel()
-            return
-        }
-        switch control {
-        case .subtitles:
-            openTracks(.subtitles)
-        case .audio:
-            openTracks(.audio)
-        case .info:
-            infoRows = controller.mediaInfo()
-            panel = .info
+    private func seekIfHorizontal(_ direction: MoveCommandDirection) {
+        switch direction {
+        case .left:
+            isScrubbing = true
+            controller.seek(bySteps: -1)
+        case .right:
+            isScrubbing = true
+            controller.seek(bySteps: 1)
+        default:
+            break
         }
     }
 
-    private func openTracks(_ kind: MpvTrackKind) {
-        trackOptions = controller.trackOptions(kind)
-        panel = .tracks(kind)
-        let selected = trackOptions.first(where: \.isSelected) ?? trackOptions.first
-        guard let selected else { return }
-        DispatchQueue.main.async { focus = .option(selected.id) }
+    private func toggleInfo() {
+        if !isInfoOpen {
+            infoRows = controller.mediaInfo()
+        }
+        isInfoOpen.toggle()
     }
 
     private func choose(_ option: MpvTrackOption, of kind: MpvTrackKind) {
         controller.select(option, of: kind)
-        closePanel()
+        refreshTracks()
+        scheduleHide()
     }
 
-    private func closePanel() {
-        guard let closing = panel else { return }
-        panel = nil
-        focus = .control(closing.control)
+    private func refreshTracksIfOnControl(_ newFocus: MpvFocus?) {
+        guard case .control = newFocus else { return }
+        refreshTracks()
+    }
+
+    private func refreshTracks() {
+        subtitleOptions = controller.trackOptions(.subtitles)
+        audioOptions = controller.trackOptions(.audio)
+    }
+
+    private func closeInfoIfFocusLeft(_ newFocus: MpvFocus?) {
+        guard isInfoOpen, newFocus != .control(.info) else { return }
+        isInfoOpen = false
     }
 
     private func back() {
-        if panel != nil {
-            closePanel()
+        if isInfoOpen {
+            isInfoOpen = false
+        } else if isScrubbing {
+            isScrubbing = false
+            showControls()
         } else if focus != .surface, isControlsShown {
             focus = .surface
         } else if isControlsShown {
@@ -259,16 +281,22 @@ struct MpvPlayerScreen: View {
         hideTask = Task { @MainActor in
             try? await Task.sleep(for: Self.hideDelay)
             guard !Task.isCancelled, canHideControls else { return }
-            isControlsShown = false
+            hideControls()
         }
     }
 
     private var canHideControls: Bool {
-        !controller.isPaused && panel == nil && focus == .surface
+        !controller.isPaused && !isInfoOpen && focus != nil
+    }
+
+    private func hideControls() {
+        focus = .surface
+        isScrubbing = false
+        isControlsShown = false
     }
 
     private func refreshInfoWhileOpen() async {
-        while panel == .info, !Task.isCancelled {
+        while isInfoOpen, !Task.isCancelled {
             infoRows = controller.mediaInfo()
             try? await Task.sleep(for: Self.infoRefresh)
         }

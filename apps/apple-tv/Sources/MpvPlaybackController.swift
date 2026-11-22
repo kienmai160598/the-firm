@@ -90,7 +90,7 @@ final class MpvPlaybackController: ObservableObject {
     }
 
     func liftSubtitles(_ isLifted: Bool) {
-        mpv?.setString(MpvProperty.subtitlePosition, isLifted ? "78" : "100")
+        mpv?.setString(MpvProperty.subtitlePosition, isLifted ? "66" : "100")
     }
 
     func trackOptions(_ kind: MpvTrackKind) -> [MpvTrackOption] {

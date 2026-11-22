@@ -79,6 +79,11 @@ final class SeriesContinueWatchingTests: XCTestCase {
         remote.press(.down)
         sleep(1)
         saveScreenshot("s4-9a-mkv-controls")
+        remote.press(.down)
+        sleep(1)
+        saveScreenshot("s4-9f-mkv-scrubbing")
+        remote.press(.up)
+        sleep(1)
         remote.press(.up)
         XCTAssertTrue(app.buttons["Subtitles"].hasFocus)
         remote.press(.select)
@@ -86,6 +91,10 @@ final class SeriesContinueWatchingTests: XCTestCase {
             .matching(NSPredicate(format: "label CONTAINS %@", "Vietnamese ASS"))
             .firstMatch.waitForExistence(timeout: 3))
         saveScreenshot("s4-9b-mkv-subtitle-menu")
+        sleep(7)
+        XCTAssertTrue(app.buttons
+            .matching(NSPredicate(format: "label CONTAINS %@", "Vietnamese ASS"))
+            .firstMatch.exists)
         remote.press(.menu)
         remote.press(.right)
         XCTAssertTrue(app.buttons["Audio"].hasFocus)
@@ -93,7 +102,9 @@ final class SeriesContinueWatchingTests: XCTestCase {
         let dts = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Vietnamese DTS"))
             .firstMatch
         XCTAssertTrue(dts.waitForExistence(timeout: 3))
-        remote.press(.down)
+        for _ in 0..<4 where !dts.hasFocus {
+            remote.press(.down)
+        }
         XCTAssertTrue(dts.hasFocus)
         saveScreenshot("s4-9c-mkv-audio-menu")
         remote.press(.select)
@@ -105,6 +116,9 @@ final class SeriesContinueWatchingTests: XCTestCase {
         sleep(1)
         saveScreenshot("s4-9d-mkv-info")
         remote.press(.menu)
+        XCTAssertTrue(app.buttons["Info"].hasFocus)
+        sleep(7)
+        XCTAssertFalse(app.buttons["Info"].exists)
         remote.press(.down)
         sleep(1)
         XCTAssertTrue(app.buttons["mpv-player"].hasFocus)
