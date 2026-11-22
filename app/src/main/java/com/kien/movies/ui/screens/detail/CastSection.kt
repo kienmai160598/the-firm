@@ -503,15 +503,8 @@ private fun CastMemberItem(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
-            border = posterFocusBorder(
-                CardDefaults.border(
-                    focusedBorder = Border(
-                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                        shape = CircleShape
-                    )
-                )
-            ),
-            scale = posterFocusScale(CardDefaults.scale())
+            border = posterFocusBorder(),
+            scale = posterFocusScale
         ) {
             Box(
                 modifier = Modifier

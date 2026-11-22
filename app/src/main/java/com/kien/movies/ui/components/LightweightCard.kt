@@ -52,7 +52,6 @@ import androidx.tv.material3.surfaceColorAtElevation
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.isExpressiveBuild
 import kotlinx.coroutines.launch
 
 /**
@@ -97,7 +96,7 @@ fun LightweightCard(
         animationSpec = ExpressiveMotion.focusLift(),
         label = "scale"
     )
-    val lifts = isExpressiveBuild && scale != null
+    val lifts = scale != null
     val border = if ((focused || pressed) && !lifts) focusedBorder else Border.None
     val shadowElevationPx = with(LocalDensity.current) {
         if (lifts && liftShadow) ExpressiveFocus.CARD_LIFT_ELEVATION.toPx() else 0f

@@ -393,13 +393,8 @@ fun ContentCard(
                 containerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent
             ),
-            border = posterFocusBorder(CardDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                    shape = cardShape
-                )
-            )),
-            scale = posterFocusScale(CardDefaults.scale(focusedScale = posterCardStyle.focusedScale))
+            border = posterFocusBorder(),
+            scale = posterFocusScale
         ) {
             Box(
                 modifier = Modifier
@@ -462,7 +457,7 @@ fun ContentCard(
                 val trailerCoverAlpha = if (shouldPlayTrailerPreview) {
                     val alpha by animateFloatAsState(
                         targetValue = if (!trailerFirstFrameRendered) 1f else 0f,
-                        animationSpec = ExpressiveMotion.effectsOr(tween(durationMillis = 250)),
+                        animationSpec = ExpressiveMotion.defaultEffects(),
                         label = "trailerCoverAlpha"
                     )
                     alpha

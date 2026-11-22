@@ -12,6 +12,6 @@ import com.kien.movies.ui.theme.ExpressiveRadii
  */
 internal object M3eShapes {
     val capsule: Shape = RoundedCornerShape(percent = ExpressiveFocus.PILL_PERCENT)
-    val card: Shape = RoundedCornerShape(ExpressiveRadii.forBuild.md)
-    val panel: Shape = RoundedCornerShape(ExpressiveRadii.forBuild.xl)
+    val card: Shape = RoundedCornerShape(ExpressiveRadii.tokens.md)
+    val panel: Shape = RoundedCornerShape(ExpressiveRadii.tokens.xl)
 }

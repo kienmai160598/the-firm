@@ -140,10 +140,10 @@ object MoviesTheme {
         get() = MoviesSpacing.tokens
 
     val radii: MoviesRadiusTokens
-        get() = ExpressiveRadii.forBuild
+        get() = ExpressiveRadii.tokens
 
     val shapes: MoviesShapeTokens
-        get() = ExpressiveShapes.forBuild
+        get() = ExpressiveShapes.tokens
 
     val sizes: MoviesSizeTokens
         get() = MoviesSizes.tokens
@@ -175,7 +175,7 @@ object MoviesTheme {
         get() = MoviesMedia.tokens
 
     val components: MoviesComponentTokens
-        get() = ExpressiveComponents.forBuild
+        get() = ExpressiveComponents.tokens
 
     val currentTheme: AppTheme
         @Composable

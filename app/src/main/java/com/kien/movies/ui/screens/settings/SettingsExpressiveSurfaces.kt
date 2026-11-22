@@ -72,23 +72,9 @@ private val CapsuleCardShape: CardShape = CardDefaults.shape(
 
 private val TextCardShape: CardShape = CardDefaults.shape(shape = M3eShapes.card)
 
-/** A card or row corner: 12dp. */
-internal fun expressiveCardShape(upstream: Shape): Shape = M3eShapes.card
-
-/** A large container or hand-drawn dialog corner: 20dp. */
-internal fun expressivePanelShape(upstream: Shape): Shape = M3eShapes.panel
-
 /** The size of an icon inside a button, never under the box's 24dp floor. */
 internal fun buttonIconSize(upstream: Dp): Dp =
     TvSizeFloors.atLeast(upstream, TvSizeFloors.controlIcon)
-
-/** A focused card's fill, tonal once its ring is gone. */
-@Composable
-internal fun expressiveCardFocusFill(upstream: Color): Color = MoviesTheme.colors.FocusBackground
-
-/** A notice drawn in a fixed blue upstream: the theme's tonal container. */
-@Composable
-internal fun expressiveNoticeColor(upstream: Color): Color = MoviesTheme.colors.FocusBackground
 
 @Composable
 internal fun ClickableSurfaceBorder.expressiveRingless(): ClickableSurfaceBorder =
@@ -128,11 +114,6 @@ internal fun ClickableSurfaceColors.expressiveControl(
     primary: Boolean = false
 ): ClickableSurfaceColors = moviesSurfaceColors(selected = selected || primary)
 
-/** The content colour inside a kit control, for text and icons that set one. */
-@Composable
-internal fun expressiveControlContent(focused: Boolean, upstream: Color): Color =
-    if (focused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary
-
 @Composable
 internal fun CardShape.expressiveCard(): CardShape = TextCardShape
 
@@ -166,27 +147,6 @@ internal fun ButtonShape.expressivePill(): ButtonShape = moviesButtonShape
 internal fun ButtonBorder.expressiveRingless(): ButtonBorder = moviesButtonBorder()
 
 internal fun ButtonScale.expressiveControlGrow(): ButtonScale = moviesButtonScale
-
-/**
- * Text or an icon inside a kit control follows the control's content colour, which turns black
- * while it is focused; a fixed colour would vanish on the white fill.
- */
-@Composable
-@ReadOnlyComposable
-internal fun onControlColor(upstream: Color): Color = LocalContentColor.current
-
-/** A plain tile drawn in a fixed grey upstream: the theme's highest surface container. */
-@Composable
-@ReadOnlyComposable
-internal fun expressiveSurfaceOr(upstream: Color): Color = MoviesTheme.colors.SurfaceVariant
-
-@Composable
-@ReadOnlyComposable
-internal fun expressiveErrorOr(upstream: Color): Color = MoviesTheme.colors.Error
-
-@Composable
-@ReadOnlyComposable
-internal fun expressiveWarningOr(upstream: Color): Color = MoviesTheme.colors.Warning
 
 /**
  * A choice card has no focus ring but keeps its selection readable: an accent outline while

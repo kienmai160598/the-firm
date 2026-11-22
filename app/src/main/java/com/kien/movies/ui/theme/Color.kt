@@ -211,9 +211,9 @@ class MoviesColorScheme(
         imageScrim = ImageScrim,
         posterFallback = PosterFallback,
         videoControlsScrim = VideoControlsScrim,
-        glassPanelTop = if (isExpressiveBuild) Color(0xD63A3A3C) else Color(0xD64A4F59),
-        glassPanelMiddle = if (isExpressiveBuild) Color(0xCC2C2C2E) else Color(0xCC3F454F),
-        glassPanelBottom = if (isExpressiveBuild) Color(0xC62C2C2E) else Color(0xC640474F),
+        glassPanelTop = Color(0xD63A3A3C),
+        glassPanelMiddle = Color(0xCC2C2C2E),
+        glassPanelBottom = Color(0xC62C2C2E),
         glow = FocusRing.copy(alpha = 0.32f)
     )
 
@@ -284,17 +284,15 @@ object MoviesColors {
     val PrimaryVariant = MoviesPrimitives.neutral650
     val OnPrimary = MoviesPrimitives.white
     val TextPrimary = MoviesPrimitives.white
-    val TextSecondary =
-        if (isExpressiveBuild) ExpressiveColors.textSecondary else MoviesPrimitives.neutral400
-    val TextTertiary =
-        if (isExpressiveBuild) ExpressiveColors.textTertiary else MoviesPrimitives.neutral600
+    val TextSecondary = ExpressiveColors.textSecondary
+    val TextTertiary = ExpressiveColors.textTertiary
     val TextDisabled = MoviesPrimitives.neutral700
     val Rating = MoviesPrimitives.rating
     val Error = MoviesPrimitives.error
     val Success = MoviesPrimitives.success
     val Warning = MoviesPrimitives.warning
     val Info = MoviesPrimitives.info
-    val Border = if (isExpressiveBuild) ExpressiveColors.divider else MoviesPrimitives.neutral750
+    val Border = ExpressiveColors.divider
 
     val Secondary: Color
         @Composable

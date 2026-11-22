@@ -3,26 +3,24 @@ package com.kien.movies.ui.theme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
-// The box build's corners, in the Apple TV manner: 12dp on cards and rows, 20dp on panels and
-// dialogs, capsules on buttons. Other builds keep upstream's tokens untouched.
+// Corners in the Apple TV manner: 12dp on cards and rows, 20dp on panels and dialogs, capsules
+// on buttons.
 internal object ExpressiveRadii {
-    private val expressive = MoviesRadii.tokens.copy(
+    val tokens: MoviesRadiusTokens = MoviesRadii.tokens.copy(
         md = 12.dp,
         lg = 12.dp,
         xl = 20.dp,
         xxl = 20.dp,
         panel = 20.dp
     )
-
-    val forBuild: MoviesRadiusTokens = if (isExpressiveBuild) expressive else MoviesRadii.tokens
 }
 
 internal object ExpressiveShapes {
     private val capsule = RoundedCornerShape(percent = 50)
-    private val card = RoundedCornerShape(ExpressiveRadii.forBuild.md)
-    private val panel = RoundedCornerShape(ExpressiveRadii.forBuild.xl)
+    private val card = RoundedCornerShape(ExpressiveRadii.tokens.md)
+    private val panel = RoundedCornerShape(ExpressiveRadii.tokens.xl)
 
-    private val expressive = MoviesShapes.tokens.copy(
+    val tokens: MoviesShapeTokens = MoviesShapes.tokens.copy(
         posterCard = card,
         backdropCard = card,
         collectionCard = card,
@@ -33,6 +31,4 @@ internal object ExpressiveShapes {
         menu = card,
         field = card
     )
-
-    val forBuild: MoviesShapeTokens = if (isExpressiveBuild) expressive else MoviesShapes.tokens
 }

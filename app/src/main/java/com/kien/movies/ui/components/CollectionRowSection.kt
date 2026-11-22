@@ -285,13 +285,8 @@ private fun FolderCard(
             containerColor = MoviesTheme.colors.BackgroundCard,
             focusedContainerColor = MoviesTheme.colors.BackgroundCard
         ),
-        border = posterFocusBorder(CardDefaults.border(
-            focusedBorder = Border(
-                border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                shape = shape
-            )
-        )),
-        scale = posterFocusScale(CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)),
+        border = posterFocusBorder(),
+        scale = posterFocusScale,
         glow = cardGlow
     ) {
         Box(
@@ -343,7 +338,7 @@ private fun FolderCard(
                 var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                 val gifAlpha by animateFloatAsState(
                     targetValue = if (gifLoaded) 1f else 0f,
-                    animationSpec = ExpressiveMotion.effectsOr(tween(durationMillis = 200)),
+                    animationSpec = ExpressiveMotion.defaultEffects(),
                     label = "gifFadeIn"
                 )
                 AsyncImage(

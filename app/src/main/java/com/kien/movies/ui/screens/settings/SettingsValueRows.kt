@@ -213,7 +213,7 @@ private fun SliderSettingsItemLayout(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
+                        color = settingsRowText(contentAlpha),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -222,11 +222,7 @@ private fun SliderSettingsItemLayout(
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = settingsRowText(
-                                MoviesTheme.colors.TextSecondary,
-                                contentAlpha,
-                                SETTINGS_SECONDARY_TEXT_ALPHA
-                            ),
+                            color = settingsRowText(contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA),
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -238,7 +234,7 @@ private fun SliderSettingsItemLayout(
                 Text(
                     text = valueText.keepLtr(),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = settingsRowText(MoviesTheme.colors.Primary, contentAlpha)
+                    color = settingsRowText(contentAlpha)
                 )
             }
 
@@ -356,7 +352,7 @@ internal fun ColorSettingsItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
+                color = settingsRowText(contentAlpha),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)

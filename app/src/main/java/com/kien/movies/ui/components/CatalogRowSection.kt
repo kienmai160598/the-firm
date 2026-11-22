@@ -513,15 +513,8 @@ fun CatalogRowSection(
                             containerColor = MoviesTheme.colors.BackgroundCard,
                             focusedContainerColor = MoviesTheme.colors.BackgroundCard
                         ),
-                        border = posterFocusBorder(CardDefaults.border(
-                            focusedBorder = Border(
-                                border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                                shape = seeAllCardShape
-                            )
-                        )),
-                        scale = posterFocusScale(
-                            CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
-                        )
+                        border = posterFocusBorder(),
+                        scale = posterFocusScale
                     ) {
                         Box(
                             modifier = Modifier

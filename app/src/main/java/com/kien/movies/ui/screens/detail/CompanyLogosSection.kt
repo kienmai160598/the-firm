@@ -300,15 +300,8 @@ private fun CompanyLogoCard(
             containerColor = Color.White,
             focusedContainerColor = Color.White
         ),
-        border = posterFocusBorder(
-            CardDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                    shape = LogoTileShape
-                )
-            )
-        ),
-        scale = posterFocusScale(CardDefaults.scale(focusedScale = 1.03f))
+        border = posterFocusBorder(),
+        scale = posterFocusScale
     ) {
         Box(
             modifier = Modifier

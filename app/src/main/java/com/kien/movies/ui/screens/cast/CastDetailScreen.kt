@@ -433,19 +433,8 @@ private fun HeroSection(
                 containerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent
             ),
-            border = posterFocusBorder(
-                CardDefaults.border(
-                    border = Border(
-                        border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
-                        shape = RoundedCornerShape(MoviesTheme.radii.xl)
-                    ),
-                    focusedBorder = Border(
-                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
-                        shape = RoundedCornerShape(MoviesTheme.radii.xl)
-                    )
-                )
-            ),
-            scale = posterFocusScale(CardDefaults.scale())
+            border = posterFocusBorder(),
+            scale = posterFocusScale
         ) {
             val bgCardColor = MoviesTheme.colors.SurfaceVariant
             val bgPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }

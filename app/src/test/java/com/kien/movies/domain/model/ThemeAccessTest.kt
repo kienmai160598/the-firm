@@ -12,7 +12,7 @@ class ThemeAccessTest {
 
         assertEquals(AppTheme.CUSTOM, themes.first())
         assertEquals(AppTheme.CUSTOM, resolveAppTheme(AppTheme.CUSTOM, CosmeticEntitlements.None))
-        assertEquals(AppTheme.WHITE, resolveAppTheme(null, CosmeticEntitlements.None))
+        assertEquals(AppTheme.EXPRESSIVE, resolveAppTheme(null, CosmeticEntitlements.None))
         assertEquals(themes.size, themes.distinct().size)
     }
 

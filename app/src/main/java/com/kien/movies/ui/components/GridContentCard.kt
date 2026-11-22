@@ -187,13 +187,8 @@ fun GridContentCard(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
-            border = posterFocusBorder(CardDefaults.border(
-                focusedBorder = Border(
-                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                    shape = cardShape
-                )
-            )),
-            scale = posterFocusScale(CardDefaults.scale(focusedScale = posterCardStyle.focusedScale))
+            border = posterFocusBorder(),
+            scale = posterFocusScale
         ) {
             Box(
                 modifier = Modifier

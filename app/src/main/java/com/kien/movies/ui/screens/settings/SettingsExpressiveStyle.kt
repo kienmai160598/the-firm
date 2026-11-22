@@ -35,7 +35,7 @@ internal const val SETTINGS_TERTIARY_TEXT_ALPHA = 0.40f
 /** A resting settings row: the kit's frosted fill, so the list reads as tvOS tiles. */
 internal val SettingsRowRestFill: Color = ExpressiveColors.frosted
 
-private val RowCornerShape = RoundedCornerShape(ExpressiveRadii.forBuild.md)
+private val RowCornerShape = RoundedCornerShape(ExpressiveRadii.tokens.md)
 
 internal val SettingsStillButtonScale: ButtonScale =
     ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
@@ -49,21 +49,12 @@ internal fun Modifier.settingsRowFocusScale(focused: Boolean): Modifier =
 internal fun settingsRowCornerShape(): RoundedCornerShape = RowCornerShape
 
 /**
- * A settings row in the tvOS Settings manner: frosted at rest with white content, solid white
- * with black content on focus. Text and icons inside read the content colour through
- * [settingsRowText], so they turn black with the fill.
- */
-@Composable
-internal fun expressiveSettingsRowColors(): CardColors = moviesCardColors()
-
-/**
  * The colour of text or an icon in a settings row: the row's content colour at [emphasis], so it
- * follows the white focus fill. [contentAlpha] dims a disabled row; [upstream] is not read.
+ * follows the white focus fill. [contentAlpha] dims a disabled row.
  */
 @Composable
 @ReadOnlyComposable
 internal fun settingsRowText(
-    upstream: Color,
     contentAlpha: Float = 1f,
     emphasis: Float = 1f
 ): Color = LocalContentColor.current.copy(alpha = emphasis * contentAlpha)
@@ -91,9 +82,6 @@ internal fun settingsDialogButtonColors(primary: Boolean, focused: Boolean): But
 @Composable
 internal fun settingsDialogButtonShape(focused: Boolean): ButtonShape = moviesButtonShape
 
-/** A capsule in every state, as tvOS draws its buttons and chips. */
-internal fun settingsCapsuleOr(upstream: Shape): Shape = M3eShapes.capsule
-
 /**
  * A row's trailing value: white at 64% at rest and black at 64% on focus. A value given its own
  * colour keeps it at rest, since that colour carries meaning (an error, a state).
@@ -102,7 +90,7 @@ internal fun settingsCapsuleOr(upstream: Shape): Shape = M3eShapes.capsule
 @ReadOnlyComposable
 internal fun settingsRowValueColor(valueColor: Color, contentAlpha: Float, focused: Boolean): Color =
     if (focused || valueColor == MoviesTheme.colors.TextSecondary) {
-        settingsRowText(valueColor, contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA)
+        settingsRowText(contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA)
     } else {
         valueColor.copy(alpha = contentAlpha)
     }

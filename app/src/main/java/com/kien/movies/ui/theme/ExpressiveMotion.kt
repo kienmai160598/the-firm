@@ -36,22 +36,6 @@ internal object ExpressiveMotion {
     /** Slow effects spring: larger fades, such as a panel or an image appearing. */
     fun <T> slowEffects(): SpringSpec<T> = spring(dampingRatio = 1f, stiffness = 800f)
 
-    /** [defaultEffects] on the expressive build, [upstream] elsewhere: one-shot fades. */
-    fun <T> effectsOr(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) defaultEffects() else upstream
-
-    /** [slowEffects] on the expressive build, [upstream] elsewhere: larger one-shot fades. */
-    fun <T> slowEffectsOr(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) slowEffects() else upstream
-
-    /** [expressiveFastSpatial] on the expressive build, [upstream] elsewhere: small movements. */
-    fun <T> fastSpatialOr(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) expressiveFastSpatial() else upstream
-
-    /** [standardDefaultSpatial] on the expressive build, [upstream] elsewhere: large surfaces. */
-    fun <T> defaultSpatialOr(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-        if (isExpressiveBuild) standardDefaultSpatial() else upstream
-
     /** Expressive cards zoom on focus like the launcher's tiles; other themes keep still cards. */
     fun cardFocusScale(theme: AppTheme): Float =
         if (theme == AppTheme.EXPRESSIVE) EXPRESSIVE_CARD_FOCUS_SCALE else 1f

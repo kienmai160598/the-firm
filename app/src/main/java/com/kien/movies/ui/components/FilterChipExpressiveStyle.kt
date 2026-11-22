@@ -21,7 +21,6 @@ import androidx.tv.material3.SelectableChipBorder
 import androidx.tv.material3.SelectableChipColors
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.MoviesTheme
 
@@ -41,11 +40,7 @@ internal fun filterChipContentColor(focused: Boolean, selected: Boolean, isError
     val tone = ExpressiveFocus.contentColor(
         focused = focused,
         selected = selected,
-        resting = if (isExpressiveBuild) {
-            MoviesTheme.colors.TextPrimary
-        } else {
-            MoviesTheme.colors.TextSecondary
-        }
+        resting = MoviesTheme.colors.TextPrimary
     )
     return if (isError) MoviesTheme.colors.Error else tone
 }
@@ -78,11 +73,9 @@ internal fun filterChipColors(
     )
 }
 
-/** Frosted at rest on the box build, brighter while selected; upstream's tonal fills elsewhere. */
+/** Frosted at rest, brighter while selected. */
 @Composable
 private fun chipRestingContainer(selected: Boolean): Color = when {
-    !isExpressiveBuild && selected -> MoviesTheme.colors.FocusBackground
-    !isExpressiveBuild -> MoviesTheme.colors.BackgroundCard
     selected -> ExpressiveColors.frostedStrong
     else -> ExpressiveColors.frosted
 }

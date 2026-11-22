@@ -39,7 +39,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.isExpressiveBuild
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -133,14 +132,11 @@ fun MoviesDialog(
     }
 }
 
-/** A dark frosted panel on the box build, upstream's modal surface elsewhere. */
-@Composable
-private fun dialogPanelColor(): Color =
-    if (isExpressiveBuild) ExpressiveColors.dialogPanel else MoviesTheme.colors.Modal
+/** A dark frosted panel. */
+private fun dialogPanelColor(): Color = ExpressiveColors.dialogPanel
 
-/** The faint white edge an Apple dark panel carries; none on other builds. */
-private fun dialogEdgeColor(): Color =
-    if (isExpressiveBuild) ExpressiveColors.divider else Color.Transparent
+/** The faint white edge an Apple dark panel carries. */
+private fun dialogEdgeColor(): Color = ExpressiveColors.divider
 
 private fun isSelectKey(keyCode: Int): Boolean {
     return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||

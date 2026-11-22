@@ -93,6 +93,7 @@ import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.moviesCardBorder
+import com.kien.movies.ui.components.expressive.moviesCardColors
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
@@ -162,7 +163,7 @@ internal fun settingsTallRowShape(): RoundedCornerShape =
     if (isFlatSettingsStyle()) settingsRowShape() else RoundedCornerShape(SettingsSecondaryCardRadius)
 
 @Composable
-internal fun settingsRowColors(): CardColors = expressiveSettingsRowColors()
+internal fun settingsRowColors(): CardColors = moviesCardColors()
 
 @Composable
 internal fun settingsRowBorder(): CardBorder = moviesCardBorder()
@@ -177,7 +178,7 @@ private fun SettingsRowLeadingIcon(icon: ImageVector, enabled: Boolean) {
     Icon(
         imageVector = icon,
         contentDescription = null,
-        tint = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
+        tint = settingsRowText(contentAlpha),
         modifier = Modifier
             .size(MoviesTheme.spacing.xl)
             .testTag(SettingsTestTags.ROW_ICON)
@@ -673,7 +674,7 @@ internal fun SettingsToggleRow(
                     Text(
                         text = title,
                         style = settingsRowTitleStyle(),
-                        color = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
+                        color = settingsRowText(contentAlpha),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -684,7 +685,7 @@ internal fun SettingsToggleRow(
                             imageVector = titleTrailingIcon,
                             contentDescription = null,
                             tint = if (isFocused) {
-                                settingsRowText(titleTrailingIconTint, contentAlpha)
+                                settingsRowText(contentAlpha)
                             } else {
                                 titleTrailingIconTint.copy(alpha = contentAlpha)
                             },
@@ -697,11 +698,7 @@ internal fun SettingsToggleRow(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = settingsRowText(
-                            MoviesTheme.colors.TextSecondary,
-                            contentAlpha,
-                            SETTINGS_SECONDARY_TEXT_ALPHA
-                        ),
+                        color = settingsRowText(contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA),
                         maxLines = if (expandSubtitleOnFocus && isFocused) 8 else 3,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -781,7 +778,7 @@ internal fun SettingsActionRow(
                     Text(
                         text = title,
                         style = settingsRowTitleStyle(),
-                        color = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
+                        color = settingsRowText(contentAlpha),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -792,7 +789,7 @@ internal fun SettingsActionRow(
                             imageVector = titleTrailingIcon,
                             contentDescription = null,
                             tint = if (isFocused) {
-                                settingsRowText(titleTrailingIconTint, contentAlpha)
+                                settingsRowText(contentAlpha)
                             } else {
                                 titleTrailingIconTint.copy(alpha = contentAlpha)
                             },
@@ -805,11 +802,7 @@ internal fun SettingsActionRow(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = settingsRowText(
-                            MoviesTheme.colors.TextSecondary,
-                            contentAlpha,
-                            SETTINGS_SECONDARY_TEXT_ALPHA
-                        ),
+                        color = settingsRowText(contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -832,11 +825,7 @@ internal fun SettingsActionRow(
             Icon(
                 imageVector = trailingIcon,
                 contentDescription = null,
-                tint = settingsRowText(
-                    MoviesTheme.colors.TextTertiary,
-                    contentAlpha,
-                    SETTINGS_TERTIARY_TEXT_ALPHA
-                ),
+                tint = settingsRowText(contentAlpha, SETTINGS_TERTIARY_TEXT_ALPHA),
                 modifier = Modifier.size(buttonIconSize(18.dp))
             )
         }

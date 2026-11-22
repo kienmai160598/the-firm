@@ -31,25 +31,6 @@ import com.kien.movies.ui.theme.MoviesTheme
 // build has the Material 3 Expressive look; the helpers that still take an upstream value ignore
 // it and stay only until their last callers move to the expressive value or the M3E kit.
 
-/** Always [expressive]: kept for callers not yet moved off it. */
-@Suppress("UNUSED_PARAMETER")
-internal fun <T> forBuild(upstream: T, expressive: T): T = expressive
-
-/** Colour and opacity changes ride the M3E effects spring. */
-@Suppress("UNUSED_PARAMETER")
-internal fun <T> effectsSpec(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-    ExpressiveMotion.defaultEffects()
-
-/** Large surfaces that move or resize ride the M3E standard spatial spring. */
-@Suppress("UNUSED_PARAMETER")
-internal fun <T> spatialSpec(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-    ExpressiveMotion.standardDefaultSpatial()
-
-/** Small parts that move or scale ride the M3E fast spatial spring. */
-@Suppress("UNUSED_PARAMETER")
-internal fun <T> fastSpatialSpec(upstream: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> =
-    ExpressiveMotion.expressiveFastSpatial()
-
 /**
  * The box renders 960 by 540 dp and is read from across a room, so nothing on it may be
  * smaller than these.
@@ -115,22 +96,6 @@ internal fun tonalButtonColors(resting: Color = ExpressiveColors.frosted): Butto
 @Composable
 internal fun buttonLabelStyle(): TextStyle =
     MaterialTheme.typography.labelLarge.atLeastOnBox(TvSizeFloors.bodyText)
-
-/**
- * A tv-material Button whose [selected] state stays tonal, the M3E selected look, so only the
- * focused one carries the accent. The upstream colours are ignored.
- */
-@Suppress("UNUSED_PARAMETER")
-@Composable
-internal fun selectableButtonColors(
-    selected: Boolean,
-    upstreamSelected: Color = Color.Unspecified,
-    upstreamSelectedContent: Color = Color.Unspecified
-): ButtonColors {
-    return tonalButtonColors(
-        if (selected) ExpressiveColors.frostedStrong else ExpressiveColors.frosted
-    )
-}
 
 /** Focusable controls on the box are at least [TvSizeFloors.control] tall. */
 internal fun Modifier.tvControlHeight(): Modifier = heightIn(min = TvSizeFloors.control)

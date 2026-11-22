@@ -1,5 +1,7 @@
 package com.kien.movies.ui.components
 
+import com.kien.movies.ui.components.expressive.MoviesTextButton
+
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
 
@@ -47,7 +49,7 @@ fun ErrorState(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
-        ExpressivePillButton(text = stringResource(R.string.action_retry), onClick = onRetry)
+        MoviesTextButton(text = stringResource(R.string.action_retry), onClick = onRetry)
     }
 }
 
