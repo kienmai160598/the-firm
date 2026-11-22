@@ -167,7 +167,7 @@ final class FailurePathTests: XCTestCase {
 
     private func launch(route: String) {
         app.terminate()
-        app.launchArguments = ["-NuvioDebugAddonUrl", Self.addonUrl, "-NuvioDebugRoute", route]
+        app.launchArguments = ["-MoviesDebugAddonUrl", Self.addonUrl, "-MoviesDebugRoute", route]
         app.launch()
     }
 

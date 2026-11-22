@@ -1,6 +1,6 @@
 name: NuvioTv
 options:
-  bundleIdPrefix: com.nuvio.tvos
+  bundleIdPrefix: com.kien.movies.tvos
   deploymentTarget:
     tvOS: "17.0"
 settings:
@@ -16,11 +16,11 @@ targets:
     settings:
       base:
         PRODUCT_NAME: NuvioTv
-        PRODUCT_BUNDLE_IDENTIFIER: com.nuvio.tvos.dev
+        PRODUCT_BUNDLE_IDENTIFIER: com.kien.movies.tvos
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Nuvio
+        INFOPLIST_KEY_CFBundleDisplayName: Movies
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         FRAMEWORK_SEARCH_PATHS:
           - "$(inherited)"
@@ -69,7 +69,7 @@ targets:
       - target: NuvioTv
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.nuvio.tvos.dev.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: com.kien.movies.tvos.uitests
         GENERATE_INFOPLIST_FILE: YES
         TEST_TARGET_NAME: NuvioTv
 schemes:

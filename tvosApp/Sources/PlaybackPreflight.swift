@@ -21,8 +21,8 @@ enum PlaybackPreflight {
     ]
     private static let noticeTitle = "Apple TV cannot play this stream"
     private static let supportedFormats =
-        "Nuvio on Apple TV plays MP4, MOV and HLS (m3u8) streams. Pick another stream."
-    private static let log = Logger(subsystem: "com.nuvio.tvos", category: "Preflight")
+        "Movies on Apple TV plays MP4, MOV and HLS (m3u8) streams. Pick another stream."
+    private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Preflight")
 
     static func check(_ request: PlaybackRequest) async -> PlaybackVerdict {
         switch knownExtension(of: request) {

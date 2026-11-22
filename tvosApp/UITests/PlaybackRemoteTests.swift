@@ -12,8 +12,8 @@ final class PlaybackRemoteTests: XCTestCase {
         continueAfterFailure = false
         try XCTSkipUnless(Self.isAddonServerUp, "Start the TestAddon server on port 8765 first")
         app.launchArguments = [
-            "-NuvioDebugAddonUrl", Self.addonUrl,
-            "-NuvioDebugRoute", Self.bigBuckBunny,
+            "-MoviesDebugAddonUrl", Self.addonUrl,
+            "-MoviesDebugRoute", Self.bigBuckBunny,
         ]
     }
 
@@ -83,8 +83,8 @@ final class PlaybackRemoteTests: XCTestCase {
 
     func testTorrentStreamOpensInfoSheet() {
         app.launchArguments = [
-            "-NuvioDebugAddonUrl", Self.addonUrl,
-            "-NuvioDebugRoute", "streams/movie/tt1727587",
+            "-MoviesDebugAddonUrl", Self.addonUrl,
+            "-MoviesDebugRoute", "streams/movie/tt1727587",
         ]
         app.launch()
         let torrent = app.buttons

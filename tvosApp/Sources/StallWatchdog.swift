@@ -5,7 +5,7 @@ import os
 final class StallWatchdog {
     private static let stallLimit: Duration = .seconds(20)
     private static let stoppedSendingData = "The stream stopped sending data."
-    private static let log = Logger(subsystem: "com.nuvio.tvos", category: "Player")
+    private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Player")
 
     private let item: AVPlayerItem
     private let onGiveUp: (Error) -> Void
@@ -62,7 +62,7 @@ final class StallWatchdog {
     private var stallError: Error {
         guard let lastEvent = item.errorLog()?.events.last else {
             return NSError(
-                domain: "com.nuvio.tvos.playback",
+                domain: "com.kien.movies.tvos.playback",
                 code: 1,
                 userInfo: [NSLocalizedDescriptionKey: Self.stoppedSendingData]
             )

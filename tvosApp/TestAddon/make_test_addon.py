@@ -4,7 +4,7 @@ Usage:
     python3 -I tvosApp/TestAddon/make_test_addon.py /tmp/nuvio-test-addon
     python3 -I tvosApp/TestAddon/serve_test_addon.py /tmp/nuvio-test-addon 8765
 
-Then launch the DEBUG app with -NuvioDebugAddonUrl http://127.0.0.1:8765/manifest.json.
+Then launch the DEBUG app with -MoviesDebugAddonUrl http://127.0.0.1:8765/manifest.json.
 All films are CC BY 3.0 (Blender Foundation), hosted by the Internet Archive.
 
 The series "tvostest-series" is SYNTHETIC TEST DATA made up for this addon: it is not a
@@ -86,7 +86,7 @@ FILMS = {
 SINTEL_INFO_HASH = "08ada5a7a6183aae1e09d831df6748d566095a10"  # webtorrent.io/free-torrents
 
 SERIES_ID = "tvostest-series"
-SERIES_NAME = "Nuvio tvOS Test Series"
+SERIES_NAME = "Movies tvOS Test Series"
 SERIES_NOTE = "Synthetic test data: not a real show. Episodes reuse CC Blender films."
 
 EPISODES = [

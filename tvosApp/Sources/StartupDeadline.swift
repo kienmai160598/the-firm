@@ -5,7 +5,7 @@ import os
 final class StartupDeadline {
     static let limit: Duration = .seconds(20)
     private static let noData = "The stream sent no data for 20 seconds before it started playing."
-    private static let log = Logger(subsystem: "com.nuvio.tvos", category: "Player")
+    private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Player")
 
     private let item: AVPlayerItem
     private let onExpire: (Error) -> Void
@@ -45,7 +45,7 @@ final class StartupDeadline {
 
     private static var startupError: Error {
         NSError(
-            domain: "com.nuvio.tvos.playback",
+            domain: "com.kien.movies.tvos.playback",
             code: 2,
             userInfo: [NSLocalizedDescriptionKey: noData]
         )

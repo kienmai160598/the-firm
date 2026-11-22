@@ -3,10 +3,10 @@ import NuvioTvShared
 
 struct StreamDetailSheet: View {
     private static let torrentNote =
-        "This is a torrent. Nuvio on Apple TV plays HTTP(S) links only, so a torrent needs " +
+        "This is a torrent. Movies on Apple TV plays HTTP(S) links only, so a torrent needs " +
         "a streaming server or a debrid service to turn it into an HTTP link first."
     private static let unsupportedNote =
-        "Nuvio on Apple TV cannot play this source yet. It plays direct HTTP(S) links " +
+        "Movies on Apple TV cannot play this source yet. It plays direct HTTP(S) links " +
         "such as MP4 files and HLS playlists."
 
     let stream: TvosStream

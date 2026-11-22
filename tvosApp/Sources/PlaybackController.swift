@@ -7,7 +7,7 @@ final class PlaybackController {
     private static let tickInterval = CMTime(seconds: 10, preferredTimescale: 600)
     private static let minimumTickAdvanceMs: Int64 = 1000
     private static let headerFieldsKey = "AVURLAssetHTTPHeaderFieldsKey"
-    private static let log = Logger(subsystem: "com.nuvio.tvos", category: "Player")
+    private static let log = Logger(subsystem: "com.kien.movies.tvos", category: "Player")
 
     let player: AVPlayer
     private let request: PlaybackRequest

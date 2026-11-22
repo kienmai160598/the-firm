@@ -5,7 +5,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
     private static let testSeries = "details/series/tvostest-series"
     private static let tearsOfSteelStreams = "streams/movie/tt2285752"
     private static let episodeStreamName = "Test Episode MP4"
-    private static let seriesTitle = "Nuvio tvOS Test Series"
+    private static let seriesTitle = "Movies tvOS Test Series"
     private static let nextUpLabel = "Next Up"
     private static let removeTitle = "Remove from Continue Watching"
 
@@ -27,7 +27,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
         XCTAssertTrue(episodeValue(1).hasSuffix("% watched"), "E1 value: \(episodeValue(1))")
         saveScreenshot("s4-3-series-resume-e1")
 
-        launch(route: Self.testSeries, extra: ["-NuvioDebugStartSecondsBeforeEnd", "8"])
+        launch(route: Self.testSeries, extra: ["-MoviesDebugStartSecondsBeforeEnd", "8"])
         playEpisodeFromPrimary(beginningWith: "Resume S1 E1", watchSeconds: 25)
         XCTAssertTrue(primaryButton(beginningWith: "Next Up").waitForExistence(timeout: 10))
         XCTAssertEqual(episodeValue(1), "Watched")
@@ -95,7 +95,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
 
     func testC_ColdLaunchHomeShowsContinueWatchingFirst() {
         app.terminate()
-        app.launchArguments = ["-NuvioDebugAddonUrl", Self.addonUrl]
+        app.launchArguments = ["-MoviesDebugAddonUrl", Self.addonUrl]
         app.launch()
         XCTAssertTrue(continueWatchingCard.waitForExistence(timeout: 60))
         focusContinueWatchingCard()
@@ -148,7 +148,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
 
     func testE_DownFromTabBarFocusesFirstCardAndBackRestoresSelection() {
         app.terminate()
-        app.launchArguments = ["-NuvioDebugAddonUrl", Self.addonUrl]
+        app.launchArguments = ["-MoviesDebugAddonUrl", Self.addonUrl]
         app.launch()
         let anyCard = app.buttons["continueWatchingCard"].firstMatch
         XCTAssertTrue(anyCard.waitForExistence(timeout: 60))
@@ -222,7 +222,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
     }
 
     private func finishSecondEpisode() {
-        launch(route: Self.testSeries, extra: ["-NuvioDebugStartSecondsBeforeEnd", "8"])
+        launch(route: Self.testSeries, extra: ["-MoviesDebugStartSecondsBeforeEnd", "8"])
         let nextUp = primaryButton(beginningWith: "Next Up")
         let resume = primaryButton(beginningWith: "Resume S1 E2")
         let eitherShown = NSPredicate { _, _ in nextUp.exists || resume.exists }
@@ -295,7 +295,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
 
     private func launchHome() {
         app.terminate()
-        app.launchArguments = ["-NuvioDebugAddonUrl", Self.addonUrl]
+        app.launchArguments = ["-MoviesDebugAddonUrl", Self.addonUrl]
         app.launch()
     }
 
@@ -344,7 +344,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
 
     private func launch(route: String, extra: [String] = []) {
         app.terminate()
-        app.launchArguments = ["-NuvioDebugAddonUrl", Self.addonUrl, "-NuvioDebugRoute", route]
+        app.launchArguments = ["-MoviesDebugAddonUrl", Self.addonUrl, "-MoviesDebugRoute", route]
             + extra
         app.launch()
     }

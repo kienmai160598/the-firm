@@ -32,7 +32,7 @@ final class RemoteNavigationTests: XCTestCase {
     }
 
     func testSeasonPickerAndEpisodeCardOpenEpisodeStreams() {
-        app.launchArguments = ["-NuvioDebugRoute", "details/series/tt0903747"]
+        app.launchArguments = ["-MoviesDebugRoute", "details/series/tt0903747"]
         app.launch()
         XCTAssertTrue(playButton.waitForExistence(timeout: 60))
         XCTAssertTrue(app.staticTexts["E1  Pilot"].waitForExistence(timeout: 10))
@@ -86,7 +86,7 @@ final class RemoteNavigationTests: XCTestCase {
     }
 
     func testSeriesFocusWalkThroughSeasonsEpisodesAndBack() {
-        app.launchArguments = ["-NuvioDebugRoute", "details/series/tt0903747"]
+        app.launchArguments = ["-MoviesDebugRoute", "details/series/tt0903747"]
         app.launch()
         XCTAssertTrue(playButton.waitForExistence(timeout: 60))
         XCTAssertTrue(app.staticTexts["E1  Pilot"].waitForExistence(timeout: 10))
@@ -129,7 +129,7 @@ final class RemoteNavigationTests: XCTestCase {
     }
 
     func testCastCardLiftsOnFocusAndEveryTabIsReachable() {
-        app.launchArguments = ["-NuvioDebugRoute", "details/series/tt0903747"]
+        app.launchArguments = ["-MoviesDebugRoute", "details/series/tt0903747"]
         app.launch()
         XCTAssertTrue(playButton.waitForExistence(timeout: 60))
         XCTAssertTrue(app.staticTexts["Cast"].waitForExistence(timeout: 10))
