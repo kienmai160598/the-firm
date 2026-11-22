@@ -1,8 +1,5 @@
 package com.kien.movies.ui.theme
 
-import com.kien.movies.core.build.BoxBuild
-import com.kien.movies.domain.model.AppTheme
-
-// Fixed per build from its default theme, not read from the composition, so tokens that code
-// reads outside one (radii, component sizes) can follow it too.
-internal val isExpressiveBuild: Boolean = BoxBuild.appTheme == AppTheme.EXPRESSIVE
+// Every build uses the Material 3 Expressive component set. Kept as a constant while the last
+// upstream branches are removed; delete it with them.
+internal val isExpressiveBuild: Boolean = true
