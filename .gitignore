@@ -1,2 +1,4 @@
 .DS_Store
 .idea/
+/nuvio-engine/
+/engine/.tools/

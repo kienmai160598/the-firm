@@ -80,6 +80,7 @@ private fun StreamItem.toTvosStream(key: String): TvosStream =
         infoHash = p2pInfoHash,
         fileIndex = p2pFileIdx?.toString(),
         filename = behaviorHints.filename?.takeIf(String::isNotBlank),
+        trackers = p2pTrackers,
         addonId = addonId,
         addonName = addonName,
         playableUrl = inAppPlayableUrl(),

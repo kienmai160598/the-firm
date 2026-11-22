@@ -13,6 +13,7 @@ data class TvosStream(
     val infoHash: String?,
     val fileIndex: String?,
     val filename: String?,
+    val trackers: List<String>,
     val addonId: String,
     val addonName: String,
     val playableUrl: String?,

@@ -66,7 +66,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import platform.Foundation.NSFileManager
-import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSLog
 
 private const val StatsPollIntervalMs = 250L
@@ -327,8 +326,9 @@ actual object P2pStreamingEngine {
         engine?.takeIf { engineConfigurationKey == configuration }?.let { return it }
         closeEngine()
 
-        val stateDirectory = "${NSHomeDirectory()}/Library/Application Support/NuvioEngine/state"
-        val cacheDirectory = "${NSHomeDirectory()}/Library/Caches/NuvioEngine"
+        val directories = p2pEngineDirectories()
+        val stateDirectory = directories.state
+        val cacheDirectory = directories.cache
         createDirectory(stateDirectory)
         createDirectory(cacheDirectory)
         migrateNestedPayloadDirectory(cacheDirectory)

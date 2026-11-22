@@ -1,0 +1,108 @@
+diff --git a/scripts/build-apple-openssl.sh b/scripts/build-apple-openssl.sh
+index 2c2c02f..5f6fe03 100755
+--- a/scripts/build-apple-openssl.sh
++++ b/scripts/build-apple-openssl.sh
+@@ -8,6 +8,7 @@ text_template_version=1.61
+ text_template_sha256=a295ea7d1ef241ae2640c1f7864b628f8e6f99ec14fb1da781b2f5f2168dcf09
+ text_template_url="https://cpan.metacpan.org/authors/id/M/MS/MSCHOUT/Text-Template-${text_template_version}.tar.gz"
+ ios_deployment_target=16.1
++tvos_deployment_target=17.0
+ macos_deployment_target=11.0
+ runtime_prefix=/nuvio-engine/openssl
+ 
+@@ -95,6 +96,8 @@ if (( jobs > 8 )); then
+ fi
+ 
+ slice_names=(
++    tvos-arm64
++    tvos-simulator-arm64
+     macos-arm64
+     macos-x86_64
+     ios-arm64
+@@ -102,6 +105,8 @@ slice_names=(
+     ios-simulator-x86_64
+ )
+ configure_targets=(
++    ios64-xcrun
++    iossimulator-arm64-xcrun
+     darwin64-arm64-cc
+     darwin64-x86_64-cc
+     ios64-xcrun
+@@ -109,14 +114,16 @@ configure_targets=(
+     iossimulator-x86_64-xcrun
+ )
+ deployment_flags=(
++    -mtvos-version-min=${tvos_deployment_target}
++    -mtvos-simulator-version-min=${tvos_deployment_target}
+     -mmacosx-version-min=${macos_deployment_target}
+     -mmacosx-version-min=${macos_deployment_target}
+     -miphoneos-version-min=${ios_deployment_target}
+     -mios-simulator-version-min=${ios_deployment_target}
+     -mios-simulator-version-min=${ios_deployment_target}
+ )
+-sdks=(macosx macosx iphoneos iphonesimulator iphonesimulator)
+-architectures=(arm64 x86_64 arm64 arm64 x86_64)
++sdks=(appletvos appletvsimulator macosx macosx iphoneos iphonesimulator iphonesimulator)
++architectures=(arm64 arm64 arm64 x86_64 arm64 arm64 x86_64)
+ 
+ for index in "${!slice_names[@]}"; do
+     slice=${slice_names[$index]}
+@@ -208,4 +215,4 @@ create_universal_install() {
+ create_universal_install macos macos-arm64 macos-x86_64
+ create_universal_install ios-simulator ios-simulator-arm64 ios-simulator-x86_64
+ 
+-echo "built OpenSSL ${openssl_version} for macOS, iOS, and iOS Simulator"
++echo "built OpenSSL ${openssl_version} for macOS, iOS, iOS Simulator, tvOS, and tvOS Simulator"
+diff --git a/scripts/build-apple-xcframework.sh b/scripts/build-apple-xcframework.sh
+index 5ee4215..a68c948 100755
+--- a/scripts/build-apple-xcframework.sh
++++ b/scripts/build-apple-xcframework.sh
+@@ -2,6 +2,7 @@
+ set -euo pipefail
+ 
+ ios_deployment_target=16.1
++tvos_deployment_target=17.0
+ macos_deployment_target=11.0
+ 
+ script_directory=$(cd "$(dirname "$0")" && pwd -P)
+@@ -78,6 +79,20 @@ configure_and_build() {
+     fi
+ }
+ 
++configure_and_build \
++    tvos \
++    appletvos \
++    "$tvos_deployment_target" \
++    arm64 \
++    tvos-arm64 \
++    tvOS
++configure_and_build \
++    tvos-simulator \
++    appletvsimulator \
++    "$tvos_deployment_target" \
++    arm64 \
++    tvos-simulator-arm64 \
++    tvOS
+ configure_and_build \
+     macos \
+     macosx \
+@@ -124,6 +139,8 @@ merge_slice() {
+ merge_slice macos macos
+ merge_slice ios ios-arm64
+ merge_slice ios-simulator ios-simulator
++merge_slice tvos tvos-arm64
++merge_slice tvos-simulator tvos-simulator-arm64
+ 
+ headers="$build_root/headers"
+ cmake -E remove_directory "$headers"
+@@ -163,6 +180,10 @@ xcodebuild -create-xcframework \
+     -headers "$headers" \
+     -library "$build_root/combined/ios-simulator/libCNuvioEngine.a" \
+     -headers "$headers" \
++    -library "$build_root/combined/tvos/libCNuvioEngine.a" \
++    -headers "$headers" \
++    -library "$build_root/combined/tvos-simulator/libCNuvioEngine.a" \
++    -headers "$headers" \
+     -output "$output"
+ 
+ echo "created $output"
