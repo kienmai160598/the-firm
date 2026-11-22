@@ -7,38 +7,34 @@ struct DetailsHeroView: View {
     let details: TvosMetaDetails
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 22) {
             TitleArtwork(name: details.name, logoUrl: details.logoUrl)
-            if !metadataLine.isEmpty {
-                Text(metadataLine)
-                    .font(.headline)
-            }
-            if !details.genres.isEmpty {
-                Text(details.genres.joined(separator: ", "))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
+            MetadataLine(text: metadataLine, ageRating: details.ageRating)
             if let overview = details.overview {
                 Text(overview)
-                    .font(.body)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.85))
                     .lineLimit(3)
             }
             if let credits {
                 Text(credits)
-                    .font(.callout)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             if let action = details.primaryAction {
-                HStack(spacing: 40) {
+                HStack(alignment: .center, spacing: 36) {
                     NavigationLink(value: AppRoute.streams(action.target)) {
                         Label(action.label, systemImage: "play.fill")
+                            .font(.headline)
+                            .padding(.horizontal, 12)
                     }
+                    .glassProminentButtonStyle()
                     if let resume = action.resume {
                         ResumeProgressView(resume: resume)
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 6)
             }
         }
         .frame(maxWidth: Self.textWidth, alignment: .leading)
@@ -46,10 +42,12 @@ struct DetailsHeroView: View {
     }
 
     private var metadataLine: String {
+        let kind = details.type == "series" ? "TV Show" : "Movie"
+        let genres = details.genres.prefix(3).joined(separator: ", ")
         let rating = details.imdbRating.map { "IMDb \($0)" }
-        return [details.releaseLine, details.runtime, details.ageRating, rating]
+        return [kind, genres.isEmpty ? nil : genres, details.releaseLine, details.runtime, rating]
             .compactMap { $0 }
-            .joined(separator: "  ·  ")
+            .joined(separator: " · ")
     }
 
     private var credits: String? {
@@ -86,15 +84,37 @@ private struct TitleArtwork: View {
     }
 }
 
+private struct MetadataLine: View {
+    let text: String
+    let ageRating: String?
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Text(text)
+            if let ageRating {
+                Text(ageRating)
+                    .font(.caption2.weight(.bold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6).stroke(.white.opacity(0.6), lineWidth: 2)
+                    )
+            }
+        }
+        .font(.callout.weight(.semibold))
+        .foregroundStyle(.white.opacity(0.8))
+    }
+}
+
 private struct ResumeProgressView: View {
     let resume: TvosResumePoint
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(resume.label)
-                .font(.callout)
-            ProgressView(value: Double(resume.watchedFraction))
-                .frame(width: 360)
+                .font(.caption)
+            WatchProgressBar(fraction: Double(resume.watchedFraction))
+                .frame(width: 300)
         }
         .foregroundStyle(.secondary)
     }

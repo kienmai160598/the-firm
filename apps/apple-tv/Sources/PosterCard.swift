@@ -2,7 +2,7 @@ import SwiftUI
 import NuvioTvShared
 
 struct PosterCard: View {
-    static let width: CGFloat = 220
+    static let width: CGFloat = 208
 
     let item: TvosItem
 

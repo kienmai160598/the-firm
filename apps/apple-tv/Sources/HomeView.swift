@@ -16,19 +16,23 @@ struct HomeView: View {
             HomeStatusView(isLoading: model.isLoading, errorMessage: model.errorMessage)
         } else {
             ScrollView(.vertical) {
-                LazyVStack(alignment: .leading, spacing: 48) {
-                    ForEach(continueWatchingRows, id: \.title) { row in
-                        ContinueWatchingRowView(
-                            row: row,
-                            onRemove: model.removeFromContinueWatching
-                        )
+                VStack(alignment: .leading, spacing: 0) {
+                    HomeHero(rows: model.rows)
+                    VStack(alignment: .leading, spacing: 40) {
+                        ForEach(continueWatchingRows, id: \.title) { row in
+                            ContinueWatchingRowView(
+                                row: row,
+                                onRemove: model.removeFromContinueWatching
+                            )
+                        }
+                        ForEach(model.rows, id: \.key) { row in
+                            CatalogRowView(row: row)
+                        }
                     }
-                    ForEach(model.rows, id: \.key) { row in
-                        CatalogRowView(row: row)
-                    }
+                    .padding(.bottom, 60)
                 }
-                .padding(.vertical, 40)
             }
+            .ignoresSafeArea(edges: .top)
         }
     }
 

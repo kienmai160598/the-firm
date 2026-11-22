@@ -7,6 +7,12 @@ data class TvosItem(
     val type: String,
     val name: String,
     val posterUrl: String?,
+    val backdropUrl: String?,
+    val logoUrl: String?,
+    val overview: String?,
+    val releaseInfo: String?,
+    val imdbRating: String?,
+    val genres: List<String>,
 )
 
 data class TvosRow(

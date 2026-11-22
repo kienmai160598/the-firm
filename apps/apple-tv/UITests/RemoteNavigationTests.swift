@@ -31,6 +31,28 @@ final class RemoteNavigationTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Popular - Movies"].waitForExistence(timeout: 10))
     }
 
+    func testHeroUpReachesTabsAndDownReachesFirstRow() {
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Popular - Movies"].waitForExistence(timeout: 60))
+        XCTAssertTrue(heroButton.waitForExistence(timeout: 30), "No hero")
+        XCTAssertTrue(waitForFocus())
+        for _ in 0..<3 where isTabBarFocused {
+            remote.press(.down)
+        }
+        XCTAssertTrue(heroButton.hasFocus, "Focused: \(focusedElement.label)")
+        saveScreenshot("hero-1-focus")
+
+        press(.up)
+        XCTAssertTrue(isTabBarFocused, "Up from hero: \(focusedElement.label)")
+        press(.down)
+        XCTAssertTrue(heroButton.hasFocus, "Down from tabs: \(focusedElement.label)")
+        press(.down)
+        XCTAssertFalse(heroButton.hasFocus, "Down stayed on hero")
+        XCTAssertFalse(isTabBarFocused)
+        XCTAssertGreaterThan(focusedElement.frame.minY, heroButton.frame.maxY)
+        saveScreenshot("hero-2-first-row")
+    }
+
     func testSeasonPickerAndEpisodeCardOpenEpisodeStreams() {
         app.launchArguments = ["-MoviesDebugRoute", "details/series/tt0903747"]
         app.launch()
@@ -132,7 +154,7 @@ final class RemoteNavigationTests: XCTestCase {
         app.launchArguments = ["-MoviesDebugRoute", "details/series/tt0903747"]
         app.launch()
         XCTAssertTrue(playButton.waitForExistence(timeout: 60))
-        XCTAssertTrue(app.staticTexts["Cast"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Cast & Crew"].waitForExistence(timeout: 10))
         for _ in 0..<4 where !isCastFocused {
             press(.down)
         }
@@ -164,7 +186,7 @@ final class RemoteNavigationTests: XCTestCase {
     }
 
     private var isCastFocused: Bool {
-        let castTitle = app.staticTexts["Cast"].firstMatch
+        let castTitle = app.staticTexts["Cast & Crew"].firstMatch
         return focusedElement.frame.minY > castTitle.frame.maxY
     }
 
@@ -200,16 +222,21 @@ final class RemoteNavigationTests: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Play'")).firstMatch
     }
 
+    private var heroButton: XCUIElement {
+        app.buttons["homeHeroButton"]
+    }
+
     private var focusedElement: XCUIElement {
         app.descendants(matching: .any).matching(NSPredicate(format: "hasFocus == true")).firstMatch
     }
 
     private func focusFirstPoster() {
-        for _ in 0..<6 where isTabBarFocused || isContinueWatchingFocused {
+        for _ in 0..<6 where isTabBarFocused || isContinueWatchingFocused || heroButton.hasFocus {
             remote.press(.down)
         }
         XCTAssertFalse(isTabBarFocused)
         XCTAssertFalse(isContinueWatchingFocused)
+        XCTAssertFalse(heroButton.hasFocus)
     }
 
     private var isContinueWatchingFocused: Bool {
@@ -217,7 +244,7 @@ final class RemoteNavigationTests: XCTestCase {
     }
 
     private var isTabBarFocused: Bool {
-        ["Home", "Search", "Library", "Settings"].contains(focusedElement.label)
+        ["Home", "Search", "Library", "Addons", "Settings"].contains(focusedElement.label)
     }
 
     private func focusPlayButton() {

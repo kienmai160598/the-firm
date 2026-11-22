@@ -20,3 +20,23 @@ extension View {
         }
     }
 }
+
+extension View {
+    @ViewBuilder
+    func glassProminentButtonStyle() -> some View {
+        if #available(tvOS 26, *) {
+            buttonStyle(.glassProminent)
+        } else {
+            buttonStyle(.borderedProminent)
+        }
+    }
+
+    @ViewBuilder
+    func glassButtonStyle() -> some View {
+        if #available(tvOS 26, *) {
+            buttonStyle(.glass)
+        } else {
+            buttonStyle(.bordered)
+        }
+    }
+}

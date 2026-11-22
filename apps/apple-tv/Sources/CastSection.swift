@@ -6,8 +6,8 @@ struct CastSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Cast")
-                .font(.title3)
+            Text("Cast & Crew")
+                .font(.title3.weight(.semibold))
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: 40) {
                     ForEach(Array(cast.enumerated()), id: \.offset) { _, member in

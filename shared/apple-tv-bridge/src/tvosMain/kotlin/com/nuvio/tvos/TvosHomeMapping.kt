@@ -33,4 +33,10 @@ private fun MetaPreview.toTvosItem(): TvosItem =
         type = type,
         name = name,
         posterUrl = poster,
+        backdropUrl = banner?.takeIf(String::isNotBlank),
+        logoUrl = logo?.takeIf(String::isNotBlank),
+        overview = description?.takeIf(String::isNotBlank),
+        releaseInfo = releaseInfo?.takeIf(String::isNotBlank),
+        imdbRating = imdbRating?.takeIf(String::isNotBlank),
+        genres = genres,
     )

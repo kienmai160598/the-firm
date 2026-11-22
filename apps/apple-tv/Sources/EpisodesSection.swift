@@ -82,7 +82,7 @@ private struct SeasonButton: View {
                 Text(title)
             }
         }
-        .tint(isSelected ? .white : nil)
+        .glassButtonStyle()
     }
 }
 

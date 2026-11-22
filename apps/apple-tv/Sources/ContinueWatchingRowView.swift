@@ -7,9 +7,9 @@ struct ContinueWatchingRowView: View {
     @FocusState private var focusedKey: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(row.title)
-                .font(.title3)
+                .font(.title3.weight(.semibold))
                 .padding(.horizontal, 80)
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: 48) {
