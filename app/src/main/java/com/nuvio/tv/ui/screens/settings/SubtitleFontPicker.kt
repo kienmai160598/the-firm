@@ -177,8 +177,8 @@ private fun SubtitleFontOption(
             containerColor = if (selected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
             focusedContainerColor = NuvioTheme.colors.FocusBackground
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
-        scale = CardDefaults.scale(focusedScale = 1f)
+        shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -232,8 +232,8 @@ private fun SubtitleFontActionCard(
             containerColor = NuvioTheme.colors.BackgroundCard,
             focusedContainerColor = NuvioTheme.colors.FocusBackground
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
-        scale = CardDefaults.scale(focusedScale = 1f)
+        shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier.padding(NuvioTheme.spacing.lg),

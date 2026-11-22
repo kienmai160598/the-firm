@@ -33,6 +33,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -164,20 +166,43 @@ private fun SyncPromptPanel(
             color = Color.White
         )
 
+        var syncFocused by remember { mutableStateOf(false) }
         Card(
             onClick = onCaptureNow,
             modifier = Modifier
-                .focusRequester(focusRequester),
-            colors = CardDefaults.colors(
-                containerColor = Color.White.copy(alpha = 0.14f),
-                focusedContainerColor = Color.White.copy(alpha = 0.26f)
-            ),
-            shape = CardDefaults.shape(RoundedCornerShape(14.dp))
+                .focusRequester(focusRequester)
+                .onFocusChanged { syncFocused = it.isFocused }
+                .then(
+                    if (isExpressiveBuild) Modifier.playerFocusLift(syncFocused) else Modifier
+                ),
+            colors = if (isExpressiveBuild) {
+                PlayerPillStyle.colors(syncFocused, resting = Color.White.copy(alpha = 0.14f))
+            } else {
+                CardDefaults.colors(
+                    containerColor = Color.White.copy(alpha = 0.14f),
+                    focusedContainerColor = Color.White.copy(alpha = 0.26f)
+                )
+            },
+            shape = if (isExpressiveBuild) {
+                PlayerPillStyle.shape(syncFocused)
+            } else {
+                CardDefaults.shape(RoundedCornerShape(14.dp))
+            },
+            border = if (isExpressiveBuild) {
+                PlayerListItemStyle.noBorder()
+            } else {
+                CardDefaults.border()
+            },
+            scale = if (isExpressiveBuild) PlayerListItemStyle.stillScale else CardDefaults.scale()
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White,
+                color = if (isExpressiveBuild) {
+                    ExpressiveFocus.contentColor(syncFocused, resting = Color.White)
+                } else {
+                    Color.White
+                },
                 modifier = Modifier.padding(horizontal = 28.dp, vertical = NuvioTheme.spacing.md)
             )
         }
@@ -245,7 +270,7 @@ private fun CueSelectionPanel(
             Text(
                 text = statusMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF9BE2AF)
+                color = if (isExpressiveBuild) NuvioTheme.colors.Success else Color(0xFF9BE2AF)
             )
         }
 
@@ -253,7 +278,7 @@ private fun CueSelectionPanel(
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFFFFB37A)
+                color = if (isExpressiveBuild) NuvioTheme.colors.Warning else Color(0xFFFFB37A)
             )
             return
         }
@@ -262,7 +287,7 @@ private fun CueSelectionPanel(
             Text(
                 text = stringResource(R.string.subtitle_timing_select_addon_first),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFFFB37A)
+                color = if (isExpressiveBuild) NuvioTheme.colors.Warning else Color(0xFFFFB37A)
             )
             return
         }
@@ -354,7 +379,11 @@ private fun CueRow(
             },
             focusedContainerColor = focusedContainer
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = if (isExpressiveBuild) {
+            PlayerListItemStyle.shape
+        } else {
+            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+        },
         border = CardDefaults.border(
             border = Border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, Color.Transparent),
@@ -379,7 +408,7 @@ private fun CueRow(
                 text = formatAutoSyncTimestamp(cue.startTimeMs),
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                 color = if (isFocused) focusedTextColor.copy(alpha = 0.9f) else Color.White.copy(alpha = 0.78f),
-                modifier = Modifier.width(72.dp)
+                modifier = Modifier.width(PlayerTenFoot.atLeast(72.dp, 84.dp))
             )
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Text(

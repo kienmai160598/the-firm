@@ -98,7 +98,16 @@ import com.nuvio.tv.domain.model.PosterShape
 import com.nuvio.tv.data.local.PlayerPreference
 import com.nuvio.tv.ui.components.EmptyScreenState
 import com.nuvio.tv.ui.components.GridContentCard
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.buttonLabelStyle
+import com.nuvio.tv.ui.screens.detail.forBuild
+import com.nuvio.tv.ui.screens.detail.noRingCardBorder
 import com.nuvio.tv.ui.screens.detail.requestFocusAfterFrames
+import com.nuvio.tv.ui.screens.detail.selectableButtonColors
+import com.nuvio.tv.ui.screens.detail.tonalButtonColors
+import com.nuvio.tv.ui.screens.detail.tonalCardColors
+import com.nuvio.tv.ui.screens.detail.tvButtonPadding
 import com.nuvio.tv.ui.screens.home.HeroBackdropState
 import com.nuvio.tv.ui.screens.stream.PlayerChoiceDialog
 import kotlinx.coroutines.delay
@@ -107,7 +116,9 @@ import com.nuvio.tv.ui.components.PosterCardDefaults
 import com.nuvio.tv.domain.model.localizedTitle
 import com.nuvio.tv.ui.components.LoadingIndicator
 import com.nuvio.tv.ui.components.NuvioDialog
+import com.nuvio.tv.ui.components.destructiveButtonColors
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.util.localizedContentType
 import com.nuvio.tv.ui.util.localizedGenreLabel
 import kotlinx.coroutines.delay
@@ -123,6 +134,10 @@ private enum class LibraryViewMode {
     Cloud,
     Servers
 }
+
+
+private val LibraryToastShape = forBuild(RoundedCornerShape(10.dp), LibraryContainerShape)
+private val CloudFileShape = forBuild(RoundedCornerShape(10.dp), LibraryContainerShape)
 
 @Composable
 private fun localizedTypeLabel(key: String): String = when (key.lowercase()) {
@@ -382,17 +397,16 @@ fun LibraryScreen(
                         Button(
                             onClick = viewModel::refreshCloudLibrary,
                             enabled = !uiState.cloudLibrary.isRefreshing,
-                            colors = ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundCard,
-                                contentColor = NuvioTheme.colors.TextPrimary
-                            )
+                            colors = tonalButtonColors(),
+                            contentPadding = tvButtonPadding()
                         ) {
                             Text(
                                 if (uiState.cloudLibrary.isRefreshing) {
                                     stringResource(R.string.library_syncing_btn)
                                 } else {
                                     stringResource(R.string.cloud_library_refresh)
-                                }
+                                },
+                                style = buttonLabelStyle()
                             )
                         }
                     }
@@ -709,11 +723,11 @@ fun LibraryScreen(
         ) {
             Text(
                 text = transientMessage,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.atLeastOnBox(TvSizeFloors.bodyText),
                 color = NuvioTheme.colors.TextPrimary,
                 modifier = Modifier
                     .padding(top = libraryTopPadding())
-                    .background(NuvioTheme.colors.BackgroundElevated, RoundedCornerShape(10.dp))
+                    .background(NuvioTheme.colors.BackgroundElevated, LibraryToastShape)
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             )
         }
@@ -756,17 +770,20 @@ private fun LibraryViewModeRow(
                             role = Role.Tab
                             this.selected = selected
                         },
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextPrimary
-                    )
+                    colors = selectableButtonColors(
+                        selected = selected,
+                        upstreamSelected = NuvioTheme.colors.FocusBackground,
+                        upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                    ),
+                    contentPadding = tvButtonPadding()
                 ) {
                     Text(
                         text = when (mode) {
                             LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
                             LibraryViewMode.Cloud -> stringResource(R.string.library_source_cloud)
                             LibraryViewMode.Servers -> stringResource(R.string.library_source_servers)
-                        }
+                        },
+                        style = buttonLabelStyle()
                     )
                 }
             }
@@ -874,21 +891,9 @@ private fun CloudLibrarySearchRow(
             modifier = Modifier
                 .weight(1f)
                 .focusRequester(fieldFocusRequester),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.BackgroundCard
-            ),
-            border = ClickableSurfaceDefaults.border(
-                border = Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md)
-                ),
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md)
-                )
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+            colors = librarySearchFieldColors(),
+            border = librarySearchFieldBorder(),
+            shape = ClickableSurfaceDefaults.shape(librarySearchFieldShape()),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
             BasicTextField(
@@ -956,12 +961,13 @@ private fun CloudLibrarySearchRow(
                     onQueryChange("")
                     editing = false
                 },
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
-                )
+                colors = tonalButtonColors(),
+                contentPadding = tvButtonPadding()
             ) {
-                Text(stringResource(R.string.cloud_library_search_clear))
+                Text(
+                    stringResource(R.string.cloud_library_search_clear),
+                    style = buttonLabelStyle()
+                )
             }
         }
     }
@@ -997,14 +1003,13 @@ private fun CloudLibraryCard(
     Card(
         onClick = { if (!isResolving) onClick() },
         modifier = Modifier.fillMaxWidth(),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+        shape = CardDefaults.shape(LibraryContainerShape),
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
             focusedContainerColor = NuvioTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
-            border = Border(border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border), shape = RoundedCornerShape(10.dp)),
-            focusedBorder = Border(border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs), shape = RoundedCornerShape(10.dp))
+            focusedBorder = Border(border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs), shape = LibraryContainerShape)
         ),
         scale = CardDefaults.scale(focusedScale = 1.02f)
     ) {
@@ -1035,7 +1040,7 @@ private fun CloudLibraryCard(
                 Text(
                     modifier = Modifier.weight(1f),
                     text = cloudLibraryMetadata(item),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary
                 )
                 Text(
@@ -1044,7 +1049,8 @@ private fun CloudLibraryCard(
                     } else {
                         cloudLibraryPlayableLabel(item)
                     },
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium
+                        .atLeastOnBox(TvSizeFloors.metaText),
                     color = if (item.playableFiles.isEmpty()) NuvioTheme.colors.TextTertiary else NuvioTheme.colors.Primary
                 )
             }
@@ -1117,11 +1123,9 @@ private fun CloudFilePickerDialog(
                 Card(
                     onClick = { if (!resolving) onPlay(file) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
-                    ),
-                    shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+                    colors = tonalCardColors(resting = NuvioTheme.colors.BackgroundCard),
+                    border = forBuild(CardDefaults.border(), noRingCardBorder()),
+                    shape = CardDefaults.shape(CloudFileShape),
                     scale = CardDefaults.scale(focusedScale = 1f)
                 ) {
                     Column(
@@ -1139,13 +1143,15 @@ private fun CloudFilePickerDialog(
                         formatCloudSize(file.sizeBytes)?.let { size ->
                             Text(
                                 text = size,
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall
+                                    .atLeastOnBox(TvSizeFloors.metaText),
                                 color = NuvioTheme.colors.TextSecondary
                             )
                         }
                         Text(
                             text = stringResource(R.string.cloud_library_play_file),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium
+                                .atLeastOnBox(TvSizeFloors.metaText),
                             color = NuvioTheme.colors.Primary
                         )
                     }
@@ -1376,22 +1382,11 @@ private fun LibraryDropdownPicker(
                     }
                 )
                 .onSizeChanged { anchorSize = it }
-                .onFocusChanged { isFocused = it.isFocused },
-            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
-            colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground
-            ),
-            border = CardDefaults.border(
-                border = androidx.tv.material3.Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                    shape = RoundedCornerShape(14.dp)
-                ),
-                focusedBorder = androidx.tv.material3.Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(14.dp)
-                )
-            ),
+                .onFocusChanged { isFocused = it.isFocused }
+                .libraryFieldFocusScale(isFocused),
+            shape = CardDefaults.shape(shape = LibraryContainerShape),
+            colors = libraryFieldColors(isFocused),
+            border = CardDefaults.border(focusedBorder = Border.None),
             scale = CardDefaults.scale(
                 focusedScale = 1.0f,
                 pressedScale = 1.0f
@@ -1405,8 +1400,8 @@ private fun LibraryDropdownPicker(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = NuvioTheme.colors.TextTertiary
+                    style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
+                    color = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextTertiary)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1416,14 +1411,14 @@ private fun LibraryDropdownPicker(
                     Text(
                         text = value,
                         style = MaterialTheme.typography.titleMedium,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                        tint = if (isFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.TextSecondary
+                        tint = ExpressiveFocus.contentColor(isFocused)
                     )
                 }
             }
@@ -1438,25 +1433,16 @@ private fun LibraryDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(14.dp),
-            containerColor = NuvioTheme.colors.BackgroundCard,
+            shape = LibraryContainerShape,
+            containerColor = NuvioTheme.colors.Surface,
             tonalElevation = NuvioTheme.spacing.none,
-            shadowElevation = NuvioTheme.spacing.sm,
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border)
+            shadowElevation = NuvioTheme.spacing.sm
         ) {
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
-                val itemTextColor = when {
-                    isOptionFocused -> NuvioTheme.colors.OnSecondary
-                    isSelected -> NuvioTheme.colors.TextPrimary
-                    else -> NuvioTheme.colors.TextPrimary
-                }
-                val itemBackgroundColor = when {
-                    isOptionFocused -> NuvioTheme.colors.Secondary
-                    isSelected -> NuvioTheme.colors.FocusBackground
-                    else -> Color.Transparent
-                }
+                val itemTextColor = ExpressiveFocus.contentColor(isOptionFocused, isSelected, NuvioTheme.colors.TextPrimary)
+                val itemBackgroundColor = ExpressiveFocus.containerColor(isOptionFocused, isSelected)
 
                 DropdownMenuItem(
                     modifier = Modifier
@@ -1529,23 +1515,26 @@ private fun LibraryActionsRow(
             Button(
                 onClick = onManageLists,
                 enabled = !pending && !isSyncing,
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
-                )
+                colors = tonalButtonColors(),
+                contentPadding = tvButtonPadding()
             ) {
-                Text(stringResource(R.string.library_manage_lists))
+                Text(stringResource(R.string.library_manage_lists), style = buttonLabelStyle())
             }
         }
         Button(
             onClick = onRefresh,
             enabled = !pending && !isSyncing,
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            colors = tonalButtonColors(),
+            contentPadding = tvButtonPadding()
         ) {
-            Text(if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn))
+            Text(
+                if (isSyncing) {
+                    stringResource(R.string.library_syncing_btn)
+                } else {
+                    stringResource(R.string.library_sync_btn)
+                },
+                style = buttonLabelStyle()
+            )
         }
     }
 }
@@ -1567,10 +1556,7 @@ private fun ConfirmDeleteDialog(
             onClick = onConfirm,
             enabled = !pending,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = Color(0xFF4A2323),
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            colors = destructiveButtonColors()
         ) {
             Text(stringResource(R.string.library_list_delete))
         }

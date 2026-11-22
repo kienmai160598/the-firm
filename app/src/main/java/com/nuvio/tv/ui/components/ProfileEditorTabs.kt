@@ -30,7 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.TvSizeFloors
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 enum class ProfileEditorTab {
     Avatar,
@@ -73,16 +76,24 @@ private fun ProfileEditorTabItem(
     val interactionSource = remember { MutableInteractionSource() }
     val backgroundColor by animateColorAsState(
         targetValue = when {
+            isExpressiveBuild && isFocused -> NuvioTheme.colors.Secondary
+            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusBackground
+            isExpressiveBuild -> NuvioTheme.colors.BackgroundCard
             isFocused -> NuvioTheme.colors.FocusBackground
             isSelected -> NuvioTheme.colors.Secondary.copy(alpha = 0.22f)
             else -> Color.White.copy(alpha = 0.06f)
         },
-        animationSpec = tween(120),
+        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "profileEditorTabBackground"
     )
     val textColor by animateColorAsState(
-        targetValue = if (isSelected || isFocused) Color.White else NuvioTheme.colors.TextSecondary,
-        animationSpec = tween(120),
+        targetValue = when {
+            isExpressiveBuild && isFocused -> NuvioTheme.colors.OnSecondary
+            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusContent
+            isSelected || isFocused -> Color.White
+            else -> NuvioTheme.colors.TextSecondary
+        },
+        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "profileEditorTabText"
     )
     val shape = RoundedCornerShape(20.dp)
@@ -90,18 +101,31 @@ private fun ProfileEditorTabItem(
     Text(
         text = label,
         color = textColor,
-        fontSize = 13.sp,
+        fontSize = TvSizeFloors.atLeast(13.sp, TvSizeFloors.bodyText),
         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
         modifier = Modifier
             .clip(shape)
             .background(backgroundColor)
-            .border(
-                border = if (isFocused) {
-                    NuvioTheme.focusRing.border(2.dp)
+            .then(
+                if (isExpressiveBuild) {
+                    Modifier
                 } else {
-                    BorderStroke(1.dp, if (isSelected) NuvioTheme.colors.Secondary else NuvioTheme.colors.Border)
-                },
-                shape = shape
+                    Modifier.border(
+                        border = if (isFocused) {
+                            NuvioTheme.focusRing.border(2.dp)
+                        } else {
+                            BorderStroke(
+                                1.dp,
+                                if (isSelected) {
+                                    NuvioTheme.colors.Secondary
+                                } else {
+                                    NuvioTheme.colors.Border
+                                }
+                            )
+                        },
+                        shape = shape
+                    )
+                }
             )
             .onFocusChanged { isFocused = it.isFocused }
             .clickable(
@@ -113,6 +137,9 @@ private fun ProfileEditorTabItem(
                 role = Role.Tab
                 selected = isSelected
             }
-            .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm)
+            .padding(
+                horizontal = 18.dp,
+                vertical = if (isExpressiveBuild) NuvioTheme.spacing.md else NuvioTheme.spacing.sm
+            )
     )
 }

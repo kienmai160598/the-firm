@@ -1,6 +1,7 @@
 package com.nuvio.tv.ui.screens.player
 
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -22,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
 
+private val TorrentStatSize = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
+
 @Composable
 fun TorrentOverlay(
     visible: Boolean,
@@ -41,8 +44,8 @@ fun TorrentOverlay(
         Column(
             modifier = Modifier
                 .background(
-                    color = Color.Black.copy(alpha = 0.7f),
-                    shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                    color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.7f)),
+                    shape = PlayerSurfaceStyle.compactShape(RoundedCornerShape(NuvioTheme.radii.sm))
                 )
                 .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
@@ -53,25 +56,29 @@ fun TorrentOverlay(
             ) {
                 Text(
                     text = "P2P",
-                    color = Color(0xFF4CAF50),
-                    fontSize = 11.sp,
+                    color = if (isExpressiveBuild) {
+                        NuvioTheme.colors.Success
+                    } else {
+                        Color(0xFF4CAF50)
+                    },
+                    fontSize = TorrentStatSize,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "↓ ${formatSpeed(downloadSpeed)}",
                     color = Color.White,
-                    fontSize = 11.sp
+                    fontSize = TorrentStatSize
                 )
                 Text(
                     text = "↑ ${formatSpeed(uploadSpeed)}",
                     color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 11.sp
+                    fontSize = TorrentStatSize
                 )
             }
             Text(
                 text = stringResource(R.string.player_torrent_stats, peers, seeds, (totalProgress * 100).toInt()),
                 color = Color.White.copy(alpha = 0.6f),
-                fontSize = 10.sp
+                fontSize = PlayerTenFoot.atLeast(10.sp, PlayerTenFoot.metaText)
             )
         }
     }

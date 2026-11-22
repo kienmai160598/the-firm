@@ -51,6 +51,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
 import com.nuvio.tv.ui.screens.detail.requestFocusAfterFrames
 import kotlinx.coroutines.delay
 import androidx.compose.ui.unit.IntSize
@@ -218,7 +220,7 @@ internal fun DiscoverSection(
             }
             Text(
                 text = metadataSegments.joinToString(" • "),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                 color = NuvioTheme.colors.TextSecondary
             )
         }
@@ -344,21 +346,9 @@ private fun DiscoverDropdownPicker(
                     if (blockFocus) Modifier.focusProperties { canFocus = false }
                     else Modifier
                 ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
-            colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground
-            ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                    shape = RoundedCornerShape(14.dp)
-                ),
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(14.dp)
-                )
-            ),
+            shape = CardDefaults.shape(shape = DiscoverFieldShape),
+            colors = discoverFieldColors(isFocused),
+            border = discoverFieldBorder(),
             scale = CardDefaults.scale(
                 focusedScale = 1.0f,
                 pressedScale = 1.0f
@@ -372,8 +362,8 @@ private fun DiscoverDropdownPicker(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = NuvioTheme.colors.TextTertiary
+                    style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
+                    color = discoverFieldContent(isFocused, NuvioTheme.colors.TextTertiary)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -385,15 +375,15 @@ private fun DiscoverDropdownPicker(
                         style = MaterialTheme.typography.titleMedium.copy(
                             textDirection = value.contentTextDirection()
                         ),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = discoverFieldContent(isFocused, NuvioTheme.colors.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                        modifier = Modifier.size(20.dp),
-                        tint = if (isFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.TextSecondary
+                        modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
+                        tint = discoverFieldIconTint(isFocused)
                     )
                 }
             }
@@ -408,11 +398,11 @@ private fun DiscoverDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(14.dp),
+            shape = DiscoverFieldShape,
             containerColor = NuvioTheme.colors.BackgroundCard,
             tonalElevation = NuvioTheme.spacing.none,
             shadowElevation = NuvioTheme.spacing.sm,
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border)
+            border = discoverMenuBorder()
         ) {
             options.forEach { option ->
                 val isSelected = option.value == selectedValue

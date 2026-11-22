@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,7 +43,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonBorder
+import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonDefaults
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -352,17 +357,40 @@ private fun StreamInfoHudButton(
                 down = FocusRequester.Cancel
                 left = FocusRequester.Cancel
                 right = FocusRequester.Cancel
-            },
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-        colors = ButtonDefaults.colors(
+            }
+            .then(
+                if (isExpressiveBuild) {
+                    Modifier
+                        .heightIn(min = HudToggleMinHeight)
+                        .playerFocusLift(isFocused)
+                } else {
+                    Modifier
+                }
+            ),
+        contentPadding = if (isExpressiveBuild) {
+            PaddingValues(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.sm)
+        } else {
+            PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+        },
+        colors = if (isExpressiveBuild) {
+            hudToggleColors(isFocused, enabled)
+        } else ButtonDefaults.colors(
             containerColor = if (enabled) NuvioTheme.colors.Secondary.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.08f),
             contentColor = if (enabled) Color.White else Color.White.copy(alpha = 0.7f),
             focusedContainerColor = if (enabled) NuvioTheme.colors.Secondary else Color.White,
             focusedContentColor = if (enabled) NuvioTheme.colors.OnSecondary else Color.Black
         ),
-        shape = ButtonDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
-        scale = ButtonDefaults.scale(focusedScale = 1.05f),
-        border = ButtonDefaults.border(
+        shape = if (isExpressiveBuild) {
+            PlayerControlStyle.capsuleShape
+        } else {
+            ButtonDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+        },
+        scale = if (isExpressiveBuild) {
+            PlayerControlStyle.stillScale
+        } else {
+            ButtonDefaults.scale(focusedScale = 1.05f)
+        },
+        border = if (isExpressiveBuild) hudToggleNoBorder() else ButtonDefaults.border(
             border = Border(
                 border = BorderStroke(
                     1.dp,
@@ -403,3 +431,38 @@ private fun StreamInfoHudButton(
         )
     }
 }
+
+private val HudToggleMinHeight = 48.dp
+
+/** On rests in the accent's tonal container, off on the plain surface; focus fills the accent. */
+@Composable
+private fun hudToggleColors(focused: Boolean, enabled: Boolean): ButtonColors {
+    val container = ExpressiveFocus.containerColor(
+        focused = focused,
+        resting = if (enabled) {
+            NuvioTheme.colors.SecondaryVariant
+        } else {
+            NuvioTheme.colors.BackgroundCard
+        }
+    )
+    val content = ExpressiveFocus.contentColor(
+        focused = focused,
+        resting = if (enabled) {
+            NuvioTheme.colors.OnSecondaryVariant
+        } else {
+            NuvioTheme.colors.TextPrimary
+        }
+    )
+    return ButtonDefaults.colors(
+        containerColor = container,
+        contentColor = content,
+        focusedContainerColor = container,
+        focusedContentColor = content
+    )
+}
+
+@Composable
+private fun hudToggleNoBorder(): ButtonBorder = ButtonDefaults.border(
+    border = Border.None,
+    focusedBorder = Border.None
+)

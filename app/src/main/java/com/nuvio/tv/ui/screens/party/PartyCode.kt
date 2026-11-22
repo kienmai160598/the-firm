@@ -2,6 +2,10 @@
 
 package com.nuvio.tv.ui.screens.party
 
+import com.nuvio.tv.ui.screens.detail.fastSpatialSpec
+import com.nuvio.tv.ui.screens.detail.effectsSpec
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -41,7 +45,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -102,10 +105,14 @@ private fun CodeSlot(
             char != null -> NuvioTheme.colors.TextSecondary
             else -> NuvioTheme.colors.Border
         },
-        animationSpec = tween(180),
+        animationSpec = effectsSpec(tween(180)),
         label = "codeSlotLine",
     )
-    val lineHeight by animateDpAsState(if (active) NuvioTheme.strokes.heavy else NuvioTheme.strokes.medium, tween(180), label = "codeSlotLineHeight")
+    val lineHeight by animateDpAsState(
+        targetValue = if (active) NuvioTheme.strokes.heavy else NuvioTheme.strokes.medium,
+        animationSpec = fastSpatialSpec(tween(180)),
+        label = "codeSlotLineHeight"
+    )
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -119,8 +126,10 @@ private fun CodeSlot(
             AnimatedContent(
                 targetState = char,
                 transitionSpec = {
-                    (fadeIn(tween(120)) + scaleIn(spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium), initialScale = 0.5f)) togetherWith
-                        fadeOut(tween(90))
+                    val pop = spring<Float>(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium)
+                    val enterFade = fadeIn(effectsSpec(tween(120)))
+                    (enterFade + scaleIn(pop, initialScale = 0.5f)) togetherWith
+                        fadeOut(effectsSpec(tween(90)))
                 },
                 label = "codeSlotChar",
             ) { value ->
@@ -231,7 +240,7 @@ internal fun CodeKeypad(
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.Backspace,
                     contentDescription = stringResource(R.string.action_delete),
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
                 )
             }
             KeypadButton(
@@ -264,14 +273,9 @@ private fun KeypadButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
-            .height(44.dp)
+            .height(44.dp.atLeastOnBox(TvSizeFloors.control))
             .focusProperties { canFocus = enabled },
-        colors = ButtonDefaults.colors(
-            containerColor = if (primary) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContainerColor = Color.White,
-            focusedContentColor = Color.Black,
-        ),
+        colors = keypadButtonColors(primary),
         scale = ButtonDefaults.scale(focusedScale = 1.04f),
         contentPadding = PaddingValues(0.dp),
     ) {

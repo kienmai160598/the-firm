@@ -4,6 +4,18 @@ package com.nuvio.tv.ui.screens.account
 
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.rowTitleFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.screens.settings.metaFontSize
+import com.nuvio.tv.ui.screens.settings.buttonIconSize
+import com.nuvio.tv.ui.screens.settings.expressiveCard
+import com.nuvio.tv.ui.screens.settings.expressiveCardGrow
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
 import com.nuvio.tv.ui.util.contentTextDirection
 
 import androidx.compose.foundation.BorderStroke
@@ -64,14 +76,14 @@ fun AccountSettingsContent(
     viewModel: AccountViewModel,
     onNavigateToAuthQrSignIn: () -> Unit = {},
     initialFocusRequester: FocusRequester? = null
-) {
+) = TenFootTypography {
     if (uiState.authState is AuthState.FullAccount) {
         SignedInAccountSettingsContent(
             uiState = uiState,
             viewModel = viewModel,
             initialFocusRequester = initialFocusRequester
         )
-        return
+        return@TenFootTypography
     }
 
     LazyColumn(
@@ -203,7 +215,7 @@ private fun SyncOverviewCard(overview: SyncOverview) {
             .fillMaxWidth()
             .background(
                 color = NuvioTheme.colors.BackgroundCard,
-                shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
             )
             .padding(10.dp)
     ) {
@@ -214,7 +226,7 @@ private fun SyncOverviewCard(overview: SyncOverview) {
                     .fillMaxWidth()
                     .background(
                         color = NuvioTheme.colors.BackgroundElevated,
-                        shape = RoundedCornerShape(6.dp)
+                        shape = expressiveRowShape(RoundedCornerShape(6.dp))
                     )
                     .padding(horizontal = NuvioTheme.spacing.sm, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -259,7 +271,7 @@ private fun SyncStatChip(label: String, value: String) {
         )
         Text(
             text = label,
-            fontSize = 9.sp,
+            fontSize = metaFontSize(9.sp),
             color = NuvioTheme.colors.TextTertiary
         )
     }
@@ -269,12 +281,13 @@ private fun SyncStatChip(label: String, value: String) {
 private fun ProfileSyncRow(profile: ProfileSyncStats) {
     val color = runCatching { Color(android.graphics.Color.parseColor(profile.avatarColorHex)) }
         .getOrDefault(NuvioPrimitives.blue500)
-    val rowShape = RoundedCornerShape(6.dp)
+    val rowShape = expressiveRowShape(RoundedCornerShape(6.dp))
     var isFocused by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .tvControlHeight()
             .onFocusChanged { isFocused = it.isFocused }
             .focusable()
             .background(
@@ -283,7 +296,11 @@ private fun ProfileSyncRow(profile: ProfileSyncStats) {
             )
             .border(
                 width = NuvioTheme.spacing.xxs,
-                color = if (isFocused) NuvioTheme.colors.FocusRing else Color.Transparent,
+                color = if (isFocused && !isExpressiveBuild) {
+                    NuvioTheme.colors.FocusRing
+                } else {
+                    Color.Transparent
+                },
                 shape = rowShape
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = 6.dp),
@@ -336,14 +353,16 @@ private fun ProfileStatValue(count: Int, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = count.toString(),
-            fontSize = 12.sp,
+            fontSize = metaFontSize(12.sp),
             color = if (count > 0) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary,
             fontWeight = FontWeight.Medium
         )
         Text(
             text = label,
-            fontSize = 8.sp,
-            color = NuvioTheme.colors.TextTertiary
+            fontSize = metaFontSize(8.sp),
+            color = NuvioTheme.colors.TextTertiary,
+            maxLines = tvSingleLineMax,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -355,7 +374,7 @@ private fun SyncOverviewLoadingCard() {
             .fillMaxWidth()
             .background(
                 color = NuvioTheme.colors.BackgroundCard,
-                shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
             )
             .padding(10.dp),
         contentAlignment = Alignment.Center
@@ -382,6 +401,7 @@ private fun SettingsActionButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
+            .tvControlHeight()
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
@@ -392,9 +412,10 @@ private fun SettingsActionButton(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.sm)
             )
-        ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+            .expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -412,13 +433,13 @@ private fun SettingsActionButton(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.rowTitleFloor(),
                     color = NuvioTheme.colors.TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 11.sp,
+                    fontSize = metaFontSize(11.sp),
                     color = NuvioTheme.colors.TextSecondary
                 )
             }
@@ -433,7 +454,7 @@ private fun StatusCard(label: String, value: String) {
             .fillMaxWidth()
             .background(
                 color = NuvioTheme.colors.Secondary.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
             )
             .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
@@ -466,19 +487,22 @@ private fun SignOutSettingsButton(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().tvControlHeight(),
         colors = CardDefaults.colors(
-            containerColor = NuvioPrimitives.red600.copy(alpha = 0.12f),
-            focusedContainerColor = NuvioPrimitives.red600.copy(alpha = 0.25f)
+            containerColor = accountErrorContainer(NuvioPrimitives.red600.copy(alpha = 0.12f)),
+            focusedContainerColor = accountFocusedErrorContainer(
+                NuvioPrimitives.red600.copy(alpha = 0.25f)
+            )
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(NuvioTheme.spacing.xxs, Color(0xFFF44336).copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(NuvioTheme.radii.sm)
             )
-        ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+            .expressivePill(),
+        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.sm),
@@ -487,14 +511,14 @@ private fun SignOutSettingsButton(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Logout,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = Color(0xFFF44336)
+                modifier = Modifier.size(buttonIconSize(18.dp)),
+                tint = accountErrorContent(Color(0xFFF44336))
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = stringResource(R.string.account_sign_out),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFF44336),
+                style = MaterialTheme.typography.bodyMedium.bodyFloor(),
+                color = accountErrorContent(Color(0xFFF44336)),
                 fontWeight = FontWeight.Medium
             )
         }

@@ -4,6 +4,14 @@ package com.nuvio.tv.ui.screens.account
 
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.screens.settings.buttonIconSize
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -62,7 +70,7 @@ fun AccountScreen(
     onNavigateToSyncClaim: () -> Unit = {},
     onBackPress: () -> Unit = {},
     viewModel: AccountViewModel = hiltViewModel()
-) {
+) = TenFootTypography {
     BackHandler { onBackPress() }
 
     val uiState by viewModel.uiState.collectAsState()
@@ -215,7 +223,10 @@ private fun AccountActionCard(
             contentColor = NuvioTheme.colors.TextPrimary,
             focusedContentColor = NuvioTheme.colors.TextPrimary
         ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+        shape = ButtonDefaults.shape(
+            expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+        ),
+        border = ButtonDefaults.border().expressiveRingless()
     ) {
         Row(
             modifier = Modifier
@@ -254,7 +265,7 @@ private fun AccountInfoCard(label: String, value: String) {
             .fillMaxWidth()
             .background(
                 color = NuvioTheme.colors.BackgroundCard,
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
             )
             .padding(NuvioTheme.spacing.lg)
     ) {
@@ -310,7 +321,7 @@ private fun LinkedDevicesSection(
                         .fillMaxWidth()
                         .background(
                             color = NuvioTheme.colors.BackgroundCard,
-                            shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
                         )
                         .padding(NuvioTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
@@ -324,21 +335,28 @@ private fun LinkedDevicesSection(
                     )
                     Button(
                         onClick = { onUnlink(device.deviceUserId) },
-                        colors = ButtonDefaults.colors(
+                        modifier = Modifier.tvControlHeight(),
+                        colors = accountDestructiveColors(ButtonDefaults.colors(
                             containerColor = NuvioPrimitives.red600.copy(alpha = 0.2f),
                             focusedContainerColor = NuvioPrimitives.red600.copy(alpha = 0.4f),
                             contentColor = Color(0xFFF44336),
                             focusedContentColor = Color(0xFFF44336)
-                        ),
+                        )),
                         shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.sm))
+                            .expressivePill(),
+                        border = ButtonDefaults.border().expressiveRingless(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Icon(
                             imageVector = Icons.Default.LinkOff,
                             contentDescription = stringResource(R.string.cd_unlink),
-                            modifier = Modifier.size(NuvioTheme.spacing.lg)
+                            modifier = Modifier.size(buttonIconSize(NuvioTheme.spacing.lg))
                         )
                         Spacer(modifier = Modifier.width(NuvioTheme.spacing.xs))
-                        Text(stringResource(R.string.account_unlink), style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            stringResource(R.string.account_unlink),
+                            style = MaterialTheme.typography.labelSmall.bodyFloor()
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
@@ -351,13 +369,16 @@ private fun LinkedDevicesSection(
 private fun SignOutButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.colors(
+        modifier = Modifier.tvControlHeight(),
+        colors = accountDestructiveColors(ButtonDefaults.colors(
             containerColor = NuvioPrimitives.red600.copy(alpha = 0.15f),
             focusedContainerColor = NuvioPrimitives.red600.copy(alpha = 0.3f),
             contentColor = Color(0xFFF44336),
             focusedContentColor = Color(0xFFF44336)
-        ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+        )),
+        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressivePill(),
+        border = ButtonDefaults.border().expressiveRingless(),
+        scale = ButtonDefaults.scale().expressiveControlGrow()
     ) {
         Row(
             modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.sm),
@@ -366,12 +387,12 @@ private fun SignOutButton(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Logout,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(buttonIconSize(20.dp))
             )
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             Text(
                 text = stringResource(R.string.account_sign_out),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                 fontWeight = FontWeight.Medium
             )
         }

@@ -26,6 +26,7 @@ import coil3.request.crossfade
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 @Composable
 fun StartupSplashScreen(
@@ -63,6 +64,8 @@ fun StartupSplashScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
+        } else if (isExpressiveBuild) {
+            MoviesSplashBackground()
         } else if (!skipGradient) {
             val baseBg = Color(0xFF121212)
             val baseBgElevated = NuvioPrimitives.neutral875
@@ -96,6 +99,7 @@ fun StartupSplashScreen(
             )
         }
 
+        if (isExpressiveBuild) return@Box MoviesSplashContent()
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

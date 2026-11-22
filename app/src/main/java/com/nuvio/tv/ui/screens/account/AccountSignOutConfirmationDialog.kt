@@ -21,6 +21,11 @@ import com.nuvio.tv.R
 import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
 
 @Composable
 internal fun AccountSignOutConfirmationDialog(
@@ -47,21 +52,28 @@ internal fun AccountSignOutConfirmationDialog(
                 onClick = onDismiss,
                 modifier = Modifier
                     .weight(1f)
+                    .tvControlHeight()
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = onConfirm,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.colors(
+                modifier = Modifier.weight(1f).tvControlHeight(),
+                colors = accountDestructiveColors(ButtonDefaults.colors(
                     containerColor = NuvioPrimitives.red600.copy(alpha = 0.25f),
                     contentColor = Color(0xFFF44336)
-                )
+                )),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(stringResource(R.string.account_sign_out))
             }

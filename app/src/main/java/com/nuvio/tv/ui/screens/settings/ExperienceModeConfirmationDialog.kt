@@ -19,6 +19,7 @@ import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.domain.model.ExperienceMode
 import com.nuvio.tv.ui.components.NuvioDialog
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun ExperienceModeConfirmationDialog(
@@ -55,11 +56,13 @@ internal fun ExperienceModeConfirmationDialog(
         ) {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.tvControlHeight().weight(1f),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
@@ -69,12 +72,15 @@ internal fun ExperienceModeConfirmationDialog(
                     onDismiss()
                 },
                 modifier = Modifier
+                    .tvControlHeight()
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(
                     stringResource(

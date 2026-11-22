@@ -58,7 +58,15 @@ import com.nuvio.tv.R
 import com.nuvio.tv.domain.model.ServerConfiguration
 import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.screens.detail.requestFocusAfterFrames
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
 import kotlinx.coroutines.delay
 
 @Composable
@@ -94,11 +102,21 @@ internal fun ServerOptionsMenuHost(
             modifier = Modifier.size(48.dp),
             colors = IconButtonDefaults.colors(
                 containerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
+                focusedContainerColor = if (isExpressiveBuild) {
+                    NuvioTheme.colors.Secondary
+                } else {
+                    Color.Transparent
+                },
                 contentColor = NuvioTheme.colors.TextSecondary,
-                focusedContentColor = NuvioTheme.colors.FocusRing
+                focusedContentColor = if (isExpressiveBuild) {
+                    NuvioTheme.colors.OnSecondary
+                } else {
+                    NuvioTheme.colors.FocusRing
+                }
             ),
-            scale = IconButtonDefaults.scale(focusedScale = 1.12f),
+            scale = IconButtonDefaults.scale(
+                focusedScale = if (isExpressiveBuild) ExpressiveFocus.CONTROL_SCALE else 1.12f
+            ),
             shape = IconButtonDefaults.shape(shape = CircleShape)
         ) {
             Icon(
@@ -113,7 +131,7 @@ internal fun ServerOptionsMenuHost(
             onDismissRequest = { expanded = false },
             offset = DpOffset(x = 0.dp, y = 12.dp),
             modifier = Modifier.width(320.dp),
-            shape = RoundedCornerShape(14.dp),
+            shape = expressiveCardShape(RoundedCornerShape(14.dp)),
             containerColor = NuvioTheme.colors.BackgroundCard,
             tonalElevation = 0.dp,
             shadowElevation = NuvioTheme.spacing.sm,
@@ -191,11 +209,15 @@ private fun ServerMenuItem(
             .padding(horizontal = 6.dp, vertical = NuvioTheme.spacing.xxs)
             .background(
                 color = if (isFocused) NuvioTheme.colors.Secondary else Color.Transparent,
-                shape = RoundedCornerShape(10.dp)
+                shape = expressiveRowShape(RoundedCornerShape(10.dp))
             )
             .border(
                 width = if (isFocused) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
-                color = if (isFocused) NuvioTheme.colors.FocusRing else Color.Transparent,
+                color = if (isFocused && !isExpressiveBuild) {
+                    NuvioTheme.colors.FocusRing
+                } else {
+                    Color.Transparent
+                },
                 shape = RoundedCornerShape(10.dp)
             )
             .onFocusChanged { state -> isFocused = state.isFocused || state.hasFocus },
@@ -262,8 +284,8 @@ private fun ServerConnectionDialog(
         uiState.error?.let {
             ServerMessage(
                 text = it,
-                containerColor = Color(0x33C62828),
-                contentColor = Color(0xFFFF8A80)
+                containerColor = accountErrorContainer(Color(0x33C62828)),
+                contentColor = accountErrorContent(Color(0xFFFF8A80))
             )
         }
         Row(
@@ -272,22 +294,28 @@ private fun ServerConnectionDialog(
         ) {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = { onDiscover(serverUrl) },
                 enabled = canDiscover,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(
                     if (uiState.isDiscovering) {
@@ -326,7 +354,7 @@ private fun ServerTrustConfirmationDialog(
             icon = Icons.Default.CheckCircle,
             label = stringResource(R.string.custom_server_verified_label),
             value = server.backendUrl,
-            tint = Color(0xFF7CFF9B)
+            tint = accountSuccessColor(Color(0xFF7CFF9B))
         )
         ServerDetailRow(
             icon = Icons.Default.Lock,
@@ -338,8 +366,8 @@ private fun ServerTrustConfirmationDialog(
         error?.let {
             ServerMessage(
                 text = it,
-                containerColor = Color(0x33C62828),
-                contentColor = Color(0xFFFF8A80)
+                containerColor = accountErrorContainer(Color(0x33C62828)),
+                contentColor = accountErrorContent(Color(0xFFFF8A80))
             )
         }
         Row(
@@ -351,22 +379,29 @@ private fun ServerTrustConfirmationDialog(
                 enabled = !isSwitching,
                 modifier = Modifier
                     .weight(1f)
+                    .tvControlHeight()
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = onConnect,
                 enabled = !isSwitching,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(
                     if (isSwitching) {
@@ -391,15 +426,22 @@ private fun ServerWarning(server: ServerConfiguration) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0x66FFB74D), RoundedCornerShape(14.dp))
-            .background(Color(0x1FFF9800), RoundedCornerShape(14.dp))
+            .border(
+                1.dp,
+                accountMessageOutline(Color(0x66FFB74D)),
+                expressiveCardShape(RoundedCornerShape(14.dp))
+            )
+            .background(
+                accountWarningContainer(Color(0x1FFF9800)),
+                expressiveCardShape(RoundedCornerShape(14.dp))
+            )
             .padding(NuvioTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
     ) {
         Text(
             text = stringResource(R.string.custom_server_warning_title),
             style = MaterialTheme.typography.titleSmall,
-            color = Color(0xFFFFCC80),
+            color = accountWarningContent(Color(0xFFFFCC80)),
             fontWeight = FontWeight.SemiBold
         )
         Text(
@@ -437,8 +479,8 @@ private fun OfficialServerConfirmationDialog(
         error?.let {
             ServerMessage(
                 text = it,
-                containerColor = Color(0x33C62828),
-                contentColor = Color(0xFFFF8A80)
+                containerColor = accountErrorContainer(Color(0x33C62828)),
+                contentColor = accountErrorContent(Color(0xFFFF8A80))
             )
         }
         Row(
@@ -450,22 +492,29 @@ private fun OfficialServerConfirmationDialog(
                 enabled = !isSwitching,
                 modifier = Modifier
                     .weight(1f)
+                    .tvControlHeight()
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = onConfirm,
                 enabled = !isSwitching,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape().expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(
                     if (isSwitching) {
@@ -518,7 +567,10 @@ private fun ServerMessage(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(containerColor, RoundedCornerShape(NuvioTheme.radii.md))
+            .background(
+                containerColor,
+                expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+            )
             .padding(horizontal = NuvioTheme.spacing.md, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {

@@ -2,6 +2,8 @@
 
 package com.nuvio.tv.ui.screens.profile
 
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -119,7 +121,7 @@ internal fun ProfileSettingsSourceDialog(
         Text(
             text = stringResource(R.string.profile_copy_settings_exclusions),
             color = NuvioTheme.colors.TextTertiary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -218,13 +220,13 @@ internal fun CopyProfileSettingsDialog(
         Text(
             text = stringResource(R.string.profile_copy_settings_details),
             color = NuvioTheme.colors.TextTertiary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText)
         )
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
                 color = NuvioTheme.colors.Error,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText)
             )
         }
         Row(

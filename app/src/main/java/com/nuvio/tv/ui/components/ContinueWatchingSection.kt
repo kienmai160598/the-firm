@@ -70,12 +70,16 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.nuvio.tv.ui.screens.home.ContinueWatchingItem
 import com.nuvio.tv.ui.screens.home.canMarkWatched
+import com.nuvio.tv.ui.theme.ExpressiveColors
 import com.nuvio.tv.ui.theme.NuvioTheme
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.transformations
 import coil3.request.crossfade
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import kotlin.math.roundToInt
 import java.util.concurrent.TimeUnit
 import com.nuvio.tv.ui.util.recompositionHighlighter
@@ -93,8 +97,20 @@ import androidx.compose.ui.text.TextStyle
 import com.nuvio.tv.domain.model.CardDepthStyle
 import kotlinx.coroutines.delay
 
-private val BadgeShape = RoundedCornerShape(NuvioTheme.radii.xs)
+private val BadgeShape =
+    RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.sm else NuvioTheme.radii.xs)
+
+private fun newSeasonBadgeColor(): Color =
+    if (isExpressiveBuild) ExpressiveColors.tertiaryContainer else CwNewSeasonBadgeColor
 private val CwNewEpisodeBadgeColor = Color(0xFF1D4ED8)
+
+/** Netflix red over a translucent white track on the box build; upstream's accent elsewhere. */
+@Composable
+private fun progressFillColor(): Color =
+    if (isExpressiveBuild) ExpressiveColors.accentRed else NuvioTheme.colors.Secondary
+
+private fun progressTrackColor(): Color =
+    if (isExpressiveBuild) Color.White.copy(alpha = 0.24f) else Color.Black.copy(alpha = 0.3f)
 private val CwNewSeasonBadgeColor = Color(0xFFB45309)
 
 /** URLs that failed to load — skip them immediately on next recomposition. */
@@ -570,7 +586,7 @@ fun ContinueWatchingCard(
             val scaled = baseTitleStyle.fontSize * POSTER_TITLE_SCALE
             baseTitleStyle.copy(fontSize = scaled, lineHeight = scaled * POSTER_TITLE_LINE_HEIGHT)
         } else {
-            baseTitleStyle
+            baseTitleStyle.bodyFloor()
         }
     }
 
@@ -609,10 +625,12 @@ fun ContinueWatchingCard(
     }
 
     val bgColor = NuvioTheme.colors.Background
-    val badgeBackground = remember(bgColor, nextUp) {
+    val newEpisodeBadgeColor =
+        if (isExpressiveBuild) ExpressiveColors.accentRed else CwNewEpisodeBadgeColor
+    val badgeBackground = remember(bgColor, newEpisodeBadgeColor, nextUp) {
         when {
-            nextUp?.isNewSeasonRelease == true -> CwNewSeasonBadgeColor
-            nextUp?.isReleaseAlert == true -> CwNewEpisodeBadgeColor
+            nextUp?.isNewSeasonRelease == true -> newSeasonBadgeColor()
+            nextUp?.isReleaseAlert == true -> newEpisodeBadgeColor
             else -> bgColor.copy(alpha = 0.8f)
         }
     }
@@ -670,7 +688,8 @@ fun ContinueWatchingCard(
                 shape = cwCardShape
             )
         },
-        focusedScale = NuvioTheme.cardFocusScale
+        focusedScale = NuvioTheme.cardFocusScale,
+        liftShadow = !textBelowArtwork
     ) {
         if (isWideStyle) {
             WideCardContent(
@@ -733,7 +752,7 @@ fun ContinueWatchingCard(
                     )
                     .clip(cwClipShape)
                     .then(
-                        if (textBelowArtwork && isFocused) {
+                        if (textBelowArtwork && isFocused && !isExpressiveBuild) {
                             Modifier.border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = cwClipShape
@@ -810,7 +829,8 @@ fun ContinueWatchingCard(
                             titleText = titleText,
                             titleStyle = titleStyle,
                             titleMarqueeActive = titleMarqueeActive,
-                            episodeTitle = episodeTitle
+                            episodeTitle = episodeTitle,
+                            hasArtwork = !effectiveImageModel.isNullOrBlank()
                         )
                     }
                 }
@@ -828,7 +848,7 @@ fun ContinueWatchingCard(
                     ) {
                         Text(
                             text = badgeText,
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelSmall.rememberMetaFloor(),
                             color = NuvioTheme.colors.TextPrimary
                         )
                     }
@@ -859,14 +879,14 @@ fun ContinueWatchingCard(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(1.5.dp))
                                 .height(3.dp)
-                                .background(Color.Black.copy(alpha = 0.3f))
+                                .background(progressTrackColor())
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth(progressFraction)
                                     .clip(RoundedCornerShape(1.5.dp))
                                     .height(3.dp)
-                                    .background(NuvioTheme.colors.Secondary)
+                                    .background(progressFillColor())
                             )
                         }
                     }
@@ -903,9 +923,9 @@ fun ContinueWatchingCard(
                             text = episodeStr,
                             modifier = Modifier.padding(start = NuvioTheme.spacing.xs),
                             style = if (posterTitleOverride != null) {
-                                MaterialTheme.typography.labelMedium
+                                MaterialTheme.typography.labelMedium.rememberMetaFloor()
                             } else {
-                                MaterialTheme.typography.labelSmall
+                                MaterialTheme.typography.labelSmall.rememberMetaFloor()
                             },
                             color = NuvioTheme.extendedColors.textSecondary,
                             maxLines = 1
@@ -1019,7 +1039,7 @@ private fun WideCardContent(
                         ) {
                             Text(
                                 text = badgeText,
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelSmall.rememberMetaFloor(),
                                 color = NuvioTheme.colors.TextPrimary
                             )
                         }
@@ -1028,7 +1048,7 @@ private fun WideCardContent(
                 // Both lines are always laid out so a movie with no episode data keeps the same shape as a show.
                 Text(
                     text = episodeStr.orEmpty(),
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
                     color = NuvioTheme.extendedColors.textSecondary,
                     maxLines = 1,
                     minLines = 1,
@@ -1038,7 +1058,7 @@ private fun WideCardContent(
                     FocusMarqueeText(
                         text = episodeTitle.orEmpty(),
                         focused = titleMarqueeActive,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.rememberMetaFloor(),
                         color = NuvioTheme.extendedColors.textSecondary
                     )
                 }
@@ -1056,19 +1076,19 @@ private fun WideCardContent(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(1.5.dp))
                         .height(3.dp)
-                        .background(Color.Black.copy(alpha = 0.3f))
+                        .background(progressTrackColor())
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(progressFraction)
                             .clip(RoundedCornerShape(1.5.dp))
                             .height(3.dp)
-                            .background(NuvioTheme.colors.Secondary)
+                            .background(progressFillColor())
                     )
                 }
                 Text(
                     text = badgeText,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall.rememberMetaFloor(),
                     color = NuvioTheme.extendedColors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1085,27 +1105,37 @@ private fun ContinueWatchingCardText(
     titleText: String,
     titleStyle: TextStyle,
     titleMarqueeActive: Boolean,
-    episodeTitle: String?
+    episodeTitle: String?,
+    hasArtwork: Boolean
 ) {
     if (episodeStr != null) {
         Text(
             text = episodeStr,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
             color = NuvioTheme.colors.TextPrimary
         )
     }
 
-    FocusMarqueeText(
-        text = titleText,
-        focused = titleMarqueeActive,
-        style = titleStyle,
-        color = NuvioTheme.colors.TextPrimary
-    )
+    if (continueWatchingTitleEllipsizes(episodeStr)) {
+        ContinueWatchingEllipsizedTitle(
+            text = titleText,
+            style = titleStyle,
+            color = NuvioTheme.colors.TextPrimary,
+            hasArtwork = hasArtwork
+        )
+    } else {
+        FocusMarqueeText(
+            text = titleText,
+            focused = titleMarqueeActive,
+            style = titleStyle,
+            color = NuvioTheme.colors.TextPrimary
+        )
+    }
 
     episodeTitle?.let { title ->
         Text(
             text = title,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.rememberMetaFloor(),
             color = NuvioTheme.extendedColors.textSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

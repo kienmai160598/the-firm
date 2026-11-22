@@ -69,7 +69,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -83,7 +82,6 @@ import com.nuvio.tv.core.tracking.TrackingRatingState
 import com.nuvio.tv.domain.model.EpisodeOptionsOverlayStyle
 import com.nuvio.tv.domain.model.Video
 import com.nuvio.tv.ui.components.ImdbRatingSourceLabel
-import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.util.BlurTransformation
 import com.nuvio.tv.ui.util.contentTextDirection
@@ -132,7 +130,7 @@ internal fun EpisodeOptionsOverlay(
     val context = LocalContext.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
-    val overlayColor = Color(0xFF050505)
+    val overlayColor = episodeOverlaySurface()
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val primaryFocusRequester = remember { FocusRequester() }
     val detailsFocusRequester = remember { FocusRequester() }
@@ -188,14 +186,9 @@ internal fun EpisodeOptionsOverlay(
             )
         }
     }
-    val noneBackgroundBrush = remember {
-        Brush.horizontalGradient(
-            colors = listOf(
-                Color(0xFF050505),
-                Color(0xFF090909),
-                NuvioPrimitives.neutral925
-            )
-        )
+    val noneBackgroundStops = episodeOverlayNoneGradient()
+    val noneBackgroundBrush = remember(noneBackgroundStops) {
+        Brush.horizontalGradient(colors = noneBackgroundStops)
     }
     val ratingLabel = remember(imdbRating) {
         imdbRating?.takeIf { it > 0.0 }?.let { String.format(Locale.US, "%.1f", it) }
@@ -334,7 +327,7 @@ internal fun EpisodeOptionsOverlay(
                     if (isNoneStyle) {
                         Modifier.background(noneBackgroundBrush)
                     } else {
-                        Modifier.background(Color(0xFF050505))
+                        Modifier.background(overlayColor)
                     }
                 )
                 .onPreviewKeyEvent { event ->
@@ -517,8 +510,12 @@ internal fun EpisodeOptionsOverlay(
                     transitionSpec = {
                         val forward = targetState
                         val motion = spring<IntOffset>(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow)
-                        (slideInHorizontally(motion) { if (forward) it / 3 else -it / 3 } + fadeIn(tween(180))) togetherWith
-                            (slideOutHorizontally(motion) { if (forward) -it / 3 else it / 3 } + fadeOut(tween(120))) using
+                        val enterFade = fadeIn(effectsSpec(tween(180)))
+                        val exitFade = fadeOut(effectsSpec(tween(120)))
+                        val shift = { width: Int -> if (forward) width / 3 else -width / 3 }
+                        val slideIn = slideInHorizontally(motion) { shift(it) }
+                        val slideOut = slideOutHorizontally(motion) { -shift(it) }
+                        (slideIn + enterFade) togetherWith (slideOut + exitFade) using
                             SizeTransform(clip = false)
                     },
                     contentAlignment = Alignment.Center,
@@ -555,6 +552,7 @@ internal fun EpisodeOptionsOverlay(
                                     enabled = action.enabled,
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .tvControlHeight()
                                         .then(
                                             if (isNoneStyle) {
                                                 Modifier
@@ -582,12 +580,10 @@ internal fun EpisodeOptionsOverlay(
                                                 Modifier
                                             }
                                         ),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = NuvioTheme.colors.BackgroundCard,
-                                        contentColor = NuvioTheme.colors.TextPrimary
-                                    )
+                                    colors = tonalButtonColors(),
+                                    contentPadding = tvButtonPadding()
                                 ) {
-                                    Text(action.label)
+                                    Text(action.label, style = buttonLabelStyle())
                                 }
                             }
                         }

@@ -18,10 +18,10 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,7 +41,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -52,6 +52,8 @@ import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.theme.NuvioMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.ExpressiveColors
+import com.nuvio.tv.ui.theme.expressiveFocusScale
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -66,7 +68,6 @@ internal fun RatingActionButton(
     val twirl = remember { Animatable(0f) }
     var shown by remember { mutableStateOf(rating) }
     var focused by remember { mutableStateOf(false) }
-    val shape = RoundedCornerShape(percent = 50)
     val label = rating?.let { stringResource(R.string.rating_value, formatRating(it)) }
         ?: stringResource(R.string.rating_rate)
     val description = "${stringResource(R.string.rating_your_rating)}, $label"
@@ -82,6 +83,7 @@ internal fun RatingActionButton(
     Surface(
         onClick = onClick,
         modifier = Modifier
+            .expressiveFocusScale(focused)
             .onFocusChanged { state ->
                 focused = state.isFocused
                 if (state.isFocused) onFocused()
@@ -91,29 +93,25 @@ internal fun RatingActionButton(
                 role = Role.Button
                 contentDescription = description
             },
-        shape = ClickableSurfaceDefaults.shape(shape = shape),
+        shape = ClickableSurfaceDefaults.shape(shape = CircleShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
+            containerColor = forBuild(NuvioTheme.colors.BackgroundCard, ExpressiveColors.frosted),
             focusedContainerColor = NuvioTheme.colors.Secondary,
             contentColor = NuvioTheme.colors.TextPrimary,
             focusedContentColor = NuvioTheme.colors.OnSecondary
         ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = shape
-            )
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f)
+        scale = ClickableSurfaceScale.None
     ) {
         Row(
             modifier = Modifier
                 .height(NuvioTheme.spacing.xxxl)
                 .defaultMinSize(minWidth = NuvioTheme.spacing.xxxl)
                 .animateContentSize(
-                    animationSpec = tween(
-                        durationMillis = NuvioMotion.tokens.durations.fast,
-                        easing = NuvioMotion.tokens.easings.standard
+                    animationSpec = fastSpatialSpec(
+                        tween(
+                            durationMillis = NuvioMotion.tokens.durations.fast,
+                            easing = NuvioMotion.tokens.easings.standard
+                        )
                     )
                 )
                 .padding(horizontal = if (rated) 16.dp else 0.dp),
@@ -137,8 +135,8 @@ internal fun RatingActionButton(
             AnimatedContent(
                 targetState = rating,
                 transitionSpec = {
-                    (slideInVertically { it / 2 } + fadeIn(tween(160))) togetherWith
-                        (slideOutVertically { -it / 2 } + fadeOut(tween(120))) using
+                    (slideInVertically { it / 2 } + fadeIn(effectsSpec(tween(160)))) togetherWith
+                        (slideOutVertically { -it / 2 } + fadeOut(effectsSpec(tween(120)))) using
                         SizeTransform(clip = false)
                 },
                 label = "rating_action_value"
@@ -147,7 +145,8 @@ internal fun RatingActionButton(
                     Text(
                         text = formatRating(value),
                         modifier = Modifier.padding(start = 6.dp),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge
+                            .atLeastOnBox(TvSizeFloors.bodyText),
                         fontWeight = FontWeight.Bold,
                         maxLines = 1
                     )

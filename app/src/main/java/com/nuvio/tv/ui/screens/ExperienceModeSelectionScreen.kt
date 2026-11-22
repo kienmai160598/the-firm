@@ -1,5 +1,12 @@
 package com.nuvio.tv.ui.screens
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
+import com.nuvio.tv.ui.theme.ExpressiveColors
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.expressiveFocusScale
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -44,6 +51,7 @@ import com.nuvio.tv.data.local.ExperienceModeDataStore
 import com.nuvio.tv.data.local.LayoutPreferenceDataStore
 import com.nuvio.tv.domain.model.ExperienceMode
 import com.nuvio.tv.domain.model.HomeLayout
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -137,30 +145,54 @@ private fun ExperienceModeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val experienceCardShape =
+        RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.xl else NuvioTheme.radii.md)
+    var hasFocus by remember { mutableStateOf(false) }
+    val tvosFill = ExpressiveFocus.containerColor(hasFocus, resting = ExpressiveColors.frosted)
     Surface(
         onClick = onClick,
-        modifier = modifier.height(210.dp),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
+        modifier = modifier
+            .height(210.dp)
+            .onFocusChanged { hasFocus = it.hasFocus }
+            .then(
+                if (isExpressiveBuild) {
+                    Modifier.expressiveFocusScale(hasFocus, EXPERIENCE_CARD_LIFT)
+                } else {
+                    Modifier
+                }
+            ),
+        colors = if (isExpressiveBuild) {
+            ClickableSurfaceDefaults.colors(containerColor = tvosFill, focusedContainerColor = tvosFill)
+        } else {
+            ClickableSurfaceDefaults.colors(
+                containerColor = NuvioTheme.colors.BackgroundCard,
+                focusedContainerColor = NuvioTheme.colors.FocusBackground
+            )
+        },
+        border = if (isExpressiveBuild) {
+            ClickableSurfaceDefaults.border(border = Border.None, focusedBorder = Border.None)
+        } else ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = BorderStroke(NuvioTheme.spacing.hairline, experienceCardRestingBorder()),
+                shape = experienceCardShape
             ),
             focusedBorder = Border(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                shape = experienceCardShape
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = ClickableSurfaceDefaults.shape(experienceCardShape),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Card(
             onClick = onClick,
             colors = CardDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
-            shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+            border = if (isExpressiveBuild) {
+                CardDefaults.border(border = Border.None, focusedBorder = Border.None)
+            } else {
+                CardDefaults.border()
+            },
+            shape = CardDefaults.shape(experienceCardShape),
             scale = CardDefaults.scale(focusedScale = 1f)
         ) {
             Column(
@@ -172,21 +204,43 @@ private fun ExperienceModeCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = NuvioTheme.colors.TextSecondary
+                    tint = experienceCardText(hasFocus, NuvioTheme.colors.TextSecondary)
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = NuvioTheme.colors.TextPrimary
+                    color = experienceCardText(hasFocus, NuvioTheme.colors.TextPrimary)
                 )
                 Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = experienceCardText(hasFocus, NuvioTheme.colors.TextSecondary)
                 )
             }
         }
     }
 }
+
+@Composable
+private fun experienceCardRestingBorder(): androidx.compose.ui.graphics.Color =
+    if (isExpressiveBuild) {
+        androidx.compose.ui.graphics.Color.Transparent
+    } else {
+        NuvioTheme.colors.Border
+    }
+
+private const val EXPERIENCE_CARD_LIFT = 1.04f
+
+/** On the box build a focused card is solid white, so its text and icon turn black with it. */
+@Composable
+private fun experienceCardText(
+    focused: Boolean,
+    upstream: androidx.compose.ui.graphics.Color
+): androidx.compose.ui.graphics.Color =
+    if (isExpressiveBuild && focused) {
+        NuvioTheme.colors.OnSecondary.copy(alpha = upstream.alpha)
+    } else {
+        upstream
+    }

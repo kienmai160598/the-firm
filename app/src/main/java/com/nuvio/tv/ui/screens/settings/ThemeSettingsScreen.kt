@@ -448,7 +448,7 @@ private fun ThemeSwatchChip(
             },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = Border.None,
@@ -456,9 +456,9 @@ private fun ThemeSwatchChip(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = chipShape
             )
-        ),
-        shape = CardDefaults.shape(chipShape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(chipShape).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier
@@ -525,7 +525,7 @@ private fun SettingsStyleOptionCard(
             },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (isSelected) Border(
@@ -536,9 +536,9 @@ private fun SettingsStyleOptionCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = cardShape
             )
-        ),
-        shape = CardDefaults.shape(cardShape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveSelection(isSelected),
+        shape = CardDefaults.shape(cardShape).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier

@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,13 +47,10 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.tv.material3.Border
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
-import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -78,6 +74,7 @@ import com.nuvio.tv.ui.components.ImdbRatingSourceLabel
 import com.nuvio.tv.ui.components.MDBListRatingsRow
 import com.nuvio.tv.ui.components.SynopsisDescription
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Shuffle
@@ -172,17 +169,17 @@ fun HeroContentSection(
     // Animate logo properties for trailer mode
     val logoHeight by animateDpAsState(
         targetValue = if (isTrailerPlaying) 60.dp else 100.dp,
-        animationSpec = tween(600),
+        animationSpec = spatialSpec(tween(600)),
         label = "logoHeight"
     )
     val logoBottomPadding by animateDpAsState(
         targetValue = if (isTrailerPlaying) NuvioTheme.spacing.xl else NuvioTheme.spacing.lg,
-        animationSpec = tween(600),
+        animationSpec = spatialSpec(tween(600)),
         label = "logoPadding"
     )
     val logoMaxWidth by animateFloatAsState(
         targetValue = if (isTrailerPlaying) 0.25f else 0.4f,
-        animationSpec = tween(600),
+        animationSpec = spatialSpec(tween(600)),
         label = "logoWidth"
     )
     // During a trailer the hero fills the screen so the logo sits at the bottom
@@ -190,7 +187,7 @@ fun HeroContentSection(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val heroHeight by animateDpAsState(
         targetValue = if (isTrailerPlaying) maxOf(540.dp, screenHeight) else 540.dp,
-        animationSpec = tween(600),
+        animationSpec = spatialSpec(tween(600)),
         label = "heroHeight"
     )
     Column(
@@ -203,7 +200,7 @@ fun HeroContentSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(
-                    animationSpec = tween(600)
+                    animationSpec = spatialSpec(tween(600))
                 )
                 .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.lg),
             verticalArrangement = Arrangement.Bottom
@@ -225,8 +222,8 @@ fun HeroContentSection(
                 // Text title hides entirely during trailer
                 AnimatedVisibility(
                     visible = !isTrailerPlaying,
-                    enter = fadeIn(tween(NuvioMotion.tokens.durations.overlay)),
-                    exit = fadeOut(tween(NuvioMotion.tokens.durations.overlay))
+                    enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.overlay))),
+                    exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.overlay)))
                 ) {
                     Text(
                         text = meta.name,
@@ -245,7 +242,8 @@ fun HeroContentSection(
             ) {
                 Text(
                     text = stringResource(R.string.hero_press_back_trailer),
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium
+                        .atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary,
                     modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm)
                 )
@@ -254,10 +252,19 @@ fun HeroContentSection(
             // Everything below the logo fades out during trailer
             AnimatedVisibility(
                 visible = !isTrailerPlaying,
-                enter = fadeIn(tween(NuvioMotion.tokens.durations.overlay)),
-                exit = fadeOut(tween(NuvioMotion.tokens.durations.overlay))
+                enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.overlay))),
+                exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.overlay)))
             ) {
                 Column {
+                    if (isExpressiveBuild) {
+                        MetaInfoRow(
+                            meta = meta,
+                            hideImdbRating = hideMetaInfoImdb,
+                            showFullReleaseDate = showFullReleaseDate,
+                            tmdbRating = tmdbRating
+                        )
+                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    }
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
@@ -304,8 +311,6 @@ fun HeroContentSection(
                                 enabled = !isMovieWatchedPending,
                                 selected = isMovieWatched,
                                 toggleable = true,
-                                selectedContainerColor = Color.White,
-                                selectedContentColor = Color.Black,
                                 onFocused = onHeroActionFocused
                             )
                         }
@@ -369,23 +374,29 @@ fun HeroContentSection(
                             upFocusRequester = playButtonFocusRequester,
                             onFocused = onHeroActionFocused,
                             onTruncationChanged = onTruncationChanged,
+                            maxLines = forBuild(DESCRIPTION_MAX_LINES, BOX_DESCRIPTION_MAX_LINES),
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
                                 .padding(bottom = NuvioTheme.spacing.md)
                         )
                     }
 
-                    MetaInfoRow(
-                        meta = meta,
-                        hideImdbRating = hideMetaInfoImdb,
-                        showFullReleaseDate = showFullReleaseDate,
-                        tmdbRating = tmdbRating
-                    )
+                    if (!isExpressiveBuild) {
+                        MetaInfoRow(
+                            meta = meta,
+                            hideImdbRating = hideMetaInfoImdb,
+                            showFullReleaseDate = showFullReleaseDate,
+                            tmdbRating = tmdbRating
+                        )
+                    }
                 }
             }
         }
     }
 }
+
+private const val DESCRIPTION_MAX_LINES = 8
+private const val BOX_DESCRIPTION_MAX_LINES = 3
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -409,6 +420,7 @@ internal fun PlayButton(
         }
     }
     val playPainter = rememberRawSvgPainter(rawIconRes = com.nuvio.tv.R.raw.ic_player_play)
+    val look = heroPlayLook()
 
     Button(
         enabled = enabled,
@@ -421,6 +433,7 @@ internal fun PlayButton(
         },
         modifier = modifier
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+            .then(look.focusScale)
             .onFocusChanged {
                 if (it.isFocused) {
                     onFocusRestored()
@@ -466,46 +479,40 @@ internal fun PlayButton(
                     Modifier
                 }
             ),
-        colors = ButtonDefaults.colors(
-            containerColor = androidx.compose.ui.graphics.Color.White,
-            focusedContainerColor = androidx.compose.ui.graphics.Color.White,
-            contentColor = androidx.compose.ui.graphics.Color.Black,
-            focusedContentColor = androidx.compose.ui.graphics.Color.Black
-        ),
-        shape = ButtonDefaults.shape(
-            shape = RoundedCornerShape(NuvioTheme.spacing.xxl)
-        ),
-        border = ButtonDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.spacing.xxl)
-            )
-        ),
+        colors = look.colors,
+        shape = look.shape,
+        scale = look.scale,
+        interactionSource = look.interactionSource,
         contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xl, vertical = 14.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
             modifier = Modifier.animateContentSize(
-                animationSpec = tween(
-                    durationMillis = NuvioMotion.tokens.durations.fast,
-                    easing = NuvioMotion.tokens.easings.standard
+                animationSpec = fastSpatialSpec(
+                    tween(
+                        durationMillis = NuvioMotion.tokens.durations.fast,
+                        easing = NuvioMotion.tokens.easings.standard
+                    )
                 )
             )
         ) {
             Icon(
                 painter = playPainter,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(
+                    18.dp.atLeastOnBox(TvSizeFloors.buttonIcon)
+                )
             )
             AnimatedVisibility(
                 visible = text != null,
-                enter = fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
-                exit = fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.quick))
+                enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.fast))),
+                exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.quick)))
             ) {
                 Text(
                     text = text ?: "",
                     style = MaterialTheme.typography.labelLarge
+                        .atLeastOnBox(TvSizeFloors.bodyText)
                 )
             }
         }
@@ -521,35 +528,26 @@ private fun ActionIconButtonPainter(
     onFocused: () -> Unit = {},
     enabled: Boolean = true
 ) {
+    val look = heroIconLook()
     IconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier
             .size(NuvioTheme.spacing.xxxl)
+            .then(look.focusScale)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
             }
             .focusProperties { up = FocusRequester.Cancel },
-        colors = IconButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary
-        ),
-        border = IconButtonDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = CircleShape
-            )
-        ),
-        shape = IconButtonDefaults.shape(
-            shape = CircleShape
-        )
+        colors = look.colors,
+        shape = look.shape,
+        scale = look.scale,
+        interactionSource = look.interactionSource
     ) {
         Icon(
             painter = painter,
             contentDescription = contentDescription,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(22.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
         )
     }
 }
@@ -567,13 +565,12 @@ private fun ActionIconButton(
     // When true this icon button is a state toggle (watched/unwatched) and announces itself as
     // such; the library add/remove button is a plain action and leaves this off.
     toggleable: Boolean = false,
-    selectedContainerColor: Color = Color(0xFF7CFF9B),
-    selectedContentColor: Color = Color.Black,
     onFocused: () -> Unit = {},
     focusRequester: FocusRequester? = null
 ) {
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
+    val look = heroIconLook(selected)
 
     IconButton(
         onClick = {
@@ -587,6 +584,7 @@ private fun ActionIconButton(
         modifier = Modifier
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .size(NuvioTheme.spacing.xxxl)
+            .then(look.focusScale)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
             }
@@ -629,27 +627,16 @@ private fun ActionIconButton(
                     toggleableState = if (selected) ToggleableState.On else ToggleableState.Off
                 }
             },
-        colors = IconButtonDefaults.colors(
-            containerColor = if (selected) selectedContainerColor else NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            contentColor = if (selected) selectedContentColor else NuvioTheme.colors.TextPrimary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary
-        ),
-        border = IconButtonDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = CircleShape
-            )
-        ),
-        shape = IconButtonDefaults.shape(
-            shape = CircleShape
-        )
+        colors = look.colors,
+        shape = look.shape,
+        scale = look.scale,
+        interactionSource = look.interactionSource
     ) {
         when {
             painter != null -> Icon(
                 painter = painter,
                 contentDescription = contentDescription,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(22.dp.atLeastOnBox(TvSizeFloors.buttonIcon))
             )
             icon != null -> Icon(
                 imageVector = icon,
@@ -832,7 +819,8 @@ private fun MetaInfoRow(
                 secondaryItems.forEachIndexed { index, value ->
                     Text(
                         text = value,
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelMedium
+                            .atLeastOnBox(TvSizeFloors.metaText),
                         color = NuvioTheme.colors.TextPrimary
                     )
                     if (index < secondaryItems.lastIndex) {
@@ -853,14 +841,14 @@ private fun HeroMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(6.dp)
+                shape = heroBadgeShape()
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
             color = contentColor,
             maxLines = 1
         )
@@ -879,7 +867,7 @@ private fun CombinedMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(6.dp)
+                shape = heroBadgeShape()
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -887,7 +875,7 @@ private fun CombinedMetaBadge(
     ) {
         Text(
             text = leftText,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
             color = leftColor,
             maxLines = 1
         )
@@ -899,7 +887,7 @@ private fun CombinedMetaBadge(
         )
         Text(
             text = rightText,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
             color = rightColor,
             maxLines = 1
         )

@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
@@ -83,7 +84,6 @@ import androidx.compose.ui.unit.sp
 import com.nuvio.tv.core.util.parseEpisodeReleaseLocalDate
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -109,6 +109,9 @@ import com.nuvio.tv.ui.components.MonochromePosterPlaceholder
 import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.components.WatchedMarker
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.expressiveFocusScale
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.ExpressiveColors
 import com.nuvio.tv.domain.model.CardDepthSurface
 import com.nuvio.tv.ui.components.LocalCardDepthStyle
 import com.nuvio.tv.ui.components.nuvioCardDepth
@@ -131,6 +134,7 @@ private const val EPISODE_OVERLAY_PREFETCH_DELAY_MS = 120L
 private const val SEASON_POSTER_ASPECT = 2f / 3f
 private val SEASON_TAB_POSTER_HEIGHT = 150.dp
 private val SEASON_TAB_POSTER_CORNER_RADIUS = 6.dp
+private val SEASON_TAB_BOX_VERTICAL_PADDING = 12.dp
 
 @Immutable
 data class SeasonPosterTabsStyle(
@@ -314,15 +318,17 @@ private fun SeasonTab(
     onFocused: (Int, Boolean) -> Unit
 ) {
     val tabShape = remember(isPosterMode) {
-        RoundedCornerShape(if (isPosterMode) SEASON_TAB_POSTER_CORNER_RADIUS else 20.dp)
+        if (isPosterMode) RoundedCornerShape(SEASON_TAB_POSTER_CORNER_RADIUS) else CircleShape
     }
-    val tabBorder = CardDefaults.border(
+    val tabBorder = if (!isPosterMode || isExpressiveBuild) {
+        noFocusRingCardBorder()
+    } else CardDefaults.border(
         focusedBorder = Border(
             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
             shape = tabShape
         )
     )
-    val selectedPosterTabBorder = CardDefaults.border(
+    val selectedPosterTabBorder = if (isExpressiveBuild) noFocusRingCardBorder() else CardDefaults.border(
         border = Border(
             border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.TextPrimary.copy(alpha = 0.25f)),
             shape = tabShape
@@ -350,6 +356,7 @@ private fun SeasonTab(
                 }
             },
             modifier = Modifier
+                .expressiveFocusScale(isFocused)
                 .focusRequester(focusRequester)
                 .focusProperties {
                     canFocus = isFocusEnabled
@@ -402,10 +409,7 @@ private fun SeasonTab(
                     selected = isSelected
                 },
             shape = CardDefaults.shape(shape = tabShape),
-            colors = CardDefaults.colors(
-                containerColor = if (isSelected) NuvioTheme.colors.SurfaceVariant else NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.Secondary
-            ),
+            colors = seasonTabColors(isSelected),
             border = if (isPosterMode && isSelected && !rowHasFocus) selectedPosterTabBorder else tabBorder,
             scale = tabScale
         ) {
@@ -415,12 +419,11 @@ private fun SeasonTab(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.titleMedium,
-                    color = when {
-                        isFocused -> NuvioTheme.colors.OnSecondary
-                        isSelected -> NuvioTheme.colors.TextPrimary
-                        else -> textSecondary
-                    },
-                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
+                    color = textTabContentColor(isFocused, isSelected),
+                    modifier = Modifier.padding(
+                        vertical = 10.dp.atLeastOnBox(SEASON_TAB_BOX_VERTICAL_PADDING),
+                        horizontal = 20.dp
+                    )
                 )
             }
         }
@@ -817,7 +820,7 @@ private fun EpisodeCard(
     }
     val typography = MaterialTheme.typography
     val episodeBadgeStyle = remember(typography, cardMetrics) {
-        typography.labelSmall.copy(
+        typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(
             fontWeight = FontWeight.SemiBold,
             letterSpacing = cardMetrics.episodeBadgeLetterSpacing,
             color = Color.White.copy(alpha = 0.9f)
@@ -835,7 +838,7 @@ private fun EpisodeCard(
         )
     }
     val descriptionStyle = remember(typography, cardMetrics) {
-        typography.bodySmall.copy(
+        typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText).copy(
             color = Color.White.copy(alpha = 0.9f),
             lineHeight = cardMetrics.descriptionLineHeight,
             shadow = Shadow(
@@ -847,10 +850,10 @@ private fun EpisodeCard(
     }
     val textSecondary = NuvioTheme.colors.TextSecondary
     val metaLabelStyle = remember(typography, textSecondary) {
-        typography.labelSmall.copy(color = textSecondary)
+        typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(color = textSecondary)
     }
     val ratingStyle = remember(typography) {
-        typography.labelSmall.copy(
+        typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(
             color = NuvioPrimitives.imdb,
             fontWeight = FontWeight.SemiBold
         )
@@ -928,7 +931,7 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val primaryColor = NuvioTheme.colors.Secondary
+    val progressFillColor = forBuild(NuvioTheme.colors.Secondary, ExpressiveColors.accentRed)
     val textPrimary = NuvioTheme.colors.TextPrimary
     val focusRingBorder = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs)
 
@@ -1176,7 +1179,7 @@ private fun EpisodeCard(
                             onDrawBehind {
                                 drawRoundRect(color = progressBgColor, cornerRadius = cr)
                                 drawRoundRect(
-                                    color = primaryColor,
+                                    color = progressFillColor,
                                     size = androidx.compose.ui.geometry.Size(fillWidth, size.height),
                                     cornerRadius = cr
                                 )
@@ -1273,24 +1276,29 @@ fun SeasonOptionsDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(primaryFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            colors = tonalButtonColors(),
+            contentPadding = tvButtonPadding()
         ) {
-            Text(if (isFullyWatched) stringResource(R.string.episodes_mark_season_unwatched) else stringResource(R.string.episodes_mark_season_watched))
+            Text(
+                text = if (isFullyWatched) {
+                    stringResource(R.string.episodes_mark_season_unwatched)
+                } else {
+                    stringResource(R.string.episodes_mark_season_watched)
+                },
+                style = buttonLabelStyle()
+            )
         }
 
         if (hasPreviousSeasons && season > 0) {
             Button(
                 onClick = onMarkPreviousSeasonsWatched,
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
-                ),
+                colors = tonalButtonColors(),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.episodes_mark_previous_seasons_watched))
+                Text(
+                    text = stringResource(R.string.episodes_mark_previous_seasons_watched),
+                    style = buttonLabelStyle()
+                )
             }
         }
     }

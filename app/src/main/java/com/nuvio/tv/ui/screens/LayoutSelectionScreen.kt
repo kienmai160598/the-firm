@@ -2,6 +2,11 @@
 
 package com.nuvio.tv.ui.screens
 
+import com.nuvio.tv.ui.theme.ExpressiveColors
+import com.nuvio.tv.ui.components.expressiveButtonBorder
+import com.nuvio.tv.ui.components.expressiveButtonColors
+import com.nuvio.tv.ui.components.expressiveButtonScale
+import com.nuvio.tv.ui.components.expressiveButtonShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -52,6 +57,9 @@ import com.nuvio.tv.ui.screens.settings.LayoutSettingsEvent
 import com.nuvio.tv.ui.screens.settings.LayoutSettingsViewModel
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 fun LayoutSelectionScreen(
@@ -137,20 +145,22 @@ fun LayoutSelectionScreen(
                 modifier = Modifier
                     .width(200.dp)
                     .height(NuvioTheme.spacing.xxxl)
-                    .focusRequester(continueFocusRequester),
-                shape = ButtonDefaults.shape(
+                    .focusRequester(continueFocusRequester)
+                    .tvControlHeight(),
+                shape = expressiveButtonShape(ButtonDefaults.shape(
                     shape = RoundedCornerShape(NuvioTheme.spacing.xl)
-                ),
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Primary,
+                )),
+                colors = expressiveButtonColors(ButtonDefaults.colors(
+                    containerColor = NuvioTheme.colors.BackgroundCard,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground
-                ),
-                border = ButtonDefaults.border(
+                )),
+                border = expressiveButtonBorder(ButtonDefaults.border(
                     focusedBorder = Border(
                         border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                         shape = RoundedCornerShape(NuvioTheme.spacing.xl)
                     )
-                )
+                )),
+                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -159,13 +169,30 @@ fun LayoutSelectionScreen(
                     Text(
                         text = stringResource(R.string.layout_selection_continue),
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
+                        color = if (isExpressiveBuild) Color.Unspecified else Color.White
                     )
                 }
             }
         }
     }
 }
+
+/** The chosen layout rests tonal on the expressive build, like a selected chip. */
+@Composable
+private fun layoutOptionContainer(selected: Boolean): Color =
+    if (isExpressiveBuild && selected) {
+        NuvioTheme.colors.FocusBackground
+    } else {
+        NuvioTheme.colors.BackgroundCard
+    }
+
+/**
+ * A focused layout card on the box build brightens its frosted fill and lifts instead of drawing
+ * a ring; its animated preview stays on a dark ground, so the fill does not turn solid white.
+ */
+@Composable
+private fun layoutOptionFocusedContainer(selected: Boolean): Color =
+    if (isExpressiveBuild) ExpressiveColors.frostedFocused else layoutOptionContainer(selected)
 
 @Composable
 private fun LayoutOptionCard(
@@ -181,18 +208,22 @@ private fun LayoutOptionCard(
         modifier = modifier
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            containerColor = layoutOptionContainer(isSelected),
+            focusedContainerColor = layoutOptionFocusedContainer(isSelected)
         ),
         border = CardDefaults.border(
             border = Border.None,
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.xl)
-            )
+            focusedBorder = if (isExpressiveBuild) {
+                Border.None
+            } else {
+                Border(
+                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                )
+            }
         ),
         shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.xl)),
-        scale = CardDefaults.scale(focusedScale = 1.03f)
+        scale = CardDefaults.scale(focusedScale = if (isExpressiveBuild) 1.04f else 1.03f)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -240,7 +271,7 @@ private fun LayoutOptionCard(
                     HomeLayout.GRID -> stringResource(R.string.layout_grid_desc)
                     HomeLayout.MODERN -> stringResource(R.string.layout_modern_desc)
                 },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.metaFloor(),
                 color = NuvioTheme.colors.TextTertiary
             )
             }

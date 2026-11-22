@@ -68,10 +68,30 @@ import com.nuvio.tv.ui.screens.settings.SettingsVerticalScrollIndicators
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
 import kotlinx.coroutines.delay
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.expressiveChoice
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 
 @Composable
 fun CatalogOrderScreen(
     viewModel: CatalogOrderViewModel = hiltViewModel(),
+    onBackPress: () -> Unit
+) {
+    TenFootTypography {
+        CatalogOrderScreenBody(viewModel = viewModel, onBackPress = onBackPress)
+    }
+}
+
+@Composable
+private fun CatalogOrderScreenBody(
+    viewModel: CatalogOrderViewModel,
     onBackPress: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -204,12 +224,12 @@ fun CatalogOrderScreen(
         ) {
             val visibleMessage = pinnedNoticeMessage ?: return@AnimatedVisibility
             Surface(
-                shape = RoundedCornerShape(NuvioTheme.radii.md),
+                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md)),
                 colors = SurfaceDefaults.colors(containerColor = NuvioTheme.colors.BackgroundElevated),
                 border = Border(
                     border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
                     shape = RoundedCornerShape(NuvioTheme.radii.md),
-                ),
+                ).let { if (isExpressiveBuild) Border.None else it },
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = NuvioTheme.spacing.md),
@@ -287,22 +307,20 @@ private fun CatalogOrderHeader(
                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                 )
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+            ).expressiveRingless(),
+            shape = ClickableSurfaceDefaults.shape(
+                RoundedCornerShape(NuvioTheme.radii.md)
+            ).expressivePill(),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
         ) {
             Box(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Switch(
+                ListToggleSwitch(
                     checked = followAddonsOrder,
-                    onCheckedChange = null,
-                    enabled = movingKey == null,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = NuvioTheme.colors.Secondary,
-                        checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f)
-                    ),
+                    focused = false,
+                    enabled = movingKey == null
                 )
             }
         }
@@ -327,10 +345,14 @@ private fun CatalogOrderCard(
         } else {
             NuvioTheme.colors.BackgroundCard
         },
-        animationSpec = NuvioMotion.focusTween(),
+        animationSpec = if (isExpressiveBuild) {
+            ExpressiveMotion.defaultEffects()
+        } else {
+            NuvioMotion.focusTween()
+        },
         label = "catalogOrderCardColor",
     )
-    val cardBorder = if (isMoving) {
+    val cardBorder = if (isMoving && !isExpressiveBuild) {
         BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.FocusRing)
     } else {
         null
@@ -340,7 +362,7 @@ private fun CatalogOrderCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = cardColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(NuvioTheme.radii.md),
+        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md)),
         border = cardBorder,
     ) {
         Row(
@@ -408,42 +430,41 @@ private fun CatalogOrderCard(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         )
-                    ),
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+                    ).expressiveRingless(),
+                    shape = ClickableSurfaceDefaults.shape(
+                        RoundedCornerShape(NuvioTheme.radii.md)
+                    ).expressivePill(),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+                        .expressiveControlGrow()
                 ) {
                     Box(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Switch(
-                            checked = !item.isDisabled,
-                            onCheckedChange = null,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = NuvioTheme.colors.Secondary,
-                                checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f)
-                            )
-                        )
+                        ListToggleSwitch(checked = !item.isDisabled, focused = false)
                     }
                 }
                 if (item.isPinnedToTop) {
                     Button(
                         onClick = onPinnedMoveAttempt,
                         enabled = actionsEnabled,
+                        modifier = Modifier.tvControlHeight(),
                         colors = ButtonDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundCard,
                             contentColor = NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
+                        ).expressiveControl(),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             ),
                             focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
-                        ),
+                        ).reorderExpressive(),
                         shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            .expressivePill(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Lock,
@@ -454,6 +475,7 @@ private fun CatalogOrderCard(
                     Button(
                         onClick = if (isMoving) onConfirmMove else onStartMove,
                         enabled = isMoving || (item.canMove && actionsEnabled),
+                        modifier = Modifier.tvControlHeight(),
                         colors = if (isMoving) {
                             ButtonDefaults.colors(
                                 containerColor = NuvioTheme.colors.Secondary,
@@ -468,15 +490,17 @@ private fun CatalogOrderCard(
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.Primary
                             )
-                        },
+                        }.expressiveChoice(selected = isMoving),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             ),
                             focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
-                        ),
+                        ).reorderExpressive(),
                         shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            .expressivePill(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Icon(
                             imageVector = Icons.Default.Reorder,

@@ -3,6 +3,7 @@ package com.nuvio.tv.ui.components
 import androidx.compose.ui.semantics.clearAndSetSemantics
 
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.boxRowTitle
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.clip
@@ -75,6 +76,8 @@ import com.nuvio.tv.domain.model.stableItemKey
 import com.nuvio.tv.domain.model.stableItemKeys
 import com.nuvio.tv.domain.model.PLACEHOLDER_IMAGE_URL
 import com.nuvio.tv.domain.model.PosterShape
+import com.nuvio.tv.ui.theme.rememberBodyFloor
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import com.nuvio.tv.ui.util.formatAddonTypeLabel
 import com.nuvio.tv.ui.util.localizedContentType
 import com.nuvio.tv.ui.util.contentTextDirection
@@ -296,7 +299,7 @@ fun CatalogRowSection(
             Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
                 Text(
                     text = catalogTitle.ifBlank { " " },
-                    style = MaterialTheme.typography.headlineMedium.copy(
+                    style = MaterialTheme.typography.headlineMedium.boxRowTitle().copy(
                         textDirection = catalogTitle.contentTextDirection()
                     ),
                     color = if (catalogTitle.isBlank()) Color.Transparent else NuvioTheme.colors.TextPrimary,
@@ -307,7 +310,7 @@ fun CatalogRowSection(
                     val addonText = if (catalogTitle.isBlank()) " " else stringResource(R.string.catalog_from_addon, catalogRow.addonName)
                     Text(
                         text = addonText,
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
                             textDirection = addonText.contentTextDirection()
                         ),
                         color = if (catalogTitle.isBlank()) Color.Transparent else NuvioTheme.colors.TextTertiary
@@ -503,19 +506,22 @@ fun CatalogRowSection(
                         modifier = Modifier
                             .width(seeAllCardWidth)
                             .height(seeAllCardHeight)
+                            .posterFocusLift(seeAllCardShape, posterCardStyle.focusedScale)
                             .then(directionalFocusModifier),
                         shape = CardDefaults.shape(shape = seeAllCardShape),
                         colors = CardDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundCard,
                             focusedContainerColor = NuvioTheme.colors.BackgroundCard
                         ),
-                        border = CardDefaults.border(
+                        border = posterFocusBorder(CardDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                                 shape = seeAllCardShape
                             )
-                        ),
-                        scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+                        )),
+                        scale = posterFocusScale(
+                            CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+                        )
                     ) {
                         Box(
                             modifier = Modifier
@@ -541,7 +547,8 @@ fun CatalogRowSection(
                                 Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
                                 Text(
                                     text = seeAllLabel ?: stringResource(R.string.action_see_all),
-                                    style = MaterialTheme.typography.titleSmall,
+                                    style = MaterialTheme.typography.titleSmall
+                                        .rememberBodyFloor(),
                                     color = NuvioTheme.colors.TextSecondary
                                 )
                             }

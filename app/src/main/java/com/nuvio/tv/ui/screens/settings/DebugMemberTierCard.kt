@@ -85,9 +85,9 @@ internal fun DebugMemberTierCard(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = shape
                         )
-                    ),
-                    shape = CardDefaults.shape(shape),
-                    scale = CardDefaults.scale(focusedScale = 1.04f)
+                    ).expressiveSelection(selected),
+                    shape = CardDefaults.shape(shape).expressiveCard(),
+                    scale = CardDefaults.scale(focusedScale = 1.04f).expressiveCardGrow()
                 ) {
                     Text(
                         text = label,

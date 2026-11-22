@@ -77,6 +77,7 @@ import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.components.TvReorderList
 import com.nuvio.tv.ui.components.tvReorderDisabledFocusBorder
 import com.nuvio.tv.ui.theme.NuvioMotion
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 private data class RatingOrderItem(
     val provider: String,
@@ -310,7 +311,9 @@ private fun MDBListApiKeyDialog(
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             colors = CardDefaults.colors(
                 containerColor = NuvioTheme.colors.BackgroundElevated,
-                focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                focusedContainerColor = expressiveCardFocusFill(
+                    NuvioTheme.colors.BackgroundElevated
+                )
             ),
             border = CardDefaults.border(
                 border = Border(
@@ -321,9 +324,10 @@ private fun MDBListApiKeyDialog(
                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                 )
-            ),
-            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
-            scale = CardDefaults.scale(focusedScale = 1f)
+            ).expressiveRingless(),
+            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                .expressiveCard(),
+            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
             Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
                 BasicTextField(
@@ -366,31 +370,40 @@ private fun MDBListApiKeyDialog(
             horizontalArrangement = Arrangement.End
         ) {
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundElevated,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onClear,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundElevated,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(R.string.action_clear))
             }
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = { if (!validating) viewModel.validateAndSaveApiKey(value, onSaved) },
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(if (validating) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
             }
@@ -497,9 +510,9 @@ private fun RatingOrderRow(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = toggleShape
                         )
-                    ),
-                    shape = ClickableSurfaceDefaults.shape(toggleShape),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+                    ).expressiveRingless(),
+                    shape = ClickableSurfaceDefaults.shape(toggleShape).expressiveCard(),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveCardGrow()
                 ) {
                     Box(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -516,6 +529,7 @@ private fun RatingOrderRow(
                     onClick = if (isMoving) onConfirmMove else onStartMove,
                     enabled = moveButtonEnabled,
                     modifier = Modifier
+                        .tvControlHeight()
                         .focusRequester(moveFocusRequester)
                         .focusProperties { canFocus = enabled }
                         .semantics { role = Role.Button },
@@ -550,9 +564,10 @@ private fun RatingOrderRow(
                             shape = moveButtonShape
                         ),
                         focusedDisabledBorder = tvReorderDisabledFocusBorder(moveButtonShape)
-                    ),
-                    shape = ButtonDefaults.shape(moveButtonShape),
-                    scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f),
+                    ).expressiveRingless(),
+                    shape = ButtonDefaults.shape(moveButtonShape).expressivePill(),
+                    scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+                        .expressiveControlGrow(),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     Icon(

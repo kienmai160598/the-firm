@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.collection
 
+import com.nuvio.tv.ui.components.expressiveOptionCardBorder
+import com.nuvio.tv.ui.components.expressiveOptionCardColors
+import com.nuvio.tv.ui.components.expressiveOptionCardShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -91,6 +94,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -123,7 +129,7 @@ fun CatalogPickerContent(
         ) {
             Text(
                 text = stringResource(R.string.collections_editor_select_catalogs),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.screenTitleFloor(),
                 color = NuvioTheme.colors.TextPrimary
             )
             NuvioButton(
@@ -161,11 +167,11 @@ fun CatalogPickerContent(
                             role = Role.Checkbox
                             toggleableState = if (isAdded) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = CardDefaults.colors(
+                    colors = expressiveOptionCardColors(CardDefaults.colors(
                         containerColor = if (isAdded) NuvioTheme.colors.Secondary.copy(alpha = 0.15f) else NuvioTheme.colors.BackgroundCard,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground
-                    ),
-                    border = CardDefaults.border(
+                    ), selected = isAdded),
+                    border = expressiveOptionCardBorder(CardDefaults.border(
                         border = if (isAdded) Border(
                             border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Secondary.copy(alpha = 0.5f)),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -174,8 +180,10 @@ fun CatalogPickerContent(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         )
+                    )),
+                    shape = expressiveOptionCardShape(
+                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
                     scale = CardDefaults.scale(focusedScale = 1.01f)
                 ) {
                     Row(
@@ -188,7 +196,7 @@ fun CatalogPickerContent(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = catalog.catalogName.replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleSmall.bodyFloor(),
                                 color = NuvioTheme.colors.TextPrimary
                             )
                             val supportingGenreText = when {
@@ -198,7 +206,7 @@ fun CatalogPickerContent(
                             }
                             Text(
                                 text = listOfNotNull("${catalog.type} - ${catalog.addonName}", supportingGenreText).joinToString(" • "),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall.metaFloor(),
                                 color = NuvioTheme.colors.TextTertiary
                             )
                         }

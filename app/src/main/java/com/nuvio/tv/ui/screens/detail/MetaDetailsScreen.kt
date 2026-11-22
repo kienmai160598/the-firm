@@ -1193,18 +1193,15 @@ fun MetaDetailsScreen(
                     .align(Alignment.TopCenter)
                     .padding(top = NuvioTheme.spacing.xl)
                     .background(
-                        color = if (uiState.userMessageIsError) {
-                            Color(0xFF5A1C1C)
-                        } else {
-                            NuvioTheme.colors.BackgroundElevated
-                        },
-                        shape = RoundedCornerShape(10.dp)
+                        color = detailMessageContainer(uiState.userMessageIsError),
+                        shape = detailMessageShape()
                     )
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             ) {
                 Text(
                     text = message,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium
+                        .atLeastOnBox(TvSizeFloors.bodyText),
                     color = NuvioTheme.colors.TextPrimary
                 )
             }
@@ -2783,7 +2780,7 @@ private fun MetaDetailsContent(
 
                     Crossfade(
                         targetState = visiblePeopleSection,
-                        animationSpec = tween(durationMillis = 160),
+                        animationSpec = effectsSpec(tween(durationMillis = 160)),
                         label = "peopleSectionSwitch"
                     ) { section ->
                         when (section) {
@@ -3586,27 +3583,16 @@ private fun PeopleSectionTabButton(
                 role = Role.Tab
                 this.selected = selected
             },
-        colors = CardDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(NuvioTheme.spacing.none, Color.Transparent),
-                shape = RoundedCornerShape(NuvioTheme.radii.xl)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.03f)
+        colors = peopleTabColors(isFocused, selected),
+        border = peopleTabBorder(),
+        shape = peopleTabShape(),
+        scale = peopleTabScale()
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleLarge,
-            color = when {
-                isFocused -> NuvioTheme.colors.TextPrimary
-                selected -> NuvioTheme.colors.TextPrimary.copy(alpha = 0.92f)
-                else -> NuvioTheme.colors.TextPrimary.copy(alpha = 0.55f)
-            },
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxs, vertical = NuvioTheme.spacing.xxs)
+            color = peopleTabContentColor(isFocused, selected),
+            modifier = Modifier.padding(peopleTabPadding())
         )
     }
 }

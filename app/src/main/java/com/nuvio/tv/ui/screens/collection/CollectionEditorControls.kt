@@ -1,6 +1,11 @@
 package com.nuvio.tv.ui.screens.collection
 
 import androidx.activity.compose.BackHandler
+import com.nuvio.tv.ui.components.buttonLabelStyle
+import com.nuvio.tv.ui.components.expressiveButtonBorder
+import com.nuvio.tv.ui.components.expressiveButtonColors
+import com.nuvio.tv.ui.components.expressiveButtonScale
+import com.nuvio.tv.ui.components.expressiveButtonShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -95,6 +100,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 internal suspend fun requestFocusWhenReady(
     requester: FocusRequester,
@@ -246,23 +252,27 @@ fun NuvioButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.then(if (!enabled) Modifier.alpha(0.35f) else Modifier),
+        modifier = modifier.then(if (!enabled) Modifier.alpha(0.35f) else Modifier)
+            .tvControlHeight(),
         enabled = enabled,
-        colors = ButtonDefaults.colors(
+        colors = expressiveButtonColors(ButtonDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
             contentColor = NuvioTheme.colors.TextPrimary,
             focusedContainerColor = NuvioTheme.colors.FocusBackground,
             focusedContentColor = NuvioTheme.colors.Primary
-        ),
-        border = ButtonDefaults.border(
+        )),
+        border = expressiveButtonBorder(ButtonDefaults.border(
             focusedBorder = Border(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             ),
             focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+        )),
+        shape = expressiveButtonShape(
+            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
         ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        content = { content() }
+        content = { content() },
+        scale = expressiveButtonScale(ButtonDefaults.scale())
     )
 }
 
@@ -300,8 +310,11 @@ internal fun UnsavedChangesDialog(
                 enabled = !isSaving,
                 modifier = (if (canSave) Modifier else Modifier.focusRequester(primaryFocusRequester))
                     .semantics { role = Role.Button }
+                    .tvControlHeight(),
+                scale = expressiveButtonScale(ButtonDefaults.scale()),
+                colors = expressiveButtonColors(ButtonDefaults.colors())
             ) {
-                Text(stringResource(R.string.collections_cancel))
+                Text(stringResource(R.string.collections_cancel), style = buttonLabelStyle())
             }
             if (canSave) {
                 Button(
@@ -310,8 +323,14 @@ internal fun UnsavedChangesDialog(
                     modifier = Modifier
                         .focusRequester(primaryFocusRequester)
                         .semantics { role = Role.Button }
+                        .tvControlHeight(),
+                    scale = expressiveButtonScale(ButtonDefaults.scale()),
+                    colors = expressiveButtonColors(ButtonDefaults.colors())
                 ) {
-                    Text(stringResource(R.string.collections_editor_save))
+                    Text(
+                        stringResource(R.string.collections_editor_save),
+                        style = buttonLabelStyle()
+                    )
                 }
             }
         }

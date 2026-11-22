@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.detail
 
+import com.nuvio.tv.ui.components.posterFocusScale
+import com.nuvio.tv.ui.components.posterFocusLift
+import com.nuvio.tv.ui.components.posterFocusBorder
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.domain.model.CardDepthSurface
 import com.nuvio.tv.ui.components.LocalCardDepthStyle
@@ -439,8 +442,12 @@ private fun CastMemberItem(
         with(density) { cardSize.roundToPx() }
     }
     val typography = MaterialTheme.typography
-    val nameStyle = remember(typography) { typography.labelMedium }
-    val characterStyle = remember(typography) { typography.labelSmall }
+    val nameStyle = remember(typography) {
+        typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText)
+    }
+    val characterStyle = remember(typography) {
+        typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText)
+    }
     val initialsStyle = remember(typography) { typography.titleLarge }
     val photo = member.photo
     val photoModel = remember(context, photo, cardSizePx) {
@@ -480,6 +487,7 @@ private fun CastMemberItem(
             modifier = modifier
                 .size(cardSize)
                 .align(Alignment.Start)
+                .posterFocusLift(CircleShape)
                 .onFocusChanged { state ->
                     isFocused = state.isFocused
                     if (state.isFocused) onFocused()
@@ -495,12 +503,15 @@ private fun CastMemberItem(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
-            border = CardDefaults.border(
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = CircleShape
+            border = posterFocusBorder(
+                CardDefaults.border(
+                    focusedBorder = Border(
+                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        shape = CircleShape
+                    )
                 )
-            )
+            ),
+            scale = posterFocusScale(CardDefaults.scale())
         ) {
             Box(
                 modifier = Modifier

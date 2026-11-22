@@ -926,10 +926,12 @@ private fun DebridTextListDialog(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.colors(
                 containerColor = NuvioTheme.colors.BackgroundElevated,
-                focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                focusedContainerColor = expressiveCardFocusFill(
+                    NuvioTheme.colors.BackgroundElevated
+                )
             ),
-            shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
-            scale = CardDefaults.scale(focusedScale = 1f)
+            shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
+            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
             Box(modifier = Modifier.padding(14.dp)) {
                 BasicTextField(
@@ -1517,7 +1519,9 @@ private fun DebridApiKeyDialog(
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             colors = CardDefaults.colors(
                 containerColor = NuvioTheme.colors.BackgroundElevated,
-                focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                focusedContainerColor = expressiveCardFocusFill(
+                    NuvioTheme.colors.BackgroundElevated
+                )
             ),
             border = CardDefaults.border(
                 border = Border(
@@ -1528,9 +1532,9 @@ private fun DebridApiKeyDialog(
                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                     shape = RoundedCornerShape(10.dp)
                 )
-            ),
-            shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
-            scale = CardDefaults.scale(focusedScale = 1f)
+            ).expressiveRingless(),
+            shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
+            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
             Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
                 BasicTextField(

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text as CoreText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,11 +19,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
 import com.nuvio.tv.R
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -51,18 +47,7 @@ fun ErrorState(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
-        Button(
-            onClick = onRetry,
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                focusedContentColor = NuvioTheme.colors.Primary
-            ),
-            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
-        ) {
-            Text(stringResource(R.string.action_retry))
-        }
+        ExpressivePillButton(text = stringResource(R.string.action_retry), onClick = onRetry)
     }
 }
 

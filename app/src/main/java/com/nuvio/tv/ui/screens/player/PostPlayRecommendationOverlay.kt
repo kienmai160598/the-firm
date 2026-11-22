@@ -44,6 +44,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.focus.onFocusChanged
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -715,25 +717,46 @@ private fun PostPlayRecommendationNavigationButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+
     IconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
             .size(NuvioTheme.spacing.xxxl)
-            .focusRequester(focusRequester),
-        colors = IconButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary
-        ),
-        border = IconButtonDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = CircleShape
+            .focusRequester(focusRequester)
+            .onFocusChanged { isFocused = it.isFocused }
+            .then(if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier),
+        colors = if (isExpressiveBuild) {
+            PlayerControlStyle.iconButtonColors(NuvioTheme.colors.TextPrimary)
+        } else {
+            IconButtonDefaults.colors(
+                containerColor = NuvioTheme.colors.BackgroundCard,
+                focusedContainerColor = NuvioTheme.colors.Secondary,
+                contentColor = NuvioTheme.colors.TextPrimary,
+                focusedContentColor = NuvioTheme.colors.OnSecondary
             )
+        },
+        border = IconButtonDefaults.border(
+            focusedBorder = if (isExpressiveBuild) {
+                Border.None
+            } else {
+                Border(
+                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    shape = CircleShape
+                )
+            }
         ),
-        shape = IconButtonDefaults.shape(shape = CircleShape)
+        shape = if (isExpressiveBuild) {
+            PlayerControlStyle.capsuleShape
+        } else {
+            IconButtonDefaults.shape(shape = CircleShape)
+        },
+        scale = if (isExpressiveBuild) {
+            PlayerControlStyle.stillScale
+        } else {
+            IconButtonDefaults.scale()
+        }
     ) {
         Icon(
             imageVector = icon,
@@ -754,6 +777,7 @@ private fun PostPlayRecommendationButton(
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(NuvioTheme.spacing.xxl)
+    var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     Button(
@@ -766,6 +790,8 @@ private fun PostPlayRecommendationButton(
         },
         modifier = modifier
             .focusRequester(focusRequester)
+            .onFocusChanged { isFocused = it.isFocused }
+            .then(if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier)
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
                 if (onLongPress != null &&
@@ -796,19 +822,32 @@ private fun PostPlayRecommendationButton(
                 }
                 false
             },
-        colors = ButtonDefaults.colors(
-            containerColor = if (primary) Color.White else NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = if (primary) Color.White else NuvioTheme.colors.Secondary,
-            contentColor = if (primary) Color.Black else NuvioTheme.colors.TextPrimary,
-            focusedContentColor = if (primary) Color.Black else NuvioTheme.colors.OnSecondary
-        ),
-        shape = ButtonDefaults.shape(shape = shape),
-        border = ButtonDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = shape
+        colors = if (isExpressiveBuild) {
+            PlayerControlStyle.pillButtonColors(isFocused, primary)
+        } else {
+            ButtonDefaults.colors(
+                containerColor = if (primary) Color.White else NuvioTheme.colors.BackgroundCard,
+                focusedContainerColor = if (primary) Color.White else NuvioTheme.colors.Secondary,
+                contentColor = if (primary) Color.Black else NuvioTheme.colors.TextPrimary,
+                focusedContentColor = if (primary) Color.Black else NuvioTheme.colors.OnSecondary
             )
+        },
+        shape = if (isExpressiveBuild) {
+            PlayerControlStyle.capsuleShape
+        } else {
+            ButtonDefaults.shape(shape = shape)
+        },
+        border = ButtonDefaults.border(
+            focusedBorder = if (isExpressiveBuild) {
+                Border.None
+            } else {
+                Border(
+                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    shape = shape
+                )
+            }
         ),
+        scale = if (isExpressiveBuild) PlayerControlStyle.stillScale else ButtonDefaults.scale(),
         contentPadding = PaddingValues(
             horizontal = NuvioTheme.spacing.lg,
             vertical = 14.dp
@@ -822,7 +861,7 @@ private fun PostPlayRecommendationButton(
             Icon(
                 painter = painter,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(PlayerTenFoot.atLeast(18.dp, 24.dp))
             )
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             AnimatedContent(

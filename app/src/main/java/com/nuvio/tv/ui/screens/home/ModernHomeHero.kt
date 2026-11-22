@@ -55,6 +55,8 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.metaFloor
 import com.nuvio.tv.ui.util.LocalRecompositionHighlighterEnabled
 import com.nuvio.tv.ui.util.contentTextDirection
 import com.nuvio.tv.ui.util.recompositionHighlighter
@@ -398,7 +400,7 @@ private fun HeroTitleContent(
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
-    val descriptionMaxLines = 4
+    val descriptionMaxLines = if (isExpressiveBuild) BOX_HERO_DESCRIPTION_LINES else 4
     val descriptionScale = if (portraitMode) 0.90f else 1f
     val titleScale = if (portraitMode) 0.92f else 1f
     val metaScale = 1f
@@ -408,7 +410,8 @@ private fun HeroTitleContent(
     val context = LocalContext.current
     val density = LocalDensity.current
     val headlineLarge = MaterialTheme.typography.headlineLarge
-    val labelMedium = MaterialTheme.typography.labelMedium
+    val labelMediumBase = MaterialTheme.typography.labelMedium
+    val labelMedium = remember(labelMediumBase) { labelMediumBase.metaFloor() }
     val bodyMedium = MaterialTheme.typography.bodyMedium
     val logoMaxWidthPx = remember(density) { with(density) { 220.dp.roundToPx() } }
     val logoHeightPx = remember(density) { with(density) { 100.dp.roundToPx() } }
@@ -755,10 +758,10 @@ private fun HeroCombinedMetaBadge(
     val dividerColor = contentColor.copy(alpha = 0.55f)
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(HeroBadgeShape)
             .border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(6.dp)
+                shape = HeroBadgeShape
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -796,10 +799,10 @@ private fun HeroMetaBadge(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(HeroBadgeShape)
             .border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(6.dp)
+                shape = HeroBadgeShape
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
         contentAlignment = Alignment.Center
@@ -828,4 +831,8 @@ private fun HeroMetaDivider(
     )
 }
 
+private val HeroBadgeShape = RoundedCornerShape(if (isExpressiveBuild) 8.dp else 6.dp)
+
 internal const val HOME_HERO_TRAILER_OWNER = "home_hero"
+
+private const val BOX_HERO_DESCRIPTION_LINES = 3

@@ -15,7 +15,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,13 +59,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import com.nuvio.tv.domain.model.Stream
 import com.nuvio.tv.domain.model.Video
-import com.nuvio.tv.ui.theme.NuvioPrimitives
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.components.FocusScrollingText
 import com.nuvio.tv.ui.components.LoadingIndicator
@@ -125,10 +123,10 @@ internal fun EpisodesSidePanel(
         modifier = modifier
             .fillMaxHeight()
             .width(520.dp)
-            .clip(RoundedCornerShape(topStart = NuvioTheme.spacing.lg, bottomStart = NuvioTheme.spacing.lg))
-            .background(NuvioTheme.colors.BackgroundElevated)
+            .clip(PlayerSurfaceStyle.sidePanelShape())
+            .background(PlayerSurfaceStyle.sidePanelColor())
     ) {
-        Column(modifier = Modifier.padding(NuvioTheme.spacing.xl)) {
+        Column(modifier = Modifier.padding(PlayerSurfaceStyle.sidePanelPadding())) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -738,35 +736,20 @@ private fun EpisodesSeasonTabs(
                         isFocused = it.isFocused
                         if (it.isFocused && season != selectedSeason) pendingSeason = season
                     }
+                    .playerFocusLift(isFocused)
                     .semantics {
                         role = Role.Tab
                         this.selected = isSelected
                     },
-                shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.spacing.xl)),
-                colors = CardDefaults.colors(
-                    containerColor = if (isSelected) NuvioPrimitives.neutral100 else NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = if (isSelected) Color.White else NuvioTheme.colors.Secondary
-                ),
-                border = CardDefaults.border(
-                    border = Border(
-                        border = BorderStroke(NuvioTheme.spacing.hairline, if (isSelected) Color.Transparent else NuvioTheme.colors.Border),
-                        shape = RoundedCornerShape(NuvioTheme.spacing.xl)
-                    ),
-                    focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                        shape = RoundedCornerShape(NuvioTheme.spacing.xl)
-                    )
-                ),
+                shape = PlayerPillStyle.shape(isFocused),
+                colors = PlayerPillStyle.colors(isFocused, isSelected),
+                border = PlayerListItemStyle.noBorder(),
                 scale = CardDefaults.scale(focusedScale = 1.0f)
             ) {
                 Text(
                     text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
                     style = MaterialTheme.typography.labelLarge,
-                    color = when {
-                        isSelected -> Color.Black
-                        isFocused -> NuvioTheme.colors.OnSecondary
-                        else -> NuvioTheme.extendedColors.textSecondary
-                    },
+                    color = ExpressiveFocus.contentColor(isFocused, isSelected),
                     modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
                 )
             }
@@ -814,6 +797,7 @@ private fun EpisodeItem(
             .fillMaxWidth()
             .then(if (requestInitialFocus) Modifier.focusRequester(focusRequester) else Modifier)
             .onFocusChanged { isFocused = it.isFocused }
+            .playerFocusLift(isFocused, PlayerListItemStyle.FOCUS_SCALE)
             .onPreviewKeyEvent { keyEvent ->
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                     // In RTL, DPAD_LEFT visually moves toward later items and
@@ -854,18 +838,10 @@ private fun EpisodeItem(
                 }
                 false
             },
-        colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.xl)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.01f),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.xl))
+        colors = PlayerListItemStyle.colors(isCurrent),
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale,
+        shape = PlayerListItemStyle.shape
     ) {
         Row(
             modifier = Modifier
@@ -959,7 +935,7 @@ private fun EpisodeItem(
                 Text(
                     text = episodeTitle,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = PlayerListItemStyle.labelColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -968,7 +944,7 @@ private fun EpisodeItem(
                     Text(
                         text = formattedDate,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.extendedColors.textTertiary
+                        color = PlayerListItemStyle.supportingColor()
                     )
                 }
 
@@ -980,7 +956,7 @@ private fun EpisodeItem(
                             textDirection = it.contentTextDirection()
                         ),
                         maxLines = 2,
-                        color = NuvioTheme.extendedColors.textSecondary,
+                        color = PlayerListItemStyle.supportingColor(),
                         startDelayMillis = EpisodeDescriptionScrollDelayMillis
                     )
                 }

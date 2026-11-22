@@ -1,5 +1,7 @@
 package com.nuvio.tv.ui.screens.party
 
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
@@ -314,7 +316,7 @@ internal fun PartyNote(text: String, modifier: Modifier = Modifier) {
 internal fun ExperimentalNote() {
     Text(
         text = stringResource(R.string.party_experimental),
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
         color = NuvioTheme.colors.TextTertiary,
     )
 }

@@ -93,7 +93,7 @@ internal fun EpisodeShufflePreview(
         }
         Column(
             modifier = Modifier.fillMaxSize()
-                .background(Brush.linearGradient(listOf(Color(0xFF070707), Color(0xFF101010), Color(0xFF151515))))
+                .background(Brush.linearGradient(shufflePreviewGradient()))
                 .onPreviewKeyEvent { event ->
                     if (starting) return@onPreviewKeyEvent true
                     val native = event.nativeKeyEvent
@@ -163,15 +163,35 @@ internal fun EpisodeShufflePreview(
                         if (canShuffleAgain) {
                             Button(
                                 onClick = { if (!starting) onShuffleAgain() },
-                                modifier = Modifier.focusProperties { up = backFocus; down = FocusRequester.Cancel }
+                                modifier = Modifier
+                                    .focusProperties {
+                                        up = backFocus
+                                        down = FocusRequester.Cancel
+                                    }
+                                    .tvControlHeight(),
+                                colors = tonalOnBoxButtonColors(),
+                                contentPadding = tvButtonPadding()
                             ) {
-                                Icon(Icons.Default.Shuffle, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Text(stringResource(R.string.shuffle_again), modifier = Modifier.padding(start = 8.dp))
+                                Icon(
+                                    Icons.Default.Shuffle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(
+                                        18.dp.atLeastOnBox(TvSizeFloors.buttonIcon)
+                                    )
+                                )
+                                Text(
+                                    stringResource(R.string.shuffle_again),
+                                    style = buttonLabelStyle(),
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
                             }
                         }
                     }
                     if (!canShuffleAgain && !starting) {
-                        Text(stringResource(R.string.shuffle_only_episode), style = MaterialTheme.typography.bodySmall,
+                        Text(
+                            stringResource(R.string.shuffle_only_episode),
+                            style = MaterialTheme.typography.bodySmall
+                                .atLeastOnBox(TvSizeFloors.metaText),
                             color = NuvioTheme.colors.TextSecondary)
                     }
                 }
@@ -212,20 +232,24 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
     }
     Box(
         modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-            .clip(RoundedCornerShape(16.dp)).background(NuvioTheme.colors.BackgroundCard),
+            .clip(RoundedCornerShape(forBuild(16.dp, NuvioTheme.radii.xl)))
+            .background(NuvioTheme.colors.BackgroundCard),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(if (hidden) Icons.Default.VisibilityOff else Icons.Default.Shuffle, contentDescription = null,
                 tint = NuvioTheme.colors.TextSecondary, modifier = Modifier.size(48.dp))
-            if (hidden) Text(stringResource(R.string.shuffle_artwork_hidden), style = MaterialTheme.typography.bodySmall,
+            if (hidden) Text(
+                stringResource(R.string.shuffle_artwork_hidden),
+                style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                 color = NuvioTheme.colors.TextSecondary)
         }
         if (request != null) AsyncImage(model = request, contentDescription = null, contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize())
         Text(
             stringResource(if (isWatched) R.string.library_filter_watched else R.string.library_watched_filter_unwatched),
-            style = MaterialTheme.typography.labelMedium, color = Color.White,
+            style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
+            color = Color.White,
             modifier = Modifier.align(Alignment.BottomStart).padding(14.dp)
                 .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(6.dp))
                 .padding(horizontal = 10.dp, vertical = 5.dp)

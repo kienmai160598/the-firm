@@ -17,7 +17,7 @@ object BoxBuild {
     val trailersAutoplay: Boolean = !box
     val appTheme: AppTheme = if (box) AppTheme.EXPRESSIVE else AppTheme.WHITE
     val appFont: AppFont = if (box) AppFont.GOOGLE_SANS_FLEX else AppFont.INTER
-    val posterCornerRadiusDp: Int = if (box) 16 else 12
+    val posterCornerRadiusDp: Int = 12
     val pruneUnreadSemantics: Boolean = box
     val topTabBar: Boolean = box
 }

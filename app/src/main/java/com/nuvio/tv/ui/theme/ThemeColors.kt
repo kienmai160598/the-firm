@@ -23,7 +23,13 @@ data class ThemeColorPalette(
     val field: Color = NuvioPrimitives.neutral850,
     val menu: Color = NuvioPrimitives.neutral875,
     val modal: Color = NuvioPrimitives.neutral900,
-    val playerOverlay: Color = Color(0xCC000000)
+    val primary: Color = NuvioPrimitives.neutral500,
+    val onPrimary: Color = NuvioPrimitives.white,
+    val outline: Color = NuvioPrimitives.neutral600,
+    val outlineVariant: Color = NuvioPrimitives.neutral750,
+    val playerOverlay: Color = Color(0xCC000000),
+    val textSecondary: Color = NuvioPrimitives.neutral400,
+    val textTertiary: Color = NuvioPrimitives.neutral600
 )
 
 object ThemeColors {

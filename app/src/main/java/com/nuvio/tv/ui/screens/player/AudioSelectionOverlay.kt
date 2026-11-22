@@ -2,9 +2,9 @@
 
 package com.nuvio.tv.ui.screens.player
 
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.NuvioTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -53,7 +53,6 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -318,35 +317,15 @@ private fun AudioTrackCard(
             }
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .focusProperties { right = rightFocusRequester }
-            .onFocusChanged { if (it.isFocused) onFocused() },
-        colors = CardDefaults.colors(
-            containerColor = if (isSelected) NuvioTheme.colors.Secondary else Color.Transparent,
-            focusedContainerColor = if (isSelected) NuvioTheme.colors.Secondary else Color.Transparent
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(NuvioTheme.spacing.xxs, Color.Transparent),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            .onFocusChanged { if (it.isFocused) onFocused() }
+            .focusSpringScale(),
+        colors = PlayerListItemStyle.colors(isSelected),
+        shape = PlayerListItemStyle.shape,
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale
     ) {
-        val primaryTextColor = if (isSelected) NuvioTheme.colors.OnSecondary else Color.White
-        val secondaryTextColor = if (isSelected) {
-            NuvioTheme.colors.OnSecondary.copy(alpha = 0.82f)
-        } else {
-            Color.White.copy(alpha = 0.72f)
-        }
-        val metadataTextColor = if (isSelected) {
-            NuvioTheme.colors.OnSecondary.copy(alpha = 0.72f)
-        } else {
-            NuvioTheme.colors.TextTertiary
-        }
+        val primaryTextColor = PlayerListItemStyle.labelColor()
+        val secondaryTextColor = PlayerListItemStyle.supportingColor()
 
         Row(
             modifier = Modifier
@@ -375,7 +354,7 @@ private fun AudioTrackCard(
                     Text(
                         text = metadata,
                         style = MaterialTheme.typography.bodySmall,
-                        color = metadataTextColor
+                        color = secondaryTextColor
                     )
                 }
             }
@@ -384,7 +363,7 @@ private fun AudioTrackCard(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = NuvioTheme.colors.OnSecondary
+                    tint = primaryTextColor
                 )
             }
         }
@@ -636,28 +615,17 @@ private fun AudioControlsContent(
                             left = persistLeftFocusRequester
                             up = persistUpFocusRequester
                             down = persistFocusRequester
-                        },
-                    colors = CardDefaults.colors(
-                        containerColor = if (nightModeOn) NuvioTheme.colors.Secondary else Color.Transparent,
-                        focusedContainerColor = if (nightModeOn) NuvioTheme.colors.Secondary else Color.Transparent
-                    ),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-                    border = CardDefaults.border(
-                        border = Border(
-                            border = BorderStroke(NuvioTheme.spacing.xxs, Color.White.copy(alpha = 0.18f)),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
-                        ),
-                        focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
-                        )
-                    ),
-                    scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+                        }
+                        .focusSpringScale(),
+                    colors = PlayerListItemStyle.colors(nightModeOn),
+                    shape = PlayerListItemStyle.shape,
+                    border = PlayerListItemStyle.noBorder(),
+                    scale = PlayerListItemStyle.stillScale
                 ) {
                     Text(
                         text = stringResource(R.string.audio_night_mode_value, nightModeLevelLabel(nightMode)),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (nightModeOn) NuvioTheme.colors.OnSecondary else Color.White,
+                        color = PlayerListItemStyle.labelColor(),
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
                     )
                 }
@@ -679,23 +647,12 @@ private fun AudioControlsContent(
                     .focusProperties {
                         left = persistLeftFocusRequester
                         up = if (isNightModeAvailable) nightModeFocusRequester else persistUpFocusRequester
-                    },
-                colors = CardDefaults.colors(
-                    containerColor = if (persistAmplification) NuvioTheme.colors.Secondary else Color.Transparent,
-                    focusedContainerColor = if (persistAmplification) NuvioTheme.colors.Secondary else Color.Transparent
-                ),
-                shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-                border = CardDefaults.border(
-                    border = Border(
-                        border = BorderStroke(NuvioTheme.spacing.xxs, Color.Transparent),
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
-                    ),
-                    focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
-                    )
-                ),
-                scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+                    }
+                    .focusSpringScale(),
+                colors = PlayerListItemStyle.colors(persistAmplification),
+                shape = PlayerListItemStyle.shape,
+                border = PlayerListItemStyle.noBorder(),
+                scale = PlayerListItemStyle.stillScale
             ) {
                 Text(
                     text = if (persistAmplification) {
@@ -704,7 +661,7 @@ private fun AudioControlsContent(
                         stringResource(R.string.audio_mix_persist_off)
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (persistAmplification) NuvioTheme.colors.OnSecondary else Color.White,
+                    color = PlayerListItemStyle.labelColor(),
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
                 )
             }
@@ -840,26 +797,12 @@ private fun StepCard(
                 right = rightFocusRequester
                 upFocusRequester?.let { up = it }
                 downFocusRequester?.let { down = it }
-            },
-        colors = CardDefaults.colors(
-            containerColor = if (enabled) Color.Transparent else Color.White.copy(alpha = 0.06f),
-            focusedContainerColor = if (enabled) Color.Transparent else Color.White.copy(alpha = 0.06f)
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(NuvioTheme.spacing.xxs, if (enabled) Color.White.copy(alpha = 0.18f) else Color.Transparent),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(
-                    width = NuvioTheme.spacing.xxs,
-                    alpha = if (enabled) 1f else 0f
-                ),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            }
+            .focusSpringScale(PlayerFocusLift.CONTROL_SCALE),
+        colors = PlayerControlStyle.stepColors(enabled),
+        shape = CardDefaults.shape(CircleShape),
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale
     ) {
         Row(
             modifier = Modifier
@@ -869,8 +812,7 @@ private fun StepCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = contentDescription,
-                tint = if (enabled) Color.White else Color.White.copy(alpha = 0.35f)
+                contentDescription = contentDescription
             )
         }
     }

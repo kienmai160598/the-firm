@@ -55,6 +55,8 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
 import com.nuvio.tv.ui.util.contentTextDirection
 import com.nuvio.tv.ui.util.dpadRepeatThrottle
 import com.nuvio.tv.ui.util.dpadVerticalFastScroll
@@ -277,7 +279,7 @@ private fun FolderHeader(folder: com.nuvio.tv.domain.model.CollectionFolder) {
         }
         Text(
             text = folder.title,
-            style = MaterialTheme.typography.headlineMedium.copy(
+            style = MaterialTheme.typography.headlineMedium.screenTitleFloor().copy(
                 textDirection = folder.title.contentTextDirection()
             ),
             color = NuvioTheme.colors.TextPrimary,
@@ -341,7 +343,7 @@ private fun TabbedGridContent(
         }
         Text(
             text = folder.title,
-            style = MaterialTheme.typography.headlineMedium.copy(
+            style = MaterialTheme.typography.headlineMedium.screenTitleFloor().copy(
                 textDirection = folder.title.contentTextDirection()
             ),
             color = NuvioTheme.colors.TextPrimary,
@@ -387,7 +389,7 @@ private fun TabbedGridContent(
                                 }
                                 Text(
                                     text = localizedType,
-                                    style = MaterialTheme.typography.bodySmall,
+                                    style = MaterialTheme.typography.bodySmall.metaFloor(),
                                     color = NuvioTheme.colors.TextTertiary
                                 )
                             }
@@ -607,7 +609,8 @@ private fun TabbedGridContent(
                                     .padding(top = NuvioTheme.spacing.sm)
                                     .height(
                                         MaterialTheme.typography.titleMedium.lineHeight.value.dp +
-                                            MaterialTheme.typography.labelMedium.lineHeight.value.dp
+                                            MaterialTheme.typography.labelMedium
+                                                .metaFloor().lineHeight.value.dp
                                     )
                             )
                         }

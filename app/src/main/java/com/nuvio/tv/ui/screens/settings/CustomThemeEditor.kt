@@ -58,6 +58,7 @@ import com.nuvio.tv.ui.theme.ThemeColors
 import com.nuvio.tv.ui.theme.accentBrush
 import com.nuvio.tv.ui.theme.createFocusRingStyle
 import com.nuvio.tv.ui.theme.toColorPalette
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun CustomThemeDialog(
@@ -195,13 +196,16 @@ internal fun CustomThemeEditor(
                     modifier = Modifier.fillMaxWidth().focusRequester(hexFocusRequester),
                     colors = CardDefaults.colors(
                         containerColor = NuvioTheme.colors.Background,
-                        focusedContainerColor = NuvioTheme.colors.Background
+                        focusedContainerColor = expressiveCardFocusFill(
+                            NuvioTheme.colors.Background
+                        )
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+                    shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
                     border = CardDefaults.border(
                         focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(10.dp))
-                    ),
+                    ).expressiveRingless(),
                     scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+                        .expressiveCardGrow()
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
@@ -239,21 +243,30 @@ internal fun CustomThemeEditor(
             Button(
                 onClick = onDismiss,
                 modifier = Modifier
+                    .tvControlHeight()
                     .height(36.dp)
                     .focusRequester(cancelFocusRequester)
-                    .focusProperties { up = hexFocusRequester }
+                    .focusProperties { up = hexFocusRequester },
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                colors = ButtonDefaults.colors().expressiveControl()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = { onSave(colors) },
-                modifier = Modifier.height(36.dp).focusProperties { up = hexFocusRequester },
+                modifier = Modifier
+                    .tvControlHeight()
+                    .height(36.dp)
+                    .focusProperties { up = hexFocusRequester },
                 colors = ButtonDefaults.colors(
                     containerColor = Color.White,
                     contentColor = Color.Black,
                     focusedContainerColor = Color.White,
                     focusedContentColor = Color.Black
-                )
+                ).expressiveControl(primary = true),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) { Text(stringResource(R.string.custom_theme_save)) }
         }
     }
@@ -287,16 +300,17 @@ private fun ThemeColorSlot(
             this.selected = selected
             contentDescription = "$label, ${formatHexColor(color)}"
         },
-        shape = CardDefaults.shape(shape),
+        shape = CardDefaults.shape(shape).expressiveCard(),
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (selected) Border(BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)), shape = shape) else Border.None,
             focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = shape)
-        ),
+        ).expressiveSelection(selected),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            .expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 12.dp),

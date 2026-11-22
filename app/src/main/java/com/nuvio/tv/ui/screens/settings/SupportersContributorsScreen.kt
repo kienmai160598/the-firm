@@ -88,6 +88,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 private val SUPPORT_URL: String
     get() = BuildConfig.SUPPORT_URL
@@ -171,78 +172,80 @@ fun SupportersContributorsScreen(
         pendingContributorRestoreKey = null
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 36.dp, vertical = 28.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+    TenFootTypography {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 36.dp, vertical = 28.dp)
         ) {
-            SupporterMembershipPanel(
-                state = uiState.membership,
-                supportUrl = SUPPORT_URL,
-                modifier = Modifier.weight(0.35f),
-                actionFocusRequester = membershipActionFocusRequester,
-                backFocusRequester = membershipBackFocusRequester,
-                showQr = showMembershipQr,
-                onShowQr = { showMembershipQr = true },
-                onHideQr = { showMembershipQr = false },
-                onRefresh = viewModel::refreshMembership
-            )
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+            ) {
+                SupporterMembershipPanel(
+                    state = uiState.membership,
+                    supportUrl = SUPPORT_URL,
+                    modifier = Modifier.weight(0.35f),
+                    actionFocusRequester = membershipActionFocusRequester,
+                    backFocusRequester = membershipBackFocusRequester,
+                    showQr = showMembershipQr,
+                    onShowQr = { showMembershipQr = true },
+                    onHideQr = { showMembershipQr = false },
+                    onRefresh = viewModel::refreshMembership
+                )
 
-            SupportersContentPanel(
-                uiState = uiState,
-                leftFocusRequester = if (showMembershipQr) {
-                    membershipBackFocusRequester
-                } else {
-                    membershipActionFocusRequester
-                },
-                tabFocusRequesters = tabFocusRequesters,
-                supporterFocusRequesters = supporterFocusRequesters,
-                sponsorFocusRequesters = sponsorFocusRequesters,
-                contributorFocusRequesters = contributorFocusRequesters,
-                onSelectTab = viewModel::onSelectTab,
-                onRetrySupporters = viewModel::retrySupporters,
-                onRetrySponsors = viewModel::retrySponsors,
-                onRetryContributors = viewModel::retryContributors,
-                onSupporterClick = viewModel::onSupporterSelected,
-                onSponsorClick = viewModel::onSponsorSelected,
-                onContributorClick = viewModel::onContributorSelected,
-                modifier = Modifier.weight(0.65f)
+                SupportersContentPanel(
+                    uiState = uiState,
+                    leftFocusRequester = if (showMembershipQr) {
+                        membershipBackFocusRequester
+                    } else {
+                        membershipActionFocusRequester
+                    },
+                    tabFocusRequesters = tabFocusRequesters,
+                    supporterFocusRequesters = supporterFocusRequesters,
+                    sponsorFocusRequesters = sponsorFocusRequesters,
+                    contributorFocusRequesters = contributorFocusRequesters,
+                    onSelectTab = viewModel::onSelectTab,
+                    onRetrySupporters = viewModel::retrySupporters,
+                    onRetrySponsors = viewModel::retrySponsors,
+                    onRetryContributors = viewModel::retryContributors,
+                    onSupporterClick = viewModel::onSupporterSelected,
+                    onSponsorClick = viewModel::onSponsorSelected,
+                    onContributorClick = viewModel::onContributorSelected,
+                    modifier = Modifier.weight(0.65f)
+                )
+            }
+        }
+
+        uiState.selectedSupporter?.let { supporter ->
+            SupporterDetailsDialog(
+                supporter = supporter,
+                onDismiss = {
+                    pendingSupporterRestoreKey = supporter.key
+                    viewModel.dismissSupporterDetails()
+                }
             )
         }
-    }
 
-    uiState.selectedSupporter?.let { supporter ->
-        SupporterDetailsDialog(
-            supporter = supporter,
-            onDismiss = {
-                pendingSupporterRestoreKey = supporter.key
-                viewModel.dismissSupporterDetails()
-            }
-        )
-    }
+        uiState.selectedSponsor?.let { sponsor ->
+            SponsorDetailsDialog(
+                sponsor = sponsor,
+                onDismiss = {
+                    pendingSponsorRestoreKey = sponsor.id
+                    viewModel.dismissSponsorDetails()
+                }
+            )
+        }
 
-    uiState.selectedSponsor?.let { sponsor ->
-        SponsorDetailsDialog(
-            sponsor = sponsor,
-            onDismiss = {
-                pendingSponsorRestoreKey = sponsor.id
-                viewModel.dismissSponsorDetails()
-            }
-        )
-    }
-
-    uiState.selectedContributor?.let { contributor ->
-        ContributorDetailsDialog(
-            contributor = contributor,
-            onDismiss = {
-                pendingContributorRestoreKey = contributor.id
-                viewModel.dismissContributorDetails()
-            }
-        )
+        uiState.selectedContributor?.let { contributor ->
+            ContributorDetailsDialog(
+                contributor = contributor,
+                onDismiss = {
+                    pendingContributorRestoreKey = contributor.id
+                    viewModel.dismissContributorDetails()
+                }
+            )
+        }
     }
 }
 
@@ -603,6 +606,7 @@ private fun TabErrorState(
             Button(
                 onClick = onRetry,
                 modifier = Modifier
+                    .tvControlHeight()
                     .focusRequester(retryFocusRequester)
                     .focusProperties { left = leftFocusRequester },
                 colors = ButtonDefaults.colors(
@@ -610,8 +614,9 @@ private fun TabErrorState(
                     focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                     contentColor = NuvioTheme.colors.OnSecondary,
                     focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.action_retry))
             }
@@ -641,7 +646,7 @@ private fun SupporterCard(
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
         ),
         border = CardDefaults.border(
             border = Border(
@@ -652,9 +657,9 @@ private fun SupporterCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(22.dp)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(22.dp)),
-        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(22.dp)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -729,7 +734,7 @@ private fun SponsorCard(
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
         ),
         border = CardDefaults.border(
             border = Border(
@@ -740,9 +745,9 @@ private fun SponsorCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(22.dp)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(22.dp)),
-        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(22.dp)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -798,7 +803,7 @@ private fun ContributorCard(
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
         ),
         border = CardDefaults.border(
             border = Border(
@@ -809,9 +814,9 @@ private fun ContributorCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(22.dp)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(22.dp)),
-        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(22.dp)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -948,6 +953,7 @@ private fun RowScope.SupportersTabButton(
     Card(
         onClick = onClick,
         modifier = Modifier
+            .tvControlHeight()
             .weight(1f)
             .heightIn(min = 54.dp)
             .focusRequester(focusRequester)
@@ -969,7 +975,7 @@ private fun RowScope.SupportersTabButton(
         colors = CardDefaults.colors(
             containerColor = if (selected) NuvioTheme.colors.BackgroundCard else NuvioTheme.colors.Background,
             focusedContainerColor = NuvioTheme.colors.BackgroundCard
-        ),
+        ).expressiveControl(selected = selected),
         border = CardDefaults.border(
             border = if (selected) {
                 Border(
@@ -983,9 +989,9 @@ private fun RowScope.SupportersTabButton(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(999.dp)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(999.dp)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(999.dp)).expressivePill(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveControlGrow()
     ) {
         Box(
             modifier = Modifier
@@ -997,11 +1003,14 @@ private fun RowScope.SupportersTabButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = when {
-                    isFocused -> NuvioTheme.colors.TextPrimary
-                    selected -> NuvioTheme.colors.TextPrimary
-                    else -> NuvioTheme.colors.TextSecondary
-                },
+                color = expressiveControlContent(
+                    focused = isFocused,
+                    upstream = when {
+                        isFocused -> NuvioTheme.colors.TextPrimary
+                        selected -> NuvioTheme.colors.TextPrimary
+                        else -> NuvioTheme.colors.TextSecondary
+                    }
+                ),
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -1065,27 +1074,30 @@ private fun SponsorDetailsDialog(
                     }
                 },
                 enabled = sponsor.channelUrl != null,
-                modifier = Modifier.focusRequester(primaryFocusRequester),
+                modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.Secondary,
                     focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                     contentColor = NuvioTheme.colors.OnSecondary,
                     focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.sponsors_open_channel))
             }
 
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground,
                     contentColor = NuvioTheme.colors.TextPrimary,
                     focusedContentColor = NuvioTheme.colors.Primary
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.action_close))
             }
@@ -1138,27 +1150,30 @@ private fun SupporterDetailsDialog(
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SUPPORT_URL)))
                     }
                 },
-                modifier = Modifier.focusRequester(primaryFocusRequester),
+                modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.Secondary,
                     focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                     contentColor = NuvioTheme.colors.OnSecondary,
                     focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.supporters_open_donations))
             }
 
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground,
                     contentColor = NuvioTheme.colors.TextPrimary,
                     focusedContentColor = NuvioTheme.colors.Primary
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.action_close))
             }
@@ -1251,28 +1266,31 @@ private fun ContributorDetailsDialog(
                     }
                 },
                 enabled = contributor.profileUrl != null,
-                modifier = Modifier.focusRequester(primaryFocusRequester),
+                modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.Secondary,
                     focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                     contentColor = NuvioTheme.colors.OnSecondary,
                     focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.contributors_open_github))
             }
 
             supportLink?.kofiUrl?.let {
                 Button(
+                    modifier = Modifier.tvControlHeight(),
                     onClick = { showSupportQr = !showSupportQr },
                     colors = ButtonDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground,
                         contentColor = NuvioTheme.colors.TextPrimary,
                         focusedContentColor = NuvioTheme.colors.Primary
-                    ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                    ).expressiveControl(),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                    scale = ButtonDefaults.scale().expressiveControlGrow()
                 ) {
                     Text(
                         text = stringResource(
@@ -1287,14 +1305,16 @@ private fun ContributorDetailsDialog(
             }
 
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground,
                     contentColor = NuvioTheme.colors.TextPrimary,
                     focusedContentColor = NuvioTheme.colors.Primary
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(text = stringResource(R.string.action_close))
             }

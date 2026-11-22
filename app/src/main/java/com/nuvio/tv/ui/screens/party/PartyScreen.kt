@@ -1,5 +1,9 @@
 package com.nuvio.tv.ui.screens.party
 
+import com.nuvio.tv.ui.screens.detail.spatialSpec
+import com.nuvio.tv.ui.screens.detail.effectsSpec
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -138,7 +142,9 @@ fun PartyScreen(
             AnimatedContent(
                 targetState = mode,
                 transitionSpec = {
-                    (fadeIn(tween(260, delayMillis = 60)) + scaleIn(tween(320), initialScale = 0.96f)) togetherWith fadeOut(tween(140))
+                    val grow = scaleIn(spatialSpec(tween(320)), initialScale = 0.96f)
+                    (fadeIn(tween(260, delayMillis = 60)) + grow) togetherWith
+                        fadeOut(effectsSpec(tween(140)))
                 },
                 label = "partyScreenMode",
                 modifier = Modifier
@@ -283,7 +289,9 @@ private fun JoinContent(
                 targetState = preview,
                 contentKey = { it != null },
                 transitionSpec = {
-                    (fadeIn(tween(240, delayMillis = 60)) + slideInVertically(tween(300)) { it / 10 }) togetherWith fadeOut(tween(140))
+                    val rise = slideInVertically(spatialSpec(tween(300))) { it / 10 }
+                    (fadeIn(tween(240, delayMillis = 60)) + rise) togetherWith
+                        fadeOut(effectsSpec(tween(140)))
                 },
                 label = "partyJoinPreview",
             ) { current ->
@@ -323,7 +331,9 @@ private fun JoinContent(
             AnimatedContent(
                 targetState = shownError,
                 transitionSpec = {
-                    (fadeIn(tween(180)) + slideInVertically(tween(220)) { -it / 2 }) togetherWith fadeOut(tween(120))
+                    val drop = slideInVertically(spatialSpec(tween(220))) { -it / 2 }
+                    (fadeIn(effectsSpec(tween(180))) + drop) togetherWith
+                        fadeOut(effectsSpec(tween(120)))
                 },
                 label = "partyJoinError",
             ) { current ->
@@ -337,12 +347,12 @@ private fun JoinContent(
             ExperimentalNote()
             AnimatedVisibility(
                 visible = preview == null,
-                enter = fadeIn(tween(NuvioMotion.tokens.durations.fast)),
-                exit = fadeOut(tween(NuvioMotion.tokens.durations.quick)),
+                enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.fast))),
+                exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.quick))),
             ) {
                 Text(
                     text = stringResource(R.string.party_host_hint),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary,
                 )
             }
@@ -385,7 +395,7 @@ private fun PreviewCard(preview: PartyPreview) {
             }
             Text(
                 text = stringResource(R.string.party_seats, preview.members, preview.maxMembers),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                 color = NuvioTheme.colors.TextTertiary,
             )
         }

@@ -46,6 +46,10 @@ import androidx.compose.ui.semantics.semantics
 import com.nuvio.tv.R
 import com.nuvio.tv.domain.model.Video
 
+
+// The episode label grows to the TV floor on the box, so its cell grows to keep both lines.
+private val RatingCellHeight = forBuild(upstream = 46.dp, expressive = 52.dp)
+
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun EpisodeRatingsSection(
@@ -194,28 +198,17 @@ fun EpisodeRatingsSection(
                                     role = Role.Tab
                                     selected = isSelected
                                 },
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
-                            colors = CardDefaults.colors(
-                                containerColor = if (isSelected) {
-                                    NuvioTheme.colors.FocusBackground
-                                } else {
-                                    NuvioTheme.colors.BackgroundCard
-                                },
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground
-                            ),
-                            border = CardDefaults.border(
-                                focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(14.dp)
-                                )
-                            ),
+                            shape = ratingSeasonChipShape(),
+                            colors = ratingSeasonChipColors(isSelected),
+                            border = ratingSeasonChipBorder(),
                             scale = CardDefaults.scale(focusedScale = 1f)
                         ) {
                             Text(
                                 text = stringResource(R.string.ratings_season_label, season),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = NuvioTheme.colors.TextPrimary,
-                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
+                                style = MaterialTheme.typography.labelMedium
+                                    .atLeastOnBox(TvSizeFloors.bodyText),
+                                color = ratingSeasonChipContent(),
+                                modifier = Modifier.padding(ratingSeasonChipPadding())
                             )
                         }
                     }
@@ -223,7 +216,8 @@ fun EpisodeRatingsSection(
 
                 Text(
                     text = stringResource(R.string.ratings_season_summary, selectedSeason, episodesForSeason.size),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall
+                        .atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary,
                     modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xxs)
                 )
@@ -277,14 +271,15 @@ fun EpisodeRatingsSection(
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .size(width = 72.dp, height = 46.dp)
+                                    .size(width = 72.dp, height = RatingCellHeight)
                                     .padding(horizontal = NuvioTheme.spacing.sm, vertical = 6.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
                                     text = stringResource(R.string.ratings_episode_label, episodeRating.episodeNumber),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.labelSmall
+                                        .atLeastOnBox(TvSizeFloors.metaText),
                                     color = episodeRating.chipTextColor
                                 )
                                 Text(

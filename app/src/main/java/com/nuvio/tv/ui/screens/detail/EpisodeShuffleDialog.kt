@@ -15,7 +15,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.domain.model.EpisodeShuffleSettings
@@ -106,8 +105,13 @@ internal fun EpisodeShuffleDialog(
             readyPicker == null -> Text(stringResource(R.string.random_episode_loading))
             allCount == 0 -> {
                 Text(stringResource(R.string.random_episode_empty_subtitle))
-                Button(onClick = onDismiss, modifier = Modifier.focusRequester(focusRequester)) {
-                    Text(stringResource(R.string.action_close))
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.focusRequester(focusRequester).tvControlHeight(),
+                    colors = tonalOnBoxButtonColors(),
+                    contentPadding = tvButtonPadding()
+                ) {
+                    Text(stringResource(R.string.action_close), style = buttonLabelStyle())
                 }
             }
             else -> {
@@ -119,13 +123,27 @@ internal fun EpisodeShuffleDialog(
                         },
                         enabled = include || unwatchedCount > 0,
                         modifier = Modifier.fillMaxWidth()
-                            .then(if (include == focusAll) Modifier.focusRequester(focusRequester) else Modifier),
-                        colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary
-                        )
+                            .then(
+                                if (include == focusAll) {
+                                    Modifier.focusRequester(focusRequester)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .tvControlHeight(),
+                        colors = tonalButtonColors(),
+                        contentPadding = tvButtonPadding()
                     ) {
-                        Text(stringResource(if (include) R.string.random_episode_include_watched else R.string.random_episode_unwatched))
+                        Text(
+                            text = stringResource(
+                                if (include) {
+                                    R.string.random_episode_include_watched
+                                } else {
+                                    R.string.random_episode_unwatched
+                                }
+                            ),
+                            style = buttonLabelStyle()
+                        )
                     }
                 }
                 if (unwatchedCount == 0) Text(stringResource(R.string.random_episode_caught_up))

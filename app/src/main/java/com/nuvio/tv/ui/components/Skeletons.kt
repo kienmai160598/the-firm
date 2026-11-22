@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.components
 
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.animation.core.LinearEasing
@@ -457,7 +458,7 @@ fun rememberShimmerBrush(backdropAware: Boolean = false): Brush {
         initialValue = 0f,
         targetValue = 1000f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = LinearEasing)
+            animation = tween(ExpressiveMotion.SHIMMER_SWEEP_MILLIS, easing = LinearEasing)
         ),
         label = "shimmer_translate"
     )

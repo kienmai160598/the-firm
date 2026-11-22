@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.screens.detail
 
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.animation.AnimatedContent
@@ -79,7 +80,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -377,12 +377,10 @@ fun CommentsSection(
                                     upFocusModifier
                                 }
                             ),
-                        colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary
-                        )
+                        colors = tonalButtonColors(),
+                        contentPadding = tvButtonPadding()
                     ) {
-                        Text(stringResource(R.string.action_retry))
+                        Text(stringResource(R.string.action_retry), style = buttonLabelStyle())
                     }
                 }
             }
@@ -510,13 +508,12 @@ private fun CommentModeButton(
             .semantics {
                 role = Role.Tab
                 this.selected = selected
-            },
-        colors = ButtonDefaults.colors(
-            containerColor = if (selected) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
-            contentColor = if (selected) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary
-        )
+            }
+            .tvControlHeight(),
+        colors = selectableButtonColors(selected),
+        contentPadding = tvButtonPadding()
     ) {
-        Text(text)
+        Text(text, style = buttonLabelStyle())
     }
 }
 
@@ -539,18 +536,24 @@ private fun CommentCard(
         modifier = modifier
             .width(360.dp)
             .height(230.dp),
-        colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+        colors = forBuild(
+            upstream = CardDefaults.colors(
+                containerColor = NuvioTheme.colors.BackgroundCard,
+                focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            ),
+            expressive = tonalCardColors(resting = NuvioTheme.colors.BackgroundCard)
         ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = shape
-            )
+        border = forBuild(
+            upstream = CardDefaults.border(
+                focusedBorder = Border(
+                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    shape = shape
+                )
+            ),
+            expressive = noRingCardBorder()
         ),
         shape = CardDefaults.shape(shape),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        scale = CardDefaults.scale(focusedScale = forBuild(1.02f, ExpressiveFocus.CONTROL_SCALE))
     ) {
         Column(
             modifier = Modifier
@@ -590,14 +593,16 @@ private fun CommentCard(
                 review.rating?.let { rating ->
                     Text(
                         text = stringResource(R.string.detail_comments_badge_rating, rating),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelMedium
+                            .atLeastOnBox(TvSizeFloors.metaText),
                         color = NuvioTheme.colors.TextTertiary,
                         maxLines = 1
                     )
                 }
                 Text(
                     text = stringResource(R.string.detail_comments_likes, review.likes),
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium
+                        .atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -620,7 +625,7 @@ private fun CommentChip(text: String) {
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
             color = NuvioTheme.colors.TextPrimary,
             maxLines = 1
         )
@@ -694,29 +699,22 @@ private fun EpisodeCommentPickerDialog(
                         }
                         Button(
                             onClick = { onSeasonSelected(seasonNumber) },
-                            modifier = seasonModifier.semantics {
-                                role = Role.Tab
-                                selected = seasonNumber == season
-                            },
-                            colors = ButtonDefaults.colors(
-                                containerColor = if (seasonNumber == season) {
-                                    NuvioTheme.colors.Secondary
-                                } else {
-                                    NuvioTheme.colors.BackgroundCard
-                                },
-                                contentColor = if (seasonNumber == season) {
-                                    NuvioTheme.colors.OnSecondary
-                                } else {
-                                    NuvioTheme.colors.TextPrimary
+                            modifier = seasonModifier
+                                .semantics {
+                                    role = Role.Tab
+                                    selected = seasonNumber == season
                                 }
-                            )
+                                .tvControlHeight(),
+                            colors = selectableButtonColors(seasonNumber == season),
+                            contentPadding = tvButtonPadding()
                         ) {
                             Text(
                                 text = if (seasonNumber == 0) {
                                     stringResource(R.string.episodes_specials)
                                 } else {
                                     stringResource(R.string.episodes_season, seasonNumber)
-                                }
+                                },
+                                style = buttonLabelStyle()
                             )
                         }
                     }
@@ -742,17 +740,16 @@ private fun EpisodeCommentPickerDialog(
                     }
                     Button(
                         onClick = { onEpisodeSelected(episode) },
-                        modifier = episodeModifier,
-                        colors = ButtonDefaults.colors(
-                            containerColor = if (episode.id == selectedEpisodeId) {
-                                NuvioTheme.colors.FocusBackground
-                            } else {
-                                NuvioTheme.colors.BackgroundCard
-                            },
-                            contentColor = NuvioTheme.colors.TextPrimary
-                        )
+                        modifier = episodeModifier.tvControlHeight(),
+                        colors = selectableButtonColors(
+                            selected = episode.id == selectedEpisodeId,
+                            upstreamSelected = NuvioTheme.colors.FocusBackground,
+                            upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                        ),
+                        contentPadding = tvButtonPadding()
                     ) {
                         Text(
+                            style = buttonLabelStyle(),
                             text = "${selectedEpisodeLabel(episode)}  ${episode.title.localizeEpisodeTitle(androidx.compose.ui.platform.LocalContext.current)}",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -879,7 +876,8 @@ fun CommentOverlay(
                 Text(
                     text = stringResource(R.string.detail_comments_back_hint),
                     modifier = Modifier.padding(start = 18.dp),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall
+                        .atLeastOnBox(TvSizeFloors.metaText),
                     color = Color.White.copy(alpha = 0.34f)
                 )
             }

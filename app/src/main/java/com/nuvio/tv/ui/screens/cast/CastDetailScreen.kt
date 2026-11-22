@@ -1,5 +1,14 @@
 package com.nuvio.tv.ui.screens.cast
 
+import com.nuvio.tv.ui.components.posterFocusScale
+import com.nuvio.tv.ui.components.posterFocusLift
+import com.nuvio.tv.ui.components.posterFocusBorder
+import androidx.compose.foundation.shape.CircleShape
+import com.nuvio.tv.ui.screens.detail.forBuild
+import com.nuvio.tv.ui.screens.detail.tvButtonPadding
+import com.nuvio.tv.ui.screens.detail.buttonLabelStyle
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.activity.compose.BackHandler
@@ -104,6 +113,9 @@ import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
 import kotlinx.coroutines.launch
 
+
+private val CountBadgeShape = forBuild(RoundedCornerShape(NuvioTheme.radii.xs), CircleShape)
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun CastDetailScreen(
@@ -183,7 +195,7 @@ private fun CastDetailContent(
     isItemWatched: (MetaPreview) -> Boolean = { false }
 ) {
     val backgroundColor = NuvioTheme.colors.Background
-    val accentColor = NuvioTheme.colors.Secondary
+    val accentColor = forBuild(NuvioTheme.colors.Secondary, Color.Transparent)
 
     val allCredits = remember(person.movieCredits, person.tvCredits) {
         (person.movieCredits + person.tvCredits)
@@ -385,6 +397,7 @@ private fun HeroSection(
             modifier = Modifier
                 .width(160.dp)
                 .height(240.dp)
+                .posterFocusLift(RoundedCornerShape(NuvioTheme.radii.xl))
                 .focusRequester(portraitFocusRequester)
                 .focusProperties {
                     canFocus = isBiographyExpanded || isBiographyTruncated
@@ -421,16 +434,19 @@ private fun HeroSection(
                 containerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent
             ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                    shape = RoundedCornerShape(NuvioTheme.radii.xl)
-                ),
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(NuvioTheme.radii.xl)
+            border = posterFocusBorder(
+                CardDefaults.border(
+                    border = Border(
+                        border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                        shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                    ),
+                    focusedBorder = Border(
+                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                    )
                 )
-            )
+            ),
+            scale = posterFocusScale(CardDefaults.scale())
         ) {
             val bgCardColor = NuvioTheme.colors.SurfaceVariant
             val bgPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
@@ -550,7 +566,8 @@ private fun HeroSection(
                     Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.hero_synopsis_dismiss_hint),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall
+                            .atLeastOnBox(TvSizeFloors.metaText),
                         color = NuvioTheme.colors.TextTertiary
                     )
                 } else {
@@ -598,12 +615,12 @@ private fun SectionHeader(
         Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
         Text(
             text = "$count",
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
             color = NuvioTheme.colors.TextTertiary,
             modifier = Modifier
                 .background(
                     color = NuvioTheme.colors.SurfaceVariant,
-                    shape = RoundedCornerShape(NuvioTheme.radii.xs)
+                    shape = CountBadgeShape
                 )
                 .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xxs)
         )
@@ -742,7 +759,7 @@ private fun FilmographyRow(
 @Composable
 private fun CastDetailSkeleton(personName: String) {
     val backgroundColor = NuvioTheme.colors.Background
-    val accentColor = NuvioTheme.colors.Secondary
+    val accentColor = forBuild(NuvioTheme.colors.Secondary, Color.Transparent)
     val shimmerBrush = rememberShimmerBrush()
 
     Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
@@ -901,9 +918,10 @@ private fun CastDetailError(
                     contentColor = NuvioTheme.colors.OnSecondary,
                     focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                     focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                )
+                ),
+                contentPadding = tvButtonPadding()
             ) {
-                Text(stringResource(R.string.cast_detail_retry))
+                Text(stringResource(R.string.cast_detail_retry), style = buttonLabelStyle())
             }
         }
     }

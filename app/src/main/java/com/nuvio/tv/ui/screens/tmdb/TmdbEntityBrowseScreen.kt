@@ -1,6 +1,10 @@
 package com.nuvio.tv.ui.screens.tmdb
 
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.ExpressiveMotion
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import androidx.compose.animation.core.tween
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -106,6 +110,7 @@ fun TmdbEntityBrowseScreen(
 
     BackHandler { onBackPress() }
 
+    TenFootTypography {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -113,6 +118,7 @@ fun TmdbEntityBrowseScreen(
     ) {
         Crossfade(
             targetState = screenMode,
+            animationSpec = if (isExpressiveBuild) ExpressiveMotion.defaultEffects() else tween(),
             label = "TmdbEntityBrowseState"
         ) { mode ->
             when (mode) {
@@ -158,6 +164,7 @@ fun TmdbEntityBrowseScreen(
                 onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
             }
         )
+    }
     }
 }
 

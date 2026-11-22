@@ -36,9 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.theme.NuvioTheme
 import kotlinx.coroutines.delay
@@ -76,10 +74,10 @@ internal fun ChaptersSidePanel(
         modifier = modifier
             .fillMaxHeight()
             .width(520.dp)
-            .clip(RoundedCornerShape(topStart = NuvioTheme.spacing.lg, bottomStart = NuvioTheme.spacing.lg))
-            .background(NuvioTheme.colors.BackgroundElevated)
+            .clip(PlayerSurfaceStyle.sidePanelShape())
+            .background(PlayerSurfaceStyle.sidePanelColor())
     ) {
-        Column(modifier = Modifier.padding(NuvioTheme.spacing.xl)) {
+        Column(modifier = Modifier.padding(PlayerSurfaceStyle.sidePanelPadding())) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -138,19 +136,11 @@ private fun ChapterItem(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.xl)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.01f),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.xl))
+        modifier = modifier.fillMaxWidth().focusSpringScale(),
+        colors = PlayerListItemStyle.colors(isCurrent),
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale,
+        shape = PlayerListItemStyle.shape
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(
@@ -162,21 +152,21 @@ private fun ChapterItem(
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
                             contentDescription = stringResource(R.string.cd_current),
-                            tint = NuvioTheme.colors.Primary,
+                            tint = PlayerListItemStyle.labelColor(),
                             modifier = Modifier.size(20.dp)
                         )
                     } else {
                         Text(
                             text = number.toString(),
                             style = MaterialTheme.typography.labelLarge,
-                            color = NuvioTheme.extendedColors.textTertiary
+                            color = PlayerListItemStyle.supportingColor()
                         )
                     }
                 }
                 Text(
                     text = chapter.title ?: stringResource(R.string.player_chapter_number, number),
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (isCurrent) NuvioTheme.colors.Primary else NuvioTheme.colors.TextPrimary,
+                    color = PlayerListItemStyle.labelColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -184,7 +174,7 @@ private fun ChapterItem(
                 Text(
                     text = formatTime(chapter.startMs),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.extendedColors.textSecondary
+                    color = PlayerListItemStyle.supportingColor()
                 )
             }
             if (progress != null && remainingMs != null) {
@@ -199,19 +189,19 @@ private fun ChapterItem(
                             .weight(1f)
                             .height(4.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(Color.White.copy(alpha = 0.2f))
+                            .background(PlayerListItemStyle.labelColor().copy(alpha = 0.2f))
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .fillMaxWidth(progress)
-                                .background(NuvioTheme.colors.Primary)
+                                .background(PlayerSurfaceStyle.playedColor())
                         )
                     }
                     Text(
                         text = stringResource(R.string.player_chapter_remaining, formatTime(remainingMs)),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.extendedColors.textTertiary
+                        color = PlayerListItemStyle.supportingColor()
                     )
                 }
             }

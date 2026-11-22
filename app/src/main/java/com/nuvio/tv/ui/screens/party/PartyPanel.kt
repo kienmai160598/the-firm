@@ -1,5 +1,7 @@
 package com.nuvio.tv.ui.screens.party
 
+import com.nuvio.tv.ui.screens.detail.spatialSpec
+import com.nuvio.tv.ui.screens.detail.effectsSpec
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -81,7 +83,7 @@ fun PartyPanel(
         modifier = modifier
             .fillMaxHeight()
             .width(520.dp)
-            .clip(RoundedCornerShape(topStart = NuvioTheme.spacing.lg, bottomStart = NuvioTheme.spacing.lg))
+            .clip(partyPanelShape())
             .background(NuvioTheme.colors.BackgroundElevated),
     ) {
         Column(modifier = Modifier.padding(NuvioTheme.spacing.xl)) {
@@ -105,7 +107,9 @@ fun PartyPanel(
             AnimatedContent(
                 targetState = state.party,
                 contentKey = { it != null },
-                transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(150)) },
+                transitionSpec = {
+                    fadeIn(effectsSpec(tween(220))) togetherWith fadeOut(effectsSpec(tween(150)))
+                },
                 label = "partyPanelContent",
                 modifier = Modifier.fillMaxSize(),
             ) { party ->
@@ -376,8 +380,10 @@ fun PartyStatusPill(
             AnimatedContent(
                 targetState = message,
                 transitionSpec = {
-                    (fadeIn(tween(200)) + slideInVertically(tween(240)) { it / 2 }) togetherWith
-                        (fadeOut(tween(120)) + slideOutVertically(tween(160)) { -it / 2 })
+                    val rise = slideInVertically(spatialSpec(tween(240))) { it / 2 }
+                    val leave = slideOutVertically(spatialSpec(tween(160))) { -it / 2 }
+                    (fadeIn(effectsSpec(tween(200))) + rise) togetherWith
+                        (fadeOut(effectsSpec(tween(120))) + leave)
                 },
                 label = "partyStatusMessage",
             ) { text ->

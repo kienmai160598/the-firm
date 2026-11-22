@@ -27,13 +27,20 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.screens.settings.expressivePanelShape
 
 @Composable
 fun AuthSignInScreen(
     onBackPress: () -> Unit = {},
     onNavigateToQrSignIn: () -> Unit = {},
     onSuccess: () -> Unit = {}
-) {
+) = TenFootTypography {
     BackHandler { onBackPress() }
 
     Box(
@@ -45,7 +52,7 @@ fun AuthSignInScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = NuvioTheme.colors.BackgroundElevated,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = expressivePanelShape(RoundedCornerShape(20.dp))
                 )
                 .padding(NuvioTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -71,9 +78,11 @@ fun AuthSignInScreen(
                     focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                     contentColor = NuvioTheme.colors.OnSecondary,
                     focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50)),
-                modifier = Modifier.fillMaxWidth()
+                ).expressiveControl(primary = true),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                modifier = Modifier.fillMaxWidth().tvControlHeight()
             ) {
                 Text(
                     text = stringResource(R.string.auth_signin_qr_btn),

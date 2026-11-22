@@ -48,6 +48,7 @@ import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.screens.ambient.AmbientDialogEffect
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.bodyFloor
 
 @Composable
 fun TrackingAddonConsentDialog(
@@ -69,7 +70,7 @@ fun TrackingAddonConsentDialog(
         AmbientDialogEffect(onDismiss)
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(NuvioTheme.radii.xl))
+                .clip(expressiveDialogShape(RoundedCornerShape(NuvioTheme.radii.xl)))
                 .background(NuvioTheme.colors.BackgroundCard)
         ) {
             Column(
@@ -96,7 +97,7 @@ fun TrackingAddonConsentDialog(
 
                     Text(
                         text = stringResource(R.string.addon_tracking_consent_body, addonName),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                         color = NuvioTheme.colors.TextSecondary,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -115,18 +116,20 @@ fun TrackingAddonConsentDialog(
                                 role = Role.Checkbox
                                 stateDescription = checkboxState
                             },
-                        colors = CardDefaults.colors(
+                        colors = expressiveOptionCardColors(CardDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundElevated,
                             focusedContainerColor = NuvioTheme.colors.BackgroundElevated
-                        ),
-                        border = CardDefaults.border(
+                        )),
+                        border = expressiveOptionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveOptionCardShape(
+                            CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.02f)
+                        scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.02f))
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp),
@@ -141,7 +144,7 @@ fun TrackingAddonConsentDialog(
                             )
                             Text(
                                 text = stringResource(R.string.addon_tracking_consent_checkbox),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                                 color = NuvioTheme.colors.TextPrimary,
                                 modifier = Modifier.weight(1f)
                             )
@@ -158,23 +161,25 @@ fun TrackingAddonConsentDialog(
                     Card(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
-                        colors = CardDefaults.colors(
+                        colors = expressiveActionCardColors(CardDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundElevated,
                             focusedContainerColor = NuvioTheme.colors.BackgroundElevated
-                        ),
-                        border = CardDefaults.border(
+                        )),
+                        border = expressiveActionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveActionCardShape(
+                            CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.05f)
+                        scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.05f))
                     ) {
                         Text(
                             text = stringResource(R.string.addon_tracking_consent_cancel),
                             style = MaterialTheme.typography.titleMedium,
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = actionCardContentColor(NuvioTheme.colors.TextPrimary),
                             modifier = Modifier
                                 .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
@@ -188,27 +193,34 @@ fun TrackingAddonConsentDialog(
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { installFocused = it.isFocused },
-                        colors = CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            focusedContainerColor = if (accepted) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundElevated
+                        colors = expressiveActionCardColors(
+                            CardDefaults.colors(
+                                containerColor = NuvioTheme.colors.BackgroundElevated,
+                                focusedContainerColor = if (accepted) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundElevated
+                            ),
+                            enabled = accepted
                         ),
-                        border = CardDefaults.border(
+                        border = expressiveActionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveActionCardShape(
+                            CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.05f)
+                        scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.05f))
                     ) {
                         Text(
                             text = stringResource(R.string.addon_tracking_consent_install),
                             style = MaterialTheme.typography.titleMedium,
-                            color = when {
-                                !accepted -> NuvioTheme.colors.TextTertiary
-                                installFocused -> NuvioTheme.colors.OnSecondary
-                                else -> NuvioTheme.colors.TextPrimary
-                            },
+                            color = actionCardContentColor(
+                                when {
+                                    !accepted -> NuvioTheme.colors.TextTertiary
+                                    installFocused -> NuvioTheme.colors.OnSecondary
+                                    else -> NuvioTheme.colors.TextPrimary
+                                }
+                            ),
                             modifier = Modifier
                                 .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),

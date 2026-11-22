@@ -59,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.nuvio.tv.ui.theme.ExpressiveMotion
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import com.nuvio.tv.ui.util.contentTextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -321,6 +323,7 @@ fun ContentCard(
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .posterFocusLift(cardShape, posterCardStyle.focusedScale)
                 .onFocusChanged { state ->
                     val focusedNow = state.isFocused
                     if (needsFocusState) {
@@ -390,13 +393,13 @@ fun ContentCard(
                 containerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent
             ),
-            border = CardDefaults.border(
+            border = posterFocusBorder(CardDefaults.border(
                 focusedBorder = Border(
                     border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = cardShape
                 )
-            ),
-            scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+            )),
+            scale = posterFocusScale(CardDefaults.scale(focusedScale = posterCardStyle.focusedScale))
         ) {
             Box(
                 modifier = Modifier
@@ -459,7 +462,7 @@ fun ContentCard(
                 val trailerCoverAlpha = if (shouldPlayTrailerPreview) {
                     val alpha by animateFloatAsState(
                         targetValue = if (!trailerFirstFrameRendered) 1f else 0f,
-                        animationSpec = tween(durationMillis = 250),
+                        animationSpec = ExpressiveMotion.effectsOr(tween(durationMillis = 250)),
                         label = "trailerCoverAlpha"
                     )
                     alpha
@@ -667,7 +670,7 @@ fun ContentCard(
                         if (metaTokens.isNotEmpty()) {
                             Text(
                                 text = metaTokens.joinToString("  •  "),
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
                                 color = NuvioTheme.extendedColors.textSecondary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -678,7 +681,8 @@ fun ContentCard(
                             if (metaTokens.isNotEmpty()) {
                                 Text(
                                     text = "  •  ",
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = MaterialTheme.typography.labelMedium
+                                        .rememberMetaFloor(),
                                     color = NuvioTheme.extendedColors.textSecondary
                                 )
                             }
@@ -697,7 +701,9 @@ fun ContentCard(
                             ) {
                                 Text(
                                     text = ageRating,
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    style = MaterialTheme.typography.labelSmall
+                                        .rememberMetaFloor()
+                                        .copy(fontWeight = FontWeight.SemiBold),
                                     color = NuvioTheme.extendedColors.textSecondary,
                                     maxLines = 1
                                 )
@@ -708,7 +714,7 @@ fun ContentCard(
                         Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
                         Text(
                             text = description,
-                            style = MaterialTheme.typography.bodySmall.copy(
+                            style = MaterialTheme.typography.bodySmall.rememberMetaFloor().copy(
                                 textDirection = description.contentTextDirection()
                             ),
                             color = NuvioTheme.colors.TextPrimary,
@@ -730,7 +736,7 @@ fun ContentCard(
                         FocusMarqueeText(
                             text = info,
                             focused = isFocused,
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
                             color = NuvioTheme.extendedColors.textSecondary,
                         )
                     }

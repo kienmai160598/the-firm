@@ -5,7 +5,6 @@
 
 package com.nuvio.tv.ui.screens.player
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,9 +47,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.Key
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -73,6 +69,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch as coroutineLaunch
 import com.nuvio.tv.ui.components.RefreshFilterChip
+import com.nuvio.tv.ui.components.StreamLabelBadge
 import com.nuvio.tv.R
 
 @Composable
@@ -118,31 +115,17 @@ internal fun StreamItem(
             .onFocusChanged {
                 onFocusChanged?.invoke(it.isFocused)
             }
+            .focusSpringScale()
             .then(if (onUpKey != null) Modifier.onKeyEvent { event ->
                 if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN &&
                     event.key == Key.DirectionUp) {
                     onUpKey(); true
                 } else false
             } else Modifier),
-        colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundElevated,
-            focusedContainerColor = NuvioTheme.colors.BackgroundElevated
-        ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(
-                    NuvioTheme.spacing.hairline,
-                    if (isCurrentStream) NuvioTheme.colors.Primary.copy(alpha = 0.65f) else Color.Transparent
-                ),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.04f)
+        colors = PlayerListItemStyle.colors(isCurrentStream),
+        shape = PlayerListItemStyle.shape,
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale
     ) {
         Row(
             modifier = Modifier
@@ -176,31 +159,26 @@ internal fun StreamItem(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 textDirection = streamName.contentTextDirection()
                             ),
-                            color = NuvioTheme.colors.TextPrimary
+                            color = PlayerListItemStyle.labelColor()
                         )
 
                         if (isCurrentStream) {
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(999.dp))
-                                    .background(NuvioTheme.colors.Primary.copy(alpha = 0.2f))
+                                    .background(PlayerListItemStyle.labelColor().copy(alpha = 0.16f))
                                     .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs)
                             ) {
                                 Text(
                                     text = stringResource(R.string.sources_playing),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = NuvioTheme.colors.Primary
+                                    color = PlayerListItemStyle.labelColor()
                                 )
                             }
                         }
 
                         if (stream.exceedsDeviceBudget) {
-                            Text(
-                                text = stringResource(R.string.stream_exceeds_device_budget),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = NuvioTheme.colors.Secondary,
-                                maxLines = 1
-                            )
+                            StreamLabelBadge(stringResource(R.string.stream_exceeds_device_budget))
                         }
                     }
                 }
@@ -213,7 +191,7 @@ internal fun StreamItem(
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDirection = description.contentTextDirection()
                             ),
-                            color = NuvioTheme.extendedColors.textSecondary
+                            color = PlayerListItemStyle.supportingColor()
                         )
                     }
                 }
@@ -252,7 +230,7 @@ internal fun StreamItem(
                         style = MaterialTheme.typography.labelSmall.copy(
                             textDirection = stream.addonName.contentTextDirection()
                         ),
-                        color = NuvioTheme.extendedColors.textTertiary,
+                        color = PlayerListItemStyle.supportingColor(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

@@ -1,21 +1,38 @@
 package com.nuvio.tv.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
-import com.nuvio.tv.domain.model.AppTheme
-import com.nuvio.tv.core.build.BoxBuild
 
-// The Material 3 Expressive corner scale (androidx material3 ShapeTokens): small parts keep
-// their radius, cards and containers move one step rounder, like the box's launcher.
+// The box build's corners, in the Apple TV manner: 12dp on cards and rows, 20dp on panels and
+// dialogs, capsules on buttons. Other builds keep upstream's tokens untouched.
 internal object ExpressiveRadii {
     private val expressive = NuvioRadii.tokens.copy(
-        lg = 16.dp,
+        md = 12.dp,
+        lg = 12.dp,
         xl = 20.dp,
-        xxl = 28.dp,
-        panel = 32.dp
+        xxl = 20.dp,
+        panel = 20.dp
     )
 
-    // Fixed per build from its default theme, not read from the composition, so
-    // NuvioTheme.radii stays readable from code that runs outside one.
-    val forBuild: NuvioRadiusTokens =
-        if (BoxBuild.appTheme == AppTheme.EXPRESSIVE) expressive else NuvioRadii.tokens
+    val forBuild: NuvioRadiusTokens = if (isExpressiveBuild) expressive else NuvioRadii.tokens
+}
+
+internal object ExpressiveShapes {
+    private val capsule = RoundedCornerShape(percent = 50)
+    private val card = RoundedCornerShape(ExpressiveRadii.forBuild.md)
+    private val panel = RoundedCornerShape(ExpressiveRadii.forBuild.xl)
+
+    private val expressive = NuvioShapes.tokens.copy(
+        posterCard = card,
+        backdropCard = card,
+        collectionCard = card,
+        button = capsule,
+        iconButton = capsule,
+        dialog = panel,
+        sidePanel = panel,
+        menu = card,
+        field = card
+    )
+
+    val forBuild: NuvioShapeTokens = if (isExpressiveBuild) expressive else NuvioShapes.tokens
 }

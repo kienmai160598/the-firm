@@ -1,5 +1,13 @@
 package com.nuvio.tv.ui.screens.collection
 
+import com.nuvio.tv.ui.components.buttonLabelStyle
+import com.nuvio.tv.ui.components.expressiveButtonBorder
+import com.nuvio.tv.ui.components.expressiveButtonColors
+import com.nuvio.tv.ui.components.expressiveButtonScale
+import com.nuvio.tv.ui.components.expressiveButtonShape
+import com.nuvio.tv.ui.components.expressiveOptionCardBorder
+import com.nuvio.tv.ui.components.expressiveOptionCardColors
+import com.nuvio.tv.ui.components.expressiveOptionCardShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.activity.compose.BackHandler
@@ -94,6 +102,9 @@ import com.nuvio.tv.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -322,7 +333,9 @@ fun FolderEditorContent(
                 ) {
                     Text(
                         text = stringResource(R.string.collections_editor_edit_folder),
-                        style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
+                        style = MaterialTheme.typography.headlineMedium
+                            .screenTitleFloor()
+                            .copy(textDirection = TextDirection.Content),
                         color = NuvioTheme.colors.TextPrimary,
                     )
                     val cancelButtonFocusRequester = remember(folder.id) { FocusRequester() }
@@ -396,14 +409,14 @@ fun FolderEditorContent(
                             .semantics {
                                 role = Role.RadioButton
                                 selected = coverMode == "none"
-                            },
-                        colors = ButtonDefaults.colors(
+                            }.tvControlHeight(),
+                        colors = expressiveButtonColors(ButtonDefaults.colors(
                             containerColor = if (coverMode == "none") NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                             contentColor = if (coverMode == "none") NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
+                        ), selected = coverMode == "none"),
+                        border = expressiveButtonBorder(ButtonDefaults.border(
                             border = if (coverMode == "none") Border(
                                 border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -412,9 +425,17 @@ fun FolderEditorContent(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveButtonShape(
+                            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
-                    ) { Text(stringResource(R.string.collections_editor_cover_none)) }
+                        scale = expressiveButtonScale(ButtonDefaults.scale())
+                    ) {
+                        Text(
+                            stringResource(R.string.collections_editor_cover_none),
+                            style = buttonLabelStyle()
+                        )
+                    }
 
                     Button(
                         onClick = {
@@ -426,14 +447,14 @@ fun FolderEditorContent(
                             .semantics {
                                 role = Role.RadioButton
                                 selected = coverMode == "emoji"
-                            },
-                        colors = ButtonDefaults.colors(
+                            }.tvControlHeight(),
+                        colors = expressiveButtonColors(ButtonDefaults.colors(
                             containerColor = if (coverMode == "emoji") NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                             contentColor = if (coverMode == "emoji") NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
+                        ), selected = coverMode == "emoji"),
+                        border = expressiveButtonBorder(ButtonDefaults.border(
                             border = if (coverMode == "emoji") Border(
                                 border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -442,13 +463,19 @@ fun FolderEditorContent(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveButtonShape(
+                            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        scale = expressiveButtonScale(ButtonDefaults.scale())
                     ) {
                         if (hasEmoji) {
                             Text("${folder.coverEmoji}  ${stringResource(R.string.collections_editor_cover_emoji)}")
                         } else {
-                            Text(stringResource(R.string.collections_editor_cover_emoji))
+                            Text(
+                                stringResource(R.string.collections_editor_cover_emoji),
+                                style = buttonLabelStyle()
+                            )
                         }
                     }
 
@@ -459,14 +486,14 @@ fun FolderEditorContent(
                             .semantics {
                                 role = Role.RadioButton
                                 selected = coverMode == "image"
-                            },
-                        colors = ButtonDefaults.colors(
+                            }.tvControlHeight(),
+                        colors = expressiveButtonColors(ButtonDefaults.colors(
                             containerColor = if (coverMode == "image") NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                             contentColor = if (coverMode == "image") NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
+                        ), selected = coverMode == "image"),
+                        border = expressiveButtonBorder(ButtonDefaults.border(
                             border = if (coverMode == "image") Border(
                                 border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -475,9 +502,17 @@ fun FolderEditorContent(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveButtonShape(
+                            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
-                    ) { Text(stringResource(R.string.collections_editor_cover_image_url)) }
+                        scale = expressiveButtonScale(ButtonDefaults.scale())
+                    ) {
+                        Text(
+                            stringResource(R.string.collections_editor_cover_image_url),
+                            style = buttonLabelStyle()
+                        )
+                    }
                 }
 
                 if (coverMode == "image") {
@@ -537,18 +572,20 @@ fun FolderEditorContent(
                             role = Role.Switch
                             toggleableState = if (folder.focusGifEnabled) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = CardDefaults.colors(
+                    colors = expressiveOptionCardColors(CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground
-                    ),
-                    border = CardDefaults.border(
+                    )),
+                    border = expressiveOptionCardBorder(CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         )
-                    ),
+                    )),
                     scale = CardDefaults.scale(focusedScale = 1f),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    shape = expressiveOptionCardShape(
+                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    )
                 ) {
                     Row(
                         modifier = Modifier
@@ -677,14 +714,14 @@ fun FolderEditorContent(
                                 .semantics {
                                     role = Role.RadioButton
                                     selected = isSelected
-                                },
-                            colors = ButtonDefaults.colors(
+                                }.tvControlHeight(),
+                            colors = expressiveButtonColors(ButtonDefaults.colors(
                                 containerColor = if (isSelected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                                 contentColor = if (isSelected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.Primary
-                            ),
-                            border = ButtonDefaults.border(
+                            ), selected = isSelected),
+                            border = expressiveButtonBorder(ButtonDefaults.border(
                                 border = if (isSelected) Border(
                                     border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -693,8 +730,11 @@ fun FolderEditorContent(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                                 )
+                            )),
+                            shape = expressiveButtonShape(
+                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                             ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            scale = expressiveButtonScale(ButtonDefaults.scale())
                         ) {
                             Text(label)
                         }
@@ -711,17 +751,19 @@ fun FolderEditorContent(
                             role = Role.Switch
                             toggleableState = if (folder.hideTitle) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = CardDefaults.colors(
+                    colors = expressiveOptionCardColors(CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground
-                    ),
-                    border = CardDefaults.border(
+                    )),
+                    border = expressiveOptionCardBorder(CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         )
+                    )),
+                    shape = expressiveOptionCardShape(
+                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
                     scale = CardDefaults.scale(focusedScale = 1.02f)
                 ) {
                     Row(
@@ -740,7 +782,7 @@ fun FolderEditorContent(
                             Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_hide_title_desc),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall.metaFloor(),
                                 color = NuvioTheme.colors.TextSecondary
                             )
                         }
@@ -767,7 +809,7 @@ fun FolderEditorContent(
                     Text(stringResource(R.string.collections_editor_catalogs), style = MaterialTheme.typography.labelLarge, color = NuvioTheme.colors.TextSecondary)
                     Text(
                         "${folder.sources.size} ${stringResource(R.string.collections_editor_sources).lowercase()}",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.metaFloor(),
                         color = NuvioTheme.colors.TextTertiary
                     )
                 }
@@ -903,7 +945,7 @@ fun FolderEditorContent(
                             traktSource != null -> traktSourceSubtitle(traktSource)
                             else -> stringResource(R.string.collections_editor_source)
                         },
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.metaFloor(),
                         color = if (isMissing) NuvioTheme.colors.Error.copy(alpha = 0.7f) else NuvioTheme.colors.TextTertiary
                     )
                     if (hasGenreOptions) {
@@ -920,13 +962,13 @@ fun FolderEditorContent(
                             ) {
                                 Text(
                                     text = stringResource(R.string.collections_editor_genre_filter),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.labelSmall.metaFloor(),
                                     color = NuvioTheme.colors.TextSecondary
                                 )
                             }
                             Text(
                                 text = genreLabel,
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall.metaFloor(),
                                 color = NuvioTheme.colors.TextSecondary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -946,42 +988,53 @@ fun FolderEditorContent(
                                 viewModel.showGenrePicker(index)
                             },
                             enabled = !reorderActive,
-                            modifier = Modifier.focusRequester(genreFocusRequester),
-                            colors = ButtonDefaults.colors(
+                            modifier = Modifier.focusRequester(genreFocusRequester)
+                                .tvControlHeight(),
+                            colors = expressiveButtonColors(ButtonDefaults.colors(
                                 containerColor = NuvioTheme.colors.BackgroundElevated,
                                 contentColor = NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.Primary
-                            ),
-                            border = ButtonDefaults.border(
+                            )),
+                            border = expressiveButtonBorder(ButtonDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                                 ),
                                 focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                            )),
+                            shape = expressiveButtonShape(
+                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                             ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            scale = expressiveButtonScale(ButtonDefaults.scale())
                         ) {
-                            Text(stringResource(R.string.collections_editor_choose_genre))
+                            Text(
+                                stringResource(R.string.collections_editor_choose_genre),
+                                style = buttonLabelStyle()
+                            )
                         }
                     }
                     Button(
+                        modifier = Modifier.tvControlHeight(),
                         onClick = if (isMoving) onConfirmMove else onStartMove,
                         enabled = isMoving || (sourceItems.size > 1 && !reorderActive),
-                        colors = ButtonDefaults.colors(
+                        colors = expressiveButtonColors(ButtonDefaults.colors(
                             containerColor = if (isMoving) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
                             contentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = if (isMoving) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
                             focusedContentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
+                        ), selected = isMoving),
+                        border = expressiveButtonBorder(ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             ),
                             focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        )),
+                        shape = expressiveButtonShape(
+                            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        scale = expressiveButtonScale(ButtonDefaults.scale())
                     ) {
                         Icon(
                             imageVector = Icons.Default.Reorder,
@@ -995,21 +1048,25 @@ fun FolderEditorContent(
                                 viewModel.editTmdbSource(index)
                             },
                             enabled = !reorderActive,
-                            modifier = Modifier.focusRequester(editFocusRequester),
-                            colors = ButtonDefaults.colors(
+                            modifier = Modifier.focusRequester(editFocusRequester)
+                                .tvControlHeight(),
+                            colors = expressiveButtonColors(ButtonDefaults.colors(
                                 containerColor = NuvioTheme.colors.BackgroundCard,
                                 contentColor = NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.TextPrimary
-                            ),
-                            border = ButtonDefaults.border(
+                            )),
+                            border = expressiveButtonBorder(ButtonDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                                 ),
                                 focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                            )),
+                            shape = expressiveButtonShape(
+                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                             ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            scale = expressiveButtonScale(ButtonDefaults.scale())
                         ) {
                             Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                         }
@@ -1021,21 +1078,25 @@ fun FolderEditorContent(
                                 viewModel.editTraktSource(index)
                             },
                             enabled = !reorderActive,
-                            modifier = Modifier.focusRequester(editFocusRequester),
-                            colors = ButtonDefaults.colors(
+                            modifier = Modifier.focusRequester(editFocusRequester)
+                                .tvControlHeight(),
+                            colors = expressiveButtonColors(ButtonDefaults.colors(
                                 containerColor = NuvioTheme.colors.BackgroundCard,
                                 contentColor = NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.TextPrimary
-                            ),
-                            border = ButtonDefaults.border(
+                            )),
+                            border = expressiveButtonBorder(ButtonDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                                 ),
                                 focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                            )),
+                            shape = expressiveButtonShape(
+                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                             ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            scale = expressiveButtonScale(ButtonDefaults.scale())
                         ) {
                             Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                         }
@@ -1046,21 +1107,24 @@ fun FolderEditorContent(
                             viewModel.removeCatalogSource(index)
                         },
                         enabled = !reorderActive,
-                        modifier = Modifier.focusRequester(removeFocusRequester),
-                        colors = ButtonDefaults.colors(
+                        modifier = Modifier.focusRequester(removeFocusRequester).tvControlHeight(),
+                        colors = expressiveButtonColors(ButtonDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundCard,
                             contentColor = NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Error
-                        ),
-                        border = ButtonDefaults.border(
+                        ), destructive = true),
+                        border = expressiveButtonBorder(ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             ),
                             focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        )),
+                        shape = expressiveButtonShape(
+                            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        scale = expressiveButtonScale(ButtonDefaults.scale())
                     ) {
                         Icon(Icons.Default.Close, stringResource(R.string.cd_remove))
                     }

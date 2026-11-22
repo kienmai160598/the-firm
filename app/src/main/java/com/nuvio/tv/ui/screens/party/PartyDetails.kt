@@ -2,6 +2,13 @@
 
 package com.nuvio.tv.ui.screens.party
 
+import androidx.tv.material3.CardColors
+import com.nuvio.tv.ui.theme.ExpressiveColors
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.screens.detail.spatialSpec
+import com.nuvio.tv.ui.screens.detail.effectsSpec
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -69,6 +76,7 @@ import com.nuvio.tv.ui.screens.settings.SettingsDialogActionButton
 import com.nuvio.tv.ui.screens.settings.SettingsDialogActionRow
 import com.nuvio.tv.ui.screens.settings.SettingsNote
 import com.nuvio.tv.ui.screens.settings.SettingsToggleRow
+import com.nuvio.tv.ui.screens.settings.SettingsRowRestFill
 import com.nuvio.tv.ui.screens.settings.settingsRowBorder
 import com.nuvio.tv.ui.screens.settings.settingsRowColors
 import com.nuvio.tv.ui.screens.settings.settingsRowShape
@@ -84,7 +92,9 @@ internal fun CodeSection(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
         AnimatedContent(
             targetState = connected,
-            transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(150)) },
+            transitionSpec = {
+                fadeIn(effectsSpec(tween(200))) togetherWith fadeOut(effectsSpec(tween(150)))
+            },
             label = "partyCodeLabel",
         ) { isConnected ->
             if (isConnected) {
@@ -226,7 +236,8 @@ private fun MemberRow(
                 if (member.id == party.hostMemberId) {
                     Text(
                         text = stringResource(R.string.party_host),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelMedium
+                            .atLeastOnBox(TvSizeFloors.metaText),
                         fontWeight = FontWeight.SemiBold,
                         color = NuvioTheme.colors.Secondary,
                     )
@@ -241,14 +252,16 @@ private fun MemberRow(
             AnimatedContent(
                 targetState = status,
                 transitionSpec = {
-                    (fadeIn(tween(200)) + slideInVertically(tween(240)) { it / 2 }) togetherWith
-                        (fadeOut(tween(120)) + slideOutVertically(tween(160)) { -it / 2 })
+                    val rise = slideInVertically(spatialSpec(tween(240))) { it / 2 }
+                    val leave = slideOutVertically(spatialSpec(tween(160))) { -it / 2 }
+                    (fadeIn(effectsSpec(tween(200))) + rise) togetherWith
+                        (fadeOut(effectsSpec(tween(120))) + leave)
                 },
                 label = "partyMemberStatus",
             ) { label ->
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary,
                     maxLines = 1,
                 )
@@ -259,7 +272,7 @@ private fun MemberRow(
                 imageVector = Icons.Rounded.Close,
                 contentDescription = stringResource(R.string.party_remove),
                 tint = NuvioTheme.colors.TextTertiary,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
             )
         }
     }
@@ -285,7 +298,7 @@ private fun PartyRow(
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = settingsRowColors(),
+        colors = partyRowColors(),
         border = settingsRowBorder(),
         shape = CardDefaults.shape(settingsRowShape()),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f),
@@ -301,13 +314,27 @@ private fun PartyRow(
     }
 }
 
+/**
+ * A member row keeps white text in its status and host label on the box build, so it focuses to
+ * a bright frosted fill rather than the settings rows' solid white.
+ */
+@Composable
+private fun partyRowColors(): CardColors = if (isExpressiveBuild) {
+    CardDefaults.colors(
+        containerColor = SettingsRowRestFill,
+        focusedContainerColor = ExpressiveColors.frostedFocused
+    )
+} else {
+    settingsRowColors()
+}
+
 @Composable
 private fun SeatDots(filled: Int, total: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
         repeat(total) { index ->
             val color by animateColorAsState(
                 targetValue = if (index < filled) NuvioTheme.colors.Secondary else NuvioTheme.colors.Border,
-                animationSpec = tween(300),
+                animationSpec = effectsSpec(tween(300)),
                 label = "seatDot",
             )
             Box(
@@ -492,7 +519,7 @@ private fun InviteDialog(
                 CodeSlots(code = code, slotHeight = 52.dp, textStyle = MaterialTheme.typography.headlineMedium)
                 Text(
                     text = stringResource(R.string.party_invite_share),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextSecondary,
                 )
             }

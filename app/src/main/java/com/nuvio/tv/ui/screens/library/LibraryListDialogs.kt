@@ -53,6 +53,10 @@ import androidx.compose.ui.text.style.TextDirection
 import com.nuvio.tv.R
 import com.nuvio.tv.core.tracking.TrackingListManagementCapabilities
 import com.nuvio.tv.ui.screens.ambient.AmbientDialogEffect
+import com.nuvio.tv.ui.screens.detail.buttonLabelStyle
+import com.nuvio.tv.ui.screens.detail.selectableButtonColors
+import com.nuvio.tv.ui.screens.detail.tonalButtonColors
+import com.nuvio.tv.ui.screens.detail.tvButtonPadding
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -102,7 +106,7 @@ internal fun ManageListsDialog(
                     Text(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFFFFB6B6)
+                        color = libraryErrorText()
                     )
                 }
 
@@ -134,15 +138,18 @@ internal fun ManageListsDialog(
                                     role = Role.Tab
                                     this.selected = selected
                                 },
-                                colors = ButtonDefaults.colors(
-                                    containerColor = if (selected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-                                    contentColor = NuvioTheme.colors.TextPrimary
-                                )
+                                colors = selectableButtonColors(
+                                    selected = selected,
+                                    upstreamSelected = NuvioTheme.colors.FocusBackground,
+                                    upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                                ),
+                                contentPadding = tvButtonPadding()
                             ) {
                                 Text(
                                     text = tab.localizedTitle(),
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = buttonLabelStyle()
                                 )
                             }
                         }
@@ -154,36 +161,48 @@ internal fun ManageListsDialog(
                         onClick = onCreate,
                         modifier = if (personalTabs.isEmpty()) Modifier.focusRequester(firstFocusRequester) else Modifier,
                         enabled = !pending,
-                        colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary
+                        colors = tonalButtonColors(),
+                        contentPadding = tvButtonPadding()
+                    ) {
+                        Text(
+                            stringResource(R.string.library_list_create),
+                            style = buttonLabelStyle()
                         )
-                    ) { Text(stringResource(R.string.library_list_create)) }
+                    }
                     Button(
                         onClick = onEdit,
                         enabled = !pending && selectedKey != null,
-                        colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary
+                        colors = tonalButtonColors(),
+                        contentPadding = tvButtonPadding()
+                    ) {
+                        Text(
+                            stringResource(R.string.library_list_edit),
+                            style = buttonLabelStyle()
                         )
-                    ) { Text(stringResource(R.string.library_list_edit)) }
+                    }
                     if (capabilities.supportsReordering) {
                         Button(
                             onClick = onMoveUp,
                             enabled = !pending && selectedKey != null,
-                            colors = ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundCard,
-                                contentColor = NuvioTheme.colors.TextPrimary
+                            colors = tonalButtonColors(),
+                            contentPadding = tvButtonPadding()
+                        ) {
+                            Text(
+                                stringResource(R.string.library_list_move_up),
+                                style = buttonLabelStyle()
                             )
-                        ) { Text(stringResource(R.string.library_list_move_up)) }
+                        }
                         Button(
                             onClick = onMoveDown,
                             enabled = !pending && selectedKey != null,
-                            colors = ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundCard,
-                                contentColor = NuvioTheme.colors.TextPrimary
+                            colors = tonalButtonColors(),
+                            contentPadding = tvButtonPadding()
+                        ) {
+                            Text(
+                                stringResource(R.string.library_list_move_down),
+                                style = buttonLabelStyle()
                             )
-                        ) { Text(stringResource(R.string.library_list_move_down)) }
+                        }
                     }
                 }
 
@@ -191,19 +210,25 @@ internal fun ManageListsDialog(
                     Button(
                         onClick = onDelete,
                         enabled = !pending && selectedKey != null,
-                        colors = ButtonDefaults.colors(
-                            containerColor = Color(0xFF4A2323),
-                            contentColor = NuvioTheme.colors.TextPrimary
+                        colors = libraryDeleteButtonColors(),
+                        contentPadding = tvButtonPadding()
+                    ) {
+                        Text(
+                            stringResource(R.string.library_list_delete),
+                            style = buttonLabelStyle()
                         )
-                    ) { Text(stringResource(R.string.library_list_delete)) }
+                    }
                     Button(
                         onClick = onDismiss,
                         enabled = !pending,
-                        colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary
+                        colors = tonalButtonColors(),
+                        contentPadding = tvButtonPadding()
+                    ) {
+                        Text(
+                            stringResource(R.string.library_list_close),
+                            style = buttonLabelStyle()
                         )
-                    ) { Text(stringResource(R.string.library_list_close)) }
+                    }
                 }
             }
         }
@@ -352,12 +377,17 @@ internal fun ListEditorDialog(
                         // instead of reading the write-only semantics property.
                         this.selected = privacy == state.privacy
                     },
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextPrimary
-                    )
+                    colors = selectableButtonColors(
+                        selected = selected,
+                        upstreamSelected = NuvioTheme.colors.FocusBackground,
+                        upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                    ),
+                    contentPadding = tvButtonPadding()
                 ) {
-                    Text(privacy.apiValue.replaceFirstChar { it.uppercase() })
+                    Text(
+                        privacy.apiValue.replaceFirstChar { it.uppercase() },
+                        style = buttonLabelStyle()
+                    )
                 }
             }
         }
@@ -366,12 +396,17 @@ internal fun ListEditorDialog(
             onClick = onSave,
             enabled = !pending,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            colors = tonalButtonColors(),
+            contentPadding = tvButtonPadding()
         ) {
-            Text(if (pending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
+            Text(
+                if (pending) {
+                    stringResource(R.string.action_saving)
+                } else {
+                    stringResource(R.string.action_save)
+                },
+                style = buttonLabelStyle()
+            )
         }
     }
 }

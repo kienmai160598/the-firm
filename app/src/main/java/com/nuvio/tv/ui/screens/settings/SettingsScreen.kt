@@ -10,7 +10,6 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RawRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,9 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -64,18 +61,14 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -85,9 +78,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -102,7 +93,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.map
-import kotlin.math.roundToInt
 
 private enum class IntegrationSettingsSection {
     Hub,
@@ -475,7 +465,6 @@ fun SettingsScreen(
             if (isHorizonStyle) {
                 var topBarCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
                 var focusedTabBounds by remember { mutableStateOf<Rect?>(null) }
-                val density = LocalDensity.current
 
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -487,27 +476,11 @@ fun SettingsScreen(
                             .onGloballyPositioned { topBarCoordinates = it }
                     ) {
                         focusedTabBounds?.let { bounds ->
-                            val glideSpec = tween<Float>(durationMillis = 250, easing = FastOutSlowInEasing)
-                            val pillLeft by animateFloatAsState(bounds.left, glideSpec, label = "pillLeft")
-                            val pillTop by animateFloatAsState(bounds.top, glideSpec, label = "pillTop")
-                            val pillWidth by animateFloatAsState(bounds.width, glideSpec, label = "pillWidth")
-                            val pillHeight by animateFloatAsState(bounds.height, glideSpec, label = "pillHeight")
-                            val pillAlpha by animateFloatAsState(
-                                targetValue = if (railHadFocus) 1f else 0f,
-                                animationSpec = tween(durationMillis = 200),
-                                label = "pillAlpha"
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .align(AbsoluteAlignment.TopLeft)
-                                    .absoluteOffset { IntOffset(pillLeft.roundToInt(), pillTop.roundToInt()) }
-                                    .size(
-                                        width = with(density) { pillWidth.toDp() },
-                                        height = with(density) { pillHeight.toDp() }
-                                    )
-                                    .graphicsLayer { alpha = pillAlpha }
-                                    .clip(RoundedCornerShape(SettingsPillRadius))
-                                    .background(NuvioTheme.colors.Secondary)
+                            SettingsGlidePill(
+                                bounds = bounds,
+                                visible = railHadFocus,
+                                color = NuvioTheme.colors.Secondary,
+                                modifier = Modifier.matchParentSize()
                             )
                         }
                         LazyRow(
@@ -624,15 +597,17 @@ fun SettingsScreen(
                                 val order = visibleSections.map { it.category }
                                 val forward = order.indexOf(targetState) >= order.indexOf(initialState)
                                 val toStart = forward != isRtl
+                                val inMillis = SETTINGS_DETAIL_ANIM_IN_DURATION_MS
+                                val outMillis = SETTINGS_DETAIL_ANIM_OUT_DURATION_MS
                                 (slideInHorizontally(
-                                    animationSpec = tween(SETTINGS_DETAIL_ANIM_IN_DURATION_MS, easing = FastOutSlowInEasing)
+                                    animationSpec = settingsDetailSlide(inMillis)
                                 ) { fullWidth -> if (toStart) fullWidth / 4 else -fullWidth / 4 } +
-                                    fadeIn(tween(SETTINGS_DETAIL_ANIM_IN_DURATION_MS)))
+                                    fadeIn(settingsDetailFade(inMillis)))
                                     .togetherWith(
                                         slideOutHorizontally(
-                                            animationSpec = tween(SETTINGS_DETAIL_ANIM_OUT_DURATION_MS, easing = FastOutSlowInEasing)
+                                            animationSpec = settingsDetailSlide(outMillis)
                                         ) { fullWidth -> if (toStart) -fullWidth / 4 else fullWidth / 4 } +
-                                            fadeOut(tween(SETTINGS_DETAIL_ANIM_OUT_DURATION_MS))
+                                            fadeOut(settingsDetailFade(outMillis))
                                     )
                             },
                             label = "settingsDetailTransition"
@@ -674,7 +649,7 @@ fun SettingsScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .width(220.dp)
+                        .width(SettingsRailWidth)
                         .fillMaxHeight()
                 ) {
                     LazyColumn(
@@ -689,6 +664,7 @@ fun SettingsScreen(
                             // no longer composed, which is what the retry there is for.
                             .focusRestorer()
                             .fillMaxSize()
+                            .padding(vertical = SettingsVerticalIndicatorBand)
                             .onFocusChanged { state ->
                                 val justGainedFocus = !railHadFocus && state.hasFocus
                                 railHadFocus = state.hasFocus

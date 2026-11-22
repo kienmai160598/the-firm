@@ -43,8 +43,8 @@ internal fun PlayerOverlayScaffold(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(250)),
-        exit = fadeOut(animationSpec = tween(200)),
+        enter = fadeIn(animationSpec = PlayerMotion.effects(250)),
+        exit = fadeOut(animationSpec = PlayerMotion.effects(200)),
         modifier = modifier
     ) {
         val focusRequester = remember { FocusRequester() }

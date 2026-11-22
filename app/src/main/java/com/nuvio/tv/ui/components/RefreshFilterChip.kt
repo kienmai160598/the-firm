@@ -3,9 +3,7 @@ package com.nuvio.tv.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
@@ -19,13 +17,14 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
 import androidx.tv.material3.FilterChipDefaults
 import androidx.tv.material3.Icon
+import androidx.tv.material3.SelectableChipScale
 import com.nuvio.tv.R
-import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.expressiveFocusScale
 import kotlinx.coroutines.delay as coroutineDelay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -37,11 +36,7 @@ fun RefreshFilterChip(
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val contentColor = if (isFocused) {
-        NuvioTheme.colors.OnSecondary
-    } else {
-        NuvioTheme.colors.TextSecondary
-    }
+    val contentColor = filterChipContentColor(isFocused, selected = false, isError = false)
 
     val rotationAnimatable = remember { Animatable(0f) }
     var hasCompletedFullRotation by remember { mutableStateOf(false) }
@@ -82,27 +77,14 @@ fun RefreshFilterChip(
     FilterChip(
         selected = false,
         onClick = onClick,
-        modifier = modifier.onFocusChanged {
+        modifier = modifier.expressiveFocusScale(isFocused).onFocusChanged {
             isFocused = it.isFocused
             onFocusChanged(it.isFocused)
         },
-        colors = FilterChipDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            contentColor = contentColor,
-            focusedContentColor = contentColor
-        ),
-        border = FilterChipDefaults.border(
-            border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                shape = RoundedCornerShape(20.dp)
-            ),
-            focusedBorder = Border(
-                border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.FocusRing),
-                shape = RoundedCornerShape(20.dp)
-            )
-        ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(20.dp))
+        colors = filterChipColors(isFocused, selected = false, isError = false, content = contentColor),
+        border = borderlessFilterChip(),
+        shape = FilterChipDefaults.shape(shape = ExpressiveFocus.morphingPill(isFocused)),
+        scale = SelectableChipScale.None
     ) {
         Icon(
             imageVector = Icons.Rounded.Refresh,

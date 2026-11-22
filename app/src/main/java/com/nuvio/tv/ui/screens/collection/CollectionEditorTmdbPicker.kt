@@ -5,6 +5,13 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 
+import com.nuvio.tv.ui.components.expressiveButtonBorder
+import com.nuvio.tv.ui.components.expressiveButtonColors
+import com.nuvio.tv.ui.components.expressiveButtonScale
+import com.nuvio.tv.ui.components.expressiveButtonShape
+import com.nuvio.tv.ui.components.expressiveOptionCardBorder
+import com.nuvio.tv.ui.components.expressiveOptionCardColors
+import com.nuvio.tv.ui.components.expressiveOptionCardShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -93,6 +100,10 @@ import com.nuvio.tv.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -159,7 +170,9 @@ fun TmdbSourcePickerContent(
                             text = stringResource(
                                 if (isEditing) R.string.collections_editor_edit_tmdb_source else R.string.collections_editor_tmdb_sources
                             ),
-                            style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
+                            style = MaterialTheme.typography.headlineMedium
+                                .screenTitleFloor()
+                                .copy(textDirection = TextDirection.Content),
                             color = NuvioTheme.colors.TextPrimary,
                         )
                         NuvioButton(
@@ -192,15 +205,19 @@ fun TmdbSourcePickerContent(
                                 }
                                 .onFocusChanged {
                                     if (it.isFocused) lastFocusedMode = mode
-                                },
-                            colors = ButtonDefaults.colors(
+                                }.tvControlHeight(),
+                            colors = expressiveButtonColors(ButtonDefaults.colors(
                                 containerColor = if (selected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                                 contentColor = if (selected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.Primary
+                            ), selected = selected),
+                            shape = expressiveButtonShape(
+                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                             ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-                            scale = ButtonDefaults.scale(focusedScale = 1f)
+                            scale = expressiveButtonScale(
+                                ButtonDefaults.scale(focusedScale = 1f)
+                            )
                         ) {
                             Text(tmdbModeLabel(mode))
                         }
@@ -210,7 +227,11 @@ fun TmdbSourcePickerContent(
 
             uiState.tmdbSearchError?.takeIf { it.isNotBlank() }?.let { error ->
                 item(key = "tmdb_error") {
-                    Text(error, color = NuvioTheme.colors.Error, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        error,
+                        color = NuvioTheme.colors.Error,
+                        style = MaterialTheme.typography.bodySmall.metaFloor()
+                    )
                 }
             }
 
@@ -722,7 +743,11 @@ private fun TmdbLabeledField(
     helper: String
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = NuvioTheme.colors.TextPrimary)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium.metaFloor(),
+            color = NuvioTheme.colors.TextPrimary
+        )
         NuvioTextField(
             value = value,
             onValueChange = onValueChange,
@@ -732,7 +757,11 @@ private fun TmdbLabeledField(
             placeholder = placeholder
         )
         if (helper.isNotBlank()) {
-            Text(helper, style = MaterialTheme.typography.bodySmall, color = NuvioTheme.colors.TextTertiary)
+            Text(
+                helper,
+                style = MaterialTheme.typography.bodySmall.metaFloor(),
+                color = NuvioTheme.colors.TextTertiary
+            )
         }
     }
 }
@@ -782,14 +811,14 @@ fun TmdbActionButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier,
-        colors = ButtonDefaults.colors(
+        modifier = modifier.tvControlHeight(),
+        colors = expressiveButtonColors(ButtonDefaults.colors(
             containerColor = if (primary) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
             contentColor = if (primary) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
             focusedContainerColor = if (primary) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
             focusedContentColor = if (primary) NuvioTheme.colors.OnSecondaryVariant else NuvioTheme.colors.Primary
-        ),
-        border = ButtonDefaults.border(
+        ), selected = primary),
+        border = expressiveButtonBorder(ButtonDefaults.border(
             focusedBorder = Border(
                 border = if (primary) {
                     BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.SecondaryVariant)
@@ -798,9 +827,11 @@ fun TmdbActionButton(
                 },
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
+        )),
+        shape = expressiveButtonShape(
+            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
         ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        scale = ButtonDefaults.scale(focusedScale = 1f)
+        scale = expressiveButtonScale(ButtonDefaults.scale(focusedScale = 1f))
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             content()
@@ -820,7 +851,11 @@ private fun TmdbModeHelp(mode: TmdbBuilderMode) {
         TmdbBuilderMode.DIRECTOR -> stringResource(R.string.collections_editor_tmdb_help_director)
         TmdbBuilderMode.DISCOVER -> stringResource(R.string.collections_editor_tmdb_help_discover)
     }
-    Text(text, style = MaterialTheme.typography.bodySmall, color = NuvioTheme.colors.TextSecondary)
+    Text(
+        text,
+        style = MaterialTheme.typography.bodySmall.metaFloor(),
+        color = NuvioTheme.colors.TextSecondary
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -832,7 +867,11 @@ private fun TmdbQuickChips(
 ) {
     val firstChipFocusRequester = remember { FocusRequester() }
     Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = NuvioTheme.colors.TextSecondary)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium.metaFloor(),
+            color = NuvioTheme.colors.TextSecondary
+        )
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -992,7 +1031,7 @@ fun TmdbOptionRow(
     Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.metaFloor(),
             color = NuvioTheme.colors.TextSecondary
         )
         Row(
@@ -1019,15 +1058,17 @@ fun TmdbChoiceButton(
         modifier = modifier.semantics {
             role = Role.RadioButton
             this.selected = selected
-        },
-        colors = ButtonDefaults.colors(
+        }.tvControlHeight(),
+        colors = expressiveButtonColors(ButtonDefaults.colors(
             containerColor = if (selected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
             contentColor = if (selected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
             focusedContainerColor = NuvioTheme.colors.FocusBackground,
             focusedContentColor = NuvioTheme.colors.Primary
+        ), selected = selected),
+        shape = expressiveButtonShape(
+            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
         ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        scale = ButtonDefaults.scale(focusedScale = 1f)
+        scale = expressiveButtonScale(ButtonDefaults.scale(focusedScale = 1f))
     ) {
         Text(label)
     }
@@ -1041,22 +1082,32 @@ fun TmdbPickerCard(title: String, subtitle: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .blockHorizontalFocus(),
-        colors = CardDefaults.colors(
+        colors = expressiveOptionCardColors(CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
             focusedContainerColor = NuvioTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
+        )),
+        border = expressiveOptionCardBorder(CardDefaults.border(
             focusedBorder = Border(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
+        )),
+        shape = expressiveOptionCardShape(
+            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
         scale = CardDefaults.scale(focusedScale = 1f)
     ) {
         Column(modifier = Modifier.padding(NuvioTheme.spacing.lg), verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, color = NuvioTheme.colors.TextPrimary)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = NuvioTheme.colors.TextTertiary)
+            Text(
+                title,
+                style = MaterialTheme.typography.titleSmall.bodyFloor(),
+                color = NuvioTheme.colors.TextPrimary
+            )
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall.metaFloor(),
+                color = NuvioTheme.colors.TextTertiary
+            )
         }
     }
 }

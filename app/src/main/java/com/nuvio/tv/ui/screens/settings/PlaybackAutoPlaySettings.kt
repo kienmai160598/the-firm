@@ -6,6 +6,7 @@ import com.nuvio.tv.ui.theme.NuvioTheme
 
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,6 +72,7 @@ import com.nuvio.tv.data.local.StreamAutoPlaySource
 import com.nuvio.tv.ui.components.NuvioDialog
 import kotlin.math.roundToInt
 import java.util.Locale
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun PlaybackStreamSelectionSection(
@@ -624,8 +626,9 @@ private fun StreamAutoPlayProviderSelectionDialog(
                     containerColor = if (selected.isEmpty()) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground
                 ),
-                shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
-                scale = CardDefaults.scale(focusedScale = 1f)
+                shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
+                    .expressiveCard(),
+                scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
             ) {
                 Row(
                     modifier = Modifier
@@ -686,8 +689,9 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                 containerColor = if (isSelected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground
                             ),
-                            shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
-                            scale = CardDefaults.scale(focusedScale = 1f)
+                            shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
+                                .expressiveCard(),
+                            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
                         ) {
                             Row(
                                 modifier = Modifier
@@ -823,11 +827,12 @@ private fun StreamRegexDialog(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+                                    shape = RoundedCornerShape(20.dp)
                                 )
-                            ),
-                            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(20.dp)),
-                            scale = CardDefaults.scale(focusedScale = 1.02f)
+                            ).expressiveRingless(),
+                            shape = CardDefaults.shape(RoundedCornerShape(20.dp))
+                                .expressiveCard(),
+                            scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
                         ) {
                             Text(
                                 text = label,
@@ -846,20 +851,23 @@ private fun StreamRegexDialog(
                         .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
                     colors = CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                        focusedContainerColor = expressiveCardFocusFill(
+                            NuvioTheme.colors.BackgroundElevated
+                        )
                     ),
                     border = CardDefaults.border(
                         border = Border(
                             border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(10.dp)
                         ),
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(10.dp)
                         )
-                    ),
-                    shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
-                    scale = CardDefaults.scale(focusedScale = 1f)
+                    ).expressiveRingless(),
+                    shape = CardDefaults.shape(RoundedCornerShape(10.dp))
+                        .expressiveCard(),
+                    scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
                 ) {
                     Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
                         BasicTextField(
@@ -913,19 +921,23 @@ private fun StreamRegexDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
+                        modifier = Modifier.tvControlHeight(),
                         onClick = onDismiss,
                         colors = ButtonDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundElevated,
                             contentColor = NuvioTheme.colors.TextPrimary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
-                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                        ).expressiveControl(),
+                        shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
+                            .expressivePill(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Text(stringResource(R.string.action_cancel))
                     }
                     Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
                     Button(
+                        modifier = Modifier.tvControlHeight(),
                         onClick = {
                             regex = ""
                             regexError = null
@@ -935,13 +947,16 @@ private fun StreamRegexDialog(
                             contentColor = NuvioTheme.colors.TextPrimary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
-                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                        ).expressiveControl(),
+                        shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
+                            .expressivePill(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Text(stringResource(R.string.action_none))
                     }
                     Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
                     Button(
+                        modifier = Modifier.tvControlHeight(),
                         onClick = {
                             val value = regex.trim()
                             if (value.isNotEmpty()) {
@@ -958,8 +973,10 @@ private fun StreamRegexDialog(
                             contentColor = NuvioTheme.colors.TextPrimary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Primary
-                        ),
-                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                        ).expressiveControl(),
+                        shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
+                            .expressivePill(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Text(stringResource(R.string.action_save))
                     }

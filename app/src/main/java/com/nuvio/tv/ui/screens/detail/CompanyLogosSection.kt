@@ -5,6 +5,9 @@
 
 package com.nuvio.tv.ui.screens.detail
 
+import com.nuvio.tv.ui.components.posterFocusScale
+import com.nuvio.tv.ui.components.posterFocusLift
+import com.nuvio.tv.ui.components.posterFocusBorder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +66,13 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.nuvio.tv.domain.model.MetaCompany
 import com.nuvio.tv.ui.theme.NuvioTheme
+
+
+// Logos keep their white tile, which most brand marks are drawn for; the box rounds it like
+// M3's medium cards.
+private val LogoTileShape = RoundedCornerShape(
+    forBuild(upstream = NuvioTheme.radii.sm, expressive = NuvioTheme.radii.md)
+)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -283,27 +293,30 @@ private fun CompanyLogoCard(
                     false
                 }
             }
+            .posterFocusLift(LogoTileShape)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
             },
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
+        shape = CardDefaults.shape(shape = LogoTileShape),
         colors = CardDefaults.colors(
             containerColor = Color.White,
             focusedContainerColor = Color.White
         ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.sm)
+        border = posterFocusBorder(
+            CardDefaults.border(
+                focusedBorder = Border(
+                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    shape = LogoTileShape
+                )
             )
         ),
-        scale = CardDefaults.scale(focusedScale = 1.03f)
+        scale = posterFocusScale(CardDefaults.scale(focusedScale = 1.03f))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(NuvioTheme.spacing.huge)
-                .clip(RoundedCornerShape(NuvioTheme.radii.sm))
+                .clip(LogoTileShape)
                 .background(Color.White),
         contentAlignment = Alignment.Center
         ) {

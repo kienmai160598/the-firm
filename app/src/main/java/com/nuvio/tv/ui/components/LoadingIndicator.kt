@@ -2,6 +2,7 @@ package com.nuvio.tv.ui.components
 
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.theme.accentBrush
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
@@ -31,6 +32,7 @@ fun LoadingIndicator(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified
 ) {
+    if (isExpressiveBuild) return ExpressiveLoadingIndicator(modifier, color)
     val brush = if (color == Color.Unspecified) NuvioTheme.palette.accentBrush() else SolidColor(color)
     val frame = rememberInfiniteTransition(label = "loading_indicator").animateFloat(
         initialValue = 0f,

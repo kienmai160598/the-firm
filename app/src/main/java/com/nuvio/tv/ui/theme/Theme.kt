@@ -71,7 +71,7 @@ fun NuvioTheme(
         amoledMode = amoledMode,
         amoledSurfacesMode = amoledSurfacesMode
     )
-    val typography = buildNuvioTypography(getFontFamily(appFont))
+    val typography = buildAppTypography(appFont)
     val textStyles = buildNuvioTextStyles(typography)
 
     val materialColorScheme = darkColorScheme(
@@ -108,9 +108,9 @@ fun NuvioTheme(
         LocalNuvioFocusRingStyle provides focusRingStyle
     ) {
         MaterialTheme(
-            colorScheme = materialColorScheme,
+            colorScheme = materialColorScheme.withPaletteRoles(colorScheme, palette),
             typography = typography,
-            content = content
+            content = { ExpressiveMaterialTheme(content) }
         )
     }
 }
@@ -143,7 +143,7 @@ object NuvioTheme {
         get() = ExpressiveRadii.forBuild
 
     val shapes: NuvioShapeTokens
-        get() = NuvioShapes.tokens
+        get() = ExpressiveShapes.forBuild
 
     val sizes: NuvioSizeTokens
         get() = NuvioSizes.tokens
@@ -175,7 +175,7 @@ object NuvioTheme {
         get() = NuvioMedia.tokens
 
     val components: NuvioComponentTokens
-        get() = NuvioComponents.tokens
+        get() = ExpressiveComponents.forBuild
 
     val currentTheme: AppTheme
         @Composable

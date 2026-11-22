@@ -39,6 +39,8 @@ import com.nuvio.tv.R
 import com.nuvio.tv.core.trakt.TraktPublicListSearchResult
 import com.nuvio.tv.domain.model.TmdbCollectionMediaType
 import com.nuvio.tv.ui.screens.settings.SettingsVerticalScrollIndicators
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -86,7 +88,9 @@ fun TraktSourcePickerContent(
                             text = stringResource(
                                 if (isEditing) R.string.collections_editor_edit_trakt_source else R.string.collections_editor_trakt_sources
                             ),
-                            style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
+                            style = MaterialTheme.typography.headlineMedium
+                                .screenTitleFloor()
+                                .copy(textDirection = TextDirection.Content),
                             color = NuvioTheme.colors.TextPrimary,
                         )
                         NuvioButton(
@@ -100,7 +104,11 @@ fun TraktSourcePickerContent(
 
             uiState.traktSearchError?.takeIf { it.isNotBlank() }?.let { error ->
                 item(key = "trakt_error") {
-                    Text(error, color = NuvioTheme.colors.Error, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        error,
+                        color = NuvioTheme.colors.Error,
+                        style = MaterialTheme.typography.bodySmall.metaFloor()
+                    )
                 }
             }
 
@@ -212,7 +220,11 @@ private fun TraktLabeledField(
     focusRequester: FocusRequester? = null
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = NuvioTheme.colors.TextPrimary)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium.metaFloor(),
+            color = NuvioTheme.colors.TextPrimary
+        )
         NuvioTextField(
             value = value,
             onValueChange = onValueChange,

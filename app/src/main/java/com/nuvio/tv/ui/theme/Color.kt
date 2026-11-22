@@ -118,19 +118,19 @@ class NuvioColorScheme(
     val Menu = if (pureBlackSurfaces) pureBlack else palette.menu
     val Modal = if (pureBlackSurfaces) pureBlack else palette.modal
     val PlayerOverlay = palette.playerOverlay
-    val Divider = NuvioPrimitives.neutral750
+    val Divider = palette.outlineVariant
 
-    val Primary = NuvioPrimitives.neutral500
+    val Primary = palette.primary
     val PrimaryVariant = NuvioPrimitives.neutral650
-    val OnPrimary = NuvioPrimitives.white
+    val OnPrimary = palette.onPrimary
     val Secondary = palette.secondary
     val SecondaryVariant = palette.secondaryVariant
     val OnSecondary = palette.onSecondary
     val OnSecondaryVariant = palette.onSecondaryVariant
 
     val TextPrimary = NuvioPrimitives.white
-    val TextSecondary = NuvioPrimitives.neutral400
-    val TextTertiary = NuvioPrimitives.neutral600
+    val TextSecondary = palette.textSecondary
+    val TextTertiary = palette.textTertiary
     val TextDisabled = NuvioPrimitives.neutral700
     val TextInverse = NuvioPrimitives.neutral925
 
@@ -150,9 +150,9 @@ class NuvioColorScheme(
     val Torrent = NuvioPrimitives.torrent
     val Premium = NuvioPrimitives.premium
 
-    val Border = NuvioPrimitives.neutral750
+    val Border = palette.outlineVariant
     val BorderFocused = FocusRing
-    val BorderMuted = NuvioPrimitives.neutral750.copy(alpha = 0.58f)
+    val BorderMuted = Border.copy(alpha = 0.58f)
 
     val Scrim = NuvioPrimitives.black.copy(alpha = 0.62f)
     val ImageScrim = NuvioPrimitives.black.copy(alpha = 0.58f)
@@ -211,9 +211,9 @@ class NuvioColorScheme(
         imageScrim = ImageScrim,
         posterFallback = PosterFallback,
         videoControlsScrim = VideoControlsScrim,
-        glassPanelTop = Color(0xD64A4F59),
-        glassPanelMiddle = Color(0xCC3F454F),
-        glassPanelBottom = Color(0xC640474F),
+        glassPanelTop = if (isExpressiveBuild) Color(0xD63A3A3C) else Color(0xD64A4F59),
+        glassPanelMiddle = if (isExpressiveBuild) Color(0xCC2C2C2E) else Color(0xCC3F454F),
+        glassPanelBottom = if (isExpressiveBuild) Color(0xC62C2C2E) else Color(0xC640474F),
         glow = FocusRing.copy(alpha = 0.32f)
     )
 
@@ -284,15 +284,17 @@ object NuvioColors {
     val PrimaryVariant = NuvioPrimitives.neutral650
     val OnPrimary = NuvioPrimitives.white
     val TextPrimary = NuvioPrimitives.white
-    val TextSecondary = NuvioPrimitives.neutral400
-    val TextTertiary = NuvioPrimitives.neutral600
+    val TextSecondary =
+        if (isExpressiveBuild) ExpressiveColors.textSecondary else NuvioPrimitives.neutral400
+    val TextTertiary =
+        if (isExpressiveBuild) ExpressiveColors.textTertiary else NuvioPrimitives.neutral600
     val TextDisabled = NuvioPrimitives.neutral700
     val Rating = NuvioPrimitives.rating
     val Error = NuvioPrimitives.error
     val Success = NuvioPrimitives.success
     val Warning = NuvioPrimitives.warning
     val Info = NuvioPrimitives.info
-    val Border = NuvioPrimitives.neutral750
+    val Border = if (isExpressiveBuild) ExpressiveColors.divider else NuvioPrimitives.neutral750
 
     val Secondary: Color
         @Composable

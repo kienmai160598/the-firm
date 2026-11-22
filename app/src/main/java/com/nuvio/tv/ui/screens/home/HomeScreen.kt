@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.home
 
+import com.nuvio.tv.ui.components.ExpressiveErrorContainer
+import com.nuvio.tv.ui.components.ExpressiveOnErrorContainer
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.activity.compose.ReportDrawnWhen
@@ -60,6 +63,8 @@ import com.nuvio.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
 import com.nuvio.tv.core.tracking.supportsMembershipFor
 import com.nuvio.tv.data.local.StartupAuthNotice
 import com.nuvio.tv.ui.components.posteroptions.TrackingRemovalConfirmationDialog
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -371,10 +376,10 @@ fun HomeScreen(
                         enter = if (hasShownInitialHomeContent) {
                             EnterTransition.None
                         } else {
-                            fadeIn(animationSpec = tween(320)) +
+                            fadeIn(animationSpec = ExpressiveMotion.slowEffectsOr(tween(320))) +
                                 slideInVertically(
                                     initialOffsetY = { it / 24 },
-                                    animationSpec = tween(320)
+                                    animationSpec = ExpressiveMotion.defaultSpatialOr(tween(320))
                                 )
                         }
                     ) {
@@ -443,8 +448,14 @@ fun HomeScreen(
                     .align(Alignment.TopCenter)
                     .padding(top = homeFirstRowTopPadding())
                     .background(
-                        color = Color(0xFF5A1C1C),
-                        shape = RoundedCornerShape(10.dp)
+                        color = if (isExpressiveBuild) {
+                            ExpressiveErrorContainer
+                        } else {
+                            Color(0xFF5A1C1C)
+                        },
+                        shape = RoundedCornerShape(
+                            if (isExpressiveBuild) NuvioTheme.radii.lg else 10.dp
+                        )
                     )
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             ) {
@@ -453,8 +464,12 @@ fun HomeScreen(
                         StartupAuthNotice.NUVIO -> stringResource(R.string.auth_notice_nuvio_logged_out)
                         StartupAuthNotice.TRAKT -> stringResource(R.string.auth_notice_trakt_logged_out)
                     },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextPrimary
+                    style = MaterialTheme.typography.bodyMedium.bodyFloor(),
+                    color = if (isExpressiveBuild) {
+                        ExpressiveOnErrorContainer
+                    } else {
+                        NuvioTheme.colors.TextPrimary
+                    }
                 )
             }
         }

@@ -38,6 +38,8 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.nuvio.tv.ui.screens.ambient.AmbientDialogEffect
+import com.nuvio.tv.ui.theme.ExpressiveColors
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -52,7 +54,7 @@ fun NuvioDialog(
     containerBrush: Brush? = null,
     containerBorderColor: Color? = null,
     containerBorderWidth: Dp = NuvioTheme.spacing.hairline,
-    containerCornerRadius: Dp = NuvioTheme.radii.xl,
+    containerCornerRadius: Dp = NuvioTheme.components.dialog.cornerRadius,
     contentPadding: Dp = NuvioTheme.spacing.xl,
     contentSpacing: Dp = NuvioTheme.spacing.lg,
     backgroundContent: @Composable BoxScope.() -> Unit = {},
@@ -62,7 +64,7 @@ fun NuvioDialog(
     val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - NuvioTheme.spacing.xxxl).coerceAtLeast(320.dp)
     val containerShape = RoundedCornerShape(containerCornerRadius)
     val backgroundModifier = if (containerBrush == null) {
-        Modifier.background(NuvioTheme.colors.BackgroundElevated, containerShape)
+        Modifier.background(dialogPanelColor(), containerShape)
     } else {
         Modifier.background(containerBrush, containerShape)
     }
@@ -80,7 +82,7 @@ fun NuvioDialog(
                 .then(backgroundModifier)
                 .border(
                     containerBorderWidth,
-                    containerBorderColor ?: NuvioTheme.colors.Border,
+                    containerBorderColor ?: dialogEdgeColor(),
                     containerShape
                 )
                 .onPreviewKeyEvent { event ->
@@ -106,7 +108,7 @@ fun NuvioDialog(
                 if (title.isNotBlank()) {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleLarge.copy(
+                        style = MaterialTheme.typography.headlineSmall.copy(
                             textDirection = title.contentTextDirection()
                         ),
                         color = NuvioTheme.colors.TextPrimary,
@@ -130,6 +132,15 @@ fun NuvioDialog(
         }
     }
 }
+
+/** A dark frosted panel on the box build, upstream's modal surface elsewhere. */
+@Composable
+private fun dialogPanelColor(): Color =
+    if (isExpressiveBuild) ExpressiveColors.dialogPanel else NuvioTheme.colors.Modal
+
+/** The faint white edge an Apple dark panel carries; none on other builds. */
+private fun dialogEdgeColor(): Color =
+    if (isExpressiveBuild) ExpressiveColors.divider else Color.Transparent
 
 private fun isSelectKey(keyCode: Int): Boolean {
     return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||

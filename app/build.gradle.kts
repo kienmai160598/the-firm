@@ -75,6 +75,11 @@ val localProperties = Properties().apply {
     }
 }
 
+val allAbis = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+val localAbis: List<String> = localProperties.getProperty("ABIS", "")
+    .split(",").map { it.trim() }.filter { it.isNotEmpty() }
+val composeReportsEnabled = localProperties.getProperty("COMPOSE_REPORTS", "false").toBoolean()
+
 val devProperties = Properties().apply {
     val devPropertiesFile = rootProject.file("local.dev.properties")
     if (devPropertiesFile.exists()) {
@@ -309,8 +314,8 @@ android {
         abi {
             isEnable = !buildingAppBundle
             reset()
-            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            isUniversalApk = true
+            include(*localAbis.ifEmpty { allAbis }.toTypedArray())
+            isUniversalApk = localAbis.isEmpty()
         }
     }
 
@@ -427,9 +432,10 @@ afterEvaluate {
 }
 
 composeCompiler {
-    // Enable Compose compiler metrics for performance analysis
-    metricsDestination = layout.buildDirectory.dir("compose_metrics")
-    reportsDestination = layout.buildDirectory.dir("compose_reports")
+    if (composeReportsEnabled) {
+        metricsDestination = layout.buildDirectory.dir("compose_metrics")
+        reportsDestination = layout.buildDirectory.dir("compose_reports")
+    }
     stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose_stability_config.conf"))
 }
 

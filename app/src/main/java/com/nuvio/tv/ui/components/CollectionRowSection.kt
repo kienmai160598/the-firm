@@ -6,7 +6,9 @@
 
 package com.nuvio.tv.ui.components
 
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import com.nuvio.tv.ui.util.contentTextDirection
 
 import androidx.compose.foundation.BorderStroke
@@ -272,6 +274,7 @@ private fun FolderCard(
         modifier = modifier
             .width(tileWidth)
             .height(tileHeight)
+            .posterFocusLift(shape, posterCardStyle.focusedScale)
             .focusRequester(focusRequester)
             .onFocusChanged {
                 isFocused = it.isFocused
@@ -282,13 +285,13 @@ private fun FolderCard(
             containerColor = NuvioTheme.colors.BackgroundCard,
             focusedContainerColor = NuvioTheme.colors.BackgroundCard
         ),
-        border = CardDefaults.border(
+        border = posterFocusBorder(CardDefaults.border(
             focusedBorder = Border(
                 border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                 shape = shape
             )
-        ),
-        scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale),
+        )),
+        scale = posterFocusScale(CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)),
         glow = cardGlow
     ) {
         Box(
@@ -340,7 +343,7 @@ private fun FolderCard(
                 var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                 val gifAlpha by animateFloatAsState(
                     targetValue = if (gifLoaded) 1f else 0f,
-                    animationSpec = tween(durationMillis = 200),
+                    animationSpec = ExpressiveMotion.effectsOr(tween(durationMillis = 200)),
                     label = "gifFadeIn"
                 )
                 AsyncImage(
@@ -365,7 +368,7 @@ private fun FolderCard(
                 ) {
                     Text(
                         text = folder.title,
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
                             textDirection = folder.title.contentTextDirection()
                         ),
                         color = Color.White,

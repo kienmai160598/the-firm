@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -49,7 +48,6 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -57,6 +55,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.theme.expressiveFocusScale
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import kotlin.math.roundToInt
 
 @Composable
@@ -168,6 +168,7 @@ private fun SliderSettingsItemLayout(
         onClick = { },
         modifier = modifier
             .fillMaxWidth()
+            .settingsRowFocusScale(isFocused)
             .onFocusChanged { state ->
                 val nowFocused = state.isFocused
                 if (isFocused != nowFocused) {
@@ -198,7 +199,7 @@ private fun SliderSettingsItemLayout(
                 }
             },
         colors = settingsRowColors(),
-        border = settingsRowBorder(contentAlpha = if (enabled) 1f else 0.3f, shape = shape),
+        border = settingsRowBorder(),
         shape = CardDefaults.shape(shape = shape),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
@@ -215,7 +216,7 @@ private fun SliderSettingsItemLayout(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextPrimary.copy(alpha = contentAlpha),
+                        color = settingsRowText(NuvioTheme.colors.TextPrimary, contentAlpha),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -224,7 +225,11 @@ private fun SliderSettingsItemLayout(
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = NuvioTheme.colors.TextSecondary.copy(alpha = contentAlpha),
+                            color = settingsRowText(
+                                NuvioTheme.colors.TextSecondary,
+                                contentAlpha,
+                                SETTINGS_SECONDARY_TEXT_ALPHA
+                            ),
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -236,7 +241,7 @@ private fun SliderSettingsItemLayout(
                 Text(
                     text = valueText.keepLtr(),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = NuvioTheme.colors.Primary.copy(alpha = contentAlpha)
+                    color = settingsRowText(NuvioTheme.colors.Primary, contentAlpha)
                 )
             }
 
@@ -251,30 +256,23 @@ private fun SliderSettingsItemLayout(
                     icon = Icons.Default.Remove,
                     contentDescription = stringResource(R.string.cd_decrease),
                     enabled = enabled,
+                    rowFocused = isFocused,
                     onClick = onDecrease,
                     onFocused = onFocused
                 )
 
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(NuvioTheme.spacing.sm)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.xs))
-                        .background(NuvioTheme.colors.BackgroundElevated)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progressFraction.coerceIn(0f, 1f))
-                            .height(NuvioTheme.spacing.sm)
-                            .clip(RoundedCornerShape(NuvioTheme.radii.xs))
-                            .background(NuvioTheme.colors.Primary.copy(alpha = contentAlpha))
-                    )
-                }
+                SettingsExpressiveSlider(
+                    progressFraction = progressFraction,
+                    focused = isFocused,
+                    contentAlpha = contentAlpha,
+                    modifier = Modifier.weight(1f)
+                )
 
                 SliderStepButton(
                     icon = Icons.Default.Add,
                     contentDescription = stringResource(R.string.cd_increase),
                     enabled = enabled,
+                    rowFocused = isFocused,
                     onClick = onIncrease,
                     onFocused = onFocused
                 )
@@ -288,38 +286,40 @@ private fun SliderStepButton(
     icon: ImageVector,
     contentDescription: String,
     enabled: Boolean,
+    rowFocused: Boolean,
     onClick: () -> Unit,
     onFocused: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val contentAlpha = if (enabled) 1f else 0.4f
     val flat = isFlatSettingsStyle()
+    val ink = sliderStepInk(rowFocused)
 
     Card(
         onClick = { if (enabled) onClick() },
-        modifier = Modifier.onFocusChanged { state ->
+        modifier = Modifier.expressiveFocusScale(isFocused).onFocusChanged { state ->
             val nowFocused = state.isFocused
             if (isFocused != nowFocused) {
                 isFocused = nowFocused
                 if (nowFocused) onFocused()
             }
         },
-        colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = if (flat) settingsFocusFillColor() else NuvioTheme.colors.Background
-        ),
-        border = if (flat) {
-            CardDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else {
-            CardDefaults.border(
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = CircleShape
-                )
+        colors = if (isExpressiveBuild) {
+            CardDefaults.colors(
+                containerColor = ink.copy(alpha = STEP_BUTTON_FILL_ALPHA),
+                focusedContainerColor = NuvioTheme.colors.Secondary
             )
-        },
+        } else CardDefaults.colors(
+            containerColor = NuvioTheme.colors.Background,
+            focusedContainerColor = if (flat) {
+                settingsFocusFillColor()
+            } else {
+                NuvioTheme.colors.Secondary
+            }
+        ),
+        border = settingsRowBorder(),
         shape = CardDefaults.shape(shape = CircleShape),
-        scale = CardDefaults.scale(focusedScale = 1.1f)
+        scale = CardDefaults.scale(focusedScale = 1f)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -328,8 +328,13 @@ private fun SliderStepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = (if (isFocused) NuvioTheme.colors.OnPrimary else NuvioTheme.colors.TextPrimary)
-                    .copy(alpha = contentAlpha),
+                tint = when {
+                    isExpressiveBuild && !isFocused -> ink
+                    isExpressiveBuild -> NuvioTheme.colors.OnSecondary
+                    !isFocused -> NuvioTheme.colors.TextPrimary
+                    flat -> NuvioTheme.colors.TextPrimary
+                    else -> NuvioTheme.colors.OnSecondary
+                }.copy(alpha = contentAlpha),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -352,6 +357,7 @@ internal fun ColorSettingsItem(
         onClick = { if (enabled) onClick() },
         modifier = Modifier
             .fillMaxWidth()
+            .settingsRowFocusScale(isFocused)
             .onFocusChanged { state ->
                 val nowFocused = state.isFocused
                 if (isFocused != nowFocused) {
@@ -360,7 +366,7 @@ internal fun ColorSettingsItem(
                 }
             },
         colors = settingsRowColors(),
-        border = settingsRowBorder(contentAlpha = if (enabled) 1f else 0.3f),
+        border = settingsRowBorder(),
         shape = CardDefaults.shape(shape = settingsRowShape()),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
@@ -374,7 +380,7 @@ internal fun ColorSettingsItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.colors.TextPrimary.copy(alpha = contentAlpha),
+                color = settingsRowText(NuvioTheme.colors.TextPrimary, contentAlpha),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -408,3 +414,10 @@ internal fun ColorSettingsItem(
         }
     }
 }
+
+private const val STEP_BUTTON_FILL_ALPHA = 0.14f
+
+/** A step button's content on the box build: black while its row is focused and white. */
+@Composable
+private fun sliderStepInk(rowFocused: Boolean): Color =
+    if (rowFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary

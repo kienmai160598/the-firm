@@ -51,6 +51,10 @@ import com.nuvio.tv.R
 import com.nuvio.tv.domain.model.formatHexColor
 import com.nuvio.tv.ui.theme.NuvioTheme
 import kotlin.math.roundToInt
+import com.nuvio.tv.ui.theme.TvSizeFloors
+
+// Nine swatches share the editor's narrow column, so they stop short of the 48dp control floor.
+private val SwatchFloor = 40.dp
 
 private val colorSwatches = listOf(
     0xFF6B6B, 0xFFB37A, 0xFFD45C, 0x22D37C, 0x4DE3FF,
@@ -91,7 +95,7 @@ internal fun ThemeColorPicker(
                 Card(
                     onClick = { onColorChanged(swatch) },
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(TvSizeFloors.atLeast(30.dp, SwatchFloor))
                         .then(if (index == 0) Modifier.focusRequester(firstSwatchFocusRequester) else Modifier)
                         .semantics {
                             role = Role.RadioButton
@@ -179,13 +183,13 @@ private fun ColorChannelSlider(
             },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
-        shape = CardDefaults.shape(shape),
+        shape = CardDefaults.shape(shape).expressiveCard(),
         border = CardDefaults.border(
             focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = shape)
-        ),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveRingless(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),

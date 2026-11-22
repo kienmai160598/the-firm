@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.screens.home
 
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.activity.compose.BackHandler
@@ -41,6 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import com.nuvio.tv.ui.theme.rememberBodyFloor
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -1013,7 +1016,7 @@ private fun SeeAllGridCard(
                     Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
                     Text(
                         text = label ?: stringResource(R.string.action_see_all),
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleSmall.rememberBodyFloor(),
                         color = NuvioTheme.colors.TextSecondary,
                         textAlign = TextAlign.Center
                     )
@@ -1117,7 +1120,7 @@ private fun GridCollectionFolderCard(
                 var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                 val gifAlpha by animateFloatAsState(
                     targetValue = if (gifLoaded) 1f else 0f,
-                    animationSpec = tween(durationMillis = 200),
+                    animationSpec = ExpressiveMotion.effectsOr(tween(durationMillis = 200)),
                     label = "gifFadeIn"
                 )
                 AsyncImage(
@@ -1147,7 +1150,7 @@ private fun GridCollectionFolderCard(
                 ) {
                     Text(
                         text = folder.title,
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
                             textDirection = folder.title.contentTextDirection()
                         ),
                         color = Color.White,

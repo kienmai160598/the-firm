@@ -2,6 +2,7 @@
 
 package com.nuvio.tv.ui.screens.home
 
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -129,6 +130,8 @@ import com.nuvio.tv.ui.components.LightweightCard
 import com.nuvio.tv.ui.components.rememberArtworkBackedFocusGlow
 import com.nuvio.tv.ui.components.rememberPlaceholderShimmerOffsetState
 import com.nuvio.tv.LocalSidebarExpanded
+import com.nuvio.tv.ui.theme.rememberMetaFloor
+import com.nuvio.tv.ui.theme.rowTitleFloor
 import kotlin.math.abs
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -539,7 +542,7 @@ internal fun ModernRowSection(
     ) {
         val titleMediumStyle = MaterialTheme.typography.titleMedium
         val rowTitleStyle = remember(titleMediumStyle) {
-            titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
+            titleMediumStyle.copy(fontWeight = FontWeight.SemiBold).rowTitleFloor()
         }
         val rowTitle = row.title
         val textColor = NuvioTheme.colors.TextPrimary
@@ -1448,7 +1451,8 @@ private fun ModernCarouselCard(
                         var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                         val gifAlpha by animateFloatAsState(
                             targetValue = if (gifLoaded) 1f else 0f,
-                            animationSpec = tween(durationMillis = 200),
+                            animationSpec =
+                                ExpressiveMotion.effectsOr(tween(durationMillis = 200)),
                             label = "gifFadeIn"
                         )
                         AsyncImage(
@@ -1538,7 +1542,7 @@ private fun ModernCarouselCard(
                     Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
                             textDirection = subtitle.contentTextDirection()
                         ),
                         color = NuvioTheme.colors.TextSecondary,

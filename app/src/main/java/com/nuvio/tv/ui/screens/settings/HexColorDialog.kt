@@ -36,6 +36,7 @@ import com.nuvio.tv.domain.model.parseHexColor
 import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.screens.detail.requestFocusAfterFrames
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun HexColorDialog(
@@ -142,7 +143,10 @@ internal fun HexColorEditor(
                                 .then(
                                     if (rowIndex == 0 && columnIndex == 0) Modifier.focusRequester(firstKeyFocusRequester)
                                     else Modifier
-                                )
+                                ),
+                            scale = ButtonDefaults.scale().expressiveControlGrow(),
+                            shape = ButtonDefaults.shape().expressivePill(),
+                            colors = ButtonDefaults.colors().expressiveControl()
                         ) {
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                                 Text(character.toString(), style = MaterialTheme.typography.bodyMedium)
@@ -159,9 +163,22 @@ internal fun HexColorEditor(
         ) {
             Button(
                 onClick = { digits = ""; replaceOnInput = false },
-                modifier = Modifier.weight(1f).height(36.dp).focusRequester(clearFocusRequester)
+                modifier = Modifier
+                    .tvControlHeight()
+                    .weight(1f)
+                    .height(36.dp)
+                    .focusRequester(clearFocusRequester),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                colors = ButtonDefaults.colors().expressiveControl()
             ) { Text(stringResource(R.string.custom_theme_hex_clear)) }
-            Button(onClick = ::delete, modifier = Modifier.weight(1f).height(36.dp)) {
+            Button(
+                onClick = ::delete,
+                modifier = Modifier.tvControlHeight().weight(1f).height(36.dp),
+                shape = ButtonDefaults.shape().expressivePill(),
+                colors = ButtonDefaults.colors().expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
+            ) {
                 Text(stringResource(R.string.custom_theme_hex_delete))
             }
         }
@@ -171,20 +188,29 @@ internal fun HexColorEditor(
         ) {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.weight(1f).height(36.dp).focusRequester(cancelFocusRequester)
+                modifier = Modifier
+                    .tvControlHeight()
+                    .weight(1f)
+                    .height(36.dp)
+                    .focusRequester(cancelFocusRequester),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill(),
+                colors = ButtonDefaults.colors().expressiveControl()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = { color?.let(onConfirm) },
                 enabled = color != null,
-                modifier = Modifier.weight(1f).height(36.dp),
+                modifier = Modifier.tvControlHeight().weight(1f).height(36.dp),
                 colors = ButtonDefaults.colors(
                     containerColor = Color.White,
                     contentColor = Color.Black,
                     focusedContainerColor = Color.White,
                     focusedContentColor = Color.Black
-                )
+                ).expressiveControl(primary = true),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) { Text(stringResource(R.string.custom_theme_use_color)) }
         }
     }

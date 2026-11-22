@@ -4,6 +4,7 @@ package com.nuvio.tv.ui.screens.player
 
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,12 +41,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Card
+import androidx.tv.material3.CardBorder
+import androidx.tv.material3.CardColors
 import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.CardScale
+import androidx.tv.material3.CardShape
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
@@ -148,8 +158,10 @@ fun SkipIntroButton(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(tween(300)) + scaleIn(tween(300), initialScale = 0.8f),
-        exit = fadeOut(tween(200)) + scaleOut(tween(200), targetScale = 0.8f),
+        enter = fadeIn(PlayerMotion.effects(300)) +
+            scaleIn(PlayerMotion.pop(300), initialScale = 0.8f),
+        exit = fadeOut(PlayerMotion.effects(200)) +
+            scaleOut(PlayerMotion.effects(200), targetScale = 0.8f),
         modifier = modifier
     ) {
         Card(
@@ -195,46 +207,51 @@ fun SkipIntroButton(
                 .onFocusChanged {
                     isFocused = it.isFocused
                     if (it.isFocused) onFocused?.invoke()
-                },
-            colors = CardDefaults.colors(
-                containerColor = NuvioPrimitives.neutral875.copy(alpha = 0.85f),
-                focusedContainerColor = NuvioTheme.colors.Secondary
-            ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+                }
+                .then(
+                    if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier
+                ),
+            colors = skipButtonColors(isFocused),
+            shape = skipButtonShape(isFocused),
+            border = skipButtonBorder(),
+            scale = skipButtonScale()
         ) {
+            val countdownRunning = !(controlsVisible || autoHidden || dismissed)
+            val contentColor = if (isFocused) NuvioTheme.colors.OnSecondary else Color.White
             androidx.compose.foundation.layout.Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.md),
+                    modifier = Modifier
+                        .heightIn(min = PlayerTenFoot.atLeast(0.dp, SkipButtonMinHeight))
+                        .then(
+                            if (isExpressiveBuild) {
+                                Modifier.skipCountdownFill(countdownRunning) { progress.value }
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .padding(
+                            horizontal = skipButtonHorizontalPadding(),
+                            vertical = NuvioTheme.spacing.md
+                        ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = null,
-                        tint = if (isFocused) NuvioTheme.colors.OnSecondary else Color.White,
-                        modifier = Modifier.size(20.dp)
+                        tint = contentColor,
+                        modifier = Modifier.size(PlayerTenFoot.atLeast(20.dp, SkipIconSize))
                     )
                     Text(
                         text = getSkipLabel(lastType, targetsPostCredits),
-                        color = if (isFocused) NuvioTheme.colors.OnSecondary else Color.White,
-                        fontSize = 14.sp,
+                        color = contentColor,
+                        fontSize = PlayerTenFoot.atLeast(14.sp, PlayerTenFoot.bodyText),
                         modifier = Modifier.padding(start = NuvioTheme.spacing.sm)
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(NuvioTheme.spacing.xs)
-                        .clip(RoundedCornerShape(bottomStart = NuvioTheme.spacing.md, bottomEnd = NuvioTheme.spacing.md))
-                        .background(Color.White.copy(alpha = if (controlsVisible || autoHidden || dismissed) 0f else 0.15f))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progress.value)
-                            .height(NuvioTheme.spacing.xs)
-                            .background(NuvioPrimitives.neutral875.copy(alpha = if (controlsVisible || autoHidden || dismissed) 0f else 0.85f))
-                    )
+                if (!isExpressiveBuild) {
+                    UpstreamSkipCountdownBar(countdownRunning) { progress.value }
                 }
             }
         }
@@ -249,4 +266,79 @@ private fun getSkipLabel(type: String?, targetsPostCredits: Boolean): String = w
     "movie-credits" -> stringResource(if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_movie_credits)
     "recap" -> stringResource(R.string.skip_recap)
     else -> stringResource(R.string.skip_generic)
+}
+
+private val SkipButtonMinHeight = 48.dp
+private val SkipIconSize = 24.dp
+private val CountdownRemainingColor = Color.White.copy(alpha = 0.12f)
+
+@Composable
+private fun skipButtonColors(focused: Boolean): CardColors = if (isExpressiveBuild) {
+    PlayerPillStyle.colors(
+        focused = focused,
+        resting = PlayerSurfaceStyle.floatingContainer(NuvioPrimitives.neutral875)
+    )
+} else {
+    CardDefaults.colors(
+        containerColor = NuvioPrimitives.neutral875.copy(alpha = 0.85f),
+        focusedContainerColor = NuvioTheme.colors.Secondary
+    )
+}
+
+@Composable
+private fun skipButtonShape(focused: Boolean): CardShape = if (isExpressiveBuild) {
+    PlayerPillStyle.shape(focused)
+} else {
+    CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+}
+
+@Composable
+private fun skipButtonBorder(): CardBorder =
+    if (isExpressiveBuild) PlayerListItemStyle.noBorder() else CardDefaults.border()
+
+private fun skipButtonScale(): CardScale =
+    if (isExpressiveBuild) PlayerListItemStyle.stillScale else CardDefaults.scale()
+
+@Composable
+private fun skipButtonHorizontalPadding(): Dp =
+    if (isExpressiveBuild) NuvioTheme.spacing.xl else 18.dp
+
+/**
+ * The time left before the button hides, as a faint fill inside the pill that shrinks toward
+ * its end. The countdown is read only while drawing, so its ten second run recomposes nothing.
+ */
+private fun Modifier.skipCountdownFill(running: Boolean, progress: () -> Float): Modifier =
+    drawBehind {
+        if (!running) return@drawBehind
+        val start = size.width * progress().coerceIn(0f, 1f)
+        drawRect(
+            color = CountdownRemainingColor,
+            topLeft = Offset(start, 0f),
+            size = Size(size.width - start, size.height)
+        )
+    }
+
+@Composable
+private fun UpstreamSkipCountdownBar(running: Boolean, progress: () -> Float) {
+    val trackAlpha = if (running) 0.15f else 0f
+    val fillColor = NuvioPrimitives.neutral875.copy(alpha = if (running) 0.85f else 0f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(NuvioTheme.spacing.xs)
+            .clip(
+                RoundedCornerShape(
+                    bottomStart = NuvioTheme.spacing.md,
+                    bottomEnd = NuvioTheme.spacing.md
+                )
+            )
+            .background(Color.White.copy(alpha = trackAlpha))
+            .drawBehind {
+                drawRect(
+                    color = fillColor,
+                    size = Size(size.width * progress().coerceIn(0f, 1f), size.height)
+                )
+            }
+    )
 }

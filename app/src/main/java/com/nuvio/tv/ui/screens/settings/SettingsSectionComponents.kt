@@ -38,6 +38,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 internal val SettingsRowContentInset = 18.dp
 
@@ -169,36 +170,29 @@ internal fun SettingsResetButton(
     val shape = if (flat) settingsRowShape() else RoundedCornerShape(SettingsPillRadius)
     Button(
         onClick = onClick,
-        modifier = modifier.onFocusChanged { if (it.isFocused) onFocused() },
-        shape = ButtonDefaults.shape(shape = shape),
+        modifier = modifier.tvControlHeight().onFocusChanged { if (it.isFocused) onFocused() },
+        shape = ButtonDefaults.shape(shape = shape).let { if (flat) it else it.expressivePill() },
         colors = ButtonDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = if (flat) settingsFocusFillColor() else NuvioTheme.colors.Background
-        ),
-        border = if (flat) {
-            ButtonDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else {
-            ButtonDefaults.border(
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = shape
-                )
-            )
-        },
+            focusedContainerColor =
+                if (flat) settingsFocusFillColor() else NuvioTheme.colors.FocusBackground
+        ).let { if (flat) it else it.expressiveControl() },
+        border = ButtonDefaults.border(border = Border.None, focusedBorder = Border.None),
         scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+            .let { if (flat) it else it.expressiveControlGrow() }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.RestartAlt,
                 contentDescription = null,
-                tint = NuvioTheme.colors.TextSecondary,
-                modifier = Modifier.size(18.dp)
+                tint = onControlColor(NuvioTheme.colors.TextSecondary),
+                modifier = Modifier.size(buttonIconSize(18.dp))
             )
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.colors.TextPrimary
+                color = onControlColor(NuvioTheme.colors.TextPrimary)
             )
         }
     }

@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.metrics.performance.PerformanceMetricsState
+import com.nuvio.tv.ui.theme.rowTitleFloor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import coil3.request.CachePolicy
@@ -1037,7 +1038,8 @@ fun ModernHomeContent(
             val localDensity = LocalDensity.current
             val rowsViewportHeightFraction = if (useLandscapePosters) 0.49f else 0.52f
             val rowsViewportHeight = remember(screenHeight, rowsViewportHeightFraction) { screenHeight * rowsViewportHeightFraction }
-            val rowTitleLineHeight = MaterialTheme.typography.titleMedium.lineHeight
+            val rowTitleLineHeight =
+                MaterialTheme.typography.titleMedium.rowTitleFloor().lineHeight
             val rowTitleHeight = remember(rowTitleLineHeight, localDensity) {
                 with(localDensity) {
                     runCatching { rowTitleLineHeight.toDp() }

@@ -39,6 +39,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Shape
+import androidx.tv.material3.CardColors
+import androidx.tv.material3.CardShape
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -98,8 +103,8 @@ internal fun SubtitleStyleSidePanel(
         modifier = modifier
             .width(760.dp)
             .height(330.dp)
-            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-            .background(Color(0xFF101010))
+            .clip(RoundedCornerShape(bottomStart = PanelCorner, bottomEnd = PanelCorner))
+            .background(if (isExpressiveBuild) NuvioTheme.colors.Surface else Color(0xFF101010))
             .then(if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier)
             .padding(start = NuvioTheme.spacing.lg, end = NuvioTheme.spacing.lg, top = 22.dp, bottom = 10.dp)
     ) {
@@ -310,18 +315,26 @@ internal fun SubtitleStyleSidePanel(
                         .width(StyleCardWidth)
                         .height(StyleCardHeight)
                 ) {
+                    var resetFocused by remember { mutableStateOf(false) }
                     Card(
                         onClick = { onEvent(PlayerEvent.OnResetSubtitleDefaults) },
-                        colors = CardDefaults.colors(
-                            containerColor = Color.White.copy(alpha = 0.1f),
-                            focusedContainerColor = Color.White.copy(alpha = 0.2f)
+                        modifier = Modifier.onFocusChanged { resetFocused = it.isFocused },
+                        colors = styleButtonColors(
+                            focused = resetFocused,
+                            resting = Color.White.copy(alpha = 0.1f)
                         ),
-                        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = styleButtonShape(
+                            focused = resetFocused,
+                            upstream = RoundedCornerShape(NuvioTheme.radii.md)
+                        )
                     ) {
                         Text(
                             text = stringResource(R.string.subtitle_style_reset),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = styleButtonContent(
+                                focused = resetFocused,
+                                upstream = Color.White.copy(alpha = 0.8f)
+                            ),
                             modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = 10.dp)
                         )
                     }
@@ -340,8 +353,14 @@ private fun SubtitleStyleSection(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .clip(RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.lg else 14.dp))
+            .background(
+                if (isExpressiveBuild) {
+                    NuvioTheme.colors.BackgroundCard
+                } else {
+                    Color.White.copy(alpha = 0.06f)
+                }
+            )
             .padding(NuvioTheme.spacing.md)
     ) {
         Column(
@@ -401,16 +420,28 @@ private fun SubtitleStyleStepperButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+
     IconButton(
         onClick = onClick,
-        modifier = modifier.size(NuvioTheme.spacing.xxl),
-        colors = IconButtonDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.16f),
-            focusedContainerColor = Color.White.copy(alpha = 0.28f),
-            contentColor = Color.White,
-            focusedContentColor = Color.White
-        ),
-        shape = IconButtonDefaults.shape(shape = RoundedCornerShape(10.dp))
+        modifier = modifier
+            .size(NuvioTheme.spacing.xxl)
+            .onFocusChanged { isFocused = it.isFocused },
+        colors = if (isExpressiveBuild) {
+            PlayerControlStyle.iconButtonColors(Color.White)
+        } else {
+            IconButtonDefaults.colors(
+                containerColor = Color.White.copy(alpha = 0.16f),
+                focusedContainerColor = Color.White.copy(alpha = 0.28f),
+                contentColor = Color.White,
+                focusedContentColor = Color.White
+            )
+        },
+        shape = if (isExpressiveBuild) {
+            PlayerControlStyle.capsuleShape
+        } else {
+            IconButtonDefaults.shape(shape = RoundedCornerShape(10.dp))
+        }
     ) {
         Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(NuvioTheme.spacing.lg))
     }
@@ -421,7 +452,7 @@ private fun SubtitleStyleValueDisplay(text: String) {
     Box(
         modifier = Modifier
             .widthIn(min = 52.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(PlayerSurfaceStyle.pillShape(RoundedCornerShape(10.dp)))
             .background(Color.White.copy(alpha = 0.12f))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center
@@ -482,6 +513,8 @@ private fun SubtitleStyleToggleButton(
     isEnabled: Boolean,
     onClick: () -> Unit
 ) {
+    if (isExpressiveBuild) return ExpressiveStyleToggleButton(isEnabled, onClick)
+
     Card(
         onClick = onClick,
         modifier = Modifier.semantics {
@@ -502,6 +535,67 @@ private fun SubtitleStyleToggleButton(
         )
     }
 }
+
+/** On rests in the accent's tonal container; focus fills the accent and squares the pill off. */
+@Composable
+private fun ExpressiveStyleToggleButton(isEnabled: Boolean, onClick: () -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
+    val resting = if (isEnabled) {
+        NuvioTheme.colors.SecondaryVariant
+    } else {
+        Color.White.copy(alpha = 0.08f)
+    }
+    val restingContent = if (isEnabled) {
+        NuvioTheme.colors.OnSecondaryVariant
+    } else {
+        Color.White.copy(alpha = 0.55f)
+    }
+
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .onFocusChanged { isFocused = it.isFocused }
+            .semantics {
+                role = Role.Switch
+                toggleableState = if (isEnabled) ToggleableState.On else ToggleableState.Off
+            },
+        colors = PlayerPillStyle.colors(isFocused, resting = resting),
+        shape = PlayerPillStyle.shape(isFocused),
+        border = PlayerListItemStyle.noBorder()
+    ) {
+        Text(
+            text = if (isEnabled) {
+                stringResource(R.string.subtitle_style_on)
+            } else {
+                stringResource(R.string.subtitle_style_off)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = ExpressiveFocus.contentColor(isFocused, resting = restingContent),
+            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = 6.dp)
+        )
+    }
+}
+
+@Composable
+private fun styleButtonColors(focused: Boolean, resting: Color): CardColors =
+    if (isExpressiveBuild) {
+        PlayerPillStyle.colors(focused, resting = resting)
+    } else {
+        CardDefaults.colors(
+            containerColor = resting,
+            focusedContainerColor = Color.White.copy(alpha = 0.2f)
+        )
+    }
+
+@Composable
+private fun styleButtonShape(focused: Boolean, upstream: Shape): CardShape =
+    if (isExpressiveBuild) PlayerPillStyle.shape(focused) else CardDefaults.shape(upstream)
+
+@Composable
+private fun styleButtonContent(focused: Boolean, upstream: Color): Color =
+    if (isExpressiveBuild) ExpressiveFocus.contentColor(focused, resting = upstream) else upstream
+
+private val PanelCorner = if (isExpressiveBuild) 28.dp else 20.dp
 
 /** Accessible name for a colour swatch: its own RGB value, as that is the only colour
  *  description available on this panel (there are no per-colour name resources). */

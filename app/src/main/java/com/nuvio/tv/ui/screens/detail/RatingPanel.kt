@@ -148,7 +148,7 @@ internal fun RatingPanel(
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.rating_syncs_to, provider),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
             color = NuvioTheme.colors.TextTertiary,
             textAlign = TextAlign.Center
         )
@@ -181,7 +181,7 @@ internal fun RatingPanel(
 private fun RatingScore(value: Int) {
     val color by animateColorAsState(
         targetValue = if (value > 0) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary,
-        animationSpec = tween(durationMillis = 200),
+        animationSpec = effectsSpec(tween(durationMillis = 200)),
         label = "rating_score_color"
     )
     Row(verticalAlignment = Alignment.Bottom) {
@@ -193,8 +193,11 @@ private fun RatingScore(value: Int) {
                     dampingRatio = 0.8f,
                     stiffness = Spring.StiffnessMediumLow
                 )
-                (slideInVertically(motion) { if (rising) it / 2 else -it / 2 } + fadeIn(tween(140))) togetherWith
-                    (slideOutVertically(motion) { if (rising) -it / 2 else it / 2 } + fadeOut(tween(100))) using
+                val enterFade = fadeIn(effectsSpec(tween(140)))
+                val exitFade = fadeOut(effectsSpec(tween(100)))
+                val slideIn = slideInVertically(motion) { if (rising) it / 2 else -it / 2 }
+                val slideOut = slideOutVertically(motion) { if (rising) -it / 2 else it / 2 }
+                (slideIn + enterFade) togetherWith (slideOut + exitFade) using
                     SizeTransform(clip = false)
             },
             label = "rating_score"

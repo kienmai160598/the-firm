@@ -14,6 +14,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -42,13 +43,17 @@ fun PlayManualOverrideDialog(
                 onClick = onPlayManually,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(primaryFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
-                )
+                    .focusRequester(primaryFocusRequester)
+                    .tvControlHeight(),
+                colors = expressiveButtonColors(
+                    ButtonDefaults.colors(
+                        containerColor = NuvioTheme.colors.BackgroundCard,
+                        contentColor = NuvioTheme.colors.TextPrimary
+                    )
+                ),
+                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
-                Text(stringResource(R.string.play_manually))
+                Text(stringResource(R.string.play_manually), style = buttonLabelStyle())
             }
         }
 
@@ -57,13 +62,23 @@ fun PlayManualOverrideDialog(
                 onClick = onStartFromBeginning,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(if (!showPlayManually) Modifier.focusRequester(primaryFocusRequester) else Modifier),
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
-                )
+                    .then(
+                        if (!showPlayManually) Modifier.focusRequester(primaryFocusRequester)
+                        else Modifier
+                    )
+                    .tvControlHeight(),
+                colors = expressiveButtonColors(
+                    ButtonDefaults.colors(
+                        containerColor = NuvioTheme.colors.BackgroundCard,
+                        contentColor = NuvioTheme.colors.TextPrimary
+                    )
+                ),
+                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
-                Text(stringResource(R.string.cw_action_start_from_beginning))
+                Text(
+                    stringResource(R.string.cw_action_start_from_beginning),
+                    style = buttonLabelStyle()
+                )
             }
         }
     }

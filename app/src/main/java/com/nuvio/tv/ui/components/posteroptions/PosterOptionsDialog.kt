@@ -1,5 +1,9 @@
 package com.nuvio.tv.ui.components.posteroptions
 
+import com.nuvio.tv.ui.components.buttonLabelStyle
+import com.nuvio.tv.ui.components.expressiveButtonColors
+import com.nuvio.tv.ui.components.expressiveButtonScale
+import com.nuvio.tv.ui.components.expressivePrimaryButtonColors
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +50,9 @@ import com.nuvio.tv.domain.model.isSeriesLikeType
 import com.nuvio.tv.domain.model.localizedMembershipTitle
 import com.nuvio.tv.domain.model.LibrarySourceMode
 import com.nuvio.tv.ui.components.NuvioDialog
+import com.nuvio.tv.ui.theme.TvSizeFloors
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -76,23 +83,30 @@ fun PosterOptionsDialog(
             onClick = onDetails,
             modifier = Modifier
                 .fillMaxWidth()
+                .tvControlHeight()
                 .focusRequester(primaryFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            colors = expressiveButtonColors(
+                ButtonDefaults.colors(
+                    containerColor = NuvioTheme.colors.BackgroundCard,
+                    contentColor = NuvioTheme.colors.TextPrimary
+                )
+            ),
+            scale = expressiveButtonScale(ButtonDefaults.scale())
         ) {
-            Text(stringResource(R.string.cw_action_go_to_details))
+            Text(stringResource(R.string.cw_action_go_to_details), style = buttonLabelStyle())
         }
 
         Button(
             onClick = onToggleLibrary,
             enabled = !isLibraryPending,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            modifier = Modifier.fillMaxWidth().tvControlHeight(),
+            colors = expressiveButtonColors(
+                ButtonDefaults.colors(
+                    containerColor = NuvioTheme.colors.BackgroundCard,
+                    contentColor = NuvioTheme.colors.TextPrimary
+                )
+            ),
+            scale = expressiveButtonScale(ButtonDefaults.scale())
         ) {
             Text(
                 if (showManageLists) {
@@ -103,25 +117,30 @@ fun PosterOptionsDialog(
                     } else {
                         stringResource(R.string.hero_add_to_library)
                     }
-                }
+                },
+                style = buttonLabelStyle()
             )
         }
 
         Button(
             onClick = onToggleWatched,
             enabled = !isWatchedPending,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            modifier = Modifier.fillMaxWidth().tvControlHeight(),
+            colors = expressiveButtonColors(
+                ButtonDefaults.colors(
+                    containerColor = NuvioTheme.colors.BackgroundCard,
+                    contentColor = NuvioTheme.colors.TextPrimary
+                )
+            ),
+            scale = expressiveButtonScale(ButtonDefaults.scale())
         ) {
             Text(
                 if (isWatched) {
                     stringResource(R.string.hero_mark_unwatched)
                 } else {
                     stringResource(R.string.hero_mark_watched)
-                }
+                },
+                style = buttonLabelStyle()
             )
         }
     }
@@ -155,7 +174,7 @@ fun PosterListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFFFB6B6)
+                color = if (isExpressiveBuild) NuvioTheme.colors.Error else Color(0xFFFFB6B6)
             )
         }
 
@@ -173,20 +192,26 @@ fun PosterListPickerDialog(
                     modifier = (if (tab.key == tabs.firstOrNull()?.key) {
                         Modifier
                             .fillMaxWidth()
+                            .tvControlHeight()
                             .focusRequester(primaryFocusRequester)
                     } else {
-                        Modifier.fillMaxWidth()
+                        Modifier.fillMaxWidth().tvControlHeight()
                     }).semantics {
                         role = Role.Checkbox
                         toggleableState = if (selected) ToggleableState.On else ToggleableState.Off
                     },
-                    colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextPrimary
-                    )
+                    colors = expressiveButtonColors(
+                        ButtonDefaults.colors(
+                            containerColor = NuvioTheme.colors.BackgroundCard,
+                            contentColor = NuvioTheme.colors.TextPrimary
+                        ),
+                        selected = selected
+                    ),
+                    scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
                     Text(
                         text = tab.localizedMembershipTitle(),
+                        style = buttonLabelStyle(),
                         modifier = Modifier.weight(1f),
                         fontWeight = if (selected) FontWeight.SemiBold else null,
                         maxLines = 1,
@@ -198,7 +223,7 @@ fun PosterListPickerDialog(
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(start = 12.dp)
-                                .size(20.dp)
+                                .size(TvSizeFloors.atLeast(20.dp, TvSizeFloors.controlIcon))
                         )
                     }
                 }
@@ -211,12 +236,22 @@ fun PosterListPickerDialog(
             Button(
                 onClick = onSave,
                 enabled = !isPending,
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
-                )
+                colors = expressiveButtonColors(
+                    ButtonDefaults.colors(
+                        containerColor = NuvioTheme.colors.BackgroundCard,
+                        contentColor = NuvioTheme.colors.TextPrimary
+                    )
+                ),
+                scale = expressiveButtonScale(ButtonDefaults.scale())
             ) {
-                Text(if (isPending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
+                Text(
+                    if (isPending) {
+                        stringResource(R.string.action_saving)
+                    } else {
+                        stringResource(R.string.action_save)
+                    },
+                    style = buttonLabelStyle()
+                )
             }
         }
     }
@@ -325,19 +360,24 @@ fun TrackingRemovalConfirmationDialog(
         Button(
             onClick = onConfirm,
             enabled = !isPending,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().tvControlHeight(),
+            colors = expressivePrimaryButtonColors(ButtonDefaults.colors()),
+            scale = expressiveButtonScale(ButtonDefaults.scale())
         ) {
-            Text(stringResource(R.string.action_remove_anyway))
+            Text(stringResource(R.string.action_remove_anyway), style = buttonLabelStyle())
         }
         Button(
             onClick = onDismiss,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
-            )
+            modifier = Modifier.fillMaxWidth().tvControlHeight(),
+            colors = expressiveButtonColors(
+                ButtonDefaults.colors(
+                    containerColor = NuvioTheme.colors.BackgroundCard,
+                    contentColor = NuvioTheme.colors.TextPrimary
+                )
+            ),
+            scale = expressiveButtonScale(ButtonDefaults.scale())
         ) {
-            Text(stringResource(R.string.action_cancel))
+            Text(stringResource(R.string.action_cancel), style = buttonLabelStyle())
         }
     }
 }

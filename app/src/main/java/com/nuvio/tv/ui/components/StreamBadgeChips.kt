@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.components
 
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.MarqueeSpacing
@@ -90,7 +91,8 @@ private fun getBadgeImageLoader(context: android.content.Context): ImageLoader {
 }
 
 /** Shared shape instance — all badge chips use the same corner radius. */
-private val BadgeChipShape = RoundedCornerShape(6.dp)
+private val BadgeChipShape = RoundedCornerShape(NuvioTheme.radii.sm)
+private val BadgeImageShape = RoundedCornerShape(6.dp)
 
 /** Marquee scroll speed — matches FocusMarqueeText velocity for visual consistency. */
 private val MarqueeVelocity = 45.dp
@@ -111,7 +113,7 @@ fun StreamBadgeChips(
     val chipAlpha = if (animate) {
         val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
         androidx.compose.runtime.LaunchedEffect(Unit) {
-            alpha.animateTo(1f, animationSpec = androidx.compose.animation.core.tween(200))
+            alpha.animateTo(1f, animationSpec = ExpressiveMotion.defaultEffects())
         }
         alpha.value
     } else {
@@ -158,16 +160,14 @@ private fun StreamFileSizeBadge(bytes: Long) {
     Box(
         modifier = Modifier
             .height(20.dp)
-            .clip(BadgeChipShape)
-            .background(Color(0xFF0A0C0C), BadgeChipShape)
-            .border(NuvioTheme.spacing.hairline, Color(0xFF0A0C0C), BadgeChipShape)
+            .background(NuvioTheme.colors.SurfaceVariant, BadgeChipShape)
             .padding(horizontal = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = stringResource(R.string.streams_size, label),
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White
+            color = NuvioTheme.colors.TextPrimary
         )
     }
 }
@@ -227,7 +227,7 @@ internal fun StreamImportedBadgeChip(badge: StreamBadge, crossfade: Boolean = fa
             modifier = Modifier
                 .height(NuvioTheme.spacing.lg)
                 .widthIn(min = 34.dp, max = 92.dp)
-                .clip(BadgeChipShape),
+                .clip(BadgeImageShape),
             contentScale = ContentScale.Fit
         )
     }

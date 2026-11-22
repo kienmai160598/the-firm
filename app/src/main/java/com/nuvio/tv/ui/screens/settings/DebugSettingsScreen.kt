@@ -243,9 +243,9 @@ private fun DebugProgressIndicatorCard() {
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier
@@ -318,9 +318,9 @@ private fun DebugToggleCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -381,9 +381,9 @@ private fun DebugActionCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier
@@ -419,10 +419,10 @@ private fun DebugDialogButton(
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.Secondary
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Secondary)
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.sm)),
-        scale = CardDefaults.scale(focusedScale = 1.0f)
+        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.sm)).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1.0f).expressiveCardGrow()
     ) {
         Text(
             text = text,

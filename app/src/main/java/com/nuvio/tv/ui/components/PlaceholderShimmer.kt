@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 
 private const val PLACEHOLDER_SHIMMER_DISTANCE_PX = 1000f
 private const val PLACEHOLDER_SHIMMER_WIDTH_FRACTION = 0.6f
@@ -31,7 +32,7 @@ fun rememberPlaceholderShimmerOffsetState(label: String): State<Float> {
         initialValue = -1f,
         targetValue = 2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1600, easing = LinearEasing),
+            animation = tween(ExpressiveMotion.SHIMMER_SWEEP_MILLIS, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "shimmerOffset"

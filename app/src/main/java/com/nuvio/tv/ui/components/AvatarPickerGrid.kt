@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.components
 
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.animation.animateColorAsState
@@ -59,6 +60,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nuvio.tv.ui.theme.TvSizeFloors
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.tvControlHeight
 import kotlin.math.floor
 import kotlin.math.max
 import androidx.tv.material3.Text
@@ -219,12 +223,15 @@ private fun CategoryTab(
 
     val bgColor by animateColorAsState(
         targetValue = when {
+            isExpressiveBuild && isFocused -> NuvioTheme.colors.Secondary
+            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusBackground
+            isExpressiveBuild -> NuvioTheme.colors.BackgroundCard
             isSelected && isFocused -> NuvioTheme.colors.FocusBackground
             isSelected -> NuvioTheme.colors.Secondary.copy(alpha = 0.22f)
             isFocused -> NuvioTheme.colors.FocusBackground
             else -> Color.White.copy(alpha = 0.06f)
         },
-        animationSpec = tween(150),
+        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryBg"
     )
     val borderColor by animateColorAsState(
@@ -234,7 +241,7 @@ private fun CategoryTab(
             isSelected -> NuvioTheme.colors.Secondary
             else -> NuvioTheme.colors.Border
         },
-        animationSpec = tween(150),
+        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryBorder"
     )
     val borderWidth by animateDpAsState(
@@ -244,12 +251,17 @@ private fun CategoryTab(
             isSelected -> NuvioTheme.spacing.hairline
             else -> NuvioTheme.spacing.hairline
         },
-        animationSpec = tween(150),
+        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryBorderWidth"
     )
     val textColor by animateColorAsState(
-        targetValue = if (isSelected || isFocused) Color.White else NuvioTheme.colors.TextSecondary,
-        animationSpec = tween(150),
+        targetValue = when {
+            isExpressiveBuild && isFocused -> NuvioTheme.colors.OnSecondary
+            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusContent
+            isSelected || isFocused -> Color.White
+            else -> NuvioTheme.colors.TextSecondary
+        },
+        animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryText"
     )
 
@@ -262,13 +274,19 @@ private fun CategoryTab(
             }
             .clip(RoundedCornerShape(20.dp))
             .background(bgColor)
-            .border(
-                border = if (isFocused) {
-                    NuvioTheme.focusRing.border(borderWidth)
+            .then(
+                if (isExpressiveBuild) {
+                    Modifier
                 } else {
-                    BorderStroke(borderWidth, borderColor)
-                },
-                shape = RoundedCornerShape(20.dp)
+                    Modifier.border(
+                        border = if (isFocused) {
+                            NuvioTheme.focusRing.border(borderWidth)
+                        } else {
+                            BorderStroke(borderWidth, borderColor)
+                        },
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                }
             )
             .onFocusChanged { isFocused = it.isFocused }
             .clickable(
@@ -280,13 +298,14 @@ private fun CategoryTab(
                 role = Role.Tab
                 selected = isSelected
             }
+            .tvControlHeight()
             .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
             color = textColor,
-            fontSize = 13.sp,
+            fontSize = TvSizeFloors.atLeast(13.sp, TvSizeFloors.bodyText),
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
         )
     }
@@ -308,7 +327,7 @@ private fun AvatarGridItem(
 
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.1f else 1f,
-        animationSpec = tween(150),
+        animationSpec = ExpressiveMotion.fastSpatialOr(tween(150)),
         label = "avatarScale"
     )
     val borderWidth by animateDpAsState(
@@ -317,7 +336,7 @@ private fun AvatarGridItem(
             isFocused -> NuvioTheme.spacing.xxs
             else -> NuvioTheme.spacing.none
         },
-        animationSpec = tween(120),
+        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "avatarBorder"
     )
     Box(

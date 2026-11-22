@@ -57,6 +57,7 @@ import com.nuvio.tv.ui.theme.NuvioTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 internal const val PatreonMembershipUrl = "https://www.patreon.com/settings/memberships"
 
@@ -366,6 +367,7 @@ private fun MembershipRefreshButton(
         onClick = onRefresh,
         enabled = !isRefreshing,
         modifier = Modifier
+            .tvControlHeight()
             .fillMaxWidth()
             .then(
                 if (focusRequester != null) {
@@ -384,7 +386,8 @@ private fun MembershipRefreshButton(
             contentColor = MembershipSecondaryText,
             focusedContentColor = NuvioTheme.colors.Primary
         ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(50))
+        shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+        scale = ButtonDefaults.scale().expressiveControlGrow()
     ) {
         Text(
             text = stringResource(
@@ -410,6 +413,7 @@ private fun MembershipPrimaryButton(
     Button(
         onClick = onClick,
         modifier = Modifier
+            .tvControlHeight()
             .focusRequester(focusRequester)
             .focusProperties { canFocus = isVisible }
             .fillMaxWidth(),
@@ -419,7 +423,8 @@ private fun MembershipPrimaryButton(
             contentColor = MembershipCardColor,
             focusedContentColor = NuvioTheme.colors.OnPrimary
         ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(50))
+        shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+        scale = ButtonDefaults.scale().expressiveControlGrow()
     ) {
         Text(
             text = label,
@@ -483,6 +488,7 @@ private fun MembershipPanelBack(
         Button(
             onClick = onHideQr,
             modifier = Modifier
+                .tvControlHeight()
                 .focusRequester(backFocusRequester)
                 .focusProperties { canFocus = isVisible }
                 .fillMaxWidth(),
@@ -491,8 +497,9 @@ private fun MembershipPanelBack(
                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                 contentColor = NuvioTheme.colors.TextPrimary,
                 focusedContentColor = NuvioTheme.colors.Primary
-            ),
-            shape = ButtonDefaults.shape(RoundedCornerShape(50))
+            ).expressiveControl(),
+            shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+            scale = ButtonDefaults.scale().expressiveControlGrow()
         ) {
             Text(
                 text = stringResource(R.string.supporters_contributors_back_button),

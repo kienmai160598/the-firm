@@ -1,6 +1,5 @@
 package com.nuvio.tv.ui.navigation.toptabbar
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -14,13 +13,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import com.nuvio.tv.ui.components.ProfileAvatarCircle
-import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.focusLift
+
+private const val AVATAR_FOCUS_SCALE = 1.12f
 
 internal class TopTabProfile(
     val name: String,
@@ -33,13 +32,11 @@ internal class TopTabProfile(
 @Composable
 internal fun TopTabProfileButton(profile: TopTabProfile, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
-    val ring = if (focused) NuvioTheme.colors.Secondary else Color.Transparent
 
     Box(
         modifier = modifier
             .size(TopTabBarHeight)
-            .topTabFocusScale(focused)
-            .border(2.dp, ring, CircleShape)
+            .focusLift(focused = focused, shape = CircleShape, scale = AVATAR_FOCUS_SCALE)
             .onFocusChanged { focused = it.isFocused }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

@@ -49,7 +49,10 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.contentColorFor
 import androidx.tv.material3.surfaceColorAtElevation
+import com.nuvio.tv.ui.theme.ExpressiveColors
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.ExpressiveMotion
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 import kotlinx.coroutines.launch
 
 /**
@@ -66,6 +69,9 @@ import kotlinx.coroutines.launch
  * so every focus change recomposes the old and the new card on each frame of that animation.
  * Here the same spring is only read while placing the card, so a focus change recomposes this
  * composable once.
+ *
+ * On the box build a zooming card lifts the Apple TV way instead of showing [focusedBorder]: it
+ * scales on the focus spring and, when [liftShadow], casts one soft shadow in [shape].
  */
 @Composable
 fun LightweightCard(
@@ -76,6 +82,7 @@ fun LightweightCard(
     focusedBorder: Border = Border.None,
     focusedGlow: Glow = Glow.None,
     focusedScale: Float = 1f,
+    liftShadow: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -87,10 +94,14 @@ fun LightweightCard(
     )
     val scale = if (focusedScale == 1f) null else animateFloatAsState(
         targetValue = if (focused && !pressed) focusedScale else 1f,
-        animationSpec = ExpressiveMotion.expressiveFastSpatial(),
+        animationSpec = ExpressiveMotion.focusLift(),
         label = "scale"
     )
-    val border = if (focused || pressed) focusedBorder else Border.None
+    val lifts = isExpressiveBuild && scale != null
+    val border = if ((focused || pressed) && !lifts) focusedBorder else Border.None
+    val shadowElevationPx = with(LocalDensity.current) {
+        if (lifts && liftShadow) ExpressiveFocus.CARD_LIFT_ELEVATION.toPx() else 0f
+    }
     val glow = if (focused && !pressed) focusedGlow else Glow.None
     val glowColor = if (glow.elevationColor == MaterialTheme.colorScheme.surface) {
         MaterialTheme.colorScheme.surfaceColorAtElevation(glow.elevation)
@@ -136,8 +147,16 @@ fun LightweightCard(
                     onLongClick { false }
                 }
                 .graphicsLayer {
-                    scaleX = scale?.value ?: 1f
-                    scaleY = scale?.value ?: 1f
+                    val current = scale?.value ?: 1f
+                    scaleX = current
+                    scaleY = current
+                    val lift = if (focusedScale == 1f) 0f else (current - 1f) / (focusedScale - 1f)
+                    if (shadowElevationPx > 0f && lift > 0.01f) {
+                        shadowElevation = shadowElevationPx * lift.coerceIn(0f, 1f)
+                        this.shape = shape
+                        ambientShadowColor = ExpressiveColors.liftShadow
+                        spotShadowColor = ExpressiveColors.liftShadow
+                    }
                 }
                 .then(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

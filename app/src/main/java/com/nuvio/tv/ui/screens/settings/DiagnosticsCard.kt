@@ -216,7 +216,8 @@ internal fun LazyListScope.diagnosticsCardItems(
                 stringResource(R.string.diag_label_result),
                 diagnostics.result,
                 valueColor = when {
-                    diagnostics.result.startsWith("Error", ignoreCase = true) -> Color(0xFFF44336)
+                    diagnostics.result.startsWith("Error", ignoreCase = true) ->
+                        expressiveErrorOr(Color(0xFFF44336))
                     diagnostics.result == "Played" -> NuvioPrimitives.success
                     else -> NuvioTheme.colors.TextPrimary
                 }
@@ -279,7 +280,7 @@ private fun SectionHeader(label: String, subtitle: String? = null) {
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
             color = NuvioTheme.colors.TextSecondary,
-            fontSize = 11.sp
+            fontSize = metaFontSize(11.sp)
         )
     }
     Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))

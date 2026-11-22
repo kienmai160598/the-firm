@@ -220,7 +220,8 @@ fun SharedTrailerOverlay(
                 )
                 Text(
                     text = stringResource(R.string.hero_press_back_trailer),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall
+                        .atLeastOnBox(TvSizeFloors.metaText),
                     color = Color.White.copy(alpha = 0.82f)
                 )
             }
@@ -270,8 +271,8 @@ fun TrailerSeekOverlayHost(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(150)),
-        exit = fadeOut(animationSpec = tween(150)),
+        enter = fadeIn(animationSpec = effectsSpec(tween(150))),
+        exit = fadeOut(animationSpec = effectsSpec(tween(150))),
         modifier = modifier
     ) {
         TrailerSeekOverlay(

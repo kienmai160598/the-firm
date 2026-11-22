@@ -4,11 +4,14 @@ package com.nuvio.tv.ui.screens.player
 
 import com.nuvio.tv.ui.theme.NuvioMotion
 
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.focus.onFocusChanged
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -63,6 +66,7 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -93,10 +97,14 @@ fun PostPlayOverlay(
 
     transition.AnimatedVisibility(
         visible = { it != null },
-        enter = slideInHorizontally(animationSpec = tween(260), initialOffsetX = { it / 2 }) +
-            fadeIn(animationSpec = tween(220)),
-        exit = slideOutHorizontally(animationSpec = tween(200), targetOffsetX = { it / 2 }) +
-            fadeOut(animationSpec = tween(160)),
+        enter = slideInHorizontally(
+            animationSpec = PlayerMotion.spatial(260),
+            initialOffsetX = { it / 2 }
+        ) + fadeIn(animationSpec = PlayerMotion.effects(220)),
+        exit = slideOutHorizontally(
+            animationSpec = PlayerMotion.spatial(200),
+            targetOffsetX = { it / 2 }
+        ) + fadeOut(animationSpec = PlayerMotion.effects(160)),
         modifier = modifier,
     ) {
         val onCardClick: () -> Unit = when {
@@ -106,24 +114,40 @@ fun PostPlayOverlay(
         }
         Card(
             onClick = onCardClick,
-            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
-            colors = CardDefaults.colors(
-                containerColor = Color(0xE3191919),
-                focusedContainerColor = Color(0xE3191919),
+            shape = CardDefaults.shape(
+                shape = PlayerSurfaceStyle.cardShape(RoundedCornerShape(14.dp))
             ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, Color.White.copy(alpha = 0.16f)),
-                    shape = RoundedCornerShape(14.dp),
-                ),
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(14.dp),
-                ),
-            ),
+            colors = if (isExpressiveBuild) {
+                PlayerListItemStyle.colors(
+                    resting = PlayerSurfaceStyle.floatingContainer(Color(0xE3191919))
+                )
+            } else {
+                CardDefaults.colors(
+                    containerColor = Color(0xE3191919),
+                    focusedContainerColor = Color(0xE3191919),
+                )
+            },
+            border = if (isExpressiveBuild) {
+                PlayerListItemStyle.noBorder()
+            } else {
+                CardDefaults.border(
+                    border = Border(
+                        border = BorderStroke(
+                            NuvioTheme.spacing.hairline,
+                            Color.White.copy(alpha = 0.16f)
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                    ),
+                    focusedBorder = Border(
+                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        shape = RoundedCornerShape(14.dp),
+                    ),
+                )
+            },
             scale = CardDefaults.scale(focusedScale = 1f),
             modifier = Modifier
-                .width(420.dp)
+                .width(PlayerTenFoot.atLeast(420.dp, PostPlayCardWidth))
+                .then(if (isExpressiveBuild) Modifier.focusSpringScale() else Modifier)
                 .focusRequester(nextEpisodeFocusRequester)
                 .onPlaced {
                     if (isAutoPlay && !controlsVisible && !placedFocused) {
@@ -144,8 +168,8 @@ fun PostPlayOverlay(
         ) {
             transition.AnimatedContent(
                 transitionSpec = {
-                    fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)) togetherWith
-                        fadeOut(animationSpec = tween(120))
+                    fadeIn(PlayerMotion.effects(NuvioMotion.tokens.durations.fast)) togetherWith
+                        fadeOut(PlayerMotion.effects(120))
                 },
                 contentKey = { it?.let { current -> current::class } },
             ) { current ->
@@ -189,15 +213,15 @@ private fun AutoPlayBody(
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Text(
                 text = stringResource(R.string.next_episode_label),
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 11.sp,
+                color = postPlayInk().copy(alpha = 0.8f),
+                fontSize = PostPlayMetaSize,
                 fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
-                color = Color.White,
-                fontSize = 14.sp,
+                color = postPlayInk(),
+                fontSize = PostPlayTitleSize,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold,
@@ -220,7 +244,7 @@ private fun AutoPlayBody(
                 .padding(start = NuvioTheme.spacing.sm)
                 .clip(CircleShape)
                 .border(
-                    BorderStroke(NuvioTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
+                    BorderStroke(NuvioTheme.spacing.hairline, postPlayInk().copy(alpha = 0.2f)),
                     CircleShape,
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -229,8 +253,8 @@ private fun AutoPlayBody(
             Icon(
                 imageVector = Icons.Default.PlayArrow,
                 contentDescription = null,
-                tint = if (isPlayable) Color.White else Color.White.copy(alpha = 0.65f),
-                modifier = Modifier.size(14.dp),
+                tint = if (isPlayable) postPlayInk() else postPlayInk().copy(alpha = 0.65f),
+                modifier = Modifier.size(PlayerTenFoot.atLeast(14.dp, 20.dp)),
             )
             Text(
                 text = if (isPlayable) {
@@ -238,8 +262,8 @@ private fun AutoPlayBody(
                 } else {
                     stringResource(R.string.next_episode_unaired)
                 },
-                color = if (isPlayable) Color.White else Color.White.copy(alpha = 0.72f),
-                fontSize = 12.sp,
+                color = if (isPlayable) postPlayInk() else postPlayInk().copy(alpha = 0.72f),
+                fontSize = PostPlayLabelSize,
                 modifier = Modifier.padding(start = 3.dp),
             )
         }
@@ -276,15 +300,15 @@ private fun StillWatchingBody(
         ) {
             Text(
                 text = stringResource(R.string.still_watching_title),
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 11.sp,
+                color = postPlayInk().copy(alpha = 0.8f),
+                fontSize = PostPlayMetaSize,
                 fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
-                color = Color.White,
-                fontSize = 14.sp,
+                color = postPlayInk(),
+                fontSize = PostPlayTitleSize,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold,
@@ -347,6 +371,10 @@ private fun PostPlayPillButton(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
+    if (isExpressiveBuild) {
+        return ExpressivePostPlayPillButton(icon, label, onClick, focusRequester, modifier)
+    }
+
     Card(
         onClick = onClick,
         shape = CardDefaults.shape(shape = CircleShape),
@@ -380,8 +408,60 @@ private fun PostPlayPillButton(
             Text(
                 text = label,
                 color = textColor,
-                fontSize = 12.sp,
+                fontSize = PostPlayLabelSize,
                 modifier = Modifier.padding(start = 3.dp),
+            )
+        }
+    }
+}
+
+private val PostPlayCardWidth = 480.dp
+private val PostPlayMetaSize = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
+private val PostPlayTitleSize = PlayerTenFoot.atLeast(14.sp, PlayerTenFoot.bodyText)
+private val PostPlayLabelSize = PlayerTenFoot.atLeast(12.sp, PlayerTenFoot.bodyText)
+private val PillButtonMinHeight = 48.dp
+private val PillButtonIconSize = 24.dp
+
+/** A tonal pill that fills with the accent and squares off a little on focus. */
+@Composable
+private fun ExpressivePostPlayPillButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    focusRequester: FocusRequester,
+    modifier: Modifier,
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    val content = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextPrimary)
+
+    Card(
+        onClick = onClick,
+        shape = PlayerPillStyle.shape(isFocused),
+        colors = PlayerPillStyle.colors(isFocused, resting = NuvioTheme.colors.BackgroundCard),
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { isFocused = it.isFocused }
+            .playerFocusLift(isFocused),
+    ) {
+        Row(
+            modifier = Modifier
+                .heightIn(min = PillButtonMinHeight)
+                .padding(horizontal = NuvioTheme.spacing.lg),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = content,
+                modifier = Modifier.size(PillButtonIconSize),
+            )
+            Text(
+                text = label,
+                color = content,
+                fontSize = PostPlayLabelSize,
+                modifier = Modifier.padding(start = NuvioTheme.spacing.xs),
             )
         }
     }
@@ -431,8 +511,8 @@ private fun NextEpisodeThumbnail(
 private fun NextEpisodeStatusLine(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        color = Color.White.copy(alpha = 0.78f),
-        fontSize = 11.sp,
+        color = postPlayInk().copy(alpha = 0.78f),
+        fontSize = PostPlayMetaSize,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier,
@@ -451,3 +531,8 @@ private fun nextEpisodeDisplayLabel(nextEpisode: NextEpisodeInfo): String {
     val localizedTitle = nextEpisode.title.localizeEpisodeTitle(context)
     return "$code • $localizedTitle"
 }
+
+/** White on the dark card; on the expressive build it follows the card to black on focus. */
+@Composable
+private fun postPlayInk(): Color =
+    if (isExpressiveBuild) LocalContentColor.current else Color.White

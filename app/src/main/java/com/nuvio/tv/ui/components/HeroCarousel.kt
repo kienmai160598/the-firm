@@ -68,6 +68,16 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import androidx.tv.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.ui.res.stringResource
+import com.nuvio.tv.R
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.expressiveFocusScale
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import com.nuvio.tv.ui.util.StableList
 import com.nuvio.tv.ui.util.recompositionHighlighter
 import coil3.compose.AsyncImage
@@ -199,6 +209,7 @@ fun HeroCarousel(
             val item = items.getOrNull(index) ?: return@Crossfade
             HeroCarouselSlide(
                 item = item,
+                heroFocused = isFocused,
                 showImdbRatings = showImdbRatings,
                 showBackdrop = showBackdrop,
                 mdbListShowOnHero = mdbListShowOnHero,
@@ -219,7 +230,9 @@ fun HeroCarousel(
         // Indicator dots — optimized to minimize recompositions and layout passes
         val focusRingBrush = NuvioTheme.focusRing.brush()
         val dotColorInactive = remember { Color.White.copy(alpha = 0.3f) }
-        val dotShape = remember { RoundedCornerShape(3.dp) }
+        val dotShape = remember {
+            if (isExpressiveBuild) RoundedCornerShape(percent = 50) else RoundedCornerShape(3.dp)
+        }
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -244,7 +257,8 @@ fun HeroCarousel(
                         .size(width = dotWidth, height = dotHeight)
                         .clip(dotShape)
                         .then(
-                            if (useGradient) Modifier.background(focusRingBrush)
+                            if (useGradient && isExpressiveBuild) Modifier.background(Color.White)
+                            else if (useGradient) Modifier.background(focusRingBrush)
                             else Modifier.background(dotColor!!)
                         )
                 )
@@ -257,6 +271,7 @@ fun HeroCarousel(
 @Composable
 private fun HeroCarouselSlide(
     item: MetaPreview,
+    heroFocused: Boolean,
     showImdbRatings: Boolean,
     showBackdrop: Boolean,
     mdbListShowOnHero: Boolean = false,
@@ -361,7 +376,7 @@ private fun HeroCarouselSlide(
                     if (leadingMetaText.isNotBlank()) {
                         Text(
                             text = leadingMetaText,
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
                             color = NuvioTheme.colors.TextSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -382,7 +397,8 @@ private fun HeroCarouselSlide(
                                 if (index > 0) HeroCarouselMetaDivider()
                                 Text(
                                     text = value,
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = MaterialTheme.typography.labelMedium
+                                        .rememberMetaFloor(),
                                     color = NuvioTheme.colors.TextSecondary,
                                     maxLines = 1
                                 )
@@ -398,12 +414,14 @@ private fun HeroCarouselSlide(
                                     ) {
                                         ImdbRatingSourceLabel(
                                             logoModifier = Modifier.size(NuvioTheme.spacing.xl),
-                                            textStyle = MaterialTheme.typography.labelMedium,
+                                            textStyle = MaterialTheme.typography.labelMedium
+                                                .rememberMetaFloor(),
                                             textColor = NuvioTheme.colors.TextSecondary
                                         )
                                         Text(
                                             text = ratingText,
-                                            style = MaterialTheme.typography.labelMedium,
+                                            style = MaterialTheme.typography.labelMedium
+                                                .rememberMetaFloor(),
                                             color = NuvioTheme.colors.TextSecondary,
                                             maxLines = 1
                                         )
@@ -435,7 +453,41 @@ private fun HeroCarouselSlide(
                     onScrollHoldChanged = onDescriptionScrollHoldChanged
                 )
             }
+
+            if (isExpressiveBuild) HeroDetailsHint(focused = heroFocused)
         }
+    }
+}
+
+/**
+ * The billboard's action on the box build, drawn but not focusable: the hero itself takes focus
+ * and opens details on select, so the capsule turns white with it as a tvOS button would.
+ */
+@Composable
+private fun HeroDetailsHint(focused: Boolean) {
+    val container = ExpressiveFocus.frostedContainerColor(focused = focused)
+    val content = ExpressiveFocus.frostedContentColor(focused = focused)
+    Row(
+        modifier = Modifier
+            .padding(top = NuvioTheme.spacing.sm)
+            .expressiveFocusScale(focused)
+            .background(container, RoundedCornerShape(percent = 50))
+            .padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Info,
+            contentDescription = null,
+            tint = content,
+            modifier = Modifier.size(NuvioTheme.spacing.xl)
+        )
+        Text(
+            text = stringResource(R.string.cw_action_go_to_details),
+            style = NuvioTheme.textStyles.button.bodyFloor(),
+            color = content,
+            maxLines = 1
+        )
     }
 }
 

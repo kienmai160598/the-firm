@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -264,30 +263,19 @@ fun LoadingOverlay(
                         }
                         if (showHorizontalBar) {
                             Spacer(modifier = Modifier.height(10.dp))
-                            val animatedProgress by animateFloatAsState(
+                            val animatedProgress = animateFloatAsState(
                                 targetValue = progress.coerceIn(0f, 1f),
                                 animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.overlay),
                                 label = "loadingProgress"
                             )
-                            Box(
+                            Spacer(
                                 modifier = Modifier
                                     .width(240.dp)
-                                    .height(NuvioTheme.spacing.xs)
-                                    .background(
-                                        color = Color.White.copy(alpha = 0.2f),
-                                        shape = RoundedCornerShape(NuvioTheme.radii.xxs)
+                                    .height(
+                                        PlayerSurfaceStyle.progressThickness(NuvioTheme.spacing.xs)
                                     )
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(animatedProgress)
-                                        .height(NuvioTheme.spacing.xs)
-                                        .background(
-                                            color = Color.White.copy(alpha = 0.85f),
-                                            shape = RoundedCornerShape(NuvioTheme.radii.xxs)
-                                        )
-                                )
-                            }
+                                    .playerLinearProgress(progress = { animatedProgress.value })
+                            )
                         }
                     }
                 }

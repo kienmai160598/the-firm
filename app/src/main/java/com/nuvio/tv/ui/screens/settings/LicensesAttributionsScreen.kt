@@ -104,24 +104,26 @@ fun LicensesAttributionsScreen(
         runCatching { firstFocusRequester.requestFocus() }
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = 28.dp),
-        horizontalArrangement = Arrangement.spacedBy(36.dp)
-    ) {
-        LicensesAttributionsBrandPanel(
+    TenFootTypography {
+        Row(
             modifier = Modifier
-                .weight(0.42f)
-                .fillMaxHeight()
-        )
+                .fillMaxSize()
+                .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(36.dp)
+        ) {
+            LicensesAttributionsBrandPanel(
+                modifier = Modifier
+                    .weight(0.42f)
+                    .fillMaxHeight()
+            )
 
-        LicensesAttributionsDetailsPanel(
-            firstFocusRequester = firstFocusRequester,
-            modifier = Modifier
-                .weight(0.58f)
-                .fillMaxHeight()
-        )
+            LicensesAttributionsDetailsPanel(
+                firstFocusRequester = firstFocusRequester,
+                modifier = Modifier
+                    .weight(0.58f)
+                    .fillMaxHeight()
+            )
+        }
     }
 }
 
@@ -250,16 +252,17 @@ private fun AttributionDetailRow(
             .heightIn(min = 76.dp),
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveRingless(),
+        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius))
+            .expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -319,7 +322,7 @@ private fun AttributionLogo(
         modifier = Modifier
             .size(52.dp)
             .clip(RoundedCornerShape(NuvioTheme.radii.md))
-            .background(Color(0xFF24272E)),
+            .background(expressiveSurfaceOr(Color(0xFF24272E))),
         contentAlignment = Alignment.Center
     ) {
         Image(

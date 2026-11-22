@@ -48,6 +48,7 @@ import com.nuvio.tv.launcher.AppIconSettingsState
 import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.screens.detail.requestFocusAfterFrames
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun AppIconPickerDialog(
@@ -133,23 +134,28 @@ internal fun AppIconChangeConfirmationDialog(
         ) {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.tvControlHeight().weight(1f),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
                 onClick = onConfirm,
                 modifier = Modifier
+                    .tvControlHeight()
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(android.R.string.ok))
             }
@@ -191,9 +197,9 @@ private fun AppIconOptionCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = shape
             )
-        ),
-        shape = CardDefaults.shape(shape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveSelection(selected),
+        shape = CardDefaults.shape(shape).expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Image(

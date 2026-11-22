@@ -67,6 +67,7 @@ import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.screens.detail.requestFocusAfterFrames
 import java.util.Locale
 import kotlin.math.roundToInt
+import com.nuvio.tv.ui.theme.TvSizeFloors
 
 @Composable
 internal fun LanguageSelectionDialog(
@@ -205,21 +206,28 @@ internal fun ColorSelectionDialog(
                     },
                     colors = CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.Primary
-                    ),
+                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    ).expressiveControl(),
                     border = CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.sm)
                         )
-                    ),
+                    ).expressiveRingless(),
                     shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                        .expressivePill()
                 ) {
                     Text(
                         text = "−",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextPrimary,
-                        modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.sm)
+                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        modifier = Modifier.padding(
+                            horizontal = NuvioTheme.spacing.lg,
+                            vertical = TvSizeFloors.atLeast(
+                                NuvioTheme.spacing.sm,
+                                NuvioTheme.spacing.md
+                            )
+                        )
                     )
                 }
                 Box(
@@ -251,21 +259,28 @@ internal fun ColorSelectionDialog(
                     },
                     colors = CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.Primary
-                    ),
+                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    ).expressiveControl(),
                     border = CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.sm)
                         )
-                    ),
+                    ).expressiveRingless(),
                     shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                        .expressivePill()
                 ) {
                     Text(
                         text = "+",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextPrimary,
-                        modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.sm)
+                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        modifier = Modifier.padding(
+                            horizontal = NuvioTheme.spacing.lg,
+                            vertical = TvSizeFloors.atLeast(
+                                NuvioTheme.spacing.sm,
+                                NuvioTheme.spacing.md
+                            )
+                        )
                     )
                 }
             }
@@ -280,21 +295,22 @@ internal fun ColorSelectionDialog(
                     onClick = onDismiss,
                     colors = CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.Primary
-                    ),
+                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    ).expressiveControl(),
                     border = CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.sm)
                         )
-                    ),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
+                    ).expressiveRingless(),
+                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                        .expressivePill(),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = stringResource(R.string.action_cancel),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = onControlColor(NuvioTheme.colors.TextPrimary),
                         modifier = Modifier
                             .padding(NuvioTheme.spacing.md)
                             .fillMaxWidth(),
@@ -305,21 +321,22 @@ internal fun ColorSelectionDialog(
                     onClick = { onColorSelected(currentChipColor.copy(alpha = alphaPercent / 100f)) },
                     colors = CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.Primary
-                    ),
+                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    ).expressiveControl(primary = true),
                     border = CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.sm)
                         )
-                    ),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
+                    ).expressiveRingless(),
+                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                        .expressivePill(),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = stringResource(R.string.action_apply),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = onControlColor(NuvioTheme.colors.TextPrimary),
                         modifier = Modifier
                             .padding(NuvioTheme.spacing.md)
                             .fillMaxWidth(),

@@ -75,6 +75,7 @@ import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.components.PosterCwStylePreview
 import com.nuvio.tv.ui.components.WideCwStylePreview
 import com.nuvio.tv.ui.components.cardDepthVisual
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun LayoutContinueWatchingSection(
@@ -444,7 +445,7 @@ private fun CwStyleCard(
             },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (isSelected) Border(
@@ -455,9 +456,10 @@ private fun CwStyleCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveSelection(isSelected),
+        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius))
+            .expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier
@@ -802,12 +804,12 @@ private fun CardDepthResetButton(
     val shape = RoundedCornerShape(SettingsSecondaryCardRadius)
     Button(
         onClick = onClick,
-        modifier = modifier,
-        shape = ButtonDefaults.shape(shape = shape),
+        modifier = modifier.tvControlHeight(),
+        shape = ButtonDefaults.shape(shape = shape).expressivePill(),
         colors = ButtonDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
             focusedContainerColor = NuvioTheme.colors.Background
-        ),
+        ).expressiveControl(),
         border = ButtonDefaults.border(
             border = Border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
@@ -817,12 +819,13 @@ private fun CardDepthResetButton(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = shape
             )
-        )
+        ).expressiveRingless(),
+        scale = ButtonDefaults.scale().expressiveControlGrow()
     ) {
         Text(
             text = stringResource(R.string.layout_reset_default),
             style = MaterialTheme.typography.titleMedium,
-            color = NuvioTheme.colors.TextPrimary
+            color = onControlColor(NuvioTheme.colors.TextPrimary)
         )
     }
 }

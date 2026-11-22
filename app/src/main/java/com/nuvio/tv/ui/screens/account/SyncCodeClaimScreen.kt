@@ -40,12 +40,20 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.nuvio.tv.R
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.screens.settings.expressivePanelShape
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
 
 @Composable
 fun SyncCodeClaimScreen(
     onBackPress: () -> Unit = {},
     viewModel: AccountViewModel = hiltViewModel()
-) {
+) = TenFootTypography {
     BackHandler { onBackPress() }
 
     val uiState by viewModel.uiState.collectAsState()
@@ -63,7 +71,7 @@ fun SyncCodeClaimScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = NuvioTheme.colors.BackgroundElevated,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = expressivePanelShape(RoundedCornerShape(20.dp))
                 )
                 .padding(NuvioTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -93,7 +101,7 @@ fun SyncCodeClaimScreen(
                         .fillMaxWidth()
                         .background(
                             color = NuvioPrimitives.green700.copy(alpha = 0.15f),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
                         )
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
@@ -117,9 +125,11 @@ fun SyncCodeClaimScreen(
                         focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                         contentColor = NuvioTheme.colors.OnSecondary,
                         focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                    ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50)),
-                    modifier = Modifier.fillMaxWidth()
+                    ).expressiveControl(primary = true),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                    border = ButtonDefaults.border().expressiveRingless(),
+                    scale = ButtonDefaults.scale().expressiveControlGrow(),
+                    modifier = Modifier.fillMaxWidth().tvControlHeight()
                 ) {
                     Text(stringResource(R.string.sync_claim_done), modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs))
                 }
@@ -171,7 +181,7 @@ fun SyncCodeClaimScreen(
                     Text(
                         text = uiState.error ?: "",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFFF44336)
+                        color = accountErrorContent(Color(0xFFF44336))
                     )
                 }
 
@@ -185,9 +195,11 @@ fun SyncCodeClaimScreen(
                         focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
                         contentColor = NuvioTheme.colors.OnSecondary,
                         focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
-                    ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(50)),
-                    modifier = Modifier.fillMaxWidth()
+                    ).expressiveControl(primary = true),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                    border = ButtonDefaults.border().expressiveRingless(),
+                    scale = ButtonDefaults.scale().expressiveControlGrow(),
+                    modifier = Modifier.fillMaxWidth().tvControlHeight()
                 ) {
                     Text(
                         text = if (uiState.isLoading) stringResource(R.string.sync_claim_linking) else stringResource(R.string.sync_claim_title),

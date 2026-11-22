@@ -1,6 +1,8 @@
 package com.nuvio.tv.ui.screens.player
 
+import com.nuvio.tv.ui.theme.ExpressiveFocus
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.clickable
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
@@ -277,6 +281,8 @@ private fun CastChip(
     member: MetaCastMember,
     onClick: () -> Unit
 ) {
+    if (isExpressiveBuild) return ExpressiveCastChip(member, onClick)
+
     Card(
         onClick = onClick,
         colors = CardDefaults.colors(
@@ -295,6 +301,41 @@ private fun CastChip(
         )
     }
 }
+
+/** A cast pill that fills with the accent and squares off a little on focus. */
+@Composable
+private fun ExpressiveCastChip(member: MetaCastMember, onClick: () -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .heightIn(min = CastChipMinHeight)
+            .onFocusChanged { isFocused = it.isFocused }
+            .playerFocusLift(isFocused),
+        colors = PlayerPillStyle.colors(isFocused, resting = Color.White.copy(alpha = 0.1f)),
+        shape = PlayerPillStyle.shape(isFocused),
+        border = PlayerListItemStyle.noBorder(),
+        scale = PlayerListItemStyle.stillScale
+    ) {
+        Box(
+            modifier = Modifier
+                .heightIn(min = CastChipMinHeight)
+                .padding(horizontal = NuvioTheme.spacing.lg),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = member.name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = ExpressiveFocus.contentColor(isFocused, resting = Color.White),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private val CastChipMinHeight = 48.dp
 
 @Composable
 private fun CastDetailView(

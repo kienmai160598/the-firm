@@ -271,7 +271,7 @@ private fun LayoutCard(
             },
         colors = CardDefaults.colors(
             containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (isSelected) Border(
@@ -282,9 +282,10 @@ private fun LayoutCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        ).expressiveSelection(isSelected),
+        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius))
+            .expressiveCard(),
+        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier

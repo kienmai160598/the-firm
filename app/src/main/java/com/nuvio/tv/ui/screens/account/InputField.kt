@@ -2,7 +2,12 @@
 
 package com.nuvio.tv.ui.screens.account
 
+import com.nuvio.tv.ui.screens.settings.expressiveCard
+import com.nuvio.tv.ui.screens.settings.expressiveCardFocusFill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,10 +66,10 @@ internal fun InputField(
 
     Surface(
         onClick = { isEditing = true },
-        modifier = modifier,
+        modifier = modifier.tvControlHeight(),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
@@ -75,8 +80,9 @@ internal fun InputField(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        ).expressiveRingless(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            .expressiveCard(),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         BasicTextField(
@@ -109,7 +115,7 @@ internal fun InputField(
                     keyboardController?.hide()
                 }
             ),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(
+            textStyle = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
                 color = NuvioTheme.colors.TextPrimary,
                 textDirection = TextDirection.Content
             ),
@@ -119,7 +125,7 @@ internal fun InputField(
                 if (value.isEmpty()) {
                     Text(
                         text = placeholder,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                         color = NuvioTheme.colors.TextTertiary
                     )
                 }

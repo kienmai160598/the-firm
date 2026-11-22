@@ -55,6 +55,7 @@ import com.nuvio.tv.domain.model.MetaPreview
 import com.nuvio.tv.domain.model.PosterShape
 import com.nuvio.tv.domain.model.CardDepthSurface
 import androidx.compose.ui.platform.LocalContext
+import com.nuvio.tv.ui.theme.rememberMetaFloor
 import com.nuvio.tv.ui.util.recompositionHighlighter
 import com.nuvio.tv.ui.util.rememberLongPressKeyTracker
 import coil3.compose.AsyncImage
@@ -129,6 +130,7 @@ fun GridContentCard(
                     if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
                     else Modifier.width(posterCardStyle.width).height(cardHeight)
                 )
+                .posterFocusLift(cardShape, posterCardStyle.focusedScale)
                 .then(
                     if (focusRequester != null) Modifier.focusRequester(focusRequester)
                     else Modifier
@@ -185,13 +187,13 @@ fun GridContentCard(
                 containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
-            border = CardDefaults.border(
+            border = posterFocusBorder(CardDefaults.border(
                 focusedBorder = Border(
                     border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = cardShape
                 )
-            ),
-            scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+            )),
+            scale = posterFocusScale(CardDefaults.scale(focusedScale = posterCardStyle.focusedScale))
         ) {
             Box(
                 modifier = Modifier
@@ -371,7 +373,7 @@ fun GridContentCard(
                 FocusMarqueeText(
                     text = info,
                     focused = isFocused,
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
                     color = NuvioTheme.extendedColors.textSecondary,
                     modifier = Modifier
                         .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))

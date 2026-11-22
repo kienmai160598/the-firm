@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.player.autosync
 
+import com.nuvio.tv.ui.screens.player.PlayerListItemStyle
+import com.nuvio.tv.ui.screens.player.PlayerTenFoot
+import com.nuvio.tv.ui.screens.player.atLeast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -82,10 +85,10 @@ internal fun AutoSyncedChip(subtitleUrl: String, selected: Boolean) {
     val synced = status?.takeIf { it.url == subtitleUrl }?.state == AutoSyncState.SYNCED
     if (!selected || !synced) return
 
-    val contentColor = NuvioTheme.colors.OnSecondary.copy(alpha = 0.9f)
+    val contentColor = PlayerListItemStyle.labelColor()
     Row(
         modifier = Modifier
-            .background(NuvioTheme.colors.OnSecondary.copy(alpha = 0.14f), RoundedCornerShape(999.dp))
+            .background(contentColor.copy(alpha = 0.16f), RoundedCornerShape(999.dp))
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = 3.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -94,7 +97,7 @@ internal fun AutoSyncedChip(subtitleUrl: String, selected: Boolean) {
             imageVector = Icons.Default.Sync,
             contentDescription = null,
             tint = contentColor,
-            modifier = Modifier.size(12.dp),
+            modifier = Modifier.size(PlayerTenFoot.atLeast(12.dp, 16.dp)),
         )
         Text(
             text = stringResource(R.string.autosync_label_synced),
@@ -140,7 +143,7 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
     ) {
         Box(
             modifier = Modifier
-                .size(16.dp)
+                .size(PlayerTenFoot.atLeast(16.dp, 22.dp))
                 .background(color.copy(alpha = 0.18f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
@@ -151,14 +154,16 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
                     imageVector = icon,
                     contentDescription = null,
                     tint = color,
-                    modifier = Modifier.size(10.dp),
+                    modifier = Modifier.size(StatusIconSize),
                 )
             }
         }
         Column {
             Text(
                 text = stringResource(R.string.autosync_status_title),
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, lineHeight = 12.sp),
+                style = MaterialTheme.typography.labelSmall
+                    .copy(fontSize = 9.sp, lineHeight = 12.sp)
+                    .atLeast(PlayerTenFoot.metaText),
                 color = colors.TextTertiary,
             )
             Text(
@@ -167,12 +172,14 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
                     fontSize = 11.sp,
                     lineHeight = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                ),
+                ).atLeast(PlayerTenFoot.metaText),
                 color = color,
             )
         }
     }
 }
+
+private val StatusIconSize = PlayerTenFoot.atLeast(10.dp, 14.dp)
 
 @Composable
 private fun SpinningStatusIcon(icon: ImageVector, tint: Color) {
@@ -187,7 +194,7 @@ private fun SpinningStatusIcon(icon: ImageVector, tint: Color) {
         contentDescription = null,
         tint = tint,
         modifier = Modifier
-            .size(10.dp)
+            .size(StatusIconSize)
             .graphicsLayer { rotationZ = angle },
     )
 }

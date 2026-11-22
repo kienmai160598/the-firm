@@ -69,6 +69,7 @@ import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.util.rememberRawSvgPainter
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 internal fun TraktAccountDialog(
@@ -172,7 +173,7 @@ internal fun SimklAccountDialog(
         ) {
             Crossfade(
                 targetState = showSyncInfo,
-                animationSpec = tween(NuvioMotion.tokens.durations.fast),
+                animationSpec = settingsDetailFade(NuvioMotion.tokens.durations.fast),
                 label = "SimklSyncInfo"
             ) { infoVisible ->
                 Column(
@@ -741,7 +742,7 @@ private fun TrackingBrandFooterButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.tvControlHeight(),
         colors = ButtonDefaults.colors(
             containerColor = Color.Transparent,
             focusedContainerColor = Color.White.copy(alpha = 0.18f),

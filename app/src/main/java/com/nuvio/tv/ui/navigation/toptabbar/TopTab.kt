@@ -1,24 +1,21 @@
 package com.nuvio.tv.ui.navigation.toptabbar
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -31,30 +28,31 @@ import androidx.tv.material3.Text
 import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
 
-private const val FOCUSED_TAB_SCALE = 1.06f
-
+/**
+ * One label of the top tab bar. It draws no container of its own: [TopTabIndicator] slides
+ * under it. The weight stays the same in every state so the tab never changes width while the
+ * indicator is measuring it.
+ */
 @Composable
 internal fun TopTab(
     label: String,
     selected: Boolean,
-    onFocused: () -> Unit,
+    underIndicator: Boolean,
+    barFocused: Boolean,
+    onFocusChanged: (Boolean) -> Unit,
+    onPressChanged: (Boolean) -> Unit,
+    onPlaced: (TopTabSpan) -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var focused by remember { mutableStateOf(false) }
-    val container by animateColorAsState(
-        targetValue = when {
-            focused -> NuvioTheme.colors.Secondary
-            selected -> NuvioTheme.colors.FocusBackground
-            else -> Color.Transparent
-        },
-        animationSpec = ExpressiveMotion.defaultEffects(),
-        label = "topTabContainer"
-    )
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    LaunchedEffect(pressed) { onPressChanged(pressed) }
+
     val content by animateColorAsState(
         targetValue = when {
-            focused -> NuvioTheme.colors.OnSecondary
-            selected -> NuvioTheme.colors.TextPrimary
+            underIndicator && barFocused -> NuvioTheme.colors.OnSecondary
+            selected || underIndicator -> NuvioTheme.colors.TextPrimary
             else -> NuvioTheme.colors.TextSecondary
         },
         animationSpec = ExpressiveMotion.defaultEffects(),
@@ -64,14 +62,17 @@ internal fun TopTab(
     Box(
         modifier = modifier
             .height(TopTabHeight)
-            .topTabFocusScale(focused)
-            .background(container, CircleShape)
-            .onFocusChanged { state ->
-                if (state.isFocused && !focused) onFocused()
-                focused = state.isFocused
+            .onPlaced { coordinates ->
+                onPlaced(
+                    TopTabSpan(
+                        left = coordinates.positionInParent().x,
+                        width = coordinates.size.width.toFloat()
+                    )
+                )
             }
+            .onFocusChanged { state -> onFocusChanged(state.isFocused) }
             .clickable(
-                interactionSource = remember { MutableInteractionSource() },
+                interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             )
@@ -86,23 +87,9 @@ internal fun TopTab(
             text = label,
             color = content,
             fontSize = 16.sp,
-            fontWeight = if (focused || selected) FontWeight.SemiBold else FontWeight.Medium,
+            fontWeight = FontWeight.SemiBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-/** Grows a tab or the profile button a little while it has focus. */
-@Composable
-internal fun Modifier.topTabFocusScale(focused: Boolean): Modifier {
-    val scale = animateFloatAsState(
-        targetValue = if (focused) FOCUSED_TAB_SCALE else 1f,
-        animationSpec = ExpressiveMotion.expressiveFastSpatial(),
-        label = "topTabFocusScale"
-    )
-    return graphicsLayer {
-        scaleX = scale.value
-        scaleY = scale.value
     }
 }

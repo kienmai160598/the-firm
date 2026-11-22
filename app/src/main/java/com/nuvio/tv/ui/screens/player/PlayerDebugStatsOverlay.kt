@@ -133,9 +133,9 @@ internal fun PlayerDebugStatsOverlay(
             Row {
                 Text(
                     text = stat.label,
-                    modifier = Modifier.width(64.dp),
+                    modifier = Modifier.width(PlayerTenFoot.atLeast(64.dp, 84.dp)),
                     fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp,
+                    fontSize = DebugStatTextSize,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF8A8A8A)
                 )
@@ -147,7 +147,7 @@ internal fun PlayerDebugStatsOverlay(
                 Text(
                     text = stat.value,
                     fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp,
+                    fontSize = DebugStatTextSize,
                     fontWeight = fontWeight,
                     color = color
                 )
@@ -155,6 +155,8 @@ internal fun PlayerDebugStatsOverlay(
         }
     }
 }
+
+private val DebugStatTextSize = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
 
 @OptIn(UnstableApi::class)
 private class DebugStatsSampler(context: Context) {

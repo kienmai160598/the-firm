@@ -15,7 +15,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,6 +84,7 @@ import com.nuvio.tv.ui.util.localizeEpisodeTitle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.CardScale
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -98,11 +98,16 @@ import com.nuvio.tv.ui.components.SourceChipItem
 import com.nuvio.tv.ui.components.SourceChipStatus
 import com.nuvio.tv.ui.components.P2pConsentDialog
 import com.nuvio.tv.ui.components.StreamBadgeChips
+import com.nuvio.tv.ui.components.StreamLabelBadge
 import com.nuvio.tv.ui.components.StreamsSkeletonList
 import com.nuvio.tv.ui.screens.player.LoadingOverlay
 import com.nuvio.tv.ui.screens.player.AddonFilterChips
 import com.nuvio.tv.ui.screens.player.focusChip
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.forBuild
 import com.nuvio.tv.ui.navigation.sourceSelectionRestoreTarget
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -120,6 +125,10 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 
+
+
+// A 16 sp label is 22 sp tall on the box, so 13 dp above and below keeps the 48 dp control.
+private val RetryVerticalPadding = forBuild(upstream = 10.dp, expressive = 13.dp)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -165,7 +174,11 @@ fun StreamScreen(
     )
     val scope = rememberCoroutineScope()
     val streamHazeState = remember {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) HazeState() else null
+        if (StreamPanelStyle.usesBlur && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            HazeState()
+        } else {
+            null
+        }
     }
 
     LaunchedEffect(restoreSourceSelection) {
@@ -626,15 +639,9 @@ private fun StreamGradientLayer(
         modifier = modifier
             .drawWithCache {
                 val combinedGradient = Brush.horizontalGradient(
-                    colorStops = arrayOf(
-                        0.0f to bgColor,
-                        0.15f to bgColor.copy(alpha = 0.85f),
-                        0.30f to bgColor.copy(alpha = 0.40f),
-                        0.50f to bgColor.copy(alpha = 0.15f),
-                        0.70f to bgColor.copy(alpha = 0.40f),
-                        0.85f to bgColor.copy(alpha = 0.85f),
-                        1.0f to bgColor
-                    ),
+                    colorStops = streamBackdropScrimStops()
+                        .map { (stop, alpha) -> stop to bgColor.copy(alpha = alpha) }
+                        .toTypedArray(),
                     startX = 0f,
                     endX = size.width
                 )
@@ -678,7 +685,7 @@ private fun LeftContentSection(
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = StreamTitleColumnStyle.horizontalAlignment,
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             if (logoModel != null && !logoLoadFailed) {
@@ -690,7 +697,7 @@ private fun LeftContentSection(
                         .fillMaxWidth()
                         .height(120.dp),
                     contentScale = ContentScale.Fit,
-                    alignment = Alignment.Center
+                    alignment = StreamTitleColumnStyle.logoAlignment
                 )
             } else {
                 Text(
@@ -699,7 +706,7 @@ private fun LeftContentSection(
                     color = NuvioTheme.colors.TextPrimary,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center
+                    textAlign = StreamTitleColumnStyle.textAlign
                 )
             }
 
@@ -711,7 +718,7 @@ private fun LeftContentSection(
                     text = stringResource(R.string.stream_episode_label, season, episode),
                     style = MaterialTheme.typography.titleLarge,
                     color = NuvioTheme.extendedColors.textSecondary,
-                    textAlign = TextAlign.Center
+                    textAlign = StreamTitleColumnStyle.textAlign
                 )
                 if (episodeName != null) {
                     Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
@@ -721,7 +728,7 @@ private fun LeftContentSection(
                         color = NuvioTheme.colors.TextPrimary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center
+                        textAlign = StreamTitleColumnStyle.textAlign
                     )
                 }
                 if (runtime != null) {
@@ -737,7 +744,7 @@ private fun LeftContentSection(
                         text = runtimeText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = NuvioTheme.extendedColors.textSecondary,
-                        textAlign = TextAlign.Center
+                        textAlign = StreamTitleColumnStyle.textAlign
                     )
                 }
             } else {
@@ -748,7 +755,7 @@ private fun LeftContentSection(
                         text = infoText,
                         style = MaterialTheme.typography.bodyLarge,
                         color = NuvioTheme.extendedColors.textSecondary,
-                        textAlign = TextAlign.Center
+                        textAlign = StreamTitleColumnStyle.textAlign
                     )
                 }
             }
@@ -877,18 +884,18 @@ private fun RightStreamSection(
     ) {
         androidx.compose.animation.AnimatedVisibility(
             visible = enter,
-            enter = fadeIn(animationSpec = tween(260)) +
+            enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()) +
                 slideInHorizontally(
-                    animationSpec = tween(260),
+                    animationSpec = ExpressiveMotion.standardDefaultSpatial(),
                     initialOffsetX = { fullWidth -> (fullWidth * 0.06f).toInt() }
                 ),
-            exit = fadeOut(animationSpec = tween(120))
+            exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
         ) {
             // Content area – resume pill, addon chips and streams all inside one card
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(NuvioTheme.radii.xl))
+                    .clip(RoundedCornerShape(StreamPanelStyle.radius()))
                     .then(
                         if (hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) {
@@ -900,13 +907,7 @@ private fun RightStreamSection(
                             Modifier
                         }
                     )
-                    .background(
-                        if (hazeState != null) {
-                            Color(0xFF1C1C1E).copy(alpha = 0.65f)
-                        } else {
-                            NuvioTheme.colors.BackgroundCard.copy(alpha = 0.5f)
-                        }
-                    )
+                    .background(StreamPanelStyle.background(blurred = hazeState != null))
                     .padding(NuvioTheme.spacing.lg)
             ) {
                 resumeText?.let { text ->
@@ -914,9 +915,7 @@ private fun RightStreamSection(
                         modifier = Modifier
                             .padding(bottom = NuvioTheme.spacing.sm)
                             .height(36.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(NuvioTheme.colors.BackgroundCard)
-                            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, RoundedCornerShape(20.dp))
+                            .background(NuvioTheme.colors.FocusBackground, CircleShape)
                             .padding(horizontal = NuvioTheme.spacing.lg),
                         contentAlignment = Alignment.Center
                     ) {
@@ -932,8 +931,8 @@ private fun RightStreamSection(
                 Box(modifier = Modifier.height(NuvioTheme.spacing.huge)) {
                     androidx.compose.animation.AnimatedVisibility(
                         visible = sourceChips.isNotEmpty() || (!isLoading && availableAddons.isNotEmpty()),
-                        enter = fadeIn(animationSpec = tween(300)),
-                        exit = fadeOut(animationSpec = tween(300))
+                        enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
+                        exit = fadeOut(animationSpec = ExpressiveMotion.defaultEffects())
                     ) {
                         AddonFilterChips(
                             addons = availableAddons,
@@ -1047,25 +1046,17 @@ private fun ErrorState(
         var isFocused by remember { mutableStateOf(false) }
         Card(
             onClick = onRetry,
-            modifier = Modifier.onFocusChanged { isFocused = it.isFocused },
-            colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.Secondary
-            ),
-            border = CardDefaults.border(
-                focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(NuvioTheme.radii.sm)
-                )
-            ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm)),
-            scale = CardDefaults.scale(focusedScale = 1.02f)
+            modifier = Modifier.streamPillFocusScale(isFocused).onFocusChanged { isFocused = it.isFocused },
+            colors = streamPillColors(isFocused, resting = NuvioTheme.colors.BackgroundCard),
+            border = streamCardBorder(Border.None),
+            shape = streamPillShape(isFocused),
+            scale = CardScale.None
         ) {
             Text(
                 text = stringResource(R.string.stream_retry),
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                style = MaterialTheme.typography.labelLarge.atLeastOnBox(TvSizeFloors.bodyText),
+                color = streamPillContentColor(isFocused),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = RetryVerticalPadding)
             )
         }
     }
@@ -1351,7 +1342,7 @@ private fun StreamProviderHeader(sourceName: String?) {
         Text(
             text = sourceName,
             modifier = Modifier.padding(start = NuvioTheme.spacing.lg),
-            style = MaterialTheme.typography.labelSmall.copy(
+            style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(
                 textDirection = sourceName.contentTextDirection()
             ),
             color = NuvioTheme.extendedColors.textSecondary
@@ -1380,8 +1371,8 @@ private fun StreamCard(
     val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
-    val cardShape = RoundedCornerShape(NuvioTheme.radii.md)
-    val hasGradientFocusRing = NuvioTheme.palette.focusRingGradient.size > 1
+    val cardShape = RoundedCornerShape(NuvioTheme.radii.xl)
+    val hasGradientFocusRing = streamCardUsesFocusRing()
 
     var isFocused by remember { mutableStateOf(false) }
 
@@ -1410,6 +1401,7 @@ private fun StreamCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
+            .streamCardFocusScale(isFocused)
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .onFocusChanged {
                 isFocused = it.isFocused
@@ -1420,10 +1412,7 @@ private fun StreamCard(
                     onUpKey(); true
                 } else false
             } else Modifier),
-        colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundElevated,
-            focusedContainerColor = NuvioTheme.colors.BackgroundElevated
-        ),
+        colors = streamCardColors(),
         shape = CardDefaults.shape(shape = cardShape),
         border = if (hasGradientFocusRing) {
             CardDefaults.border(
@@ -1434,7 +1423,7 @@ private fun StreamCard(
                 )
             )
         } else {
-            CardDefaults.border(border = outlineBorder(outlined, cardShape))
+            streamCardBorder(outlineBorder(outlined, cardShape))
         },
         scale = CardDefaults.scale(focusedScale = 1f)
     ) {
@@ -1475,15 +1464,10 @@ private fun StreamCard(
                         style = MaterialTheme.typography.titleMedium.copy(
                             textDirection = streamName.contentTextDirection()
                         ),
-                        color = NuvioTheme.colors.TextPrimary
+                        color = streamRowTextColor(isFocused)
                     )
                     if (label != null) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = NuvioTheme.colors.Secondary,
-                            maxLines = 1
-                        )
+                        StreamLabelBadge(label)
                     }
                 }
 
@@ -1492,10 +1476,10 @@ private fun StreamCard(
                         Text(
                             text = description,
                             modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                textDirection = description.contentTextDirection()
-                            ),
-                            color = NuvioTheme.extendedColors.textSecondary
+                            style = MaterialTheme.typography.bodySmall
+                                .atLeastOnBox(TvSizeFloors.metaText)
+                                .copy(textDirection = description.contentTextDirection()),
+                            color = streamRowSupportingColor(isFocused)
                         )
                     }
                 }
@@ -1537,10 +1521,10 @@ private fun StreamCard(
 
                     Text(
                         text = stream.addonName,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            textDirection = stream.addonName.contentTextDirection()
-                        ),
-                        color = NuvioTheme.extendedColors.textTertiary,
+                        style = MaterialTheme.typography.labelSmall
+                            .atLeastOnBox(TvSizeFloors.metaText)
+                            .copy(textDirection = stream.addonName.contentTextDirection()),
+                        color = streamAddonNameColor(isFocused),
                         maxLines = 1
                     )
                 }
@@ -1575,7 +1559,7 @@ internal fun PlayerChoiceDialog(
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(NuvioTheme.radii.xl))
+                .clip(RoundedCornerShape(NuvioTheme.radii.xxl))
                 .background(NuvioTheme.colors.BackgroundCard)
         ) {
             Column(
@@ -1603,24 +1587,17 @@ internal fun PlayerChoiceDialog(
                         modifier = Modifier
                             .weight(1f)
                             .focusRequester(focusRequester)
+                            .streamPillFocusScale(internalFocused)
                             .onFocusChanged { internalFocused = it.isFocused },
-                        colors = CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            focusedContainerColor = NuvioTheme.colors.Secondary
-                        ),
-                        border = CardDefaults.border(
-                            focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
-                            )
-                        ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.05f)
+                        colors = streamPillColors(internalFocused, resting = NuvioTheme.colors.BackgroundElevated),
+                        border = streamCardBorder(Border.None),
+                        shape = streamPillShape(internalFocused),
+                        scale = CardScale.None
                     ) {
                         Text(
                             text = stringResource(R.string.stream_player_internal),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (internalFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary,
+                            color = streamPillContentColor(internalFocused),
                             modifier = Modifier
                                 .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
@@ -1633,24 +1610,17 @@ internal fun PlayerChoiceDialog(
                         onClick = onExternalSelected,
                         modifier = Modifier
                             .weight(1f)
+                            .streamPillFocusScale(externalFocused)
                             .onFocusChanged { externalFocused = it.isFocused },
-                        colors = CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            focusedContainerColor = NuvioTheme.colors.Secondary
-                        ),
-                        border = CardDefaults.border(
-                            focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
-                            )
-                        ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.05f)
+                        colors = streamPillColors(externalFocused, resting = NuvioTheme.colors.BackgroundElevated),
+                        border = streamCardBorder(Border.None),
+                        shape = streamPillShape(externalFocused),
+                        scale = CardScale.None
                     ) {
                         Text(
                             text = stringResource(R.string.stream_player_external),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (externalFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary,
+                            color = streamPillContentColor(externalFocused),
                             modifier = Modifier
                                 .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),

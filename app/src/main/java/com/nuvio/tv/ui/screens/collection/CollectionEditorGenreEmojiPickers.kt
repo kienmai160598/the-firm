@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.collection
 
+import com.nuvio.tv.ui.components.expressiveOptionCardBorder
+import com.nuvio.tv.ui.components.expressiveOptionCardColors
+import com.nuvio.tv.ui.components.expressiveOptionCardShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -90,6 +93,9 @@ import com.nuvio.tv.ui.components.LoadingIndicator
 import com.nuvio.tv.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.nuvio.tv.R
 import androidx.compose.ui.res.stringResource
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -133,12 +139,12 @@ fun GenrePickerContent(
             Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
                 Text(
                     text = stringResource(R.string.collections_editor_genre_filter),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineMedium.screenTitleFloor(),
                     color = NuvioTheme.colors.TextPrimary
                 )
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.metaFloor(),
                     color = NuvioTheme.colors.TextSecondary
                 )
             }
@@ -208,11 +214,11 @@ fun GenrePickerOptionCard(
                 role = Role.RadioButton
                 this.selected = selected
             },
-        colors = CardDefaults.colors(
+        colors = expressiveOptionCardColors(CardDefaults.colors(
             containerColor = if (selected) NuvioTheme.colors.Secondary.copy(alpha = 0.15f) else NuvioTheme.colors.BackgroundCard,
             focusedContainerColor = NuvioTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
+        ), selected = selected),
+        border = expressiveOptionCardBorder(CardDefaults.border(
             border = if (selected) Border(
                 border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Secondary.copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -221,8 +227,10 @@ fun GenrePickerOptionCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(NuvioTheme.radii.md)
             )
+        )),
+        shape = expressiveOptionCardShape(
+            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
         scale = CardDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
@@ -234,13 +242,13 @@ fun GenrePickerOptionCard(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleSmall.bodyFloor(),
                 color = NuvioTheme.colors.TextPrimary
             )
             if (selected) {
                 Text(
                     text = stringResource(R.string.cd_selected),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall.metaFloor(),
                     color = NuvioTheme.colors.Secondary
                 )
             }
@@ -336,7 +344,7 @@ fun EmojiPickerContent(
         ) {
             Text(
                 text = stringResource(R.string.collections_editor_choose_emoji),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.screenTitleFloor(),
                 color = NuvioTheme.colors.TextPrimary
             )
             NuvioButton(
@@ -363,7 +371,7 @@ fun EmojiPickerContent(
                         )
                         Text(
                             text = stringResource(emojiCategoryLabel(category)),
-                            style = MaterialTheme.typography.titleSmall,
+                            style = MaterialTheme.typography.titleSmall.bodyFloor(),
                             color = NuvioTheme.colors.TextSecondary
                         )
                         Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
@@ -391,11 +399,11 @@ fun EmojiPickerContent(
                                         }
                                         .width(NuvioTheme.spacing.huge)
                                         .height(NuvioTheme.spacing.huge),
-                                    colors = CardDefaults.colors(
+                                    colors = expressiveOptionCardColors(CardDefaults.colors(
                                         containerColor = if (isSelected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                                         focusedContainerColor = NuvioTheme.colors.FocusBackground
-                                    ),
-                                    border = CardDefaults.border(
+                                    ), selected = isSelected),
+                                    border = expressiveOptionCardBorder(CardDefaults.border(
                                         border = if (isSelected) Border(
                                             border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
                                             shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -404,8 +412,10 @@ fun EmojiPickerContent(
                                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                                         )
+                                    )),
+                                    shape = expressiveOptionCardShape(
+                                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                                     ),
-                                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
                                     scale = CardDefaults.scale(focusedScale = 1.1f)
                                 ) {
                                     Box(

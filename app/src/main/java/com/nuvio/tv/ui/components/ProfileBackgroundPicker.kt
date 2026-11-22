@@ -51,7 +51,10 @@ import coil3.request.allowRgb565
 import coil3.request.crossfade
 import com.nuvio.tv.R
 import com.nuvio.tv.data.remote.supabase.ProfileBackgroundCatalogItem
+import com.nuvio.tv.ui.theme.ExpressiveMotion
 import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.TvSizeFloors
+import com.nuvio.tv.ui.theme.isExpressiveBuild
 
 @Composable
 fun ProfileBackgroundPicker(
@@ -129,20 +132,20 @@ private fun ProfileBackgroundItem(
     val interactionSource = remember { MutableInteractionSource() }
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.04f else 1f,
-        animationSpec = tween(150),
+        animationSpec = ExpressiveMotion.fastSpatialOr(tween(150)),
         label = "profileBackgroundScale"
     )
     val borderWidth by animateDpAsState(
         targetValue = if (isSelected) 3.dp else if (isFocused) 2.dp else 1.dp,
-        animationSpec = tween(120),
+        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "profileBackgroundBorder"
     )
     val labelColor by animateColorAsState(
         targetValue = if (isSelected || isFocused) Color.White else NuvioTheme.colors.TextSecondary,
-        animationSpec = tween(120),
+        animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "profileBackgroundLabel"
     )
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.lg else 12.dp)
 
     Column(
         modifier = Modifier
@@ -185,7 +188,7 @@ private fun ProfileBackgroundItem(
         Text(
             text = label,
             color = labelColor,
-            fontSize = 13.sp,
+            fontSize = TvSizeFloors.atLeast(13.sp, TvSizeFloors.metaText),
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
             textAlign = TextAlign.Center,
             maxLines = 1,

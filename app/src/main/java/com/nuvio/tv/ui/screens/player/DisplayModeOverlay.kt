@@ -19,13 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +40,8 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
-private val ROW_HEIGHT = 18.dp
+private val ROW_HEIGHT = PlayerTenFoot.atLeast(18.dp, 22.dp)
+private val OVERLAY_TEXT_SIZE = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
 private val ROW_GAP = NuvioTheme.spacing.xxs
 
 @Composable
@@ -101,12 +103,16 @@ fun DisplayModeOverlay(
         }
     }
 
-    if (containerAlpha.value <= 0f) return
+    val hidden by remember { derivedStateOf { containerAlpha.value <= 0f } }
+    if (hidden) return
 
     Column(
         modifier = modifier
-            .alpha(containerAlpha.value)
-            .padding(end = NuvioTheme.spacing.xxl, top = NuvioTheme.spacing.xl),
+            .graphicsLayer { alpha = containerAlpha.value }
+            .padding(
+                end = PlayerTenFoot.atLeast(NuvioTheme.spacing.xxl, PlayerTenFoot.sideMargin),
+                top = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+            ),
         verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
         horizontalAlignment = Alignment.End
     ) {
@@ -114,13 +120,15 @@ fun DisplayModeOverlay(
         if (statusMessage != null) {
             Text(
                 text = statusMessage,
-                fontSize = 11.sp,
+                fontSize = OVERLAY_TEXT_SIZE,
                 color = NuvioTheme.colors.Secondary,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color.Black.copy(alpha = 0.45f))
+                    .clip(PlayerSurfaceStyle.pillShape(RoundedCornerShape(6.dp)))
+                    .background(
+                        PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.45f))
+                    )
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )
         }
@@ -135,24 +143,24 @@ fun DisplayModeOverlay(
                     Row(
                         modifier = Modifier
                             .height(ROW_HEIGHT)
-                            .alpha(itemAlphas.getOrNull(index)?.value ?: 0f),
+                            .graphicsLayer { alpha = itemAlphas.getOrNull(index)?.value ?: 0f },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = item.first,
-                            fontSize = 11.sp,
+                            fontSize = OVERLAY_TEXT_SIZE,
                             color = Color.White.copy(alpha = 0.85f),
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.End
                         )
                         Text(
                             text = " - ",
-                            fontSize = 11.sp,
+                            fontSize = OVERLAY_TEXT_SIZE,
                             color = Color.White.copy(alpha = 0.4f),
                         )
                         Text(
                             text = item.second.keepLtr(),
-                            fontSize = 11.sp,
+                            fontSize = OVERLAY_TEXT_SIZE,
                             color = Color.White.copy(alpha = 0.6f),
                             textAlign = TextAlign.End
                         )
@@ -163,7 +171,7 @@ fun DisplayModeOverlay(
             Box(
                 modifier = Modifier
                     .width(3.dp)
-                    .height((totalLineHeight * lineHeightFraction.value).dp)
+                    .growingHeight(totalLineHeight.dp) { lineHeightFraction.value }
                     .clip(RoundedCornerShape(NuvioTheme.spacing.hairline))
                     .background(NuvioTheme.colors.Secondary)
             )

@@ -186,7 +186,8 @@ fun MoreLikeThisSection(
                     if (!year.isNullOrBlank()) {
                         Text(
                             text = year,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall
+                                .atLeastOnBox(TvSizeFloors.metaText),
                             color = NuvioTheme.colors.TextTertiary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -204,7 +205,7 @@ fun MoreLikeThisSection(
             ?.let { label ->
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
                     color = NuvioTheme.colors.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

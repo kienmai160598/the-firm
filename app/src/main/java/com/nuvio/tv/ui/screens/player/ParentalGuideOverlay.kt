@@ -19,13 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
 
-private val ROW_HEIGHT = 18.dp
+private val ROW_HEIGHT = PlayerTenFoot.atLeast(18.dp, 22.dp)
+private val OVERLAY_TEXT_SIZE = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
 private val ROW_GAP = NuvioTheme.spacing.xxs
 
 /**
@@ -110,19 +112,23 @@ fun ParentalGuideOverlay(
         }
     }
 
-    if (containerAlpha.value <= 0f) return
+    val hidden by remember { derivedStateOf { containerAlpha.value <= 0f } }
+    if (hidden) return
 
     Row(
         modifier = modifier
-            .alpha(containerAlpha.value)
-            .padding(start = NuvioTheme.spacing.xxl, top = NuvioTheme.spacing.xl),
+            .graphicsLayer { alpha = containerAlpha.value }
+            .padding(
+                start = PlayerTenFoot.atLeast(NuvioTheme.spacing.xxl, PlayerTenFoot.sideMargin),
+                top = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+            ),
         verticalAlignment = Alignment.Top
     ) {
         // Animated vertical line
         Box(
             modifier = Modifier
                 .width(3.dp)
-                .height((totalLineHeight * lineHeightFraction.value).dp)
+                .growingHeight(totalLineHeight.dp) { lineHeightFraction.value }
                 .clip(RoundedCornerShape(NuvioTheme.spacing.hairline))
                 .background(accentBrush)
         )
@@ -136,23 +142,23 @@ fun ParentalGuideOverlay(
                 Row(
                     modifier = Modifier
                         .height(ROW_HEIGHT)
-                        .alpha(itemAlphas.getOrNull(index)?.value ?: 0f),
+                        .graphicsLayer { alpha = itemAlphas.getOrNull(index)?.value ?: 0f },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = warning.label,
-                        fontSize = 11.sp,
+                        fontSize = OVERLAY_TEXT_SIZE,
                         color = Color.White.copy(alpha = 0.85f),
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = " · ",
-                        fontSize = 11.sp,
+                        fontSize = OVERLAY_TEXT_SIZE,
                         color = Color.White.copy(alpha = 0.4f),
                     )
                     Text(
                         text = warning.severity,
-                        fontSize = 11.sp,
+                        fontSize = OVERLAY_TEXT_SIZE,
                         color = Color.White.copy(alpha = 0.5f),
                     )
                 }

@@ -45,12 +45,33 @@ import com.nuvio.tv.core.server.AddonWebConfigMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.theme.bodyFloor
+import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun EssentialAddonSetupScreen(
     onSkip: () -> Unit,
     viewModel: AddonManagerViewModel = hiltViewModel()
+) {
+    TenFootTypography {
+        EssentialAddonSetupBody(onSkip = onSkip, viewModel = viewModel)
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun EssentialAddonSetupBody(
+    onSkip: () -> Unit,
+    viewModel: AddonManagerViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -89,9 +110,9 @@ fun EssentialAddonSetupScreen(
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(220.dp),
+                        .height(setupCardHeight()),
                     colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                    shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
                 ) {
                     Column(
                         modifier = Modifier.padding(22.dp),
@@ -119,8 +140,10 @@ fun EssentialAddonSetupScreen(
                                     keyboardController?.hide()
                                 }
                             ),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = NuvioTheme.colors.TextPrimary,
-                                            textDirection = TextDirection.Content),
+                            textStyle = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
+                                color = NuvioTheme.colors.TextPrimary,
+                                textDirection = TextDirection.Content
+                            ),
                             cursorBrush = SolidColor(NuvioTheme.colors.Primary),
                             decorationBox = { innerTextField ->
                                 Box(
@@ -131,7 +154,7 @@ fun EssentialAddonSetupScreen(
                                     if (uiState.installUrl.isEmpty()) {
                                         Text(
                                             text = stringResource(R.string.addon_install_placeholder),
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            style = MaterialTheme.typography.bodyMedium.bodyFloor(),
                                             color = NuvioTheme.colors.TextTertiary
                                         )
                                     }
@@ -145,12 +168,15 @@ fun EssentialAddonSetupScreen(
                                 keyboardController?.hide()
                             },
                             enabled = !uiState.isInstalling,
+                            modifier = Modifier.tvControlHeight(),
                             colors = ButtonDefaults.colors(
                                 containerColor = NuvioTheme.colors.Secondary,
                                 contentColor = NuvioTheme.colors.OnSecondary,
                                 focusedContainerColor = NuvioTheme.colors.SecondaryVariant
-                            ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                            ).expressiveControl(primary = true),
+                            shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                            border = ButtonDefaults.border().expressiveRingless(),
+                            scale = ButtonDefaults.scale().expressiveControlGrow()
                         ) {
                             Text(
                                 text = if (uiState.isInstalling) {
@@ -172,9 +198,9 @@ fun EssentialAddonSetupScreen(
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(220.dp),
+                        .height(setupCardHeight()),
                     colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                    shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
                 ) {
                     Column(
                         modifier = Modifier.padding(22.dp),
@@ -197,13 +223,16 @@ fun EssentialAddonSetupScreen(
                         )
                         Button(
                             onClick = { viewModel.startQrMode(AddonWebConfigMode.ADDONS_ONLY) },
+                            modifier = Modifier.tvControlHeight(),
                             colors = ButtonDefaults.colors(
                                 containerColor = NuvioTheme.colors.BackgroundElevated,
                                 contentColor = NuvioTheme.colors.TextPrimary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.Primary
-                            ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                            ).expressiveControl(),
+                            shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                            border = ButtonDefaults.border().expressiveRingless(),
+                            scale = ButtonDefaults.scale().expressiveControlGrow()
                         ) {
                             Icon(imageVector = Icons.Default.QrCode2, contentDescription = null)
                             Text(text = stringResource(R.string.essential_addon_show_qr))
@@ -214,13 +243,16 @@ fun EssentialAddonSetupScreen(
             Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
             Button(
                 onClick = onSkip,
+                modifier = Modifier.tvControlHeight(),
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground,
                     focusedContentColor = NuvioTheme.colors.Primary
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(50))
+                ).expressiveControl(),
+                shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                border = ButtonDefaults.border().expressiveRingless(),
+                scale = ButtonDefaults.scale().expressiveControlGrow()
             ) {
                 Text(
                     text = stringResource(R.string.essential_addon_continue_for_now),
@@ -255,3 +287,11 @@ fun EssentialAddonSetupScreen(
         )
     }
 }
+
+private val UpstreamSetupCardHeight = 220.dp
+
+// Room for the 10-foot type and 48dp buttons, which outgrow upstream's 220dp.
+private val TenFootSetupCardHeight = 256.dp
+
+private fun setupCardHeight(): Dp =
+    if (isExpressiveBuild) TenFootSetupCardHeight else UpstreamSetupCardHeight

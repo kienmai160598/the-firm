@@ -123,6 +123,27 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeoutOrNull
+import com.nuvio.tv.ui.screens.settings.expressiveRingless
+import com.nuvio.tv.ui.screens.settings.expressiveCard
+import com.nuvio.tv.ui.screens.settings.expressiveCardGrow
+import com.nuvio.tv.ui.screens.settings.expressivePill
+import com.nuvio.tv.ui.screens.settings.expressiveControlGrow
+import com.nuvio.tv.ui.screens.settings.expressiveControl
+import com.nuvio.tv.ui.screens.settings.expressiveChoice
+import com.nuvio.tv.ui.screens.settings.expressiveCardFocusFill
+import com.nuvio.tv.ui.screens.settings.expressiveCardShape
+import com.nuvio.tv.ui.screens.settings.expressivePanelShape
+import com.nuvio.tv.ui.screens.settings.expressiveNoticeColor
+import com.nuvio.tv.ui.screens.settings.buttonIconSize
+import com.nuvio.tv.ui.screens.settings.TenFootTypography
+import com.nuvio.tv.ui.screens.settings.SettingsExpressiveSwitch
+import com.nuvio.tv.ui.screens.settings.onControlColor
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.theme.tvControlHeight
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.ExpressiveMotion
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import androidx.tv.material3.ButtonBorder
 
 private sealed interface AddonExperienceModeState {
     data object Loading : AddonExperienceModeState
@@ -191,9 +212,28 @@ internal fun Modifier.addonManagerFocusRestorer(
     )
     .focusRestorer(pendingRequester ?: fallbackRequester)
 
-@OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun AddonManagerScreen(
+    viewModel: AddonManagerViewModel = hiltViewModel(),
+    showBuiltInHeader: Boolean = true,
+    onBackPress: () -> Unit = {},
+    onNavigateToCatalogOrder: () -> Unit = {},
+    onNavigateToCollections: () -> Unit = {}
+) {
+    TenFootTypography {
+        AddonManagerScreenBody(
+            viewModel = viewModel,
+            showBuiltInHeader = showBuiltInHeader,
+            onBackPress = onBackPress,
+            onNavigateToCatalogOrder = onNavigateToCatalogOrder,
+            onNavigateToCollections = onNavigateToCollections
+        )
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
+@Composable
+private fun AddonManagerScreenBody(
     viewModel: AddonManagerViewModel = hiltViewModel(),
     showBuiltInHeader: Boolean = true,
     onBackPress: () -> Unit = {},
@@ -517,8 +557,10 @@ fun AddonManagerScreen(
             if (viewModel.isReadOnly) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A3A5C)),
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
+                        colors = CardDefaults.cardColors(
+                            containerColor = expressiveNoticeColor(Color(0xFF1A3A5C))
+                        ),
+                        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
                     ) {
                         Text(
                             text = stringResource(R.string.addon_readonly_notice),
@@ -535,7 +577,7 @@ fun AddonManagerScreen(
                             .fillMaxWidth()
                             .animateContentSize(),
                         colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
+                        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Text(
@@ -557,7 +599,9 @@ fun AddonManagerScreen(
                                         .focusRequester(surfaceFocusRequester),
                                     colors = ClickableSurfaceDefaults.colors(
                                         containerColor = NuvioTheme.colors.BackgroundElevated,
-                                        focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                                        focusedContainerColor = expressiveCardFocusFill(
+                                            NuvioTheme.colors.BackgroundElevated
+                                        )
                                     ),
                                     border = ClickableSurfaceDefaults.border(
                                         border = Border(
@@ -568,9 +612,12 @@ fun AddonManagerScreen(
                                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                                         )
-                                    ),
-                                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+                                    ).expressiveRingless(),
+                                    shape = ClickableSurfaceDefaults.shape(
+                                        RoundedCornerShape(NuvioTheme.radii.md)
+                                    ).expressiveCard(),
                                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+                                        .expressiveCardGrow()
                                 ) {
                                     Box(modifier = Modifier.padding(NuvioTheme.spacing.md)) {
                                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -599,7 +646,9 @@ fun AddonManagerScreen(
                                                         installButtonFocusRequester.requestFocus()
                                                     }
                                                 ),
-                                                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                                textStyle = MaterialTheme.typography.bodyMedium
+                                                    .bodyFloor()
+                                                    .copy(
                                                     color = NuvioTheme.colors.TextPrimary,
                                                 textDirection = TextDirection.Content
                                                 ),
@@ -608,7 +657,8 @@ fun AddonManagerScreen(
                                                     if (uiState.installUrl.isEmpty()) {
                                                         Text(
                                                             text = stringResource(R.string.addon_install_placeholder),
-                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            style = MaterialTheme.typography
+                                                                .bodyMedium.bodyFloor(),
                                                             color = NuvioTheme.colors.TextTertiary
                                                         )
                                                     }
@@ -629,14 +679,18 @@ fun AddonManagerScreen(
                                     enabled = !uiState.isInstalling,
                                     modifier = Modifier
                                         .focusRequester(installButtonFocusRequester)
-                                        .semantics { role = Role.Button },
+                                        .semantics { role = Role.Button }
+                                        .tvControlHeight(),
                                     colors = ButtonDefaults.colors(
                                         containerColor = NuvioTheme.colors.BackgroundCard,
                                         contentColor = NuvioTheme.colors.TextPrimary,
                                         focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                         focusedContentColor = NuvioTheme.colors.Primary
-                                    ),
+                                    ).expressiveControl(primary = true),
                                     shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                                        .expressivePill(),
+                                    border = ButtonDefaults.border().expressiveRingless(),
+                                    scale = ButtonDefaults.scale().expressiveControlGrow()
                                 ) {
                                     Text(text = if (uiState.isInstalling) stringResource(R.string.addon_installing) else stringResource(R.string.addon_install_btn))
                                 }
@@ -875,7 +929,9 @@ internal fun AddonMessageOverlay(
                         NuvioPrimitives.green700.copy(alpha = 0.92f)
                     }
                 ),
-                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                shape = ClickableSurfaceDefaults.shape(
+                    RoundedCornerShape(NuvioTheme.radii.md)
+                ).expressiveCard()
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = NuvioTheme.spacing.md),
@@ -927,9 +983,9 @@ private fun ManageFromPhoneCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        ).expressiveRingless(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -993,9 +1049,9 @@ private fun CatalogOrderEntryCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        ).expressiveRingless(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -1059,9 +1115,9 @@ private fun CollectionsEntryCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        ).expressiveRingless(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -1125,9 +1181,9 @@ private fun RefreshAddonsEntryCard(
                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        ).expressiveRingless(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)).expressiveCard(),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
     ) {
         Row(
             modifier = Modifier
@@ -1232,19 +1288,19 @@ internal fun QrCodeOverlay(
                 onClick = onClose,
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .semantics { role = Role.Button },
+                    .semantics { role = Role.Button }.tvControlHeight(),
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = NuvioTheme.colors.Surface,
                     focusedContainerColor = NuvioTheme.colors.FocusBackground
-                ),
+                ).expressiveControl(),
                 border = ClickableSurfaceDefaults.border(
                     focusedBorder = Border(
                         border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                         shape = RoundedCornerShape(50)
                     )
-                ),
-                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
-                scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+                ).expressiveRingless(),
+                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)).expressivePill(),
+                scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
@@ -1253,13 +1309,13 @@ internal fun QrCodeOverlay(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = NuvioTheme.colors.TextPrimary
+                        modifier = Modifier.size(buttonIconSize(18.dp)),
+                        tint = onControlColor(NuvioTheme.colors.TextPrimary)
                     )
                     Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.addon_qr_close),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = onControlColor(NuvioTheme.colors.TextPrimary),
                         style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
                     )
                 }
@@ -1300,7 +1356,9 @@ internal fun ConfirmAddonChangesDialog(
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = NuvioTheme.colors.SurfaceVariant
             ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.xl))
+            shape = ClickableSurfaceDefaults.shape(
+                expressivePanelShape(RoundedCornerShape(NuvioTheme.radii.xl))
+            ).expressiveCard()
         ) {
             Column(
                 modifier = Modifier.padding(NuvioTheme.spacing.xl),
@@ -1328,7 +1386,7 @@ internal fun ConfirmAddonChangesDialog(
                         .heightIn(max = 320.dp)
                         .background(
                             color = NuvioTheme.colors.Surface,
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
                         )
                 ) {
                     Column(
@@ -1498,18 +1556,19 @@ internal fun ConfirmAddonChangesDialog(
                     ) {
                         Surface(
                             onClick = onReject,
-                            modifier = Modifier.semantics { role = Role.Button },
+                            modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
                             colors = ClickableSurfaceDefaults.colors(
                                 containerColor = NuvioTheme.colors.Surface,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground
-                            ),
+                            ).expressiveControl(),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(50)
                                 )
-                            ),
+                            ).expressiveRingless(),
                             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50))
+                                .expressivePill()
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
@@ -1518,13 +1577,13 @@ internal fun ConfirmAddonChangesDialog(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = NuvioTheme.colors.TextPrimary
+                                    modifier = Modifier.size(buttonIconSize(18.dp)),
+                                    tint = onControlColor(NuvioTheme.colors.TextPrimary)
                                 )
                                 Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
                                 Text(
                                     text = stringResource(R.string.addon_confirm_reject),
-                                    color = NuvioTheme.colors.TextPrimary,
+                                    color = onControlColor(NuvioTheme.colors.TextPrimary),
                                     style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
                                 )
                             }
@@ -1534,23 +1593,24 @@ internal fun ConfirmAddonChangesDialog(
                             onClick = onConfirm,
                             modifier = Modifier
                                 .focusRequester(focusRequester)
-                                .semantics { role = Role.Button },
+                                .semantics { role = Role.Button }.tvControlHeight(),
                             colors = ClickableSurfaceDefaults.colors(
                                 containerColor = NuvioTheme.colors.Secondary,
                                 focusedContainerColor = NuvioTheme.colors.SecondaryVariant
-                            ),
+                            ).expressiveControl(primary = true),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(50)
                                 )
-                            ),
+                            ).expressiveRingless(),
                             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50))
+                                .expressivePill()
                         ) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_confirm),
                                 modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
-                                color = NuvioTheme.colors.OnSecondary
+                                color = onControlColor(NuvioTheme.colors.OnSecondary)
                             )
                         }
                     }
@@ -1585,16 +1645,18 @@ private fun AddonCard(
                 .animateContentSize(),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
             ),
             border = ClickableSurfaceDefaults.border(
                 focusedBorder = Border(
                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                 )
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+            ).expressiveRingless(),
+            shape = ClickableSurfaceDefaults.shape(
+                RoundedCornerShape(NuvioTheme.radii.md)
+            ).expressiveCard(),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
             AddonCardContent(addon = addon, isReadOnly = true)
         }
@@ -1607,10 +1669,14 @@ private fun AddonCard(
             } else {
                 NuvioTheme.colors.BackgroundCard
             },
-            animationSpec = com.nuvio.tv.ui.theme.NuvioMotion.focusTween(),
+            animationSpec = if (isExpressiveBuild) {
+                ExpressiveMotion.defaultEffects()
+            } else {
+                com.nuvio.tv.ui.theme.NuvioMotion.focusTween()
+            },
             label = "addonCardColor",
         )
-        val cardBorder = if (isMoving) {
+        val cardBorder = if (isMoving && !isExpressiveBuild) {
             BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.FocusRing)
         } else {
             null
@@ -1624,7 +1690,7 @@ private fun AddonCard(
                     enter = { effectiveToggleFocusRequester }
                 },
             colors = CardDefaults.cardColors(containerColor = cardColor),
-            shape = RoundedCornerShape(NuvioTheme.radii.md),
+            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md)),
             border = cardBorder
         ) {
             AddonCardContent(
@@ -1721,43 +1787,41 @@ private fun AddonCardContent(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
-                        ),
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+                        ).expressiveRingless(),
+                        shape = ClickableSurfaceDefaults.shape(
+                            RoundedCornerShape(NuvioTheme.radii.md)
+                        ).expressivePill(),
                         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+                            .expressiveControlGrow()
                     ) {
                         Box(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Switch(
-                                checked = addon.enabled,
-                                onCheckedChange = null,
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = NuvioTheme.colors.Secondary,
-                                    checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f)
-                                )
-                            )
+                            ListToggleSwitch(checked = addon.enabled, focused = false)
                         }
                     }
                     if (showReorder) {
                         Button(
                             onClick = if (isMoving) onConfirmMove else onStartMove,
                             enabled = isMoving || (canMove && actionsEnabled),
-                            modifier = Modifier.semantics { role = Role.Button },
+                            modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
                             colors = ButtonDefaults.colors(
                                 containerColor = if (isMoving) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
                                 contentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = if (isMoving) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Primary
-                            ),
+                            ).expressiveChoice(selected = isMoving),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                                 ),
                                 focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
-                            ),
+                            ).reorderExpressive(),
                             shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                                .expressivePill(),
+                            scale = ButtonDefaults.scale().expressiveControlGrow()
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Reorder,
@@ -1773,21 +1837,25 @@ private fun AddonCardContent(
                     Button(
                         onClick = onRemove,
                         enabled = actionsEnabled && !isMoving,
-                        modifier = removeButtonModifier.semantics { role = Role.Button },
+                        modifier = removeButtonModifier
+                            .semantics { role = Role.Button }
+                            .tvControlHeight(),
                         colors = ButtonDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundCard,
                             contentColor = NuvioTheme.colors.TextSecondary,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground,
                             focusedContentColor = NuvioTheme.colors.Error
-                        ),
+                        ).expressiveControl(),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             ),
                             focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
-                        ),
+                        ).reorderExpressive(),
                         shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            .expressivePill(),
+                        scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
@@ -1816,4 +1884,38 @@ private fun AddonCardContent(
             color = NuvioTheme.colors.TextTertiary
         )
     }
+}
+
+/** A switch in a list row: the Settings M3 switch on the expressive build, tv's elsewhere. */
+@Composable
+internal fun ListToggleSwitch(checked: Boolean, focused: Boolean, enabled: Boolean = true) {
+    if (isExpressiveBuild) {
+        SettingsExpressiveSwitch(checked = checked, enabled = enabled, focused = focused)
+        return
+    }
+    Switch(
+        checked = checked,
+        onCheckedChange = null,
+        enabled = enabled,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = NuvioTheme.colors.Secondary,
+            checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f)
+        )
+    )
+}
+
+/**
+ * A reorder or remove button keeps a faint ring while focused but disabled, the only cue that
+ * focus sits on it; every other state drops the ring on the box.
+ */
+@Composable
+internal fun ButtonBorder.reorderExpressive(): ButtonBorder {
+    if (!isExpressiveBuild) return this
+    val shape = RoundedCornerShape(percent = ExpressiveFocus.FOCUSED_PILL_PERCENT)
+    return ButtonDefaults.border(
+        border = Border.None,
+        focusedBorder = Border.None,
+        pressedBorder = Border.None,
+        focusedDisabledBorder = tvReorderDisabledFocusBorder(shape)
+    )
 }

@@ -13,12 +13,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -51,7 +46,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -85,9 +79,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.nuvio.tv.ui.util.RtlKeyUtils
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -122,6 +114,13 @@ import com.nuvio.tv.LocalSidebarExpanded
 import com.nuvio.tv.ui.navigation.toptabbar.LocalTopTabBarInset
 import com.nuvio.tv.ui.navigation.toptabbar.ReportTopTabBarScroll
 import com.nuvio.tv.ui.navigation.toptabbar.isScrolledDown
+import com.nuvio.tv.ui.theme.ExpressiveFocus
+import com.nuvio.tv.ui.theme.isExpressiveBuild
+import com.nuvio.tv.ui.screens.detail.TvSizeFloors
+import com.nuvio.tv.ui.screens.detail.atLeastOnBox
+import com.nuvio.tv.ui.screens.detail.buttonLabelStyle
+import com.nuvio.tv.ui.screens.detail.fastSpatialSpec
+import com.nuvio.tv.ui.screens.detail.tvControlHeight
 
 /** Skeleton rows shown while a search is pending, matching the two mobile renders. */
 private const val SEARCH_SKELETON_ROW_COUNT = 2
@@ -1026,16 +1025,15 @@ private fun RecentSearchesSection(
                     .focusRequester(clearHistoryFocusRequester)
                     .focusProperties {
                         down = firstSearchFocusRequester
-                    },
-                colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                    focusedContentColor = NuvioTheme.colors.Primary
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    }
+                    .tvControlHeight(),
+                colors = recentSearchButtonColors(),
+                shape = ButtonDefaults.shape(recentClearShape())
             ) {
-                Text(text = stringResource(R.string.search_recent_clear))
+                Text(
+                    text = stringResource(R.string.search_recent_clear),
+                    style = buttonLabelStyle()
+                )
             }
         }
 
@@ -1063,7 +1061,7 @@ private fun RecentSearchesSection(
                     var isSearchFocused by remember(recentQuery) { mutableStateOf(false) }
                     val searchScale by animateFloatAsState(
                         targetValue = if (isSearchFocused) 1.02f else 1f,
-                        animationSpec = tween(durationMillis = 140),
+                        animationSpec = fastSpatialSpec(tween(durationMillis = 140)),
                         label = "recentSearchScale"
                     )
                     Button(
@@ -1079,6 +1077,7 @@ private fun RecentSearchesSection(
                                 }
                             }
                             .onFocusChanged { isSearchFocused = it.isFocused }
+                            .tvControlHeight()
                             .graphicsLayer {
                                 scaleX = searchScale
                                 scaleY = searchScale
@@ -1087,17 +1086,13 @@ private fun RecentSearchesSection(
                                     pivotFractionY = 0.5f
                                 )
                             },
-                        colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary
-                        ),
+                        colors = recentSearchButtonColors(),
                         scale = ButtonDefaults.scale(focusedScale = 1f),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = ButtonDefaults.shape(recentRowShape())
                     ) {
                         Text(
                             text = recentQuery,
+                            style = buttonLabelStyle(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -1135,9 +1130,9 @@ private fun RecentSearchesSection(
                                 }
                             }
                             .onFocusChanged { isRemoveFocused = it.isFocused }
-                            .size(36.dp)
+                            .size(36.dp.atLeastOnBox(TvSizeFloors.control))
                             .then(
-                                if (isRemoveFocused) {
+                                if (isRemoveFocused && !isExpressiveBuild) {
                                     Modifier.border(
                                         width = NuvioTheme.spacing.xxs,
                                         color = NuvioTheme.colors.FocusRing,
@@ -1149,14 +1144,12 @@ private fun RecentSearchesSection(
                             ),
                         colors = TvIconButtonDefaults.colors(
                             containerColor = Color.Transparent,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
+                            focusedContainerColor = recentRemoveFocusedContainer(),
                             contentColor = NuvioTheme.colors.TextPrimary,
                             focusedContentColor = NuvioTheme.colors.TextPrimary
                         ),
                         scale = TvIconButtonDefaults.scale(focusedScale = 1f),
-                        shape = TvIconButtonDefaults.shape(
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
-                        )
+                        shape = TvIconButtonDefaults.shape(shape = recentClearShape())
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -1164,8 +1157,10 @@ private fun RecentSearchesSection(
                                 R.string.cd_remove_recent_search,
                                 recentQuery
                             ),
-                            modifier = Modifier.size(18.dp),
-                            tint = NuvioTheme.colors.TextPrimary
+                            modifier = Modifier.size(
+                                18.dp.atLeastOnBox(TvSizeFloors.buttonIcon)
+                            ),
+                            tint = recentRemoveTint(isRemoveFocused)
                         )
                     }
                 }
@@ -1199,6 +1194,7 @@ private fun SearchInputField(
 ) {
     var isDiscoverButtonFocused by remember { mutableStateOf(false) }
     var isVoiceButtonFocused by remember { mutableStateOf(false) }
+    var isSearchFieldFocused by remember { mutableStateOf(false) }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     Row(
@@ -1217,20 +1213,12 @@ private fun SearchInputField(
                     )
                     .onFocusChanged { isDiscoverButtonFocused = it.isFocused }
                     .size(NuvioTheme.spacing.huge)
-                    .border(
-                        width = if (isDiscoverButtonFocused) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
-                        color = if (isDiscoverButtonFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.Border,
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
-                    )
-                    .background(
-                        color = NuvioTheme.colors.BackgroundCard,
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
-                    )
+                    .expressiveIconButtonSurface(isDiscoverButtonFocused)
             ) {
                 Icon(
                     imageVector = Icons.Default.Explore,
                     contentDescription = stringResource(R.string.cd_open_discover),
-                    tint = NuvioTheme.colors.TextPrimary
+                    tint = ExpressiveFocus.contentColor(isDiscoverButtonFocused, resting = NuvioTheme.colors.TextPrimary)
                 )
             }
 
@@ -1239,27 +1227,6 @@ private fun SearchInputField(
 
         if (showVoiceSearch) {
             val themeAccent = NuvioTheme.colors.Secondary
-
-            // Pulsating animation (constant rhythm while listening)
-            val pulseTransition = rememberInfiniteTransition(label = "voicePulse")
-            val pulseScale by pulseTransition.animateFloat(
-                initialValue = 1f,
-                targetValue = 1.35f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(800, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "pulseScale"
-            )
-            val pulseAlpha by pulseTransition.animateFloat(
-                initialValue = 0.5f,
-                targetValue = 0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(800, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "pulseAlpha"
-            )
 
             // RMS-based ring — smoothly follows mic input level
             val animatedRms by animateFloatAsState(
@@ -1274,13 +1241,7 @@ private fun SearchInputField(
             ) {
                 // Layer 1: Pulsating ring (constant rhythm)
                 if (isVoiceListening) {
-                    Canvas(modifier = Modifier.matchParentSize()) {
-                        val radius = (size.minDimension / 2f) * pulseScale
-                        drawCircle(
-                            color = themeAccent.copy(alpha = pulseAlpha * 0.4f),
-                            radius = radius
-                        )
-                    }
+                    VoicePulseRing(color = themeAccent, modifier = Modifier.matchParentSize())
                 }
 
                 // Layer 2: RMS level ring (voice-reactive)
@@ -1313,20 +1274,15 @@ private fun SearchInputField(
                             onVoiceFocusChanged(it.isFocused)
                         }
                         .size(NuvioTheme.spacing.huge)
-                        .border(
-                            width = if (isVoiceButtonFocused || isVoiceListening) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
-                            color = if (isVoiceListening) themeAccent else if (isVoiceButtonFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.Border,
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
-                        )
-                        .background(
-                            color = if (isVoiceListening) themeAccent.copy(alpha = 0.15f) else NuvioTheme.colors.BackgroundCard,
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
-                        )
+                        .expressiveIconButtonSurface(isVoiceButtonFocused, selected = isVoiceListening)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mic,
                         contentDescription = stringResource(R.string.cd_voice_search),
-                        tint = if (isVoiceListening) themeAccent else NuvioTheme.colors.TextPrimary
+                        tint = ExpressiveFocus.contentColor(
+                            isVoiceButtonFocused,
+                            resting = if (isVoiceListening) themeAccent else NuvioTheme.colors.TextPrimary
+                        )
                     )
                 }
             }
@@ -1339,11 +1295,13 @@ private fun SearchInputField(
             onValueChange = onQueryChanged,
             modifier = Modifier
                 .weight(1f)
+                .searchFieldSize()
                 .focusRequester(searchFocusRequester)
                 .focusProperties {
                     canFocus = isScreenActive
                 }
                 .onFocusChanged { focusState ->
+                    isSearchFieldFocused = focusState.isFocused
                     onSearchFieldFocusChanged(focusState.isFocused)
                 }
                 .onPreviewKeyEvent { keyEvent ->
@@ -1392,25 +1350,16 @@ private fun SearchInputField(
                 }
             ),
             singleLine = true,
-            shape = RoundedCornerShape(NuvioTheme.radii.md),
+            shape = RoundedCornerShape(percent = 50),
             placeholder = {
                 Text(
                     text = stringResource(R.string.search_placeholder),
-                    color = NuvioTheme.colors.TextTertiary
+                    color = searchPlaceholderColor(isSearchFieldFocused)
                 )
             },
-            textStyle = TextStyle(
-                textDirection = TextDirection.Content
-            ),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = NuvioTheme.colors.BackgroundCard,
-                unfocusedContainerColor = NuvioTheme.colors.BackgroundCard,
-                focusedIndicatorColor = NuvioTheme.colors.FocusRing,
-                unfocusedIndicatorColor = NuvioTheme.colors.Border,
-                focusedTextColor = NuvioTheme.colors.TextPrimary,
-                unfocusedTextColor = NuvioTheme.colors.TextPrimary,
-                cursorColor = NuvioTheme.colors.FocusRing
-            )
+            leadingIcon = searchFieldLeadingIcon(),
+            textStyle = searchFieldTextStyle(),
+            colors = searchFieldColors()
         )
 
         // Clear button, requested in review. Placed beside the field rather than as a trailing
@@ -1427,20 +1376,12 @@ private fun SearchInputField(
                 modifier = Modifier
                     .onFocusChanged { isClearButtonFocused = it.isFocused }
                     .size(NuvioTheme.spacing.huge)
-                    .border(
-                        width = if (isClearButtonFocused) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
-                        color = if (isClearButtonFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.Border,
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
-                    )
-                    .background(
-                        color = NuvioTheme.colors.BackgroundCard,
-                        shape = RoundedCornerShape(NuvioTheme.radii.md)
-                    )
+                    .expressiveIconButtonSurface(isClearButtonFocused)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.cd_clear_search),
-                    tint = NuvioTheme.colors.TextPrimary
+                    tint = ExpressiveFocus.contentColor(isClearButtonFocused, resting = NuvioTheme.colors.TextPrimary)
                 )
             }
         }

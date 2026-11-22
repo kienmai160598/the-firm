@@ -51,6 +51,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.nuvio.tv.R
 import com.nuvio.tv.ui.components.NuvioDialog
+import com.nuvio.tv.ui.theme.tvControlHeight
 
 @Composable
 fun AnimeSkipSettingsContent(
@@ -154,7 +155,9 @@ private fun AnimeSkipClientIdDialog(
             modifier = Modifier.fillMaxWidth().onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             colors = CardDefaults.colors(
                 containerColor = NuvioTheme.colors.BackgroundElevated,
-                focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                focusedContainerColor = expressiveCardFocusFill(
+                    NuvioTheme.colors.BackgroundElevated
+                )
             ),
             border = CardDefaults.border(
                 border = Border(
@@ -165,9 +168,10 @@ private fun AnimeSkipClientIdDialog(
                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                 )
-            ),
-            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
-            scale = CardDefaults.scale(focusedScale = 1f)
+            ).expressiveRingless(),
+            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                .expressiveCard(),
+            scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
             Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
                 BasicTextField(
@@ -207,27 +211,36 @@ private fun AnimeSkipClientIdDialog(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundElevated,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) { Text(stringResource(R.string.action_cancel)) }
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = onClear,
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundElevated,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) { Text(stringResource(R.string.action_clear)) }
             Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
             Button(
+                modifier = Modifier.tvControlHeight(),
                 onClick = { if (!validating) viewModel.validateAndSave(value, onSaved) },
                 colors = ButtonDefaults.colors(
                     containerColor = NuvioTheme.colors.BackgroundCard,
                     contentColor = NuvioTheme.colors.TextPrimary
-                )
+                ).expressiveControl(),
+                scale = ButtonDefaults.scale().expressiveControlGrow(),
+                shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(if (validating) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
             }

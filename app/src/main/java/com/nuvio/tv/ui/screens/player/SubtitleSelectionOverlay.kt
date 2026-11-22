@@ -8,7 +8,6 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -68,7 +67,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringResource
 import kotlin.math.roundToInt
 import androidx.tv.material3.Card
-import androidx.tv.material3.Border
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -856,9 +854,11 @@ private fun SubtitleStyleRail(
                 Card(
                     onClick = { dispatchStyleEvent(PlayerEvent.OnShowSubtitleDelayOverlay) },
                     colors = overlayCardColors(selected = false),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+                    shape = PlayerListItemStyle.shape,
+                    border = overlayCardBorder(),
                     modifier = Modifier
                         .fillMaxWidth()
+                        .focusSpringScale()
                         .then(styleCardModifier)
                         .focusRequester(requireNotNull(focusRequesters[StyleFocusKey.DelaySet]))
                         .onPreviewKeyEvent { event ->
@@ -879,7 +879,7 @@ private fun SubtitleStyleRail(
                             }
                         }
                         .onFocusChanged { if (it.isFocused) onStyleFocused(StyleFocusKey.DelaySet) },
-                    scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+                    scale = PlayerListItemStyle.stillScale
                 ) {
                     Row(
                         modifier = Modifier
@@ -891,12 +891,12 @@ private fun SubtitleStyleRail(
                         Text(
                             text = stringResource(R.string.subtitle_tab_delay),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White
+                            color = PlayerListItemStyle.labelColor()
                         )
                         Text(
                             text = formatSubtitleDelay(subtitleDelayMs).keepLtr(),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = PlayerListItemStyle.supportingColor()
                         )
                     }
                 }
@@ -1094,8 +1094,10 @@ private fun SubtitleStyleRail(
                 Card(
                     onClick = { dispatchStyleEvent(PlayerEvent.OnResetSubtitleDefaults) },
                     colors = overlayCardColors(selected = false),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+                    shape = PlayerListItemStyle.shape,
+                    border = overlayCardBorder(),
                     modifier = Modifier
+                        .focusSpringScale()
                         .then(styleCardModifier)
                         .focusRequester(requireNotNull(focusRequesters[StyleFocusKey.Reset]))
                         .onPreviewKeyEvent { event ->
@@ -1116,12 +1118,12 @@ private fun SubtitleStyleRail(
                             }
                         }
                         .onFocusChanged { if (it.isFocused) onStyleFocused(StyleFocusKey.Reset) },
-                    scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+                    scale = PlayerListItemStyle.stillScale
                 ) {
                     Text(
                         text = stringResource(R.string.subtitle_reset_defaults),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = PlayerListItemStyle.labelColor(),
                         modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = 10.dp)
                     )
                 }
@@ -1159,7 +1161,6 @@ private fun SubtitleLanguageCard(
     onMoveRight: (() -> Unit)?,
     onFocused: () -> Unit
 ) {
-    val textColor = if (isSelected) NuvioTheme.colors.OnSecondary else Color.White
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val moveToOptionsKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_LEFT else android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 
@@ -1167,6 +1168,7 @@ private fun SubtitleLanguageCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
+            .focusSpringScale()
             .semantics {
                 role = Role.RadioButton
                 this.selected = isSelected
@@ -1200,9 +1202,9 @@ private fun SubtitleLanguageCard(
                 }
             },
         colors = overlayCardColors(selected = isSelected),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = PlayerListItemStyle.shape,
         border = overlayCardBorder(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        scale = PlayerListItemStyle.stillScale
     ) {
         Row(
             modifier = Modifier
@@ -1214,14 +1216,14 @@ private fun SubtitleLanguageCard(
             Text(
                 text = item.label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = textColor,
+                color = PlayerListItemStyle.labelColor(),
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false)
             )
             if (item.count > 0) {
                 androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(6.dp))
-                CountBadge(count = item.count, selected = isSelected)
+                CountBadge(count = item.count)
             }
         }
     }
@@ -1237,12 +1239,6 @@ private fun SubtitleOptionCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    val titleColor = if (item.isSelected) NuvioTheme.colors.OnSecondary else Color.White
-    val metaColor = if (item.isSelected) {
-        NuvioTheme.colors.OnSecondary.copy(alpha = 0.72f)
-    } else {
-        NuvioTheme.colors.TextTertiary
-    }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val moveLeftKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_RIGHT else android.view.KeyEvent.KEYCODE_DPAD_LEFT
     val moveRightKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_LEFT else android.view.KeyEvent.KEYCODE_DPAD_RIGHT
@@ -1252,6 +1248,7 @@ private fun SubtitleOptionCard(
         onLongClick = onLongClick,
         modifier = Modifier
             .fillMaxWidth()
+            .focusSpringScale()
             .semantics {
                 role = Role.RadioButton
                 this.selected = item.isSelected
@@ -1296,9 +1293,9 @@ private fun SubtitleOptionCard(
                 }
             },
         colors = overlayCardColors(selected = item.isSelected),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = PlayerListItemStyle.shape,
         border = overlayCardBorder(),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
+        scale = PlayerListItemStyle.stillScale
     ) {
         Row(
             modifier = Modifier
@@ -1317,7 +1314,6 @@ private fun SubtitleOptionCard(
                 ) {
                     SourceChip(
                         label = item.sourceLabel,
-                        selected = item.isSelected,
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     item.addonSubtitle?.let { AutoSyncedChip(it.url, item.isSelected) } // AutoSync hook
@@ -1325,13 +1321,13 @@ private fun SubtitleOptionCard(
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = titleColor
+                    color = PlayerListItemStyle.labelColor()
                 )
                 if (!item.meta.isNullOrBlank()) {
                     Text(
                         text = item.meta,
                         style = MaterialTheme.typography.bodySmall,
-                        color = metaColor
+                        color = PlayerListItemStyle.supportingColor()
                     )
                 }
             }
@@ -1339,7 +1335,7 @@ private fun SubtitleOptionCard(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = NuvioTheme.colors.OnSecondary
+                    tint = PlayerListItemStyle.labelColor()
                 )
             }
         }
@@ -1347,18 +1343,11 @@ private fun SubtitleOptionCard(
 }
 
 @Composable
-private fun CountBadge(
-    count: Int,
-    selected: Boolean
-) {
+private fun CountBadge(count: Int) {
     Box(
         modifier = Modifier
             .background(
-                color = if (selected) {
-                    Color.White.copy(alpha = 0.18f)
-                } else {
-                    NuvioTheme.colors.Secondary.copy(alpha = 0.85f)
-                },
+                color = PlayerListItemStyle.labelColor().copy(alpha = NEUTRAL_CHIP_ALPHA),
                 shape = RoundedCornerShape(999.dp)
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = 3.dp)
@@ -1366,44 +1355,25 @@ private fun CountBadge(
         Text(
             text = count.toString(),
             style = MaterialTheme.typography.labelSmall,
-            color = if (selected) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.OnSecondary
+            color = PlayerListItemStyle.labelColor()
         )
     }
 }
 
 @Composable
-private fun SourceChip(label: String, selected: Boolean = false, modifier: Modifier = Modifier) {
+private fun SourceChip(label: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .background(
-                if (selected) {
-                    NuvioTheme.colors.OnSecondary.copy(alpha = 0.14f)
-                } else {
-                    Color.White.copy(alpha = 0.08f)
-                },
+                PlayerListItemStyle.labelColor().copy(alpha = NEUTRAL_CHIP_ALPHA),
                 RoundedCornerShape(999.dp)
-            )
-            .then(
-                if (selected) {
-                    Modifier.border(
-                        width = NuvioTheme.spacing.hairline,
-                        color = NuvioTheme.colors.OnSecondary.copy(alpha = 0.22f),
-                        shape = RoundedCornerShape(999.dp)
-                    )
-                } else {
-                    Modifier
-                }
             )
             .padding(horizontal = NuvioTheme.spacing.sm, vertical = 3.dp)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = if (selected) {
-                NuvioTheme.colors.OnSecondary.copy(alpha = 0.9f)
-            } else {
-                Color.White.copy(alpha = 0.78f)
-            },
+            color = PlayerListItemStyle.supportingColor(),
             maxLines = 1,
             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
@@ -1557,29 +1527,15 @@ private fun StepperButton(
                     else -> false
                 }
             }
-            .then(
-                if (isFocused) {
-                    Modifier.border(
-                        NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                        RoundedCornerShape(NuvioTheme.radii.md)
-                    )
-                } else {
-                    Modifier
-                }
-            )
             .onFocusChanged {
                 isFocused = it.isFocused
                 if (it.isFocused && focusKey != null) {
                     onFocused?.invoke(focusKey)
                 }
-            },
-        colors = IconButtonDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.14f),
-            contentColor = Color.White,
-            focusedContentColor = Color.White
-        ),
-        shape = IconButtonDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md)),
+            }
+            .playerFocusLift(isFocused),
+        colors = PlayerControlStyle.iconButtonColors(Color.White),
+        shape = PlayerControlStyle.capsuleShape,
         scale = IconButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription)
@@ -1655,13 +1611,14 @@ internal fun ToggleChip(
                 .then(switchSemantics)
         },
         colors = overlayCardColors(selected = isEnabled),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = PlayerListItemStyle.shape,
+        border = overlayCardBorder(),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (isEnabled) NuvioTheme.colors.OnSecondary else Color.White,
+            color = PlayerListItemStyle.labelColor(),
             modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm)
         )
     }
@@ -1762,23 +1719,13 @@ private fun ColorChip(
     ) {}
 }
 
-@Composable
-private fun overlayCardColors(selected: Boolean) = CardDefaults.colors(
-    containerColor = if (selected) NuvioTheme.colors.Secondary else Color.Transparent,
-    focusedContainerColor = if (selected) NuvioTheme.colors.Secondary else Color.Transparent
-)
+private const val NEUTRAL_CHIP_ALPHA = 0.14f
 
 @Composable
-private fun overlayCardBorder() = CardDefaults.border(
-    border = Border(
-        border = BorderStroke(NuvioTheme.spacing.xxs, Color.Transparent),
-        shape = RoundedCornerShape(NuvioTheme.radii.md)
-    ),
-    focusedBorder = Border(
-        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-        shape = RoundedCornerShape(NuvioTheme.radii.md)
-    )
-)
+private fun overlayCardColors(selected: Boolean) = PlayerListItemStyle.colors(selected)
+
+@Composable
+private fun overlayCardBorder() = PlayerListItemStyle.noBorder()
 
 /** Accessible name for a colour swatch: its own RGB value, as that is the only colour
  *  description available on this screen (there are no per-colour name resources). */

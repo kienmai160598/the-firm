@@ -77,13 +77,13 @@ internal fun RatingStars(
     val description = stringResource(R.string.rating_value, value.toString())
     val shape = RoundedCornerShape(NuvioTheme.radii.xl)
     val container by animateColorAsState(
-        targetValue = if (focused) NuvioTheme.colors.FocusBackground.copy(alpha = 0.32f) else Color.Transparent,
-        animationSpec = tween(durationMillis = 180),
+        targetValue = ratingStarsContainer(focused),
+        animationSpec = effectsSpec(tween(durationMillis = 180)),
         label = "rating_stars_container"
     )
     val border by animateColorAsState(
-        targetValue = if (focused) NuvioTheme.colors.FocusRing else Color.Transparent,
-        animationSpec = tween(durationMillis = 180),
+        targetValue = ratingStarsRing(focused),
+        animationSpec = effectsSpec(tween(durationMillis = 180)),
         label = "rating_stars_border"
     )
 

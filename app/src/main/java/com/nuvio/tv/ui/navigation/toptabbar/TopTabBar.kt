@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -25,14 +30,13 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import com.nuvio.tv.DrawerItem
-import com.nuvio.tv.ui.theme.NuvioTheme
+import com.nuvio.tv.ui.theme.ExpressiveColors
 
-private val TopTabBarTop = 20.dp
-internal val TopTabBarHeight = 44.dp
+private val TopTabBarTop = 27.dp
+internal val TopTabBarHeight = 56.dp
 internal val TopTabBarSlot = TopTabBarTop + TopTabBarHeight + 12.dp
-internal val TopTabHeight = 36.dp
+internal val TopTabHeight = 48.dp
 private val TopTabBarSideMargin = 48.dp
-private const val CONTAINER_ALPHA = 0.88f
 
 /**
  * The bar floats over the screen and slides with [readProgress]: in view at 1, above it at 0.
@@ -100,22 +104,54 @@ private fun TopTabRow(
     onTabClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    val spans = remember { mutableStateMapOf<String, TopTabSpan>() }
+    var focusedRoute by remember { mutableStateOf<String?>(null) }
+    var pressedRoute by remember { mutableStateOf<String?>(null) }
+    val indicatorRoute = focusedRoute ?: selectedRoute
+    val tabFocused = focusedRoute != null
+
+    Box(
         modifier = modifier
             .height(TopTabBarHeight)
-            .background(NuvioTheme.colors.Surface.copy(alpha = CONTAINER_ALPHA), CircleShape)
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .background(ExpressiveColors.barScrim, CircleShape)
+            .padding(4.dp)
     ) {
-        items.forEach { item ->
-            TopTab(
-                label = item.label,
-                selected = item.route == selectedRoute,
-                onFocused = { onTabFocused(item.route) },
-                onClick = onTabClicked,
-                modifier = Modifier.focusRequester(tabRequesters.getValue(item.route))
-            )
+        TopTabIndicator(
+            target = indicatorRoute?.let(spans::get),
+            barFocused = tabFocused,
+            pressed = tabFocused && pressedRoute == focusedRoute,
+            modifier = Modifier.matchParentSize()
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEach { item ->
+                TopTab(
+                    label = item.label,
+                    selected = item.route == selectedRoute,
+                    underIndicator = item.route == indicatorRoute,
+                    barFocused = tabFocused,
+                    onFocusChanged = { isFocused ->
+                        if (isFocused && focusedRoute != item.route) {
+                            focusedRoute = item.route
+                            onTabFocused(item.route)
+                        } else if (!isFocused && focusedRoute == item.route) {
+                            focusedRoute = null
+                        }
+                    },
+                    onPressChanged = { pressed ->
+                        if (pressed) {
+                            pressedRoute = item.route
+                        } else if (pressedRoute == item.route) {
+                            pressedRoute = null
+                        }
+                    },
+                    onPlaced = { span -> if (spans[item.route] != span) spans[item.route] = span },
+                    onClick = onTabClicked,
+                    modifier = Modifier.focusRequester(tabRequesters.getValue(item.route))
+                )
+            }
         }
     }
 }

@@ -1,5 +1,13 @@
 package com.nuvio.tv.ui.screens.collection
 
+import com.nuvio.tv.ui.components.buttonLabelStyle
+import com.nuvio.tv.ui.components.expressiveButtonBorder
+import com.nuvio.tv.ui.components.expressiveButtonColors
+import com.nuvio.tv.ui.components.expressiveButtonScale
+import com.nuvio.tv.ui.components.expressiveButtonShape
+import com.nuvio.tv.ui.components.expressiveOptionCardBorder
+import com.nuvio.tv.ui.components.expressiveOptionCardColors
+import com.nuvio.tv.ui.components.expressiveOptionCardShape
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.activity.compose.BackHandler
@@ -91,6 +99,10 @@ import com.nuvio.tv.ui.components.NuvioDialog
 import com.nuvio.tv.ui.components.TvReorderList
 import com.nuvio.tv.ui.components.tvReorderDisabledFocusBorder
 import com.nuvio.tv.ui.screens.settings.SettingsVerticalScrollIndicators
+import com.nuvio.tv.ui.theme.bodyFloor
+import com.nuvio.tv.ui.theme.metaFloor
+import com.nuvio.tv.ui.theme.screenTitleFloor
+import com.nuvio.tv.ui.theme.tvControlHeight
 import com.nuvio.tv.ui.util.contentTextDirection
 import com.nuvio.tv.R
 import androidx.compose.ui.res.stringResource
@@ -235,7 +247,9 @@ fun CollectionEditorScreen(
             Column {
                 Text(
                     text = if (uiState.isNew) stringResource(R.string.collections_new) else stringResource(R.string.collections_editor_edit_collection),
-                    style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
+                    style = MaterialTheme.typography.headlineMedium
+                        .screenTitleFloor()
+                        .copy(textDirection = TextDirection.Content),
                     color = NuvioTheme.colors.TextPrimary,
                 )
                 Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
@@ -291,17 +305,19 @@ fun CollectionEditorScreen(
                             role = Role.Switch
                             toggleableState = if (uiState.pinToTop) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = CardDefaults.colors(
+                    colors = expressiveOptionCardColors(CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground
-                    ),
-                    border = CardDefaults.border(
+                    )),
+                    border = expressiveOptionCardBorder(CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         )
+                    )),
+                    shape = expressiveOptionCardShape(
+                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
                     scale = CardDefaults.scale(focusedScale = 1.02f)
                 ) {
                     Row(
@@ -320,7 +336,7 @@ fun CollectionEditorScreen(
                             Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_pin_above_desc),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall.metaFloor(),
                                 color = NuvioTheme.colors.TextSecondary
                             )
                         }
@@ -348,17 +364,19 @@ fun CollectionEditorScreen(
                             role = Role.Switch
                             toggleableState = if (uiState.focusGlowEnabled) ToggleableState.On else ToggleableState.Off
                         },
-                    colors = CardDefaults.colors(
+                    colors = expressiveOptionCardColors(CardDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground
-                    ),
-                    border = CardDefaults.border(
+                    )),
+                    border = expressiveOptionCardBorder(CardDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         )
+                    )),
+                    shape = expressiveOptionCardShape(
+                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
                     scale = CardDefaults.scale(focusedScale = 1.02f)
                 ) {
                     Row(
@@ -377,7 +395,7 @@ fun CollectionEditorScreen(
                             Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_focus_glow_desc),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall.metaFloor(),
                                 color = NuvioTheme.colors.TextSecondary
                             )
                         }
@@ -425,14 +443,14 @@ fun CollectionEditorScreen(
                                 .semantics {
                                     role = Role.RadioButton
                                     selected = isSelected
-                                },
-                            colors = ButtonDefaults.colors(
+                                }.tvControlHeight(),
+                            colors = expressiveButtonColors(ButtonDefaults.colors(
                                 containerColor = if (isSelected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
                                 contentColor = if (isSelected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
                                 focusedContainerColor = NuvioTheme.colors.FocusBackground,
                                 focusedContentColor = NuvioTheme.colors.Primary
-                            ),
-                            border = ButtonDefaults.border(
+                            ), selected = isSelected),
+                            border = expressiveButtonBorder(ButtonDefaults.border(
                                 border = if (isSelected) Border(
                                     border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
@@ -441,8 +459,11 @@ fun CollectionEditorScreen(
                                     border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                     shape = RoundedCornerShape(NuvioTheme.radii.md)
                                 )
+                            )),
+                            shape = expressiveButtonShape(
+                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                             ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            scale = expressiveButtonScale(ButtonDefaults.scale())
                         ) {
                             Text(label)
                         }
@@ -460,17 +481,19 @@ fun CollectionEditorScreen(
                                 role = Role.Switch
                                 toggleableState = if (uiState.showAllTab) ToggleableState.On else ToggleableState.Off
                             },
-                        colors = CardDefaults.colors(
+                        colors = expressiveOptionCardColors(CardDefaults.colors(
                             containerColor = NuvioTheme.colors.BackgroundCard,
                             focusedContainerColor = NuvioTheme.colors.FocusBackground
-                        ),
-                        border = CardDefaults.border(
+                        )),
+                        border = expressiveOptionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
                                 border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                                 shape = RoundedCornerShape(NuvioTheme.radii.md)
                             )
+                        )),
+                        shape = expressiveOptionCardShape(
+                            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                         ),
-                        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
                         scale = CardDefaults.scale(focusedScale = 1.02f)
                     ) {
                         Row(
@@ -489,7 +512,7 @@ fun CollectionEditorScreen(
                                 Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
                                 Text(
                                     text = stringResource(R.string.collections_editor_show_all_tab_desc),
-                                    style = MaterialTheme.typography.bodySmall,
+                                    style = MaterialTheme.typography.bodySmall.metaFloor(),
                                     color = NuvioTheme.colors.TextSecondary
                                 )
                             }
@@ -525,7 +548,7 @@ fun CollectionEditorScreen(
                             else R.string.collection_editor_folder_count_other,
                             uiState.folders.size
                         ),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.metaFloor(),
                         color = NuvioTheme.colors.TextTertiary
                     )
                 }
@@ -611,8 +634,11 @@ fun CollectionEditorScreen(
                     modifier = Modifier
                         .focusRequester(deleteDialogFocusRequester)
                         .semantics { role = Role.Button }
+                        .tvControlHeight(),
+                    scale = expressiveButtonScale(ButtonDefaults.scale()),
+                    colors = expressiveButtonColors(ButtonDefaults.colors())
                 ) {
-                    Text(stringResource(R.string.collections_cancel))
+                    Text(stringResource(R.string.collections_cancel), style = buttonLabelStyle())
                 }
                 Button(
                     onClick = {
@@ -629,9 +655,11 @@ fun CollectionEditorScreen(
                         lastFocusedFolderTarget = nextTarget
                         pendingFocusTarget = nextTarget
                     },
-                    modifier = Modifier.semantics { role = Role.Button }
+                    modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
+                    scale = expressiveButtonScale(ButtonDefaults.scale()),
+                    colors = expressiveButtonColors(ButtonDefaults.colors())
                 ) {
-                    Text(stringResource(R.string.cd_delete))
+                    Text(stringResource(R.string.cd_delete), style = buttonLabelStyle())
                 }
             }
         }
@@ -717,7 +745,7 @@ private fun FolderListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = folder.title,
-                    style = MaterialTheme.typography.titleSmall.copy(
+                    style = MaterialTheme.typography.titleSmall.bodyFloor().copy(
                         textDirection = folder.title.contentTextDirection()
                     ),
                     color = NuvioTheme.colors.TextPrimary,
@@ -733,7 +761,7 @@ private fun FolderListItem(
                 )
                 Text(
                     text = "$shapeLabel - ${stringResource(R.string.collections_editor_source_count, folder.sources.size)}",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.metaFloor(),
                     color = NuvioTheme.colors.TextTertiary
                 )
             }
@@ -747,21 +775,24 @@ private fun FolderListItem(
                     enabled = isMoving || (canMove && actionsEnabled),
                     modifier = Modifier.semantics {
                         role = Role.Button
-                    },
-                    colors = ButtonDefaults.colors(
+                    }.tvControlHeight(),
+                    colors = expressiveButtonColors(ButtonDefaults.colors(
                         containerColor = if (isMoving) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
                         contentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
                         focusedContainerColor = if (isMoving) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
                         focusedContentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Primary
-                    ),
-                    border = ButtonDefaults.border(
+                    ), selected = isMoving),
+                    border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         ),
                         focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                    )),
+                    shape = expressiveButtonShape(
+                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
                     Icon(
                         imageVector = Icons.Default.Reorder,
@@ -771,42 +802,56 @@ private fun FolderListItem(
                 Button(
                     onClick = onEdit,
                     enabled = actionsEnabled && !isMoving,
-                    modifier = if (editFocusRequester != null) Modifier.focusRequester(editFocusRequester) else Modifier,
-                    colors = ButtonDefaults.colors(
+                    modifier = Modifier
+                        .tvControlHeight()
+                        .then(
+                            editFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
+                        ),
+                    colors = expressiveButtonColors(ButtonDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         contentColor = NuvioTheme.colors.TextSecondary,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground,
                         focusedContentColor = NuvioTheme.colors.Primary
-                    ),
-                    border = ButtonDefaults.border(
+                    )),
+                    border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         ),
                         focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                    )),
+                    shape = expressiveButtonShape(
+                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
                     Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                 }
                 Button(
                     onClick = onDelete,
                     enabled = actionsEnabled && !isMoving,
-                    modifier = if (deleteFocusRequester != null) Modifier.focusRequester(deleteFocusRequester) else Modifier,
-                    colors = ButtonDefaults.colors(
+                    modifier = Modifier
+                        .tvControlHeight()
+                        .then(
+                            deleteFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
+                        ),
+                    colors = expressiveButtonColors(ButtonDefaults.colors(
                         containerColor = NuvioTheme.colors.BackgroundCard,
                         contentColor = NuvioTheme.colors.TextSecondary,
                         focusedContainerColor = NuvioTheme.colors.FocusBackground,
                         focusedContentColor = NuvioTheme.colors.Error
-                    ),
-                    border = ButtonDefaults.border(
+                    ), destructive = true),
+                    border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
                             border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
                             shape = RoundedCornerShape(NuvioTheme.radii.md)
                         ),
                         focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                    )),
+                    shape = expressiveButtonShape(
+                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
                     ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
                     Icon(Icons.Default.Delete, stringResource(R.string.cd_delete))
                 }
