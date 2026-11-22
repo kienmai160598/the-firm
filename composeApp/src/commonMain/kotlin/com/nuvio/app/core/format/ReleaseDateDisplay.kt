@@ -1,6 +1,5 @@
 package com.nuvio.app.core.format
 
-import androidx.compose.ui.text.intl.Locale
 import com.nuvio.app.core.time.parseEpisodeReleaseLocalDate
 
 fun formatReleaseDateForDisplay(raw: String): String = formatReleaseDate(raw, includeYear = true)
@@ -10,7 +9,7 @@ fun formatReleaseDateWithoutYear(raw: String): String = formatReleaseDate(raw, i
 internal fun formatReleaseDate(
     raw: String,
     includeYear: Boolean,
-    localeTag: String = Locale.current.toLanguageTag(),
+    localeTag: String = currentLocaleTag(),
 ): String {
     val date = parseEpisodeReleaseLocalDate(raw) ?: return raw
     return formatCalendarDate(date, localeTag, includeYear)

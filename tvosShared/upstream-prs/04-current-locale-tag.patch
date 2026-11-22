@@ -1,0 +1,90 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/CurrentLocale.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/CurrentLocale.kt
+new file mode 100644
+index 00000000..b76bfe36
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/CurrentLocale.kt
+@@ -0,0 +1,3 @@
++package com.nuvio.app.core.format
++
++expect fun currentLocaleTag(): String
+diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/core/format/CurrentLocale.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/core/format/CurrentLocale.android.kt
+new file mode 100644
+index 00000000..6736b224
+--- /dev/null
++++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/core/format/CurrentLocale.android.kt
+@@ -0,0 +1,5 @@
++package com.nuvio.app.core.format
++
++import android.os.LocaleList
++
++actual fun currentLocaleTag(): String = LocaleList.getDefault()[0].toLanguageTag()
+diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/core/format/CurrentLocale.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/core/format/CurrentLocale.ios.kt
+new file mode 100644
+index 00000000..29172e06
+--- /dev/null
++++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/core/format/CurrentLocale.ios.kt
+@@ -0,0 +1,14 @@
++package com.nuvio.app.core.format
++
++import platform.Foundation.NSLocale
++import platform.Foundation.canonicalLanguageIdentifierFromString
++import platform.Foundation.currentLocale
++import platform.Foundation.localeIdentifier
++import platform.Foundation.preferredLanguages
++
++actual fun currentLocaleTag(): String {
++    val preferred = NSLocale.preferredLanguages.firstOrNull() as? String
++    val locale = preferred?.let(::NSLocale) ?: NSLocale.currentLocale
++    val identifier = locale.localeIdentifier.substringBefore("@")
++    return NSLocale.canonicalLanguageIdentifierFromString(identifier)
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/ReleaseDateDisplay.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/ReleaseDateDisplay.kt
+index 7509acd8..d625420f 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/ReleaseDateDisplay.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/format/ReleaseDateDisplay.kt
+@@ -1,6 +1,5 @@
+ package com.nuvio.app.core.format
+ 
+-import androidx.compose.ui.text.intl.Locale
+ import com.nuvio.app.core.time.parseEpisodeReleaseLocalDate
+ 
+ fun formatReleaseDateForDisplay(raw: String): String = formatReleaseDate(raw, includeYear = true)
+@@ -10,7 +9,7 @@ fun formatReleaseDateWithoutYear(raw: String): String = formatReleaseDate(raw, i
+ internal fun formatReleaseDate(
+     raw: String,
+     includeYear: Boolean,
+-    localeTag: String = Locale.current.toLanguageTag(),
++    localeTag: String = currentLocaleTag(),
+ ): String {
+     val date = parseEpisodeReleaseLocalDate(raw) ?: return raw
+     return formatCalendarDate(date, localeTag, includeYear)
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeCatalogSettingsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeCatalogSettingsRepository.kt
+index 504dc2fa..c658573f 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeCatalogSettingsRepository.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeCatalogSettingsRepository.kt
+@@ -1,6 +1,6 @@
+ package com.nuvio.app.features.home
+ 
+-import androidx.compose.ui.text.intl.Locale
++import com.nuvio.app.core.format.currentLocaleTag
+ import com.nuvio.app.features.addons.ManagedAddon
+ import com.nuvio.app.features.collection.Collection
+ import com.nuvio.app.features.collection.CollectionRepository
+@@ -142,7 +142,7 @@ object HomeCatalogSettingsRepository {
+     fun syncCatalogs(addons: List<ManagedAddon>) {
+         ensureLoaded()
+         val collections = CollectionRepository.collections.value
+-        val syncInput = CatalogSyncInput(addons, collections, Locale.current.toLanguageTag(), ServerRepository.uiState.value.revision)
++        val syncInput = CatalogSyncInput(addons, collections, currentLocaleTag(), ServerRepository.uiState.value.revision)
+         if (lastCatalogSync == syncInput) return
+         definitions = buildHomeCatalogDefinitions(addons)
+         collectionDefinitions = buildCollectionDefinitions(collections)
+@@ -162,7 +162,7 @@ object HomeCatalogSettingsRepository {
+ 
+     fun syncCollections(collections: List<Collection>) {
+         ensureLoaded()
+-        val syncInput = collections to Locale.current.toLanguageTag()
++        val syncInput = collections to currentLocaleTag()
+         if (lastCollectionSync == syncInput) return
+         collectionDefinitions = buildCollectionDefinitions(collections)
+         lastCatalogSync = lastCatalogSync?.takeIf {

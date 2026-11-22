@@ -1,0 +1,36 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceActions.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceActions.kt
+index 43c3a2f6..f2564573 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceActions.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceActions.kt
+@@ -172,14 +172,6 @@ internal fun PlayerScreenRuntime.stopActiveP2pStream() {
+  * the stream's `behaviorHints.filename` when present, otherwise the URL path basename
+  * (query string stripped, only when it looks like a file with an extension).
+  */
+-internal fun streamPlaybackFilename(stream: StreamItem, url: String): String? =
+-    stream.behaviorHints.filename?.takeIf { it.isNotBlank() }
+-        ?: sourceFilenameFromUrl(url)
+-
+-internal fun sourceFilenameFromUrl(url: String?): String? =
+-    url?.substringBefore('?')?.substringAfterLast('/')
+-        ?.takeIf { it.isNotBlank() && it.contains('.') }
+-
+ internal fun PlayerScreenRuntime.saveP2pStreamForReuse(
+     stream: StreamItem,
+     videoId: String?,
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSourceFilenames.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSourceFilenames.kt
+new file mode 100644
+index 00000000..af4d7c35
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSourceFilenames.kt
+@@ -0,0 +1,11 @@
++package com.nuvio.app.features.player
++
++import com.nuvio.app.features.streams.StreamItem
++
++internal fun streamPlaybackFilename(stream: StreamItem, url: String): String? =
++    stream.behaviorHints.filename?.takeIf { it.isNotBlank() }
++        ?: sourceFilenameFromUrl(url)
++
++internal fun sourceFilenameFromUrl(url: String?): String? =
++    url?.substringBefore('?')?.substringAfterLast('/')
++        ?.takeIf { it.isNotBlank() && it.contains('.') }

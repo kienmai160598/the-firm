@@ -70,7 +70,6 @@ import com.nuvio.app.features.watchprogress.WatchProgressCompletionPercentThresh
 import com.nuvio.app.features.watchprogress.continueWatchingItemKey
 import com.nuvio.app.features.watchprogress.CurrentDateProvider
 import com.nuvio.app.features.watchprogress.computeAirDateBadgeText
-import kotlin.math.roundToInt
 import nuvio.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import com.nuvio.app.core.i18n.localizedEpisodeTitle
@@ -118,9 +117,6 @@ internal fun continueWatchingHeroViewportReserveHeight(
         basePosterWidthDp = basePosterWidthDp,
     ) + bottomNavigationClearance
 }
-
-private fun continueWatchingProgressPercent(progressFraction: Float): Int =
-    (progressFraction * 100f).roundToInt().coerceIn(1, 99)
 
 @Composable
 private fun localizedContinueWatchingMetaLine(item: ContinueWatchingItem): String =
@@ -854,26 +850,21 @@ private fun continueWatchingCardBadgeText(
     item: ContinueWatchingItem,
     airDateText: String?,
 ): String {
-    if (item.progressFraction > 0f) {
-        if (item.durationMs <= 0L) {
-            return stringResource(
-                Res.string.home_continue_watching_watched,
-                "${continueWatchingProgressPercent(item.progressFraction)}%",
-            )
-        }
-        val effectivePositionMs = when {
-            item.resumePositionMs > 0L -> item.resumePositionMs
-            else -> (item.durationMs * item.progressFraction.coerceIn(0f, 1f)).toLong()
-        }
-        val remainingMinutes = ((item.durationMs - effectivePositionMs).coerceAtLeast(0L) / 60_000L)
-            .coerceAtLeast(1L)
-        val hours = remainingMinutes / 60L
-        val minutes = remainingMinutes % 60L
-        return if (hours > 0L) {
-            stringResource(Res.string.home_continue_watching_hours_minutes_left, hours, minutes)
-        } else {
-            stringResource(Res.string.home_continue_watching_minutes_left, remainingMinutes)
-        }
+    when (val progressBadge = item.continueWatchingProgressBadge()) {
+        is ContinueWatchingProgressBadge.WatchedPercent -> return stringResource(
+            Res.string.home_continue_watching_watched,
+            "${progressBadge.percent}%",
+        )
+        is ContinueWatchingProgressBadge.HoursMinutesLeft -> return stringResource(
+            Res.string.home_continue_watching_hours_minutes_left,
+            progressBadge.hours,
+            progressBadge.minutes,
+        )
+        is ContinueWatchingProgressBadge.MinutesLeft -> return stringResource(
+            Res.string.home_continue_watching_minutes_left,
+            progressBadge.minutes,
+        )
+        null -> Unit
     }
 
     return when {

@@ -172,14 +172,6 @@ internal fun PlayerScreenRuntime.stopActiveP2pStream() {
  * the stream's `behaviorHints.filename` when present, otherwise the URL path basename
  * (query string stripped, only when it looks like a file with an extension).
  */
-internal fun streamPlaybackFilename(stream: StreamItem, url: String): String? =
-    stream.behaviorHints.filename?.takeIf { it.isNotBlank() }
-        ?: sourceFilenameFromUrl(url)
-
-internal fun sourceFilenameFromUrl(url: String?): String? =
-    url?.substringBefore('?')?.substringAfterLast('/')
-        ?.takeIf { it.isNotBlank() && it.contains('.') }
-
 internal fun PlayerScreenRuntime.saveP2pStreamForReuse(
     stream: StreamItem,
     videoId: String?,

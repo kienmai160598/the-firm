@@ -1,6 +1,5 @@
 package com.nuvio.app.features.player
 
-import androidx.compose.runtime.Composable
 import nuvio.composeapp.generated.resources.Res
 import nuvio.composeapp.generated.resources.lang_afrikaans
 import nuvio.composeapp.generated.resources.lang_albanian
@@ -88,7 +87,6 @@ import nuvio.composeapp.generated.resources.settings_playback_option_original
 import nuvio.composeapp.generated.resources.subtitle_language_unknown
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 
 data class LanguagePreferenceOption(
     val code: String,
@@ -452,23 +450,6 @@ internal fun languageLabelResForCode(code: String?): StringResource? {
     return AvailableLanguageOptions.firstOrNull {
         normalizeLanguageCode(it.code) == normalized
     }?.labelRes
-}
-
-@Composable
-fun languageLabelForCode(code: String?): String = when {
-    code.isNullOrBlank() || code.equals(SubtitleLanguageOption.NONE, ignoreCase = true) ->
-        stringResource(Res.string.settings_playback_option_none)
-    code.equals(SubtitleLanguageOption.FORCED, ignoreCase = true) ->
-        stringResource(Res.string.settings_playback_option_forced)
-    code.equals(AudioLanguageOption.DEFAULT, ignoreCase = true) ->
-        stringResource(Res.string.settings_playback_option_default)
-    code.equals(AudioLanguageOption.DEVICE, ignoreCase = true) ||
-        code.equals(SubtitleLanguageOption.DEVICE, ignoreCase = true) ->
-        stringResource(Res.string.settings_playback_option_device_language)
-    code.equals(AudioLanguageOption.ORIGINAL, ignoreCase = true) ->
-        stringResource(Res.string.settings_playback_option_original)
-    else -> languageLabelResForCode(code)?.let { stringResource(it) }
-        ?: stringResource(Res.string.subtitle_language_unknown)
 }
 
 suspend fun getLanguageLabelForCode(code: String?): String = when {

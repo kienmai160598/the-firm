@@ -1,6 +1,5 @@
 package com.nuvio.app.features.profiles
 
-import androidx.compose.ui.graphics.Color
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -66,17 +65,6 @@ data class AvatarCatalogItem(
     @Transient val localImageUrl: String? = null,
     @Transient val memberOnly: Boolean = false,
 )
-
-fun parseHexColor(hex: String): Color {
-    val cleaned = hex.removePrefix("#")
-    return runCatching {
-        when (cleaned.length) {
-            6 -> Color(("FF$cleaned").toLong(16))
-            8 -> Color(cleaned.toLong(16))
-            else -> Color(0xFF1E88E5)
-        }
-    }.getOrDefault(Color(0xFF1E88E5))
-}
 
 val PROFILE_COLORS = listOf(
     "#1E88E5", "#E53935", "#43A047", "#FB8C00",

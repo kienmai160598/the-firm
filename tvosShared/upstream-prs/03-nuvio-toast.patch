@@ -1,0 +1,89 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/Components.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/Components.kt
+index 51a854c0..53227c17 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/Components.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/Components.kt
+@@ -69,8 +69,6 @@ import nuvio.composeapp.generated.resources.action_back
+ import nuvio.composeapp.generated.resources.action_ok
+ import org.jetbrains.compose.resources.stringResource
+ import kotlinx.coroutines.delay
+-import kotlinx.coroutines.flow.MutableStateFlow
+-import kotlinx.coroutines.flow.asStateFlow
+ import com.nuvio.app.navigation.LocalNativeNavigationBarHidden
+ import com.nuvio.app.navigation.LocalUseNativeNavigation
+ 
+@@ -522,34 +520,3 @@ fun NuvioToastHost(
+         }
+     }
+ }
+-
+-data class NuvioToastMessage(
+-    val id: Long,
+-    val message: String,
+-    val durationMillis: Long,
+-)
+-
+-object NuvioToastController {
+-    private val _currentToast = MutableStateFlow<NuvioToastMessage?>(null)
+-    val currentToast = _currentToast.asStateFlow()
+-    private var nextToastId = 0L
+-
+-    fun show(
+-        message: String,
+-        durationMillis: Long = 2500L,
+-    ) {
+-        nextToastId += 1L
+-        _currentToast.value = NuvioToastMessage(
+-            id = nextToastId,
+-            message = message,
+-            durationMillis = durationMillis,
+-        )
+-    }
+-
+-    fun dismiss(id: Long? = null) {
+-        val activeToast = _currentToast.value ?: return
+-        if (id == null || activeToast.id == id) {
+-            _currentToast.value = null
+-        }
+-    }
+-}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/NuvioToast.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/NuvioToast.kt
+new file mode 100644
+index 00000000..443a6b7c
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/NuvioToast.kt
+@@ -0,0 +1,35 @@
++package com.nuvio.app.core.ui
++
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.asStateFlow
++
++data class NuvioToastMessage(
++    val id: Long,
++    val message: String,
++    val durationMillis: Long,
++)
++
++object NuvioToastController {
++    private val _currentToast = MutableStateFlow<NuvioToastMessage?>(null)
++    val currentToast = _currentToast.asStateFlow()
++    private var nextToastId = 0L
++
++    fun show(
++        message: String,
++        durationMillis: Long = 2500L,
++    ) {
++        nextToastId += 1L
++        _currentToast.value = NuvioToastMessage(
++            id = nextToastId,
++            message = message,
++            durationMillis = durationMillis,
++        )
++    }
++
++    fun dismiss(id: Long? = null) {
++        val activeToast = _currentToast.value ?: return
++        if (id == null || activeToast.id == id) {
++            _currentToast.value = null
++        }
++    }
++}
