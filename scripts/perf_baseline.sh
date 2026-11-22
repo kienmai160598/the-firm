@@ -2,7 +2,7 @@
 #
 # Performance gate for the NuvioTV TV app.
 #
-# The benchmark code lives in the :baselineprofile module (package com.nuvio.tv.baselineprofile):
+# The benchmark code lives in the :baselineprofile module (package com.kien.movies.baselineprofile):
 #   * BaselineProfileGenerator  -> collects the baseline profile
 #   * NuvioFrameMetricsBenchmark -> frame timing guard rails (frameDurationCpuMs / frameOverrunMs)
 #   * NuvioStartupBenchmark      -> startup guard rail (timeToInitialDisplayMs)
@@ -12,9 +12,9 @@
 set -uo pipefail
 
 MODULE=":baselineprofile"
-GENERATOR_CLASS="com.nuvio.tv.baselineprofile.BaselineProfileGenerator"
-BENCHMARK_CLASS="com.nuvio.tv.baselineprofile.NuvioFrameMetricsBenchmark"
-STARTUP_CLASS="com.nuvio.tv.baselineprofile.NuvioStartupBenchmark"
+GENERATOR_CLASS="com.kien.movies.baselineprofile.BaselineProfileGenerator"
+BENCHMARK_CLASS="com.kien.movies.baselineprofile.NuvioFrameMetricsBenchmark"
+STARTUP_CLASS="com.kien.movies.baselineprofile.NuvioStartupBenchmark"
 # The androidx.baselineprofile plugin adds a "benchmark" flavor dimension to the module, so the
 # connected test tasks are <flavor><BuildType>AndroidTest:
 #   * benchmarkRelease    -> the app under test is the minified release build (macrobenchmark)

@@ -135,12 +135,12 @@ val releaseStorePasswordValue = env("NUVIO_RELEASE_STORE_PASSWORD")
     ?: localProperties.getProperty("NUVIO_RELEASE_STORE_PASSWORD", "815787")
 
 android {
-    namespace = "com.nuvio.tv"
+    namespace = "com.kien.movies"
     compileSdk = 36
     ndkVersion = "29.0.14206865"
 
     defaultConfig {
-        applicationId = "com.nuvio.tv"
+        applicationId = "com.kien.movies"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 24
         targetSdk = 36
@@ -203,7 +203,7 @@ android {
         }
         create("playstore") {
             dimension = "distribution"
-            applicationId = "com.nuvio.app"
+            applicationId = "com.kien.movies.play"
             buildConfigField("boolean", "FEATURE_PLUGINS_ENABLED", "false")
             buildConfigField("boolean", "FEATURE_IN_APP_UPDATES_ENABLED", "false")
             buildConfigField("boolean", "FEATURE_IN_APP_TRAILERS_ENABLED", "false")
@@ -376,7 +376,7 @@ android {
 androidComponents {
     onVariants(selector().withBuildType("debug")) { variant ->
         val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
-        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuviodebug.com")
+        variant.applicationId.set(if (isPlaystore) "com.kien.movies.play.debug" else "com.kien.movies.debug")
     }
     // Only the full flavor ships the in-app updater.
     onVariants(selector().withFlavor("distribution" to "full")) { variant ->
@@ -419,7 +419,7 @@ android {
 
 androidComponents {
     onVariants(selector().withBuildType("box")) { variant ->
-        variant.applicationId.set("com.nuviobox.tv")
+        variant.applicationId.set("com.kien.movies")
     }
 }
 
@@ -455,7 +455,7 @@ baselineProfile {
     mergeIntoMain = true
     baselineProfileOutputDir = "generated/baselineProfiles"
     filter {
-        include("com.nuvio.tv.**")
+        include("com.kien.movies.**")
     }
 }
 
@@ -517,7 +517,7 @@ dependencies {
 
     // Source-retention nullness annotations (MonotonicNonNull / RequiresNonNull /
     // EnsuresNonNull) used by the vendored Matroska extractor in
-    // com.nuvio.tv.core.player.dvmkv. Media3 keeps these compileOnly in its own
+    // com.kien.movies.core.player.dvmkv. Media3 keeps these compileOnly in its own
     // build, so they aren't on our classpath via the prebuilt AARs.
     compileOnly("org.checkerframework:checker-qual:3.43.0")
 

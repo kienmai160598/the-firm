@@ -9,8 +9,8 @@ usage="usage: ANDROID_SERIAL=<ip>:5555 [BOX_PACKAGE=<id>] box/perf/measure.sh <l
 label="${1:?$usage}"
 runs="${2:-3}"
 : "${ANDROID_SERIAL:?$usage}"
-package="${BOX_PACKAGE:-com.nuviobox.tv}"
-activity="$package/com.nuvio.tv.MainActivity"
+package="${BOX_PACKAGE:-com.kien.movies}"
+activity="$package/com.kien.movies.MainActivity"
 out="$(dirname "$0")/results/$label"
 
 fail() {

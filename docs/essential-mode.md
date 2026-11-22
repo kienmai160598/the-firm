@@ -12,17 +12,17 @@ The goal is not to remove capabilities from the app. The goal is to put the mini
 
 This spec is based on the current app structure in:
 
-- `app/src/main/java/com/nuvio/tv/MainActivity.kt`
-- `app/src/main/java/com/nuvio/tv/ui/navigation/Screen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/navigation/NuvioNavHost.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/SettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/addon/AddonManagerScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/plugin/PluginScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/LayoutSettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/PlaybackSettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/ThemeSettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/player/PlayerScreen.kt`
-- `app/src/main/java/com/nuvio/tv/data/local/*DataStore.kt`
+- `app/src/main/java/com/kien/movies/MainActivity.kt`
+- `app/src/main/java/com/kien/movies/ui/navigation/Screen.kt`
+- `app/src/main/java/com/kien/movies/ui/navigation/NuvioNavHost.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/settings/SettingsScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/addon/AddonManagerScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/plugin/PluginScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/settings/LayoutSettingsScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/settings/PlaybackSettingsScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/settings/ThemeSettingsScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/player/PlayerScreen.kt`
+- `app/src/main/java/com/kien/movies/data/local/*DataStore.kt`
 
 Current first launch flow:
 
@@ -552,7 +552,7 @@ enum class ExperienceMode {
 
 Recommended package:
 
-- `app/src/main/java/com/nuvio/tv/domain/model/ExperienceMode.kt`
+- `app/src/main/java/com/kien/movies/domain/model/ExperienceMode.kt`
 
 ### 2. Persist Experience Mode
 
@@ -570,7 +570,7 @@ Best fit for NuvioTV:
 
 Suggested file:
 
-- `app/src/main/java/com/nuvio/tv/data/local/ExperienceModeDataStore.kt`
+- `app/src/main/java/com/kien/movies/data/local/ExperienceModeDataStore.kt`
 
 Migration behavior:
 
@@ -584,7 +584,7 @@ Avoid scattering mode checks across many screens.
 
 Suggested file:
 
-- `app/src/main/java/com/nuvio/tv/core/experience/ExperienceModePolicy.kt`
+- `app/src/main/java/com/kien/movies/core/experience/ExperienceModePolicy.kt`
 
 Policy should answer questions like:
 
@@ -626,7 +626,7 @@ New logic:
 
 Add screen:
 
-- `app/src/main/java/com/nuvio/tv/ui/screens/ExperienceModeSelectionScreen.kt`
+- `app/src/main/java/com/kien/movies/ui/screens/ExperienceModeSelectionScreen.kt`
 
 ### 5. Update Navigation
 

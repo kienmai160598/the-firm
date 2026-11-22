@@ -8,7 +8,7 @@ set -euo pipefail
 usage="usage: ANDROID_SERIAL=<ip>:5555 [BOX_PACKAGE=<id>] box/install.sh <apk>"
 apk="${1:?$usage}"
 : "${ANDROID_SERIAL:?$usage}"
-package="${BOX_PACKAGE:-com.nuviobox.tv}"
+package="${BOX_PACKAGE:-com.kien.movies}"
 receiver="$package/androidx.profileinstaller.ProfileInstallReceiver"
 
 fail() {
