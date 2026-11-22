@@ -110,7 +110,7 @@ private struct EpisodeCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            NavigationLink(value: AppRoute.streams(episode.streamTarget)) {
+            RouteLink(value: AppRoute.streams(episode.streamTarget)) {
                 ArtworkImage(url: episode.thumbnailUrl)
                     .frame(width: Self.width, height: Self.width * 9 / 16)
                     .opacity(episode.isReleased ? 1 : 0.5)

@@ -81,7 +81,7 @@ final class PlaybackRemoteTests: XCTestCase {
         sleep(3)
     }
 
-    func testTorrentStreamOpensInfoSheet() {
+    func testTorrentStreamPlaysThroughTheEngine() {
         app.launchArguments = [
             "-MoviesDebugAddonUrl", Self.addonUrl,
             "-MoviesDebugRoute", "streams/movie/tt1727587",
@@ -93,11 +93,14 @@ final class PlaybackRemoteTests: XCTestCase {
         XCTAssertTrue(torrent.waitForExistence(timeout: 60))
         focus(torrent)
         remote.press(.select)
-        let note = app.staticTexts
+        sleep(20)
+        saveScreenshot("p9-torrent-playing")
+        let failureNote = app.staticTexts
             .matching(NSPredicate(format: "label BEGINSWITH 'This is a torrent'"))
             .firstMatch
-        XCTAssertTrue(note.waitForExistence(timeout: 10))
-        saveScreenshot("p9-torrent-sheet")
+        XCTAssertFalse(failureNote.exists, "Torrent failed and opened the info sheet")
+        XCTAssertFalse(app.staticTexts["Playback failed"].exists)
+        dismissPlayer(returningTo: torrent)
     }
 
     private static var isAddonServerUp: Bool {

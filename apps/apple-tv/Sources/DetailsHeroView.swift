@@ -24,7 +24,7 @@ struct DetailsHeroView: View {
             }
             if let action = details.primaryAction {
                 HStack(alignment: .center, spacing: 36) {
-                    NavigationLink(value: AppRoute.streams(action.target)) {
+                    RouteLink(value: AppRoute.streams(action.target)) {
                         Label(action.label, systemImage: "play.fill")
                             .font(.headline)
                             .padding(.horizontal, 12)

@@ -183,7 +183,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
         remote.press(.menu)
     }
 
-    func testE_DownFromTabBarFocusesFirstCardAndBackRestoresSelection() {
+    func testE_DownFromHeroFocusesFirstCardAndBackRestoresSelection() {
         app.terminate()
         app.launchArguments = ["-MoviesDebugAddonUrl", Self.addonUrl]
         app.launch()
@@ -192,11 +192,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
         let cards = continueWatchingCards
         XCTAssertGreaterThanOrEqual(cards.count, 2)
 
-        let homeTab = app.buttons["Home"].firstMatch
-        for _ in 0..<3 where !homeTab.hasFocus {
-            remote.press(.up)
-        }
-        XCTAssertTrue(homeTab.hasFocus)
+        focusHero()
         remote.press(.down)
         XCTAssertTrue(waitForFocus(cards[0]), "Focused: \(focusedLabel)")
         saveScreenshot("s5-8-down-focuses-first-card")
@@ -253,7 +249,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
         saveScreenshot("s5-16-in-progress-removed")
 
         launchHome()
-        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 30))
+        XCTAssertTrue(app.staticTexts["Popular - Movies"].waitForExistence(timeout: 60))
         sleep(10)
         XCTAssertFalse(otherCard.exists, "Removed \(otherTitle) came back after relaunch")
     }
@@ -312,15 +308,35 @@ final class SeriesContinueWatchingTests: XCTestCase {
     }
 
     private func focusContinueWatchingRow() {
-        let homeTab = app.buttons["Home"].firstMatch
-        for _ in 0..<4 where !homeTab.hasFocus {
-            remote.press(.up)
-        }
-        sleep(1)
+        focusHero()
         remote.press(.down)
         XCTAssertTrue(
             focusedContinueWatchingCard.waitForExistence(timeout: 3), "Focused: \(focusedLabel)"
         )
+    }
+
+    private func focusHero() {
+        for _ in 0..<8 where !focusedHero.exists {
+            remote.press(isSidebarFocused ? .right : .up)
+            _ = focusedHero.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(focusedHero.exists, "Focused: \(focusedLabel)")
+    }
+
+    private var focusedHero: XCUIElement {
+        let focusedButton = NSPredicate(
+            format: "identifier == %@ AND hasFocus == true", "homeHeroButton"
+        )
+        return app.buttons.matching(focusedButton).firstMatch
+    }
+
+    private var isSidebarFocused: Bool {
+        let focused = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "hasFocus == true"))
+            .firstMatch
+        let title = focused.staticTexts.firstMatch
+        return focused.exists && title.exists
+            && ["Home", "Search", "Library", "Addons", "Settings"].contains(title.label)
     }
 
     private var focusedContinueWatchingCard: XCUIElement {
@@ -463,7 +479,7 @@ final class SeriesContinueWatchingTests: XCTestCase {
     }
 
     private func focusContinueWatchingCard() {
-        focus(continueWatchingCard, moving: [.up, .up, .up, .down, .left, .left, .left])
+        focusCard(continueWatchingCard)
     }
 
     private func focus(_ element: XCUIElement, moving moves: [XCUIRemote.Button]) {

@@ -37,7 +37,7 @@ private struct ContinueWatchingCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            NavigationLink(value: AppRoute.streams(item.target, resumesDirectly: true)) {
+            RouteLink(value: AppRoute.streams(item.target, resumesDirectly: true)) {
                 ArtworkImage(url: item.imageUrl)
                     .frame(width: Self.width, height: Self.width * 9 / 16)
                     .overlay(alignment: .bottom) {

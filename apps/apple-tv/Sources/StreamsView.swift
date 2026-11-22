@@ -273,7 +273,7 @@ private struct CheckingStreamView: View {
         }
         .padding(.horizontal, 32)
         .padding(.vertical, 24)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
+        .glassPanel(cornerRadius: 24)
         .padding(.top, 20)
     }
 }
@@ -308,7 +308,7 @@ private struct TorrentProgressView: View {
         }
         .padding(.horizontal, 32)
         .padding(.vertical, 24)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
+        .glassPanel(cornerRadius: 24)
         .padding(.top, 20)
     }
 

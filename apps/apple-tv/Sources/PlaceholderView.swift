@@ -10,5 +10,7 @@ struct PlaceholderView: View {
             Text("Coming in a later slice")
                 .foregroundStyle(.secondary)
         }
+        .padding(40)
+        .focusable()
     }
 }

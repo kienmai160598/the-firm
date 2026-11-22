@@ -3,12 +3,14 @@ import SwiftUI
 
 struct HomeHero: View {
     static let height: CGFloat = 880
+    static let contentInset: CGFloat = 160
     private static let advanceInterval: Duration = .seconds(8)
     private static let maxItems = 6
 
     let items: [TvosItem]
-    @State private var index = 0
+    @State private var currentId: String?
     @State private var advanceTask: Task<Void, Never>?
+    @FocusState private var focusedId: String?
 
     init(rows: [TvosRow]) {
         let featured = rows.first?.items.filter { $0.backdropUrl != nil } ?? []
@@ -16,44 +18,50 @@ struct HomeHero: View {
     }
 
     var body: some View {
-        if let item = currentItem {
-            ZStack(alignment: .bottomLeading) {
-                HeroBackdrop(url: item.backdropUrl)
-                    .id(item.metaId)
-                    .transition(.opacity)
-                HeroDetails(item: item, onMove: move)
-                    .padding(.horizontal, 80)
-                    .padding(.bottom, 70)
-                PageIndicator(count: items.count, index: index)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.horizontal, 80)
-                    .padding(.bottom, 80)
+        if !items.isEmpty {
+            pages
+                .overlay(alignment: .bottomTrailing) {
+                    PageIndicator(count: items.count, index: currentIndex)
+                        .padding(.bottom, 80)
+                }
+                .frame(height: Self.height)
+                .onAppear(perform: start)
+                .onDisappear { advanceTask?.cancel() }
+                .onChange(of: focusedId) { _, id in follow(id) }
+                .defaultFocus($focusedId, items.first?.metaId)
+        }
+    }
+
+    private var pages: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(items, id: \.metaId) { item in
+                    HeroPage(item: item, focusedId: $focusedId)
+                        .containerRelativeFrame(.horizontal)
+                        .id(item.metaId)
+                }
             }
-            .frame(height: Self.height)
-            .animation(.easeInOut(duration: 0.6), value: index)
-            .onAppear(perform: scheduleAdvance)
-            .onDisappear { advanceTask?.cancel() }
+            .scrollTargetLayout()
         }
+        .scrollPosition(id: $currentId)
+        .scrollTargetBehavior(.paging)
+        .scrollIndicators(.hidden)
+        .ignoresSafeArea(edges: .horizontal)
     }
 
-    private var currentItem: TvosItem? {
-        items.indices.contains(index) ? items[index] : items.first
+    private var currentIndex: Int {
+        items.firstIndex { $0.metaId == currentId } ?? 0
     }
 
-    private func move(_ direction: MoveCommandDirection) {
-        switch direction {
-        case .left:
-            show(index - 1)
-        case .right:
-            show(index + 1)
-        default:
-            break
+    private func start() {
+        if currentId == nil { currentId = items.first?.metaId }
+        scheduleAdvance()
+    }
+
+    private func follow(_ id: String?) {
+        if let id, id != currentId {
+            withAnimation(.easeInOut(duration: 0.5)) { currentId = id }
         }
-    }
-
-    private func show(_ newIndex: Int) {
-        guard !items.isEmpty else { return }
-        index = (newIndex + items.count) % items.count
         scheduleAdvance()
     }
 
@@ -62,7 +70,29 @@ struct HomeHero: View {
         advanceTask = Task { @MainActor in
             try? await Task.sleep(for: Self.advanceInterval)
             guard !Task.isCancelled else { return }
-            show(index + 1)
+            advance()
+        }
+    }
+
+    private func advance() {
+        if focusedId == nil {
+            let next = items[(currentIndex + 1) % items.count]
+            withAnimation(.easeInOut(duration: 0.8)) { currentId = next.metaId }
+        }
+        scheduleAdvance()
+    }
+}
+
+private struct HeroPage: View {
+    let item: TvosItem
+    let focusedId: FocusState<String?>.Binding
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            HeroBackdrop(url: item.backdropUrl)
+            HeroDetails(item: item, focusedId: focusedId)
+                .padding(.horizontal, HomeHero.contentInset)
+                .padding(.bottom, 70)
         }
     }
 }
@@ -95,13 +125,13 @@ private struct HeroBackdrop: View {
                     endPoint: .bottom
                 )
             )
-            .ignoresSafeArea(edges: [.top, .horizontal])
+            .ignoresSafeArea(edges: .top)
     }
 }
 
 private struct HeroDetails: View {
     let item: TvosItem
-    let onMove: (MoveCommandDirection) -> Void
+    let focusedId: FocusState<String?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
@@ -117,18 +147,18 @@ private struct HeroDetails: View {
                     .foregroundStyle(.white.opacity(0.85))
                     .lineLimit(3)
             }
-            NavigationLink(value: AppRoute.details(type: item.type, id: item.metaId)) {
+            RouteLink(value: AppRoute.details(type: item.type, id: item.metaId)) {
                 Label("Watch Now", systemImage: "play.fill")
                     .font(.headline)
                     .padding(.horizontal, 12)
             }
             .glassProminentButtonStyle()
-            .onMoveCommand(perform: onMove)
+            .focused(focusedId, equals: item.metaId)
             .accessibilityIdentifier("homeHeroButton")
+            .accessibilityValue(item.name)
             .padding(.top, 6)
         }
         .frame(maxWidth: 860, alignment: .leading)
-        .focusSection()
     }
 
     private var metadataLine: String {
