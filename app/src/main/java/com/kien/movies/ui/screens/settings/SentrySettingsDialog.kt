@@ -19,8 +19,8 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -40,7 +40,7 @@ internal fun SentrySettingsDialog(
         }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(
             if (enabled) {
@@ -61,7 +61,7 @@ internal fun SentrySettingsDialog(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             SentryInfoSection(
                 title = stringResource(R.string.sentry_help_title),
@@ -77,11 +77,11 @@ internal fun SentrySettingsDialog(
             )
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
@@ -90,8 +90,8 @@ internal fun SentrySettingsDialog(
                     .weight(1f)
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
@@ -116,8 +116,8 @@ internal fun SentrySettingsDialog(
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
@@ -141,16 +141,16 @@ private fun SentryInfoSection(
     title: String,
     body: String
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
         Text(
             text = body,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }

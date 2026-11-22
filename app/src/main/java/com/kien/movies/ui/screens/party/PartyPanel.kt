@@ -56,7 +56,7 @@ import com.kien.movies.core.party.PartyUiState
 import com.kien.movies.ui.screens.detail.formatPlaybackTime
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.player.DialogButton
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun PartyPanel(
@@ -84,9 +84,9 @@ fun PartyPanel(
             .fillMaxHeight()
             .width(520.dp)
             .clip(partyPanelShape())
-            .background(NuvioTheme.colors.BackgroundElevated),
+            .background(MoviesTheme.colors.BackgroundElevated),
     ) {
-        Column(modifier = Modifier.padding(NuvioTheme.spacing.xl)) {
+        Column(modifier = Modifier.padding(MoviesTheme.spacing.xl)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -95,7 +95,7 @@ fun PartyPanel(
                 Text(
                     text = stringResource(R.string.party_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
                 DialogButton(
                     text = stringResource(R.string.action_close),
@@ -103,7 +103,7 @@ fun PartyPanel(
                     isPrimary = false,
                 )
             }
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
             AnimatedContent(
                 targetState = state.party,
                 contentKey = { it != null },
@@ -159,25 +159,25 @@ private fun StartContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(bottom = NuvioTheme.spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+            .padding(bottom = MoviesTheme.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
     ) {
         SeatsHero(
             profile = profile,
             size = 56.dp,
-            ringColor = NuvioTheme.colors.BackgroundElevated,
-            modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm),
+            ringColor = MoviesTheme.colors.BackgroundElevated,
+            modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm),
         )
         Text(
             text = stringResource(R.string.party_start_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
         )
         Text(
             text = stringResource(R.string.party_start_description),
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
         )
         when {
             !isSupported -> PartyNote(stringResource(R.string.party_unavailable))
@@ -189,7 +189,7 @@ private fun StartContent(
                 enabled = !busy,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = NuvioTheme.spacing.sm)
+                    .padding(top = MoviesTheme.spacing.sm)
                     .focusRequester(startFocusRequester),
             )
         }
@@ -216,7 +216,7 @@ private fun PartyContent(
     LaunchedEffect(Unit) { contentFocusRequester.requestFocusAfterFrames() }
     Column(modifier = Modifier.fillMaxSize()) {
         CodeSection(code = party.code, connected = party.connected)
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sidePanel.inner))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sidePanel.inner))
         PartyDetailsList(
             party = party,
             playerMedia = playerMedia,
@@ -258,8 +258,8 @@ private fun PartyDetailsList(
         modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(bottom = NuvioTheme.spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sidePanel.inner),
+            .padding(bottom = MoviesTheme.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sidePanel.inner),
     ) {
         var lastBehindMs by remember { mutableStateOf(0L) }
         if (behindMs != null) lastBehindMs = behindMs
@@ -268,11 +268,11 @@ private fun PartyDetailsList(
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically(),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                 Text(
                     text = stringResource(R.string.party_behind_title, formatPlaybackTime(lastBehindMs)),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
                 DialogButton(
                     text = stringResource(R.string.party_catch_up),
@@ -287,11 +287,11 @@ private fun PartyDetailsList(
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically(),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                 Text(
                     text = stringResource(R.string.party_now_watching, party.media.displayTitle()),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
                 DialogButton(
                     text = stringResource(R.string.party_watch_with_party),
@@ -311,7 +311,7 @@ private fun PartyDetailsList(
         }
         MembersSection(
             party = party,
-            ringColor = NuvioTheme.colors.BackgroundElevated,
+            ringColor = MoviesTheme.colors.BackgroundElevated,
             onRemove = onRemove,
             selfBehindMs = behindMs,
         )
@@ -365,7 +365,7 @@ fun PartyStatusPill(
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(NuvioTheme.radii.full))
+                .clip(RoundedCornerShape(MoviesTheme.radii.full))
                 .background(Color.Black.copy(alpha = 0.6f))
                 .animateContentSize()
                 .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = if (message != null) 16.dp else 6.dp),

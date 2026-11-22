@@ -37,7 +37,7 @@ class DefaultAllocatorTest {
     }
 
     @Test
-    fun testAllocationInNuvioMode() {
+    fun testAllocationInMoviesMode() {
         NuvioEngineConfig.set(NuvioEngineConfig.nuvioMode())
         
         val allocationSize = 65536

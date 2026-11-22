@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -49,7 +49,7 @@ fun ProfileEditorTabs(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         ProfileEditorTabItem(
             label = stringResource(R.string.profile_editor_tab_avatar),
@@ -76,11 +76,11 @@ private fun ProfileEditorTabItem(
     val interactionSource = remember { MutableInteractionSource() }
     val backgroundColor by animateColorAsState(
         targetValue = when {
-            isExpressiveBuild && isFocused -> NuvioTheme.colors.Secondary
-            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusBackground
-            isExpressiveBuild -> NuvioTheme.colors.BackgroundCard
-            isFocused -> NuvioTheme.colors.FocusBackground
-            isSelected -> NuvioTheme.colors.Secondary.copy(alpha = 0.22f)
+            isExpressiveBuild && isFocused -> MoviesTheme.colors.Secondary
+            isExpressiveBuild && isSelected -> MoviesTheme.colors.FocusBackground
+            isExpressiveBuild -> MoviesTheme.colors.BackgroundCard
+            isFocused -> MoviesTheme.colors.FocusBackground
+            isSelected -> MoviesTheme.colors.Secondary.copy(alpha = 0.22f)
             else -> Color.White.copy(alpha = 0.06f)
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(120)),
@@ -88,10 +88,10 @@ private fun ProfileEditorTabItem(
     )
     val textColor by animateColorAsState(
         targetValue = when {
-            isExpressiveBuild && isFocused -> NuvioTheme.colors.OnSecondary
-            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusContent
+            isExpressiveBuild && isFocused -> MoviesTheme.colors.OnSecondary
+            isExpressiveBuild && isSelected -> MoviesTheme.colors.FocusContent
             isSelected || isFocused -> Color.White
-            else -> NuvioTheme.colors.TextSecondary
+            else -> MoviesTheme.colors.TextSecondary
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "profileEditorTabText"
@@ -112,14 +112,14 @@ private fun ProfileEditorTabItem(
                 } else {
                     Modifier.border(
                         border = if (isFocused) {
-                            NuvioTheme.focusRing.border(2.dp)
+                            MoviesTheme.focusRing.border(2.dp)
                         } else {
                             BorderStroke(
                                 1.dp,
                                 if (isSelected) {
-                                    NuvioTheme.colors.Secondary
+                                    MoviesTheme.colors.Secondary
                                 } else {
-                                    NuvioTheme.colors.Border
+                                    MoviesTheme.colors.Border
                                 }
                             )
                         },
@@ -139,7 +139,7 @@ private fun ProfileEditorTabItem(
             }
             .padding(
                 horizontal = 18.dp,
-                vertical = if (isExpressiveBuild) NuvioTheme.spacing.md else NuvioTheme.spacing.sm
+                vertical = if (isExpressiveBuild) MoviesTheme.spacing.md else MoviesTheme.spacing.sm
             )
     )
 }

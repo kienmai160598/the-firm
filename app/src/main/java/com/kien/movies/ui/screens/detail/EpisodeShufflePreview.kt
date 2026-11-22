@@ -52,7 +52,7 @@ import com.kien.movies.R
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.PlayManualOverrideDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
 
@@ -118,7 +118,7 @@ internal fun EpisodeShufflePreview(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
                     Text(stringResource(R.string.action_back), modifier = Modifier.padding(start = 8.dp))
                 }
-                Text(meta.name, style = MaterialTheme.typography.titleLarge, color = NuvioTheme.colors.TextPrimary,
+                Text(meta.name, style = MaterialTheme.typography.titleLarge, color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Row(
@@ -130,19 +130,19 @@ internal fun EpisodeShufflePreview(
                     ShuffleEpisodeArtwork(episode, isWatched, blurUnwatchedEpisodes && !isWatched)
                     Text(
                         stringResource(if (includeWatched) R.string.random_episode_include_watched else R.string.random_episode_unwatched),
-                        style = MaterialTheme.typography.bodyMedium, color = NuvioTheme.colors.TextSecondary
+                        style = MaterialTheme.typography.bodyMedium, color = MoviesTheme.colors.TextSecondary
                     )
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 20.dp)) {
                     Text(stringResource(R.string.shuffle_preview_title), style = MaterialTheme.typography.labelLarge,
-                        color = NuvioTheme.colors.Primary)
+                        color = MoviesTheme.colors.Primary)
                     Text(stringResource(R.string.season_episode_format, episode.season ?: 0, episode.episode ?: 0),
-                        style = MaterialTheme.typography.titleMedium, color = NuvioTheme.colors.TextSecondary)
+                        style = MaterialTheme.typography.titleMedium, color = MoviesTheme.colors.TextSecondary)
                     Text(episode.title.localizeEpisodeTitle(LocalContext.current),
                         style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge,
-                        color = NuvioTheme.colors.TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        color = MoviesTheme.colors.TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     episode.overview?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodyMedium, color = NuvioTheme.colors.TextSecondary,
+                        Text(it, style = MaterialTheme.typography.bodyMedium, color = MoviesTheme.colors.TextSecondary,
                             maxLines = if (compact) 3 else 4, overflow = TextOverflow.Ellipsis)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -192,7 +192,7 @@ internal fun EpisodeShufflePreview(
                             stringResource(R.string.shuffle_only_episode),
                             style = MaterialTheme.typography.bodySmall
                                 .atLeastOnBox(TvSizeFloors.metaText),
-                            color = NuvioTheme.colors.TextSecondary)
+                            color = MoviesTheme.colors.TextSecondary)
                     }
                 }
             }
@@ -232,17 +232,17 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
     }
     Box(
         modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-            .clip(RoundedCornerShape(forBuild(16.dp, NuvioTheme.radii.xl)))
-            .background(NuvioTheme.colors.BackgroundCard),
+            .clip(RoundedCornerShape(forBuild(16.dp, MoviesTheme.radii.xl)))
+            .background(MoviesTheme.colors.BackgroundCard),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(if (hidden) Icons.Default.VisibilityOff else Icons.Default.Shuffle, contentDescription = null,
-                tint = NuvioTheme.colors.TextSecondary, modifier = Modifier.size(48.dp))
+                tint = MoviesTheme.colors.TextSecondary, modifier = Modifier.size(48.dp))
             if (hidden) Text(
                 stringResource(R.string.shuffle_artwork_hidden),
                 style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                color = NuvioTheme.colors.TextSecondary)
+                color = MoviesTheme.colors.TextSecondary)
         }
         if (request != null) AsyncImage(model = request, contentDescription = null, contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize())

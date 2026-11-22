@@ -40,7 +40,7 @@ fun getFontFamily(appFont: AppFont): FontFamily = when (appFont) {
 }
 
 @Immutable
-data class NuvioTextStyleTokens(
+data class MoviesTextStyleTokens(
     val display: TextStyle,
     val displayCompact: TextStyle,
     val headline: TextStyle,
@@ -57,7 +57,7 @@ data class NuvioTextStyleTokens(
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-fun buildNuvioTypography(fontFamily: FontFamily): Typography = Typography(
+fun buildMoviesTypography(fontFamily: FontFamily): Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
@@ -152,10 +152,10 @@ fun buildNuvioTypography(fontFamily: FontFamily): Typography = Typography(
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-val NuvioTypography = buildNuvioTypography(InterFamily)
+val MoviesTypography = buildMoviesTypography(InterFamily)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-fun buildNuvioTextStyles(typography: Typography): NuvioTextStyleTokens = NuvioTextStyleTokens(
+fun buildMoviesTextStyles(typography: Typography): MoviesTextStyleTokens = MoviesTextStyleTokens(
     display = typography.displayLarge,
     displayCompact = typography.displayMedium,
     headline = typography.headlineLarge,
@@ -175,4 +175,4 @@ fun buildNuvioTextStyles(typography: Typography): NuvioTextStyleTokens = NuvioTe
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-val NuvioTextStyles = buildNuvioTextStyles(NuvioTypography)
+val MoviesTextStyles = buildMoviesTextStyles(MoviesTypography)

@@ -3,7 +3,7 @@
 package com.kien.movies.ui.screens.home
 
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.AnimationSpec
@@ -545,7 +545,7 @@ internal fun ModernRowSection(
             titleMediumStyle.copy(fontWeight = FontWeight.SemiBold).rowTitleFloor()
         }
         val rowTitle = row.title
-        val textColor = NuvioTheme.colors.TextPrimary
+        val textColor = MoviesTheme.colors.TextPrimary
         val textModifier = remember(rowTitleBottom) {
             Modifier.padding(start = 52.dp, bottom = rowTitleBottom)
         }
@@ -924,7 +924,7 @@ internal fun ModernRowSection(
                     }
                     .focusGroup(),
                 contentPadding = PaddingValues(horizontal = rowStartPadding),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 itemsIndexed(
                     items = row.items.list,
@@ -1272,8 +1272,8 @@ private fun ModernCarouselCard(
             (effectiveIgnoreLandscapePoster || isBackdropExpanded || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
-    val backgroundCardColor = NuvioTheme.colors.BackgroundCard
-    val focusRingBorder = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs)
+    val backgroundCardColor = MoviesTheme.colors.BackgroundCard
+    val focusRingBorder = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs)
     val titleMedium = MaterialTheme.typography.titleMedium
     val backgroundPainter = remember(backgroundCardColor) { ColorPainter(backgroundCardColor) }
     val focusedBorder = remember(cardShape, focusRingBorder) {
@@ -1292,7 +1292,7 @@ private fun ModernCarouselCard(
     val isFastScrolling = isFastScrollingState.value
     val transparentFocusBorder = remember(cardShape) {
         Border(
-            border = BorderStroke(NuvioTheme.spacing.none, Color.Transparent),
+            border = BorderStroke(MoviesTheme.spacing.none, Color.Transparent),
             shape = cardShape
         )
     }
@@ -1314,7 +1314,7 @@ private fun ModernCarouselCard(
         modifier = modifier
             .animatedWidth(animatedCardWidthState)
             .recompositionHighlighter(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         LightweightCard(
             onClick = {
@@ -1370,7 +1370,7 @@ private fun ModernCarouselCard(
             containerColor = backgroundCardColor,
             focusedBorder = effectiveFocusedBorder,
             focusedGlow = effectiveFocusGlow,
-            focusedScale = NuvioTheme.cardFocusScale
+            focusedScale = MoviesTheme.cardFocusScale
         ) {
             Box(
                 modifier = Modifier
@@ -1492,7 +1492,7 @@ private fun ModernCarouselCard(
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
                             .height(cardHeight * 0.34f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = NuvioTheme.spacing.sm),
+                            .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.sm),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterStart
                     )
@@ -1508,7 +1508,7 @@ private fun ModernCarouselCard(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = NuvioTheme.spacing.md)
+                            .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.md)
                     )
                 }
 
@@ -1516,7 +1516,7 @@ private fun ModernCarouselCard(
                     WatchedMarker(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(end = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.sm)
+                            .padding(end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.sm)
                             .zIndex(2f)
                     )
                 }
@@ -1527,25 +1527,25 @@ private fun ModernCarouselCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = NuvioTheme.spacing.xs)
+                    .padding(horizontal = MoviesTheme.spacing.xs)
             ) {
                 Text(
                     text = item.title,
                     style = titleStyle.copy(
                         textDirection = item.title.contentTextDirection()
                     ),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 item.subtitle?.takeIf { it.isNotBlank() }?.let { subtitle ->
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
                             textDirection = subtitle.contentTextDirection()
                         ),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

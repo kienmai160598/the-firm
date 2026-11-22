@@ -28,7 +28,7 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.SubtitleParser
-import com.kien.movies.NuvioApplication
+import com.kien.movies.MoviesApplication
 import com.kien.movies.R
 import com.kien.movies.core.util.findCause
 import kotlinx.coroutines.CoroutineScope
@@ -135,8 +135,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     private val playbackHttpClient by lazy {
         PlayerPlaybackNetworking.playbackHttpClient.newBuilder()
             .socketFactory(NoDelaySocketFactory)
-            .cookieJar(NuvioApplication.extensionCookieJar)
-            .let { NuvioExoPlayerPerformanceHelper.applyNetworkOptimizations(it) }
+            .cookieJar(MoviesApplication.extensionCookieJar)
+            .let { MoviesExoPlayerPerformanceHelper.applyNetworkOptimizations(it) }
             .build()
     }
 
@@ -146,8 +146,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     ): Int {
         if (!nuvioPerformanceModeEnabled) return connections + 1
         val chunkMb = (chunkBytes / (1024L * 1024L)).toInt().coerceAtLeast(1)
-        val safeNativeMb = NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
-        val reserveMb = NuvioExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
+        val safeNativeMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+        val reserveMb = MoviesExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
         return com.kien.movies.ui.screens.settings.MemoryBudget.prefetchDepthChunks(
             connections, chunkMb, safeNativeMb, reserveMb
         )
@@ -214,11 +214,11 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             "PlayerMediaSource",
             "PLAYBACK_CONFIG: native=$nativeEngineEnabled " +
                 "customBuffers=$bufferEngineEnabled budgetManaged=$bufferBudgetManaged " +
-                "minBufferMs=${NuvioExoPlayerPerformanceHelper.minBufferMs} " +
-                "maxBufferMs=${NuvioExoPlayerPerformanceHelper.maxBufferMs} " +
-                "backBufferMs=${NuvioExoPlayerPerformanceHelper.backBufferMs} " +
-                "targetMb=${NuvioExoPlayerPerformanceHelper.targetBufferSizeMb} " +
-                "safeNativeMb=${NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)} " +
+                "minBufferMs=${MoviesExoPlayerPerformanceHelper.minBufferMs} " +
+                "maxBufferMs=${MoviesExoPlayerPerformanceHelper.maxBufferMs} " +
+                "backBufferMs=${MoviesExoPlayerPerformanceHelper.backBufferMs} " +
+                "targetMb=${MoviesExoPlayerPerformanceHelper.targetBufferSizeMb} " +
+                "safeNativeMb=${MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)} " +
                 "parallel=${if (useParallelConnections) parallelConnectionCount else 0} chunkKb=$parallelChunkSizeKb"
         )
         val useChunkSessionSource = useParallelConnections && !isHls && !isDash

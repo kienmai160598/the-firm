@@ -676,7 +676,7 @@ class HomeViewModel @Inject constructor(
 
     /**
      * When the watch-progress source changes (e.g. Trakt login/logout, or
-     * switching between Trakt and Nuvio Sync), clear the CW disk cache and
+     * switching between Trakt and Movies Sync), clear the CW disk cache and
      * in-memory state so items from the old source don't leak into the new one.
      */
     private fun observeProgressSourceChanges() {

@@ -10,7 +10,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val LOG_TAG = "NuvioBaselineProfile"
+private const val LOG_TAG = "MoviesBaselineProfile"
 
 /**
  * Collects the baseline profile of the app.

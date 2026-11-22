@@ -12,7 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Immutable
 
 @Immutable
-data class NuvioMotionDurations(
+data class MoviesMotionDurations(
     val instant: Int,
     val quick: Int,
     val fast: Int,
@@ -31,7 +31,7 @@ data class NuvioMotionDurations(
 )
 
 @Immutable
-data class NuvioMotionEasings(
+data class MoviesMotionEasings(
     val standard: Easing,
     val emphasized: Easing,
     val decelerate: Easing,
@@ -39,9 +39,9 @@ data class NuvioMotionEasings(
 )
 
 @Immutable
-data class NuvioMotionTokens(
-    val durations: NuvioMotionDurations,
-    val easings: NuvioMotionEasings,
+data class MoviesMotionTokens(
+    val durations: MoviesMotionDurations,
+    val easings: MoviesMotionEasings,
     val focusScale: Float,
     val selectedScale: Float,
     val pressedScale: Float,
@@ -49,7 +49,7 @@ data class NuvioMotionTokens(
 )
 
 @Immutable
-data class NuvioFocusTokens(
+data class MoviesFocusTokens(
     val scale: Float,
     val subtleScale: Float,
     val pressedScale: Float,
@@ -59,9 +59,9 @@ data class NuvioFocusTokens(
     val longPressRepeatMillis: Long
 )
 
-object NuvioMotion {
-    val tokens = NuvioMotionTokens(
-        durations = NuvioMotionDurations(
+object MoviesMotion {
+    val tokens = MoviesMotionTokens(
+        durations = MoviesMotionDurations(
             instant = 0,
             quick = 125,
             fast = 180,
@@ -78,7 +78,7 @@ object NuvioMotion {
             hero = 450,
             shimmer = 1200
         ),
-        easings = NuvioMotionEasings(
+        easings = MoviesMotionEasings(
             standard = FastOutSlowInEasing,
             emphasized = CubicBezierEasing(0.2f, 0f, 0f, 1f),
             decelerate = LinearOutSlowInEasing,
@@ -104,8 +104,8 @@ object NuvioMotion {
     )
 }
 
-object NuvioFocus {
-    val tokens = NuvioFocusTokens(
+object MoviesFocus {
+    val tokens = MoviesFocusTokens(
         scale = 1.02f,
         subtleScale = 1.01f,
         pressedScale = 0.98f,

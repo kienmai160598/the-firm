@@ -3,7 +3,7 @@ package com.kien.movies.ui.screens.collection
 import com.kien.movies.ui.components.expressiveOptionCardBorder
 import com.kien.movies.ui.components.expressiveOptionCardColors
 import com.kien.movies.ui.components.expressiveOptionCardShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -120,7 +120,7 @@ fun CatalogPickerContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = NuvioTheme.spacing.xxxl, start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl)
+            .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -130,9 +130,9 @@ fun CatalogPickerContent(
             Text(
                 text = stringResource(R.string.collections_editor_select_catalogs),
                 style = MaterialTheme.typography.headlineMedium.screenTitleFloor(),
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
-            NuvioButton(
+            MoviesButton(
                 onClick = onBack,
                 modifier = Modifier
                     .focusRequester(doneButtonFocusRequester)
@@ -141,14 +141,14 @@ fun CatalogPickerContent(
             ) { Text(stringResource(R.string.collections_editor_done)) }
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = pickerListState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = NuvioTheme.spacing.sm, end = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.xs, bottom = NuvioTheme.spacing.xxxl),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            contentPadding = PaddingValues(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xxxl),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             itemsIndexed(
                 items = catalogs,
@@ -168,28 +168,28 @@ fun CatalogPickerContent(
                             toggleableState = if (isAdded) ToggleableState.On else ToggleableState.Off
                         },
                     colors = expressiveOptionCardColors(CardDefaults.colors(
-                        containerColor = if (isAdded) NuvioTheme.colors.Secondary.copy(alpha = 0.15f) else NuvioTheme.colors.BackgroundCard,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = if (isAdded) MoviesTheme.colors.Secondary.copy(alpha = 0.15f) else MoviesTheme.colors.BackgroundCard,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ), selected = isAdded),
                     border = expressiveOptionCardBorder(CardDefaults.border(
                         border = if (isAdded) Border(
-                            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Secondary.copy(alpha = 0.5f)),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Secondary.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ) else Border.None,
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         )
                     )),
                     shape = expressiveOptionCardShape(
-                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1.01f)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(NuvioTheme.spacing.lg),
+                            .padding(MoviesTheme.spacing.lg),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -197,7 +197,7 @@ fun CatalogPickerContent(
                             Text(
                                 text = catalog.catalogName.replaceFirstChar { it.uppercase() },
                                 style = MaterialTheme.typography.titleSmall.bodyFloor(),
-                                color = NuvioTheme.colors.TextPrimary
+                                color = MoviesTheme.colors.TextPrimary
                             )
                             val supportingGenreText = when {
                                 catalog.genreRequired -> stringResource(R.string.collections_editor_genre_required)
@@ -207,20 +207,20 @@ fun CatalogPickerContent(
                             Text(
                                 text = listOfNotNull("${catalog.type} - ${catalog.addonName}", supportingGenreText).joinToString(" • "),
                                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = NuvioTheme.colors.TextTertiary
+                                color = MoviesTheme.colors.TextTertiary
                             )
                         }
                         if (isAdded) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = null,
-                                tint = NuvioTheme.colors.TextSecondary
+                                tint = MoviesTheme.colors.TextSecondary
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = null,
-                                tint = NuvioTheme.colors.TextTertiary
+                                tint = MoviesTheme.colors.TextTertiary
                             )
                         }
                     }

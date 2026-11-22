@@ -4,7 +4,7 @@ import com.kien.movies.ui.components.buttonLabelStyle
 import com.kien.movies.ui.components.expressiveButtonColors
 import com.kien.movies.ui.components.expressiveButtonScale
 import com.kien.movies.ui.components.expressivePrimaryButtonColors
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,7 +49,7 @@ import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.isSeriesLikeType
 import com.kien.movies.domain.model.localizedMembershipTitle
 import com.kien.movies.domain.model.LibrarySourceMode
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.theme.TvSizeFloors
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.tvControlHeight
@@ -74,7 +74,7 @@ fun PosterOptionsDialog(
         primaryFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.home_poster_dialog_subtitle)
@@ -87,8 +87,8 @@ fun PosterOptionsDialog(
                 .focusRequester(primaryFocusRequester),
             colors = expressiveButtonColors(
                 ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 )
             ),
             scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -102,8 +102,8 @@ fun PosterOptionsDialog(
             modifier = Modifier.fillMaxWidth().tvControlHeight(),
             colors = expressiveButtonColors(
                 ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 )
             ),
             scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -128,8 +128,8 @@ fun PosterOptionsDialog(
             modifier = Modifier.fillMaxWidth().tvControlHeight(),
             colors = expressiveButtonColors(
                 ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 )
             ),
             scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -164,7 +164,7 @@ fun PosterListPickerDialog(
         primaryFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.detail_lists_subtitle),
@@ -174,7 +174,7 @@ fun PosterListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isExpressiveBuild) NuvioTheme.colors.Error else Color(0xFFFFB6B6)
+                color = if (isExpressiveBuild) MoviesTheme.colors.Error else Color(0xFFFFB6B6)
             )
         }
 
@@ -202,8 +202,8 @@ fun PosterListPickerDialog(
                     },
                     colors = expressiveButtonColors(
                         ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            contentColor = MoviesTheme.colors.TextPrimary
                         ),
                         selected = selected
                     ),
@@ -230,7 +230,7 @@ fun PosterListPickerDialog(
             }
         }
 
-        Divider(color = NuvioTheme.colors.Border, thickness = NuvioTheme.spacing.hairline)
+        Divider(color = MoviesTheme.colors.Border, thickness = MoviesTheme.spacing.hairline)
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             Button(
@@ -238,8 +238,8 @@ fun PosterListPickerDialog(
                 enabled = !isPending,
                 colors = expressiveButtonColors(
                     ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextPrimary
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextPrimary
                     )
                 ),
                 scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -350,7 +350,7 @@ fun TrackingRemovalConfirmationDialog(
             stringResource(R.string.tracking_removal_impact_rating)
         else -> stringResource(R.string.tracking_removal_impact_history_rating)
     }
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.tracking_removal_title, providers),
         subtitle = stringResource(R.string.tracking_removal_message, itemTitle, providers, impact),
@@ -371,8 +371,8 @@ fun TrackingRemovalConfirmationDialog(
             modifier = Modifier.fillMaxWidth().tvControlHeight(),
             colors = expressiveButtonColors(
                 ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 )
             ),
             scale = expressiveButtonScale(ButtonDefaults.scale())

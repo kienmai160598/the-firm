@@ -23,9 +23,9 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.data.mdblist.MdbListLibraryListOption
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun MdbListLibraryListsDialog(
@@ -39,7 +39,7 @@ internal fun MdbListLibraryListsDialog(
         if (hasLists) firstListFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.mdblist_library_lists),
         subtitle = stringResource(R.string.mdblist_library_lists_description),
@@ -51,8 +51,8 @@ internal fun MdbListLibraryListsDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 380.dp),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                contentPadding = PaddingValues(vertical = NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                contentPadding = PaddingValues(vertical = MoviesTheme.spacing.xs)
             ) {
                 itemsIndexed(state.lists, key = { _, option -> option.key }) { index, option ->
                     // Taps are ignored while a change is saving; the row stays focusable so focus never jumps.
@@ -66,19 +66,19 @@ internal fun MdbListLibraryListsDialog(
                 }
             }
             state.isLoading -> Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                LoadingIndicator(modifier = Modifier.padding(NuvioTheme.spacing.md).size(28.dp))
+                LoadingIndicator(modifier = Modifier.padding(MoviesTheme.spacing.md).size(28.dp))
             }
             else -> Text(
                 text = stringResource(R.string.mdblist_library_lists_empty),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
         }
         state.errorMessage?.let { message ->
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.Error
+                color = MoviesTheme.colors.Error
             )
         }
     }

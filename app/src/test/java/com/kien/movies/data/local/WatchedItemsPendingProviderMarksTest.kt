@@ -68,7 +68,7 @@ class WatchedItemsPendingProviderMarksTest {
         val preferences = harness()
         preferences.markAsWatched(item(VIDEO, watchedAt = 50L), profileId = 1, pendingProviderMark = true)
 
-        // A Nuvio sync snapshot that no longer has it, taken after it was pushed.
+        // A Movies sync snapshot that no longer has it, taken after it was pushed.
         preferences.replaceWithRemoteItems(remoteItems = emptyList(), lastSuccessfulPushMs = 100L, profileId = 1)
 
         assertEquals(emptySet<String>(), preferences.observePendingProviderMarks(1).first())

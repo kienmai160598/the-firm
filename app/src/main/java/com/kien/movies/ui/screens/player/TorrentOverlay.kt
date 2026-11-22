@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.AnimatedVisibility
@@ -45,19 +45,19 @@ fun TorrentOverlay(
             modifier = Modifier
                 .background(
                     color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.7f)),
-                    shape = PlayerSurfaceStyle.compactShape(RoundedCornerShape(NuvioTheme.radii.sm))
+                    shape = PlayerSurfaceStyle.compactShape(RoundedCornerShape(MoviesTheme.radii.sm))
                 )
-                .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+                .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "P2P",
                     color = if (isExpressiveBuild) {
-                        NuvioTheme.colors.Success
+                        MoviesTheme.colors.Success
                     } else {
                         Color(0xFF4CAF50)
                     },

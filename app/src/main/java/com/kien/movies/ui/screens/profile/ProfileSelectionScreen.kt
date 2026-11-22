@@ -9,11 +9,11 @@ import com.kien.movies.ui.screens.detail.forBuild
 import com.kien.movies.ui.screens.detail.tonalButtonColors
 import com.kien.movies.ui.screens.detail.tvButtonPadding
 import androidx.tv.material3.MaterialTheme
-import com.kien.movies.ui.theme.NuvioPrimitives
+import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.brandWordmarkResource
 import com.kien.movies.ui.theme.createFocusRingStyle
@@ -131,7 +131,7 @@ import com.kien.movies.domain.model.UserProfile
 import com.kien.movies.ui.components.AvatarPickerGrid
 import com.kien.movies.ui.components.CustomProfileBackgroundImage
 import com.kien.movies.ui.components.MemberBrandWordmark
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.ProfileBackgroundImage
 import com.kien.movies.ui.components.ProfileBackgroundPicker
 import com.kien.movies.ui.components.ProfileAvatarCircle
@@ -144,32 +144,32 @@ import com.kien.movies.domain.model.resolveProfileBackgroundSelection
 import kotlinx.coroutines.delay
 
 private object ProfileSelectionSpacing {
-    val ScreenPaddingHorizontal = NuvioTheme.spacing.huge
-    val ScreenPaddingVertical = NuvioTheme.spacing.xxxl
+    val ScreenPaddingHorizontal = MoviesTheme.spacing.huge
+    val ScreenPaddingVertical = MoviesTheme.spacing.xxxl
     val LogoHeight = 44.dp
     val LogoToHeading = 28.dp
-    val HeadingToSubheading = NuvioTheme.spacing.md
+    val HeadingToSubheading = MoviesTheme.spacing.md
     val GridItemGap = 28.dp
-    val CompactGridItemGap = NuvioTheme.spacing.md
+    val CompactGridItemGap = MoviesTheme.spacing.md
     val CardWidth = forBuild(152.dp, 176.dp)
     val CompactCardWidth = forBuild(128.dp, 136.dp)
     val CardPaddingHorizontal = 10.dp
-    val CardPaddingVertical = NuvioTheme.spacing.sm
+    val CardPaddingVertical = MoviesTheme.spacing.sm
     val AvatarContainer = forBuild(126.dp, 152.dp)
     val CompactAvatarContainer = forBuild(104.dp, 116.dp)
     val CompactAvatarSize = 82.dp
     val CompactFocusedAvatarSize = 88.dp
     val CompactOuterAvatarSize = 98.dp
     val CompactFocusedOuterAvatarSize = 104.dp
-    val AvatarToName = NuvioTheme.spacing.md
+    val AvatarToName = MoviesTheme.spacing.md
     val CompactAvatarToName = 10.dp
-    val NameToMeta = NuvioTheme.spacing.sm
-    val MetaSlotHeight = NuvioTheme.spacing.lg.atLeastOnBox(20.dp)
+    val NameToMeta = MoviesTheme.spacing.sm
+    val MetaSlotHeight = MoviesTheme.spacing.lg.atLeastOnBox(20.dp)
     val EditorPanelMaxWidth = 980.dp
     val EditorPanelGap = 28.dp
     val EditorPreviewWidth = 280.dp
     val EditorPreviewAvatarSize = 112.dp
-    val EditorFieldRadius = forBuild(14.dp, NuvioTheme.radii.lg)
+    val EditorFieldRadius = forBuild(14.dp, MoviesTheme.radii.lg)
     val EditorPreviewTopOffset = 28.dp
     val EditorDividerHeight = 320.dp
     val EditorDividerSpacing = 18.dp
@@ -248,7 +248,7 @@ fun ProfileSelectionScreen(
         profileBackgroundCatalog.associateBy { it.id }
     }
     val memberAccess = Membership.access
-    var focusedAvatarColor by remember { mutableStateOf(NuvioPrimitives.blue500) }
+    var focusedAvatarColor by remember { mutableStateOf(MoviesPrimitives.blue500) }
     var focusedProfileId by remember { mutableStateOf<Int?>(null) }
     var showCreateProfile by remember { mutableStateOf(false) }
     val createOverlayVisibility = remember { MutableTransitionState(false) }
@@ -393,7 +393,7 @@ fun ProfileSelectionScreen(
                         if (targetState == null) -fullWidth / 10 else fullWidth / 12
                     }
                 )
-                val exitFade = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.fast)))
+                val exitFade = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.fast)))
                 val exiting = exitFade + slideOutHorizontally(
                     animationSpec = tween(240),
                     targetOffsetX = { fullWidth ->
@@ -628,8 +628,8 @@ fun ProfileSelectionScreen(
 
         AnimatedVisibility(
             visible = profileActionMessage != null,
-            enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.fast))),
-            exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.fast))),
+            enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
+            exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             profileActionMessage?.let { message ->
@@ -639,15 +639,15 @@ fun ProfileSelectionScreen(
                         .clip(RoundedCornerShape(999.dp))
                         .background(profileToastFill())
                         .borderOffOnBox(
-                            width = NuvioTheme.spacing.hairline,
+                            width = MoviesTheme.spacing.hairline,
                             color = Color.White.copy(alpha = 0.14f),
                             shape = RoundedCornerShape(999.dp)
                         )
-                        .padding(horizontal = NuvioTheme.spacing.xl, vertical = 14.dp)
+                        .padding(horizontal = MoviesTheme.spacing.xl, vertical = 14.dp)
                 ) {
                     Text(
                         text = message,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         fontSize = 15.sp.atLeastOnBox(TvSizeFloors.bodyText),
                         fontWeight = FontWeight.Medium
                     )
@@ -662,7 +662,7 @@ fun ProfileSelectionScreen(
                 repeat(2) { withFrameNanos { } }
                 runCatching { primaryDialogFocusRequester.requestFocus() }
             }
-            NuvioDialog(
+            MoviesDialog(
                 onDismiss = { longPressedProfile = null },
                 title = stringResource(R.string.profile_selection_options_title),
                 width = 360.dp,
@@ -803,7 +803,7 @@ fun ProfileSelectionScreen(
                 repeat(2) { withFrameNanos { } }
                 runCatching { primaryDialogFocusRequester.requestFocus() }
             }
-            NuvioDialog(
+            MoviesDialog(
                 onDismiss = { profileToDelete = null },
                 title = stringResource(R.string.profile_delete_confirm_title),
                 subtitle = stringResource(R.string.profile_delete_confirm_subtitle),
@@ -941,7 +941,7 @@ private fun ProfileSelectionMainContent(
 
         Text(
             text = screenTitle,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             fontSize = 44.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = (-0.5).sp
@@ -951,7 +951,7 @@ private fun ProfileSelectionMainContent(
 
         Text(
             text = screenSubtitle,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
@@ -977,7 +977,7 @@ private fun ProfileSelectionMainContent(
 
         Text(
             text = screenHint,
-            color = NuvioTheme.colors.TextTertiary.copy(alpha = 0.9f),
+            color = MoviesTheme.colors.TextTertiary.copy(alpha = 0.9f),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
@@ -1021,7 +1021,7 @@ internal fun ProfileGrid(
     if (profiles.isEmpty() && !canAddProfile) {
         Text(
             text = stringResource(R.string.profile_selection_empty),
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
@@ -1141,8 +1141,8 @@ private fun ProfileCard(
         )
     }
     val nameColor = lerp(
-        NuvioTheme.colors.TextSecondary,
-        NuvioTheme.colors.TextPrimary,
+        MoviesTheme.colors.TextSecondary,
+        MoviesTheme.colors.TextPrimary,
         focusProgress
     )
     val nameWeight = if (isFocused) FontWeight.SemiBold else FontWeight.Medium
@@ -1216,27 +1216,27 @@ private fun ProfileCard(
                 focusProgress = focusProgress,
                 avatarSize = avatarSize,
                 haloSize = outerAvatarSize,
-                halo = profileFocusRing ?: NuvioTheme.focusRing
+                halo = profileFocusRing ?: MoviesTheme.focusRing
             )
 
             if (profile.isPrimary) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .offset(x = NuvioTheme.spacing.xxs, y = NuvioTheme.spacing.hairline)
+                        .offset(x = MoviesTheme.spacing.xxs, y = MoviesTheme.spacing.hairline)
                         .size(if (compact) 22.dp else 26.dp)
                         .clip(CircleShape)
-                        .background(NuvioTheme.colors.Secondary, CircleShape)
+                        .background(MoviesTheme.colors.Secondary, CircleShape)
                         .border(
-                            width = NuvioTheme.spacing.xxs,
-                            color = NuvioTheme.colors.Background,
+                            width = MoviesTheme.spacing.xxs,
+                            color = MoviesTheme.colors.Background,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "\u2605",
-                        color = NuvioTheme.colors.OnSecondary,
+                        color = MoviesTheme.colors.OnSecondary,
                         fontSize = if (compact) 12.sp else 14.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
@@ -1274,7 +1274,7 @@ private fun ProfileCard(
             if (profile.isPrimary) {
                 Text(
                     text = stringResource(R.string.profile_selection_primary_badge),
-                    color = NuvioTheme.colors.Secondary,
+                    color = MoviesTheme.colors.Secondary,
                     fontSize = 11.sp.atLeastOnBox(TvSizeFloors.metaText),
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp
@@ -1286,7 +1286,7 @@ private fun ProfileCard(
 
 private fun parseProfileColor(colorHex: String): Color {
     return runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
-        .getOrDefault(NuvioPrimitives.blue500)
+        .getOrDefault(MoviesPrimitives.blue500)
 }
 
 @Composable
@@ -1315,11 +1315,11 @@ private fun AddProfileCard(
         )
     }
     val nameColor = lerp(
-        NuvioTheme.colors.TextTertiary,
-        NuvioTheme.colors.TextPrimary,
+        MoviesTheme.colors.TextTertiary,
+        MoviesTheme.colors.TextPrimary,
         focusProgress
     )
-    val plusColor = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextTertiary)
+    val plusColor = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextTertiary)
     val addBackgroundColor = ExpressiveFocus.containerColor(isFocused, resting = addProfileRestingFill())
 
     Column(
@@ -1466,21 +1466,21 @@ internal fun CreateProfileOverlay(
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
                 .clip(profilePanelShape())
-                .background(NuvioTheme.colors.BackgroundElevated)
+                .background(MoviesTheme.colors.BackgroundElevated)
                 .borderOffOnBox(
-                    NuvioTheme.spacing.hairline,
-                    NuvioTheme.colors.Border,
+                    MoviesTheme.spacing.hairline,
+                    MoviesTheme.colors.Border,
                     profilePanelShape()
                 )
                 .pointerInput(Unit) { detectTapGestures { } }
-                .padding(NuvioTheme.spacing.xxl),
+                .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header row: title left, create button right
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = NuvioTheme.spacing.xl),
+                    .padding(start = MoviesTheme.spacing.xl),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1490,7 +1490,7 @@ internal fun CreateProfileOverlay(
                     fontSize = 26.sp.atLeastOnBox(TvSizeFloors.screenTitle),
                     fontWeight = FontWeight.Bold
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                     OverlayButton(
                         text = stringResource(R.string.profile_cancel),
                         isPrimary = false,
@@ -1515,7 +1515,7 @@ internal fun CreateProfileOverlay(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             Row(
                 modifier = Modifier
@@ -1527,12 +1527,12 @@ internal fun CreateProfileOverlay(
                     modifier = Modifier
                         .width(ProfileSelectionSpacing.EditorPreviewWidth)
                         .padding(
-                            start = NuvioTheme.spacing.xl,
-                            top = NuvioTheme.spacing.md,
-                            end = NuvioTheme.spacing.xl,
-                            bottom = NuvioTheme.spacing.md
+                            start = MoviesTheme.spacing.xl,
+                            top = MoviesTheme.spacing.md,
+                            end = MoviesTheme.spacing.xl,
+                            bottom = MoviesTheme.spacing.md
                         ),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ProfileAvatarCircle(
@@ -1547,7 +1547,7 @@ internal fun CreateProfileOverlay(
                         style = MaterialTheme.typography.labelLarge.copy(
                             textDirection = profileName.contentTextDirection()
                         ),
-                        color = if (profileName.isBlank()) NuvioTheme.colors.TextSecondary else NuvioTheme.colors.TextPrimary,
+                        color = if (profileName.isBlank()) MoviesTheme.colors.TextSecondary else MoviesTheme.colors.TextPrimary,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -1595,12 +1595,12 @@ internal fun CreateProfileOverlay(
 
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     Text(
                         text = stringResource(R.string.profile_choose_avatar),
                         modifier = Modifier.fillMaxWidth(),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         fontSize = 13.sp.atLeastOnBox(TvSizeFloors.metaText),
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
@@ -1609,7 +1609,7 @@ internal fun CreateProfileOverlay(
                     Text(
                         text = stringResource(R.string.profile_custom_avatar_web_panel_note),
                         modifier = Modifier.fillMaxWidth(),
-                        color = NuvioTheme.colors.TextTertiary,
+                        color = MoviesTheme.colors.TextTertiary,
                         fontSize = 12.sp.atLeastOnBox(TvSizeFloors.metaText),
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
@@ -1639,7 +1639,7 @@ internal fun CreateProfileOverlay(
                         Text(
                             text = focusedAvatarName ?: stringResource(R.string.profile_avatar_focus_hint),
                             modifier = Modifier.fillMaxWidth(),
-                            color = if (focusedAvatarName != null) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary,
+                            color = if (focusedAvatarName != null) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
@@ -1650,17 +1650,17 @@ internal fun CreateProfileOverlay(
                                 .fillMaxWidth()
                                 .height(160.dp)
                                 .clip(profileTileShape())
-                                .background(NuvioTheme.colors.BackgroundCard)
+                                .background(MoviesTheme.colors.BackgroundCard)
                                 .borderOffOnBox(
-                                    NuvioTheme.spacing.hairline,
-                                    NuvioTheme.colors.Border,
+                                    MoviesTheme.spacing.hairline,
+                                    MoviesTheme.colors.Border,
                                     profileTileShape()
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = stringResource(R.string.profile_choose_avatar),
-                                color = NuvioTheme.colors.TextTertiary,
+                                color = MoviesTheme.colors.TextTertiary,
                                 fontSize = 15.sp.atLeastOnBox(TvSizeFloors.bodyText)
                             )
                         }
@@ -1668,7 +1668,7 @@ internal fun CreateProfileOverlay(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
         }
     }
 
@@ -1831,28 +1831,28 @@ internal fun EditProfileOverlay(
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
                 .clip(profilePanelShape())
-                .background(NuvioTheme.colors.BackgroundElevated)
+                .background(MoviesTheme.colors.BackgroundElevated)
                 .borderOffOnBox(
-                    NuvioTheme.spacing.hairline,
-                    NuvioTheme.colors.Border,
+                    MoviesTheme.spacing.hairline,
+                    MoviesTheme.colors.Border,
                     profilePanelShape()
                 )
                 .pointerInput(Unit) { detectTapGestures { } }
-                .padding(NuvioTheme.spacing.xxl),
+                .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header row: title left, save button right
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = NuvioTheme.spacing.xl),
+                    .padding(start = MoviesTheme.spacing.xl),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)) {
+                Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)) {
                     Text(
                         text = stringResource(R.string.profile_edit_header),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -1886,7 +1886,7 @@ internal fun EditProfileOverlay(
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             Row(
                 modifier = Modifier
@@ -1897,7 +1897,7 @@ internal fun EditProfileOverlay(
                 Column(
                     modifier = Modifier
                         .width(ProfileSelectionSpacing.EditorPreviewWidth)
-                        .padding(start = NuvioTheme.spacing.xl, top = NuvioTheme.spacing.xl + ProfileSelectionSpacing.EditorPreviewTopOffset, end = NuvioTheme.spacing.xl, bottom = NuvioTheme.spacing.xl),
+                        .padding(start = MoviesTheme.spacing.xl, top = MoviesTheme.spacing.xl + ProfileSelectionSpacing.EditorPreviewTopOffset, end = MoviesTheme.spacing.xl, bottom = MoviesTheme.spacing.xl),
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -1913,7 +1913,7 @@ internal fun EditProfileOverlay(
                         style = MaterialTheme.typography.labelLarge.copy(
                             textDirection = profileName.contentTextDirection()
                         ),
-                        color = if (profileName.isBlank()) NuvioTheme.colors.TextSecondary else NuvioTheme.colors.TextPrimary,
+                        color = if (profileName.isBlank()) MoviesTheme.colors.TextSecondary else MoviesTheme.colors.TextPrimary,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -1955,7 +1955,7 @@ internal fun EditProfileOverlay(
 
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     ProfileEditorTabs(
                         selectedTab = selectedEditorTab,
@@ -1969,7 +1969,7 @@ internal fun EditProfileOverlay(
                             Text(
                                 text = stringResource(R.string.profile_choose_avatar),
                                 modifier = Modifier.fillMaxWidth(),
-                                color = NuvioTheme.colors.TextTertiary,
+                                color = MoviesTheme.colors.TextTertiary,
                                 fontSize = 13.sp.atLeastOnBox(TvSizeFloors.metaText),
                                 fontWeight = FontWeight.Medium,
                                 textAlign = TextAlign.Center
@@ -1978,7 +1978,7 @@ internal fun EditProfileOverlay(
                             Text(
                                 text = stringResource(R.string.profile_custom_avatar_web_panel_note),
                                 modifier = Modifier.fillMaxWidth(),
-                                color = NuvioTheme.colors.TextTertiary,
+                                color = MoviesTheme.colors.TextTertiary,
                                 fontSize = 12.sp.atLeastOnBox(TvSizeFloors.metaText),
                                 fontWeight = FontWeight.Medium,
                                 textAlign = TextAlign.Center
@@ -2008,7 +2008,7 @@ internal fun EditProfileOverlay(
                                 Text(
                                     text = focusedAvatarName ?: stringResource(R.string.profile_avatar_focus_hint),
                                     modifier = Modifier.fillMaxWidth(),
-                                    color = if (focusedAvatarName != null) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary,
+                                    color = if (focusedAvatarName != null) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center
@@ -2019,17 +2019,17 @@ internal fun EditProfileOverlay(
                                         .fillMaxWidth()
                                         .height(160.dp)
                                         .clip(profileTileShape())
-                                        .background(NuvioTheme.colors.BackgroundCard)
+                                        .background(MoviesTheme.colors.BackgroundCard)
                                         .borderOffOnBox(
-                                            NuvioTheme.spacing.hairline,
-                                            NuvioTheme.colors.Border,
+                                            MoviesTheme.spacing.hairline,
+                                            MoviesTheme.colors.Border,
                                             profileTileShape()
                                         ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = stringResource(R.string.profile_choose_avatar),
-                                        color = NuvioTheme.colors.TextTertiary,
+                                        color = MoviesTheme.colors.TextTertiary,
                                         fontSize = 15.sp.atLeastOnBox(TvSizeFloors.bodyText)
                                     )
                                 }
@@ -2040,7 +2040,7 @@ internal fun EditProfileOverlay(
                             Text(
                                 text = stringResource(R.string.profile_choose_background),
                                 modifier = Modifier.fillMaxWidth(),
-                                color = NuvioTheme.colors.TextSecondary,
+                                color = MoviesTheme.colors.TextSecondary,
                                 fontSize = 13.sp.atLeastOnBox(TvSizeFloors.metaText),
                                 fontWeight = FontWeight.Medium,
                                 textAlign = TextAlign.Center
@@ -2049,7 +2049,7 @@ internal fun EditProfileOverlay(
                             Text(
                                 text = stringResource(R.string.profile_background_member_note),
                                 modifier = Modifier.fillMaxWidth(),
-                                color = NuvioTheme.colors.TextTertiary,
+                                color = MoviesTheme.colors.TextTertiary,
                                 fontSize = 12.sp.atLeastOnBox(TvSizeFloors.metaText),
                                 fontWeight = FontWeight.Medium,
                                 textAlign = TextAlign.Center
@@ -2095,7 +2095,7 @@ internal fun EditProfileOverlay(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
         }
     }
 }
@@ -2135,42 +2135,42 @@ private fun ProfilePinOverlay(
     val shouldUseCompactLayout = keyboardState.isVisible
     val headerFontSize by animateFloatAsState(
         targetValue = if (shouldUseCompactLayout) 28f else 42f,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinHeaderFontSize"
     )
     val headerLineHeight by animateFloatAsState(
         targetValue = if (shouldUseCompactLayout) 34f else 48f,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinHeaderLineHeight"
     )
     val supportFontSize by animateFloatAsState(
         targetValue = if (shouldUseCompactLayout) 16f else 18f,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinSupportFontSize"
     )
     val topPadding by animateDpAsState(
-        targetValue = if (shouldUseCompactLayout) 40.dp else NuvioTheme.spacing.none,
-        animationSpec = tween(NuvioMotion.tokens.durations.fast),
+        targetValue = if (shouldUseCompactLayout) 40.dp else MoviesTheme.spacing.none,
+        animationSpec = tween(MoviesMotion.tokens.durations.fast),
         label = "pinOverlayTopPadding"
     )
     val headingGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 10.dp else ProfileSelectionSpacing.PinKickerToHeading,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinHeadingGap"
     )
     val boxesGap by animateDpAsState(
-        targetValue = if (shouldUseCompactLayout) NuvioTheme.spacing.xl else ProfileSelectionSpacing.PinHeadingToBoxes,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        targetValue = if (shouldUseCompactLayout) MoviesTheme.spacing.xl else ProfileSelectionSpacing.PinHeadingToBoxes,
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinBoxesGap"
     )
     val supportGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 18.dp else ProfileSelectionSpacing.PinBoxesToSupport,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinSupportGap"
     )
     val backHintGap by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 10.dp else 14.dp,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinBackHintGap"
     )
     val contentBottomPadding = if (keyboardState.isVisible) {
@@ -2309,7 +2309,7 @@ private fun ProfilePinOverlay(
         val supportTextColor = if (isErrorState) {
             pinErrorText()
         } else {
-            NuvioTheme.colors.TextSecondary
+            MoviesTheme.colors.TextSecondary
         }
 
         Column(
@@ -2325,7 +2325,7 @@ private fun ProfilePinOverlay(
 
             Text(
                 text = headingText,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontSize = headerFontSize.sp,
                 lineHeight = headerLineHeight.sp,
                 fontWeight = FontWeight.Bold,
@@ -2369,7 +2369,7 @@ private fun ProfilePinOverlay(
                 Text(
                     text = stringResource(R.string.profile_pin_overlay_forgot_hint),
                     modifier = Modifier.widthIn(max = ProfileSelectionSpacing.PinSupportMaxWidth),
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
@@ -2381,7 +2381,7 @@ private fun ProfilePinOverlay(
 
             Text(
                 text = stringResource(R.string.profile_pin_overlay_back_hint),
-                color = NuvioTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -2401,7 +2401,7 @@ private fun ProfilePinOverlay(
                 }
             },
             modifier = Modifier
-                .size(NuvioTheme.spacing.hairline)
+                .size(MoviesTheme.spacing.hairline)
                 .graphicsLayer { alpha = 0f }
                 .semantics { contentDescription = pinFieldLabel }
                 .focusRequester(focusRequester)
@@ -2432,22 +2432,22 @@ private fun ProfilePinBoxes(
 ) {
     val boxSize by animateDpAsState(
         targetValue = if (compactMode) 90.dp else ProfileSelectionSpacing.PinBoxSize,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinBoxSize"
     )
     val boxGap by animateDpAsState(
         targetValue = if (compactMode) 10.dp else ProfileSelectionSpacing.PinBoxGap,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinBoxGap"
     )
     val activeCursorHeight by animateDpAsState(
         targetValue = if (compactMode) 28.dp else 40.dp,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinCursorHeight"
     )
     val dotSize by animateDpAsState(
-        targetValue = if (compactMode) NuvioTheme.spacing.md else NuvioTheme.spacing.lg,
-        animationSpec = spatialSpec(tween(NuvioMotion.tokens.durations.fast)),
+        targetValue = if (compactMode) MoviesTheme.spacing.md else MoviesTheme.spacing.lg,
+        animationSpec = spatialSpec(tween(MoviesMotion.tokens.durations.fast)),
         label = "pinDotSize"
     )
 
@@ -2484,7 +2484,7 @@ private fun ProfilePinBoxes(
                 label = "pinBoxBackground"
             )
             val borderWidth by animateDpAsState(
-                targetValue = if (isActive || isErrorState) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
+                targetValue = if (isActive || isErrorState) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
                 animationSpec = effectsSpec(tween(140)),
                 label = "pinBoxBorderWidth"
             )
@@ -2496,7 +2496,7 @@ private fun ProfilePinBoxes(
                     .background(backgroundColor)
                     .border(
                         border = if (isActive && !isErrorState) {
-                            NuvioTheme.focusRing.border(borderWidth)
+                            MoviesTheme.focusRing.border(borderWidth)
                         } else {
                             BorderStroke(borderWidth, borderColor)
                         },
@@ -2517,7 +2517,7 @@ private fun ProfilePinBoxes(
                     isActive -> {
                         Box(
                             modifier = Modifier
-                                .width(NuvioTheme.spacing.xxs)
+                                .width(MoviesTheme.spacing.xxs)
                                 .height(activeCursorHeight)
                                 .background(Color.White.copy(alpha = cursorAlpha))
                         )
@@ -2534,9 +2534,9 @@ private fun EditorSectionDivider() {
     Box(
         modifier = Modifier
             .padding(top = ProfileSelectionSpacing.EditorPreviewTopOffset)
-            .width(NuvioTheme.spacing.hairline)
+            .width(MoviesTheme.spacing.hairline)
             .height(ProfileSelectionSpacing.EditorDividerHeight)
-            .background(NuvioTheme.colors.Border.copy(alpha = 0.9f))
+            .background(MoviesTheme.colors.Border.copy(alpha = 0.9f))
     )
 }
 
@@ -2555,7 +2555,7 @@ private fun ProfileNameField(
     val moveToAvatarsKey = if (isRtl) AndroidKeyEvent.KEYCODE_DPAD_LEFT else AndroidKeyEvent.KEYCODE_DPAD_RIGHT
     val backgroundColor by animateColorAsState(
         targetValue = if (isFocused) {
-            NuvioTheme.colors.FocusBackground
+            MoviesTheme.colors.FocusBackground
         } else {
             profileFieldRestingFill()
         },
@@ -2563,7 +2563,7 @@ private fun ProfileNameField(
         label = "profileNameBackground"
     )
     val borderWidth by animateDpAsState(
-        targetValue = if (isFocused) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
+        targetValue = if (isFocused) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
         animationSpec = effectsSpec(tween(120)),
         label = "profileNameBorderWidth"
     )
@@ -2575,18 +2575,18 @@ private fun ProfileNameField(
             .background(backgroundColor)
             .border(
                 border = if (isFocused) {
-                    NuvioTheme.focusRing.border(borderWidth)
+                    MoviesTheme.focusRing.border(borderWidth)
                 } else {
                     BorderStroke(borderWidth, profileFieldRestingBorder())
                 },
                 shape = RoundedCornerShape(ProfileSelectionSpacing.EditorFieldRadius)
             )
-            .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+            .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
     ) {
         if (value.isEmpty()) {
             Text(
                 text = stringResource(R.string.profile_name_placeholder),
-                color = NuvioTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary,
                 fontSize = 16.sp
             )
         }
@@ -2626,7 +2626,7 @@ private fun ProfileNameField(
                     focusManager.moveFocus(FocusDirection.Down)
                 }
             ),
-            cursorBrush = NuvioTheme.focusRing.brush()
+            cursorBrush = MoviesTheme.focusRing.brush()
         )
     }
 }
@@ -2649,16 +2649,16 @@ private fun OverlayButton(
     )
     val borderColor by animateColorAsState(
         targetValue = when {
-            !enabled -> NuvioTheme.colors.Border
-            isFocused -> NuvioTheme.colors.FocusRing
-            isPrimary -> NuvioTheme.colors.Secondary
-            else -> NuvioTheme.colors.Border
+            !enabled -> MoviesTheme.colors.Border
+            isFocused -> MoviesTheme.colors.FocusRing
+            isPrimary -> MoviesTheme.colors.Secondary
+            else -> MoviesTheme.colors.Border
         },
         animationSpec = effectsSpec(tween(120)),
         label = "btnBorder"
     )
     val borderWidth by animateDpAsState(
-        targetValue = if (isFocused) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
+        targetValue = if (isFocused) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
         animationSpec = effectsSpec(tween(120)),
         label = "btnBorderWidth"
     )
@@ -2671,7 +2671,7 @@ private fun OverlayButton(
             .background(bgColor)
             .borderOffOnBox(
                 border = if (isFocused && enabled) {
-                    NuvioTheme.focusRing.border(borderWidth)
+                    MoviesTheme.focusRing.border(borderWidth)
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
@@ -2695,7 +2695,7 @@ private fun OverlayButton(
                 onClick = onClick
             )
             .semantics { role = Role.Button }
-            .padding(horizontal = 28.dp, vertical = NuvioTheme.spacing.md),
+            .padding(horizontal = 28.dp, vertical = MoviesTheme.spacing.md),
         contentAlignment = Alignment.Center
     ) {
         Text(

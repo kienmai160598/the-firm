@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -68,9 +68,9 @@ fun NextEpisodeEndPromptOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.78f)
                 .focusGroup()
-                .padding(horizontal = NuvioTheme.spacing.xxl),
+                .padding(horizontal = MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             Text(
                 text = stringResource(R.string.player_next_episode_prompt_title),
@@ -86,7 +86,7 @@ fun NextEpisodeEndPromptOverlay(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
 
             Text(
                 text = stringResource(R.string.next_episode_label),
@@ -107,7 +107,7 @@ fun NextEpisodeEndPromptOverlay(
             Spacer(modifier = Modifier.height(14.dp))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl

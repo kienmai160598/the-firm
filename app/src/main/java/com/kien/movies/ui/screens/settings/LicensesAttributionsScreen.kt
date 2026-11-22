@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.content.Intent
 import android.net.Uri
@@ -108,7 +108,7 @@ fun LicensesAttributionsScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = 28.dp),
+                .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = 28.dp),
             horizontalArrangement = Arrangement.spacedBy(36.dp)
         ) {
             LicensesAttributionsBrandPanel(
@@ -138,15 +138,15 @@ private fun LicensesAttributionsBrandPanel(
         Text(
             text = stringResource(R.string.licenses_attributions_title),
             style = MaterialTheme.typography.headlineLarge,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
         Text(
             text = stringResource(R.string.licenses_attributions_subtitle),
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -160,8 +160,8 @@ private fun LicensesAttributionsDetailsPanel(
 
     Column(
         modifier = modifier
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
-            .background(NuvioTheme.colors.BackgroundElevated.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
+            .background(MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
             .padding(20.dp)
     ) {
         Box(
@@ -173,7 +173,7 @@ private fun LicensesAttributionsDetailsPanel(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 AttributionSection(
                     title = stringResource(R.string.licenses_attributions_section_app)
@@ -224,12 +224,12 @@ private fun AttributionSection(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.labelMedium,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             fontWeight = FontWeight.Bold
         )
         content()
@@ -251,12 +251,12 @@ private fun AttributionDetailRow(
             .fillMaxWidth()
             .heightIn(min = 76.dp),
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
         ).expressiveRingless(),
@@ -277,12 +277,12 @@ private fun AttributionDetailRow(
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -290,24 +290,24 @@ private fun AttributionDetailRow(
                 Text(
                     text = item.body,
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
                 Text(
                     text = item.url,
                     style = MaterialTheme.typography.labelSmall,
-                    color = NuvioTheme.colors.Primary,
+                    color = MoviesTheme.colors.Primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = NuvioTheme.colors.TextTertiary,
+                tint = MoviesTheme.colors.TextTertiary,
                 modifier = Modifier
-                    .padding(top = NuvioTheme.spacing.xxs)
+                    .padding(top = MoviesTheme.spacing.xxs)
                     .size(18.dp)
             )
         }
@@ -321,14 +321,14 @@ private fun AttributionLogo(
     Box(
         modifier = Modifier
             .size(52.dp)
-            .clip(RoundedCornerShape(NuvioTheme.radii.md))
+            .clip(RoundedCornerShape(MoviesTheme.radii.md))
             .background(expressiveSurfaceOr(Color(0xFF24272E))),
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = when (logo) {
                 is LicenseLogo.Drawable -> painterResource(id = logo.resId)
-                is LicenseLogo.Raw -> rememberRawSvgPainter(rawIconRes = logo.resId, targetSize = NuvioTheme.spacing.xxxl)
+                is LicenseLogo.Raw -> rememberRawSvgPainter(rawIconRes = logo.resId, targetSize = MoviesTheme.spacing.xxxl)
                 is LicenseLogo.Url -> rememberUrlSvgPainter(url = logo.url)
             },
             contentDescription = null,
@@ -342,7 +342,7 @@ private fun AttributionLogo(
 private fun rememberUrlSvgPainter(url: String): Painter {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val sizePx = with(density) { NuvioTheme.spacing.xxxl.roundToPx() }
+    val sizePx = with(density) { MoviesTheme.spacing.xxxl.roundToPx() }
     val request = remember(url, context, sizePx) {
         ImageRequest.Builder(context)
             .data(url)

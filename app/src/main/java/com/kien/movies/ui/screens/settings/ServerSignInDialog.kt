@@ -27,9 +27,9 @@ import com.kien.movies.R
 import com.kien.movies.data.mediaserver.ServerConnection
 import com.kien.movies.data.mediaserver.ServerFailure
 import com.kien.movies.data.mediaserver.ServerProvider
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.account.InputField
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 internal data class ServerSignInRequest(
     val provider: ServerProvider,
@@ -61,7 +61,7 @@ internal fun ServerSignInDialog(
 
     LaunchedEffect(Unit) { viewModel.resetSignIn() }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = { if (!state.connecting) onDismiss() },
         title = stringResource(R.string.servers_sign_in_title, provider.displayName),
         subtitle = stringResource(R.string.servers_sign_in_subtitle, provider.displayName),
@@ -104,7 +104,7 @@ internal fun ServerSignInDialog(
             Text(
                 text = failure.signInMessage(provider),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.Error
+                color = MoviesTheme.colors.Error
             )
         }
         SettingsDialogActionRow {
@@ -127,12 +127,12 @@ internal fun ServerSignInDialog(
 private fun SignInField(label: String, field: @Composable () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         field()
     }

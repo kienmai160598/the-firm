@@ -6,7 +6,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 @Immutable
-data class NuvioSurfaceColors(
+data class MoviesSurfaceColors(
     val background: Color,
     val raised: Color,
     val card: Color,
@@ -22,7 +22,7 @@ data class NuvioSurfaceColors(
 )
 
 @Immutable
-data class NuvioTextColors(
+data class MoviesTextColors(
     val primary: Color,
     val secondary: Color,
     val tertiary: Color,
@@ -34,7 +34,7 @@ data class NuvioTextColors(
 )
 
 @Immutable
-data class NuvioFocusColors(
+data class MoviesFocusColors(
     val ring: Color,
     val background: Color,
     val content: Color,
@@ -43,7 +43,7 @@ data class NuvioFocusColors(
 )
 
 @Immutable
-data class NuvioSelectionColors(
+data class MoviesSelectionColors(
     val background: Color,
     val foreground: Color,
     val border: Color,
@@ -52,7 +52,7 @@ data class NuvioSelectionColors(
 )
 
 @Immutable
-data class NuvioMediaColors(
+data class MoviesMediaColors(
     val heroScrim: Color,
     val imageScrim: Color,
     val posterFallback: Color,
@@ -64,7 +64,7 @@ data class NuvioMediaColors(
 )
 
 @Immutable
-data class NuvioStatusColors(
+data class MoviesStatusColors(
     val rating: Color,
     val error: Color,
     val warning: Color,
@@ -78,7 +78,7 @@ data class NuvioStatusColors(
 )
 
 @Immutable
-data class NuvioDisabledColors(
+data class MoviesDisabledColors(
     val container: Color,
     val content: Color,
     val border: Color,
@@ -86,7 +86,7 @@ data class NuvioDisabledColors(
 )
 
 @Immutable
-data class NuvioSourceColors(
+data class MoviesSourceColors(
     val trakt: Color,
     val tmdb: Color,
     val imdb: Color,
@@ -94,17 +94,17 @@ data class NuvioSourceColors(
 )
 
 @Immutable
-data class NuvioContrastPair(
+data class MoviesContrastPair(
     val foreground: Color,
     val background: Color
 )
 
-class NuvioColorScheme(
+class MoviesColorScheme(
     palette: ThemeColorPalette,
     amoledMode: Boolean = false,
     amoledSurfacesMode: Boolean = false
 ) {
-    private val pureBlack = NuvioPrimitives.black
+    private val pureBlack = MoviesPrimitives.black
     private val pureBlackSurfaces = amoledMode && amoledSurfacesMode
 
     val Background = if (amoledMode) pureBlack else palette.background
@@ -121,50 +121,50 @@ class NuvioColorScheme(
     val Divider = palette.outlineVariant
 
     val Primary = palette.primary
-    val PrimaryVariant = NuvioPrimitives.neutral650
+    val PrimaryVariant = MoviesPrimitives.neutral650
     val OnPrimary = palette.onPrimary
     val Secondary = palette.secondary
     val SecondaryVariant = palette.secondaryVariant
     val OnSecondary = palette.onSecondary
     val OnSecondaryVariant = palette.onSecondaryVariant
 
-    val TextPrimary = NuvioPrimitives.white
+    val TextPrimary = MoviesPrimitives.white
     val TextSecondary = palette.textSecondary
     val TextTertiary = palette.textTertiary
-    val TextDisabled = NuvioPrimitives.neutral700
-    val TextInverse = NuvioPrimitives.neutral925
+    val TextDisabled = MoviesPrimitives.neutral700
+    val TextInverse = MoviesPrimitives.neutral925
 
     val FocusRing = palette.focusRing
     val FocusBackground = palette.focusBackground
-    val FocusContent = NuvioPrimitives.white
-    val FocusScrim = NuvioPrimitives.black.copy(alpha = 0.32f)
+    val FocusContent = MoviesPrimitives.white
+    val FocusScrim = MoviesPrimitives.black.copy(alpha = 0.32f)
 
-    val Rating = NuvioPrimitives.rating
-    val Error = NuvioPrimitives.error
-    val Warning = NuvioPrimitives.warning
-    val Success = NuvioPrimitives.success
-    val Info = NuvioPrimitives.info
-    val Watched = NuvioPrimitives.success
-    val Unwatched = NuvioPrimitives.neutral600
-    val Cached = NuvioPrimitives.blue300
-    val Torrent = NuvioPrimitives.torrent
-    val Premium = NuvioPrimitives.premium
+    val Rating = MoviesPrimitives.rating
+    val Error = MoviesPrimitives.error
+    val Warning = MoviesPrimitives.warning
+    val Success = MoviesPrimitives.success
+    val Info = MoviesPrimitives.info
+    val Watched = MoviesPrimitives.success
+    val Unwatched = MoviesPrimitives.neutral600
+    val Cached = MoviesPrimitives.blue300
+    val Torrent = MoviesPrimitives.torrent
+    val Premium = MoviesPrimitives.premium
 
     val Border = palette.outlineVariant
     val BorderFocused = FocusRing
     val BorderMuted = Border.copy(alpha = 0.58f)
 
-    val Scrim = NuvioPrimitives.black.copy(alpha = 0.62f)
-    val ImageScrim = NuvioPrimitives.black.copy(alpha = 0.58f)
-    val VideoControlsScrim = NuvioPrimitives.black.copy(alpha = 0.72f)
+    val Scrim = MoviesPrimitives.black.copy(alpha = 0.62f)
+    val ImageScrim = MoviesPrimitives.black.copy(alpha = 0.58f)
+    val VideoControlsScrim = MoviesPrimitives.black.copy(alpha = 0.72f)
     val PosterFallback = BackgroundCard
 
     val DisabledContainer = SurfaceVariant.copy(alpha = 0.42f)
     val DisabledContent = TextDisabled
     val DisabledBorder = Border.copy(alpha = 0.48f)
-    val DisabledOverlay = NuvioPrimitives.black.copy(alpha = 0.42f)
+    val DisabledOverlay = MoviesPrimitives.black.copy(alpha = 0.42f)
 
-    val surfaces = NuvioSurfaceColors(
+    val surfaces = MoviesSurfaceColors(
         background = Background,
         raised = BackgroundElevated,
         card = BackgroundCard,
@@ -179,18 +179,18 @@ class NuvioColorScheme(
         divider = Divider
     )
 
-    val text = NuvioTextColors(
+    val text = MoviesTextColors(
         primary = TextPrimary,
         secondary = TextSecondary,
         tertiary = TextTertiary,
         disabled = TextDisabled,
         inverse = TextInverse,
         onAccent = OnSecondary,
-        onOverlay = NuvioPrimitives.white,
+        onOverlay = MoviesPrimitives.white,
         metadata = TextSecondary
     )
 
-    val focus = NuvioFocusColors(
+    val focus = MoviesFocusColors(
         ring = FocusRing,
         background = FocusBackground,
         content = FocusContent,
@@ -198,7 +198,7 @@ class NuvioColorScheme(
         scrim = FocusScrim
     )
 
-    val selection = NuvioSelectionColors(
+    val selection = MoviesSelectionColors(
         background = Secondary,
         foreground = OnSecondary,
         border = SecondaryVariant,
@@ -206,7 +206,7 @@ class NuvioColorScheme(
         mutedForeground = TextPrimary
     )
 
-    val media = NuvioMediaColors(
+    val media = MoviesMediaColors(
         heroScrim = Scrim,
         imageScrim = ImageScrim,
         posterFallback = PosterFallback,
@@ -217,7 +217,7 @@ class NuvioColorScheme(
         glow = FocusRing.copy(alpha = 0.32f)
     )
 
-    val status = NuvioStatusColors(
+    val status = MoviesStatusColors(
         rating = Rating,
         error = Error,
         warning = Warning,
@@ -230,104 +230,104 @@ class NuvioColorScheme(
         premium = Premium
     )
 
-    val disabled = NuvioDisabledColors(
+    val disabled = MoviesDisabledColors(
         container = DisabledContainer,
         content = DisabledContent,
         border = DisabledBorder,
         overlay = DisabledOverlay
     )
 
-    val source = NuvioSourceColors(
-        trakt = NuvioPrimitives.trakt,
-        tmdb = NuvioPrimitives.tmdb,
-        imdb = NuvioPrimitives.imdb,
-        mdblist = NuvioPrimitives.mdblist
+    val source = MoviesSourceColors(
+        trakt = MoviesPrimitives.trakt,
+        tmdb = MoviesPrimitives.tmdb,
+        imdb = MoviesPrimitives.imdb,
+        mdblist = MoviesPrimitives.mdblist
     )
 
     val contrastPairs = listOf(
-        NuvioContrastPair(TextPrimary, Background),
-        NuvioContrastPair(TextPrimary, BackgroundCard),
-        NuvioContrastPair(TextSecondary, Background),
-        NuvioContrastPair(OnSecondary, Secondary),
-        NuvioContrastPair(FocusContent, FocusBackground),
-        NuvioContrastPair(NuvioPrimitives.white, PlayerOverlay)
+        MoviesContrastPair(TextPrimary, Background),
+        MoviesContrastPair(TextPrimary, BackgroundCard),
+        MoviesContrastPair(TextSecondary, Background),
+        MoviesContrastPair(OnSecondary, Secondary),
+        MoviesContrastPair(FocusContent, FocusBackground),
+        MoviesContrastPair(MoviesPrimitives.white, PlayerOverlay)
     )
 }
 
-object NuvioColors {
+object MoviesColors {
     val Background: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.Background
+        get() = MoviesTheme.colors.Background
 
     val BackgroundElevated: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.BackgroundElevated
+        get() = MoviesTheme.colors.BackgroundElevated
 
     val BackgroundCard: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.BackgroundCard
+        get() = MoviesTheme.colors.BackgroundCard
 
     val Surface: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.Surface
+        get() = MoviesTheme.colors.Surface
 
     val SurfaceVariant: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.SurfaceVariant
+        get() = MoviesTheme.colors.SurfaceVariant
 
-    val Primary = NuvioPrimitives.neutral500
-    val PrimaryVariant = NuvioPrimitives.neutral650
-    val OnPrimary = NuvioPrimitives.white
-    val TextPrimary = NuvioPrimitives.white
+    val Primary = MoviesPrimitives.neutral500
+    val PrimaryVariant = MoviesPrimitives.neutral650
+    val OnPrimary = MoviesPrimitives.white
+    val TextPrimary = MoviesPrimitives.white
     val TextSecondary =
-        if (isExpressiveBuild) ExpressiveColors.textSecondary else NuvioPrimitives.neutral400
+        if (isExpressiveBuild) ExpressiveColors.textSecondary else MoviesPrimitives.neutral400
     val TextTertiary =
-        if (isExpressiveBuild) ExpressiveColors.textTertiary else NuvioPrimitives.neutral600
-    val TextDisabled = NuvioPrimitives.neutral700
-    val Rating = NuvioPrimitives.rating
-    val Error = NuvioPrimitives.error
-    val Success = NuvioPrimitives.success
-    val Warning = NuvioPrimitives.warning
-    val Info = NuvioPrimitives.info
-    val Border = if (isExpressiveBuild) ExpressiveColors.divider else NuvioPrimitives.neutral750
+        if (isExpressiveBuild) ExpressiveColors.textTertiary else MoviesPrimitives.neutral600
+    val TextDisabled = MoviesPrimitives.neutral700
+    val Rating = MoviesPrimitives.rating
+    val Error = MoviesPrimitives.error
+    val Success = MoviesPrimitives.success
+    val Warning = MoviesPrimitives.warning
+    val Info = MoviesPrimitives.info
+    val Border = if (isExpressiveBuild) ExpressiveColors.divider else MoviesPrimitives.neutral750
 
     val Secondary: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.Secondary
+        get() = MoviesTheme.colors.Secondary
 
     val SecondaryVariant: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.SecondaryVariant
+        get() = MoviesTheme.colors.SecondaryVariant
 
     val OnSecondary: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.OnSecondary
+        get() = MoviesTheme.colors.OnSecondary
 
     val OnSecondaryVariant: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.OnSecondaryVariant
+        get() = MoviesTheme.colors.OnSecondaryVariant
 
     val FocusRing: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.FocusRing
+        get() = MoviesTheme.colors.FocusRing
 
     val FocusBackground: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.FocusBackground
+        get() = MoviesTheme.colors.FocusBackground
 
     val BorderFocused: Color
         @Composable
         @ReadOnlyComposable
-        get() = NuvioTheme.colors.BorderFocused
+        get() = MoviesTheme.colors.BorderFocused
 }

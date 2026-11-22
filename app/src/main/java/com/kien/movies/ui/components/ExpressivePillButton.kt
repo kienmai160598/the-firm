@@ -18,7 +18,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.Role
 import androidx.tv.material3.Text
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -35,12 +35,12 @@ internal fun ExpressivePillButton(
         resting = if (isExpressiveBuild) {
             ExpressiveFocus.frostedContainer
         } else {
-            NuvioTheme.colors.BackgroundCard
+            MoviesTheme.colors.BackgroundCard
         }
     )
     val content = ExpressiveFocus.contentColor(
         focused = focused,
-        resting = NuvioTheme.colors.TextPrimary
+        resting = MoviesTheme.colors.TextPrimary
     )
 
     Box(
@@ -56,11 +56,11 @@ internal fun ExpressivePillButton(
             )
             .tvControlHeight()
             .padding(
-                horizontal = NuvioTheme.spacing.xl,
-                vertical = NuvioTheme.spacing.md
+                horizontal = MoviesTheme.spacing.xl,
+                vertical = MoviesTheme.spacing.md
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = text, style = NuvioTheme.textStyles.button.bodyFloor(), color = content)
+        Text(text = text, style = MoviesTheme.textStyles.button.bodyFloor(), color = content)
     }
 }

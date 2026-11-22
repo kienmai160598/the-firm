@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Immutable
-data class NuvioRadiusTokens(
+data class MoviesRadiusTokens(
     val none: Dp,
     val xxs: Dp,
     val xs: Dp,
@@ -22,7 +22,7 @@ data class NuvioRadiusTokens(
 )
 
 @Immutable
-data class NuvioShapeTokens(
+data class MoviesShapeTokens(
     val posterCard: Shape,
     val backdropCard: Shape,
     val collectionCard: Shape,
@@ -41,8 +41,8 @@ data class NuvioShapeTokens(
     val circle: Shape
 )
 
-object NuvioRadii {
-    val tokens = NuvioRadiusTokens(
+object MoviesRadii {
+    val tokens = MoviesRadiusTokens(
         none = 0.dp,
         xxs = 2.dp,
         xs = 4.dp,
@@ -56,23 +56,23 @@ object NuvioRadii {
     )
 }
 
-object NuvioShapes {
-    val tokens = NuvioShapeTokens(
-        posterCard = RoundedCornerShape(NuvioRadii.tokens.md),
-        backdropCard = RoundedCornerShape(NuvioRadii.tokens.xl),
-        collectionCard = RoundedCornerShape(NuvioRadii.tokens.xl),
-        button = RoundedCornerShape(NuvioRadii.tokens.md),
-        iconButton = RoundedCornerShape(NuvioRadii.tokens.md),
-        chip = RoundedCornerShape(NuvioRadii.tokens.full),
-        badge = RoundedCornerShape(NuvioRadii.tokens.xs),
-        dialog = RoundedCornerShape(NuvioRadii.tokens.xl),
-        sidePanel = RoundedCornerShape(NuvioRadii.tokens.xxl),
+object MoviesShapes {
+    val tokens = MoviesShapeTokens(
+        posterCard = RoundedCornerShape(MoviesRadii.tokens.md),
+        backdropCard = RoundedCornerShape(MoviesRadii.tokens.xl),
+        collectionCard = RoundedCornerShape(MoviesRadii.tokens.xl),
+        button = RoundedCornerShape(MoviesRadii.tokens.md),
+        iconButton = RoundedCornerShape(MoviesRadii.tokens.md),
+        chip = RoundedCornerShape(MoviesRadii.tokens.full),
+        badge = RoundedCornerShape(MoviesRadii.tokens.xs),
+        dialog = RoundedCornerShape(MoviesRadii.tokens.xl),
+        sidePanel = RoundedCornerShape(MoviesRadii.tokens.xxl),
         sidebar = RoundedCornerShape(30.dp),
-        navItem = RoundedCornerShape(NuvioRadii.tokens.full),
-        progress = RoundedCornerShape(NuvioRadii.tokens.xxs),
-        slider = RoundedCornerShape(NuvioRadii.tokens.full),
-        field = RoundedCornerShape(NuvioRadii.tokens.md),
-        menu = RoundedCornerShape(NuvioRadii.tokens.lg),
+        navItem = RoundedCornerShape(MoviesRadii.tokens.full),
+        progress = RoundedCornerShape(MoviesRadii.tokens.xxs),
+        slider = RoundedCornerShape(MoviesRadii.tokens.full),
+        field = RoundedCornerShape(MoviesRadii.tokens.md),
+        menu = RoundedCornerShape(MoviesRadii.tokens.lg),
         circle = CircleShape
     )
 }

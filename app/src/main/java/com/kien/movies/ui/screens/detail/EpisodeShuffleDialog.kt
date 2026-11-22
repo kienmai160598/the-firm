@@ -22,8 +22,8 @@ import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.RandomEpisodePicker
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -92,7 +92,7 @@ internal fun EpisodeShuffleDialog(
         return
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.random_episode_title),
         subtitle = stringResource(R.string.shuffle_choose_episodes),

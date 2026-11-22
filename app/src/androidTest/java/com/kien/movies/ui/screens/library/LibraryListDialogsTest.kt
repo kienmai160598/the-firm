@@ -21,7 +21,7 @@ import com.kien.movies.core.tracking.LOCAL_LIBRARY_LIST_KEY
 import com.kien.movies.core.tracking.TrackingListManagementCapabilities
 import com.kien.movies.domain.model.LibraryListPrivacy
 import com.kien.movies.domain.model.LibraryListTab
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.components.posteroptions.PosterListPickerDialog
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -43,7 +43,7 @@ class LibraryListDialogsTest {
             LibraryListTab("mdblist:watchlist", "Watchlist", LibraryListTab.Type.WATCHLIST, trackingProviderId = "mdblist")
         )
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 PosterListPickerDialog("Lists", tabs, emptyMap(), false, null, { selected = it }, {}, {})
             }
         }
@@ -59,22 +59,22 @@ class LibraryListDialogsTest {
     @Test
     fun pickerMarksSavedListsAsChecked() {
         val tabs = listOf(
-            LibraryListTab(LOCAL_LIBRARY_LIST_KEY, "Nuvio", LibraryListTab.Type.WATCHLIST),
+            LibraryListTab(LOCAL_LIBRARY_LIST_KEY, "Movies", LibraryListTab.Type.WATCHLIST),
             LibraryListTab("favorites", "Favorites", LibraryListTab.Type.PERSONAL, trackingProviderId = "trakt")
         )
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 PosterListPickerDialog("Lists", tabs, mapOf(LOCAL_LIBRARY_LIST_KEY to true, "favorites" to false), false, null, {}, {}, {})
             }
         }
-        composeRule.onNode(hasText("Nuvio", substring = true) and isToggleable()).assertIsOn()
+        composeRule.onNode(hasText("Movies", substring = true) and isToggleable()).assertIsOn()
         composeRule.onNode(hasText("Favorites", substring = true) and isToggleable()).assertIsOff()
     }
 
     @Test
     fun mdbListEditorOnlyOffersSupportedPrivacyAndFields() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 ListEditorDialog(LibraryListEditorState(LibraryListEditorState.Mode.CREATE), mdblist, false, {}, {}, {}, {}, {})
             }
         }
@@ -89,7 +89,7 @@ class LibraryListDialogsTest {
     @Test
     fun traktEditorRetainsDescriptionAndAllPrivacyChoices() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 ListEditorDialog(LibraryListEditorState(LibraryListEditorState.Mode.EDIT),
                     TrackingListManagementCapabilities(LibraryListPrivacy.entries, true, true), false, {}, {}, {}, {}, {})
             }
@@ -103,7 +103,7 @@ class LibraryListDialogsTest {
     fun mdbListManagementHidesReorderingAndAcceptsRemoteSelection() {
         var selected: String? = null
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 ManageListsDialog(
                     tabs = listOf(LibraryListTab("mdblist:list:7", "Private favourites", LibraryListTab.Type.PERSONAL)),
                     capabilities = mdblist, selectedKey = "mdblist:list:7", errorMessage = null, pending = false,
@@ -121,7 +121,7 @@ class LibraryListDialogsTest {
     @Test
     fun pendingListOperationDisablesDuplicateManagementActions() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 ManageListsDialog(emptyList(), mdblist, null, null, true, {}, {}, {}, {}, {}, {}, {})
             }
         }
@@ -134,7 +134,7 @@ class LibraryListDialogsTest {
     fun emptyLibraryAllowsCreatingTheFirstListWithTheRemote() {
         var created = 0
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 ManageListsDialog(emptyList(), mdblist, null, null, false, {}, { created++ }, {}, {}, {}, {}, {})
             }
         }

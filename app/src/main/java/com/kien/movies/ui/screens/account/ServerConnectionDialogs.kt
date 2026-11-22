@@ -56,10 +56,10 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.ServerConfiguration
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.screens.settings.expressiveCardShape
@@ -103,15 +103,15 @@ internal fun ServerOptionsMenuHost(
             colors = IconButtonDefaults.colors(
                 containerColor = Color.Transparent,
                 focusedContainerColor = if (isExpressiveBuild) {
-                    NuvioTheme.colors.Secondary
+                    MoviesTheme.colors.Secondary
                 } else {
                     Color.Transparent
                 },
-                contentColor = NuvioTheme.colors.TextSecondary,
+                contentColor = MoviesTheme.colors.TextSecondary,
                 focusedContentColor = if (isExpressiveBuild) {
-                    NuvioTheme.colors.OnSecondary
+                    MoviesTheme.colors.OnSecondary
                 } else {
-                    NuvioTheme.colors.FocusRing
+                    MoviesTheme.colors.FocusRing
                 }
             ),
             scale = IconButtonDefaults.scale(
@@ -132,10 +132,10 @@ internal fun ServerOptionsMenuHost(
             offset = DpOffset(x = 0.dp, y = 12.dp),
             modifier = Modifier.width(320.dp),
             shape = expressiveCardShape(RoundedCornerShape(14.dp)),
-            containerColor = NuvioTheme.colors.BackgroundCard,
+            containerColor = MoviesTheme.colors.BackgroundCard,
             tonalElevation = 0.dp,
-            shadowElevation = NuvioTheme.spacing.sm,
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border)
+            shadowElevation = MoviesTheme.spacing.sm,
+            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border)
         ) {
             if (uiState.activeServer.isCustom) {
                 ServerMenuItem(
@@ -201,20 +201,20 @@ private fun ServerMenuItem(
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val itemColor = if (isFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary
+    val itemColor = if (isFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextPrimary
 
     DropdownMenuItem(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp, vertical = NuvioTheme.spacing.xxs)
+            .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
             .background(
-                color = if (isFocused) NuvioTheme.colors.Secondary else Color.Transparent,
+                color = if (isFocused) MoviesTheme.colors.Secondary else Color.Transparent,
                 shape = expressiveRowShape(RoundedCornerShape(10.dp))
             )
             .border(
-                width = if (isFocused) NuvioTheme.spacing.xxs else NuvioTheme.spacing.hairline,
+                width = if (isFocused) MoviesTheme.spacing.xxs else MoviesTheme.spacing.hairline,
                 color = if (isFocused && !isExpressiveBuild) {
-                    NuvioTheme.colors.FocusRing
+                    MoviesTheme.colors.FocusRing
                 } else {
                     Color.Transparent
                 },
@@ -264,7 +264,7 @@ private fun ServerConnectionDialog(
         urlFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.custom_server_title),
         subtitle = stringResource(R.string.custom_server_description),
@@ -290,14 +290,14 @@ private fun ServerConnectionDialog(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -310,8 +310,8 @@ private fun ServerConnectionDialog(
                 enabled = canDiscover,
                 modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -343,7 +343,7 @@ private fun ServerTrustConfirmationDialog(
         cancelFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = { if (!isSwitching) onDismiss() },
         title = stringResource(R.string.custom_server_review_title),
         subtitle = stringResource(R.string.custom_server_review_description),
@@ -360,7 +360,7 @@ private fun ServerTrustConfirmationDialog(
             icon = Icons.Default.Lock,
             label = stringResource(R.string.custom_server_key_label),
             value = stringResource(R.string.custom_server_key_discovered),
-            tint = NuvioTheme.colors.Secondary
+            tint = MoviesTheme.colors.Secondary
         )
         ServerWarning(server)
         error?.let {
@@ -372,7 +372,7 @@ private fun ServerTrustConfirmationDialog(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
@@ -382,8 +382,8 @@ private fun ServerTrustConfirmationDialog(
                     .tvControlHeight()
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -396,8 +396,8 @@ private fun ServerTrustConfirmationDialog(
                 enabled = !isSwitching,
                 modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -435,8 +435,8 @@ private fun ServerWarning(server: ServerConfiguration) {
                 accountWarningContainer(Color(0x1FFF9800)),
                 expressiveCardShape(RoundedCornerShape(14.dp))
             )
-            .padding(NuvioTheme.spacing.md),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+            .padding(MoviesTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
         Text(
             text = stringResource(R.string.custom_server_warning_title),
@@ -447,12 +447,12 @@ private fun ServerWarning(server: ServerConfiguration) {
         Text(
             text = warning,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         Text(
             text = stringResource(R.string.custom_server_warning_credentials),
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -470,7 +470,7 @@ private fun OfficialServerConfirmationDialog(
         cancelFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.official_server_title),
         subtitle = stringResource(R.string.official_server_description),
@@ -485,7 +485,7 @@ private fun OfficialServerConfirmationDialog(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
@@ -495,8 +495,8 @@ private fun OfficialServerConfirmationDialog(
                     .tvControlHeight()
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -509,8 +509,8 @@ private fun OfficialServerConfirmationDialog(
                 enabled = !isSwitching,
                 modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -537,7 +537,7 @@ private fun ServerDetailRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
@@ -545,12 +545,12 @@ private fun ServerDetailRow(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -569,9 +569,9 @@ private fun ServerMessage(
             .fillMaxWidth()
             .background(
                 containerColor,
-                expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
             )
-            .padding(horizontal = NuvioTheme.spacing.md, vertical = 10.dp),
+            .padding(horizontal = MoviesTheme.spacing.md, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(

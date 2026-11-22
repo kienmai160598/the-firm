@@ -3,7 +3,7 @@
 package com.kien.movies.ui.screens.player
 
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -184,13 +184,13 @@ internal fun AudioSelectionOverlay(
                 text = stringResource(R.string.audio_dialog_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm)
+                modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
             )
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.Top,
-                modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm)
+                modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
             ) {
                 Column(modifier = Modifier.width(444.dp)) {
                     AudioTracksContent(
@@ -260,7 +260,7 @@ private fun AudioTracksContent(
             text = stringResource(R.string.audio_lang_default),
             style = MaterialTheme.typography.bodyLarge,
             color = Color.White.copy(alpha = 0.7f),
-            modifier = Modifier.padding(top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.md)
+            modifier = Modifier.padding(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.md)
         )
         return
     }
@@ -268,7 +268,7 @@ private fun AudioTracksContent(
     LazyColumn(
         state = listState,
         verticalArrangement = Arrangement.spacedBy(6.dp),
-        contentPadding = PaddingValues(top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.sm),
+        contentPadding = PaddingValues(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm),
         modifier = Modifier
             .heightIn(max = 620.dp)
             .fillMaxWidth()
@@ -330,13 +330,13 @@ private fun AudioTrackCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
+                .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 Text(
                     text = track.name,
@@ -482,7 +482,7 @@ private fun AudioControlsContent(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(top = NuvioTheme.spacing.xs, bottom = NuvioTheme.spacing.sm),
+            .padding(top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.sm),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         AdjustmentSection(
@@ -689,7 +689,7 @@ private fun AdjustmentSection(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
         Text(
             text = title,
@@ -789,7 +789,7 @@ private fun StepCard(
         },
         interactionSource = interactionSource,
         modifier = Modifier
-            .width(NuvioTheme.spacing.huge)
+            .width(MoviesTheme.spacing.huge)
             .focusRequester(focusRequester)
             .focusProperties {
                 canFocus = enabled

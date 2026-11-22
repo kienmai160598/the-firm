@@ -36,7 +36,7 @@ class StaleWhileRevalidateCacheStrategy(
 ) : CacheStrategy {
 
     companion object {
-        private const val TAG = "NuvioSWR"
+        private const val TAG = "MoviesSWR"
         private const val REVALIDATION_COOLDOWN_MS = 10L * 60 * 1000 // 10 min
         private const val REVALIDATION_MAX_REQUESTS = 8
         private val revalidatingUrls = ConcurrentHashMap.newKeySet<String>()

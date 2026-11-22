@@ -7,7 +7,7 @@ import com.kien.movies.ui.components.expressiveButtonBorder
 import com.kien.movies.ui.components.expressiveButtonColors
 import com.kien.movies.ui.components.expressiveButtonScale
 import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -85,22 +85,22 @@ fun LayoutSelectionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 80.dp, vertical = NuvioTheme.spacing.xxxl),
+                .padding(horizontal = 80.dp, vertical = MoviesTheme.spacing.xxxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
             Text(
                 text = stringResource(R.string.layout_selection_welcome),
                 style = MaterialTheme.typography.headlineLarge,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
             Text(
                 text = stringResource(R.string.layout_selection_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -110,7 +110,7 @@ fun LayoutSelectionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxl, Alignment.CenterHorizontally)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl, Alignment.CenterHorizontally)
             ) {
                 LayoutOptionCard(
                     layout = HomeLayout.MODERN,
@@ -134,7 +134,7 @@ fun LayoutSelectionScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             // Continue button
             Button(
@@ -144,20 +144,20 @@ fun LayoutSelectionScreen(
                 },
                 modifier = Modifier
                     .width(200.dp)
-                    .height(NuvioTheme.spacing.xxxl)
+                    .height(MoviesTheme.spacing.xxxl)
                     .focusRequester(continueFocusRequester)
                     .tvControlHeight(),
                 shape = expressiveButtonShape(ButtonDefaults.shape(
-                    shape = RoundedCornerShape(NuvioTheme.spacing.xl)
+                    shape = RoundedCornerShape(MoviesTheme.spacing.xl)
                 )),
                 colors = expressiveButtonColors(ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground
                 )),
                 border = expressiveButtonBorder(ButtonDefaults.border(
                     focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                        shape = RoundedCornerShape(NuvioTheme.spacing.xl)
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                        shape = RoundedCornerShape(MoviesTheme.spacing.xl)
                     )
                 )),
                 scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -181,9 +181,9 @@ fun LayoutSelectionScreen(
 @Composable
 private fun layoutOptionContainer(selected: Boolean): Color =
     if (isExpressiveBuild && selected) {
-        NuvioTheme.colors.FocusBackground
+        MoviesTheme.colors.FocusBackground
     } else {
-        NuvioTheme.colors.BackgroundCard
+        MoviesTheme.colors.BackgroundCard
     }
 
 /**
@@ -217,19 +217,19 @@ private fun LayoutOptionCard(
                 Border.None
             } else {
                 Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                    shape = RoundedCornerShape(MoviesTheme.radii.xl)
                 )
             }
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.xl)),
+        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.xl)),
         scale = CardDefaults.scale(focusedScale = if (isExpressiveBuild) 1.04f else 1.03f)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(NuvioTheme.spacing.lg),
+                    .padding(MoviesTheme.spacing.lg),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Animated preview
@@ -251,7 +251,7 @@ private fun LayoutOptionCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Text(
                     text = when (layout) {
@@ -260,10 +260,10 @@ private fun LayoutOptionCard(
                         HomeLayout.MODERN -> stringResource(R.string.layout_modern)
                     },
                     style = MaterialTheme.typography.titleLarge,
-                    color = if (isSelected || isFocused) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary
+                    color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
                 )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
             Text(
                 text = when (layout) {
@@ -272,7 +272,7 @@ private fun LayoutOptionCard(
                     HomeLayout.MODERN -> stringResource(R.string.layout_modern_desc)
                 },
                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
             }
 
@@ -280,11 +280,11 @@ private fun LayoutOptionCard(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = stringResource(R.string.cd_selected),
-                    tint = NuvioTheme.colors.FocusRing,
+                    tint = MoviesTheme.colors.FocusRing,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(NuvioTheme.spacing.sm)
-                        .size(NuvioTheme.spacing.xl)
+                        .padding(MoviesTheme.spacing.sm)
+                        .size(MoviesTheme.spacing.xl)
                 )
             }
         }

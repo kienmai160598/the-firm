@@ -15,7 +15,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.launch
 
 /** Where a tab sits in its row, in pixels. */
@@ -55,9 +55,9 @@ internal fun TopTabIndicator(
 
     val color = animateColorAsState(
         targetValue = if (barFocused) {
-            NuvioTheme.colors.Secondary
+            MoviesTheme.colors.Secondary
         } else {
-            NuvioTheme.colors.FocusBackground
+            MoviesTheme.colors.FocusBackground
         },
         animationSpec = ExpressiveMotion.defaultEffects(),
         label = "topTabIndicatorColor"

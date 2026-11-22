@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
  * assertion, see `degradedAllowed(journey)`.
  */
 @RunWith(AndroidJUnit4::class)
-class NuvioFrameMetricsBenchmark {
+class MoviesFrameMetricsBenchmark {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()

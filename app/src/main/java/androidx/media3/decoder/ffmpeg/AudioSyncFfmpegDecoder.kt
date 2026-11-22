@@ -6,7 +6,7 @@ import androidx.media3.common.C
 import androidx.media3.common.Format
 
 /**
- * Software FFmpeg audio decoder for Nuvio's audio subtitle sync, used when the device has no
+ * Software FFmpeg audio decoder for Movies's audio subtitle sync, used when the device has no
  * MediaCodec decoder that can safely run next to the player's (Dolby/DTS on many phones).
  * Lives in this package because [FfmpegAudioDecoder] is package-private. Outputs float PCM in
  * FFmpeg's channel order (FL, FR, FC, LFE, ...).

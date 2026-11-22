@@ -31,7 +31,7 @@ data class Stream(
     val subtitles: List<Subtitle> = emptyList(),
     val serverTarget: ServerPlaybackTarget? = null,
     val pluginSourceName: String? = null,
-    /** True when [url] was produced by Nuvio's own debrid resolver, not returned by the add-on. */
+    /** True when [url] was produced by Movies's own debrid resolver, not returned by the add-on. */
     val debridResolved: Boolean = false,
     /** True when this P2P stream's bitrate is above what the device downloads steadily. */
     val exceedsDeviceBudget: Boolean = false

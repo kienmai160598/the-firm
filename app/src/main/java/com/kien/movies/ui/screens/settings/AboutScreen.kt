@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.content.Intent
 import android.net.Uri
@@ -117,7 +117,7 @@ fun AboutSettingsContent(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         CompositionLocalProvider(LocalBringIntoViewSpec provides defaultBringIntoViewSpec) {
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
                             MemberBrandWordmark(
                                 height = 40.dp,
@@ -127,24 +127,24 @@ fun AboutSettingsContent(
                             Text(
                                 text = stringResource(R.string.about_made_with_love),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = NuvioTheme.colors.TextSecondary,
+                                color = MoviesTheme.colors.TextSecondary,
                                 textAlign = TextAlign.Center
                             )
 
                             Text(
                                 text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = NuvioTheme.colors.TextSecondary,
+                                color = MoviesTheme.colors.TextSecondary,
                                 textAlign = TextAlign.Center
                             )
 
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
 
                             if (AppFeaturePolicy.inAppUpdatesEnabled) {
                                 UpdateChannelSettings(initialFocusRequester, modifier = firstRowModifier)
                             }
 
-                            if (AppFeaturePolicy.supportNuvioEnabled) {
+                            if (AppFeaturePolicy.supportMoviesEnabled) {
                                 SettingsActionRow(
                                     title = stringResource(R.string.support_nuvio_name),
                                     subtitle = stringResource(R.string.about_supporters_contributors_subtitle),

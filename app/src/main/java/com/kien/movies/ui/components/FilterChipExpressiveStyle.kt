@@ -23,7 +23,7 @@ import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 private const val ERROR_CONTAINER_ALPHA = 0.14f
 private const val FOCUSED_ERROR_CONTAINER_ALPHA = 0.26f
@@ -42,12 +42,12 @@ internal fun filterChipContentColor(focused: Boolean, selected: Boolean, isError
         focused = focused,
         selected = selected,
         resting = if (isExpressiveBuild) {
-            NuvioTheme.colors.TextPrimary
+            MoviesTheme.colors.TextPrimary
         } else {
-            NuvioTheme.colors.TextSecondary
+            MoviesTheme.colors.TextSecondary
         }
     )
-    return if (isError) NuvioTheme.colors.Error else tone
+    return if (isError) MoviesTheme.colors.Error else tone
 }
 
 @Composable
@@ -81,14 +81,14 @@ internal fun filterChipColors(
 /** Frosted at rest on the box build, brighter while selected; upstream's tonal fills elsewhere. */
 @Composable
 private fun chipRestingContainer(selected: Boolean): Color = when {
-    !isExpressiveBuild && selected -> NuvioTheme.colors.FocusBackground
-    !isExpressiveBuild -> NuvioTheme.colors.BackgroundCard
+    !isExpressiveBuild && selected -> MoviesTheme.colors.FocusBackground
+    !isExpressiveBuild -> MoviesTheme.colors.BackgroundCard
     selected -> ExpressiveColors.frostedStrong
     else -> ExpressiveColors.frosted
 }
 
 @Composable
-private fun errorContainer(focused: Boolean): Color = NuvioTheme.colors.Error.copy(
+private fun errorContainer(focused: Boolean): Color = MoviesTheme.colors.Error.copy(
     alpha = if (focused) FOCUSED_ERROR_CONTAINER_ALPHA else ERROR_CONTAINER_ALPHA
 )
 

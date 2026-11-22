@@ -310,7 +310,7 @@ class TorrentService @Inject constructor(
         } catch (cancellation: CancellationException) {
             throw cancellation
         } catch (error: Exception) {
-            Log.w(TAG, "Error stopping Nuvio Engine stream route", error)
+            Log.w(TAG, "Error stopping Movies Engine stream route", error)
         }
     }
 
@@ -328,7 +328,7 @@ class TorrentService @Inject constructor(
         val stateDirectory = File(context.noBackupFilesDir, "nuvio-engine/state")
         val cacheDirectory = engineCacheDirectory()
         check(stateDirectory.mkdirs() || stateDirectory.isDirectory) {
-            "Could not create the Nuvio Engine state directory"
+            "Could not create the Movies Engine state directory"
         }
         migrateNestedPayloadDirectory(cacheDirectory)
         val capacityBytes = fittedCacheCapacityBytes(
@@ -348,14 +348,14 @@ class TorrentService @Inject constructor(
             engineConfigurationKey = configurationKey
             engineCacheCapacityBytes = capacityBytes
             observeEngineEvents(created)
-            Log.i(TAG, "Using Nuvio Engine ${NuvioEngine.version} (${NuvioEngine.protocolBackendVersion})")
+            Log.i(TAG, "Using Movies Engine ${NuvioEngine.version} (${NuvioEngine.protocolBackendVersion})")
         }
     }
 
     private fun engineCacheDirectory(): File {
         val cacheDirectory = File(context.cacheDir, "nuvio-engine")
         check(cacheDirectory.mkdirs() || cacheDirectory.isDirectory) {
-            "Could not create the Nuvio Engine cache directory"
+            "Could not create the Movies Engine cache directory"
         }
         return cacheDirectory
     }
@@ -427,7 +427,7 @@ class TorrentService @Inject constructor(
             try {
                 target.shutdown()
             } catch (error: Exception) {
-                Log.w(TAG, "Error shutting down Nuvio Engine", error)
+                Log.w(TAG, "Error shutting down Movies Engine", error)
             }
         }
     }
@@ -502,7 +502,7 @@ class TorrentService @Inject constructor(
                     } catch (cancellation: CancellationException) {
                         throw cancellation
                     } catch (error: Exception) {
-                        Log.w(TAG, "Error sampling Nuvio Engine stream progress", error)
+                        Log.w(TAG, "Error sampling Movies Engine stream progress", error)
                         null
                     }
                     val aggregate = activeEngine.stats.value

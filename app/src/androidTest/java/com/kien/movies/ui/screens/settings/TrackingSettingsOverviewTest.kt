@@ -22,7 +22,7 @@ import com.kien.movies.core.tracking.TrackingProviderId
 import com.kien.movies.data.local.WatchProgressSource
 import com.kien.movies.data.simkl.SimklConnectionMode
 import com.kien.movies.domain.model.LibrarySourceMode
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -166,7 +166,7 @@ class TrackingSettingsOverviewTest {
     fun remoteFocusMovesFromTraktThroughSimklToMdbList() {
         lateinit var traktFocusRequester: FocusRequester
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 traktFocusRequester = remember { FocusRequester() }
                 TrackingSettingsOverview(
                     traktState = TraktUiState(),
@@ -206,7 +206,7 @@ class TrackingSettingsOverviewTest {
     @Test
     fun disconnectedDeviceAuthorizationShowsRetryAction() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TraktAccountDialog(
                     state = TraktUiState(),
                     onStartConnection = {},
@@ -223,7 +223,7 @@ class TrackingSettingsOverviewTest {
     @Test
     fun awaitingDeviceAuthorizationShowsCodeAndCancelAction() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TraktAccountDialog(
                     state = TraktUiState(
                         mode = TraktConnectionMode.AWAITING_APPROVAL,
@@ -250,7 +250,7 @@ class TrackingSettingsOverviewTest {
         trackingState: TrackingSettingsUiState = TrackingSettingsUiState(isReady = true)
     ) {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TrackingSettingsOverview(
                     traktState = traktState,
                     simklState = simklState,

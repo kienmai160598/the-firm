@@ -83,7 +83,7 @@ class FrameRateUtilsAfrTest {
     fun `synthetic headers alone do not block NextLib — UA Connection Range`() {
         assertFalse(
             "User-Agent alone must not block NextLib (0.7.10 parity regression)",
-            FrameRateUtils.hasNextLibBlockingHeaders(mapOf("User-Agent" to "NuvioTV/1.0"))
+            FrameRateUtils.hasNextLibBlockingHeaders(mapOf("User-Agent" to "Movies/1.0"))
         )
         assertFalse(
             FrameRateUtils.hasNextLibBlockingHeaders(mapOf("Connection" to "close"))
@@ -94,7 +94,7 @@ class FrameRateUtilsAfrTest {
         assertFalse(
             FrameRateUtils.hasNextLibBlockingHeaders(
                 mapOf(
-                    "User-Agent" to "NuvioTV/1.0",
+                    "User-Agent" to "Movies/1.0",
                     "Connection" to "close",
                     "Range" to "bytes=0-"
                 )
@@ -118,7 +118,7 @@ class FrameRateUtilsAfrTest {
         assertTrue(
             FrameRateUtils.hasNextLibBlockingHeaders(
                 mapOf(
-                    "User-Agent" to "NuvioTV",
+                    "User-Agent" to "Movies",
                     "Authorization" to "Bearer tok",
                     "Connection" to "close"
                 )
@@ -201,7 +201,7 @@ class FrameRateUtilsAfrTest {
     fun `shouldUseNextLibProbe allows streams with only synthetic headers — 0_7_10 parity`() {
         val publicUrl = "https://public.cdn.example.com/film.mkv"
         val synthetic = mapOf(
-            "User-Agent" to "Mozilla/5.0 NuvioTV",
+            "User-Agent" to "Mozilla/5.0 Movies",
             "Connection" to "close"
         )
         assertTrue(
@@ -217,7 +217,7 @@ class FrameRateUtilsAfrTest {
             FrameRateUtils.shouldUseNextLibProbe(
                 debridUrl,
                 mapOf(
-                    "User-Agent" to "NuvioTV",
+                    "User-Agent" to "Movies",
                     "Authorization" to "Bearer secret",
                     "Cookie" to "auth=1"
                 )
@@ -256,14 +256,14 @@ class FrameRateUtilsAfrTest {
     @Test
     fun `streamHeadersForAfrProbe strips Range case-insensitively`() {
         val input = mapOf(
-            "User-Agent" to "NuvioTV",
+            "User-Agent" to "Movies",
             "Range" to "bytes=0-1023",
             "range" to "bytes=0-",
             "Authorization" to "Bearer x"
         )
         val stream = FrameRateUtils.streamHeadersForAfrProbe(input)
         assertFalse(stream.keys.any { it.equals("Range", ignoreCase = true) })
-        assertEquals("NuvioTV", stream["User-Agent"])
+        assertEquals("Movies", stream["User-Agent"])
         assertEquals("Bearer x", stream["Authorization"])
     }
 
@@ -273,12 +273,12 @@ class FrameRateUtilsAfrTest {
             mapOf(
                 "Authorization" to "Bearer x",
                 "Range" to "bytes=0-1",
-                "User-Agent" to "NuvioTV"
+                "User-Agent" to "Movies"
             )
         )
         assertEquals("close", probe["Connection"])
         assertEquals("Bearer x", probe["Authorization"])
-        assertEquals("NuvioTV", probe["User-Agent"])
+        assertEquals("Movies", probe["User-Agent"])
         assertFalse(probe.keys.any { it.equals("Range", ignoreCase = true) })
     }
 
@@ -286,7 +286,7 @@ class FrameRateUtilsAfrTest {
     fun `NextLib decision uses stream headers not extractor Connection synthetic`() {
         // Preflight passes streamHeaders (no Connection) to NextLib.
         // Connection alone must not flip the gate — and streamHeaders never inject it.
-        val original = mapOf("User-Agent" to "NuvioTV")
+        val original = mapOf("User-Agent" to "Movies")
         val stream = FrameRateUtils.streamHeadersForAfrProbe(original)
         val probe = FrameRateUtils.extractorProbeHeaders(original)
 
@@ -436,7 +436,7 @@ class FrameRateUtilsAfrTest {
     @Test
     fun `cache hit returns same detection for identical url and headers`() {
         val url = "https://cdn.example.com/movie.mkv"
-        val headers = mapOf("User-Agent" to "NuvioTV")
+        val headers = mapOf("User-Agent" to "Movies")
         val det = detection(24f)
         FrameRateUtils.cacheFrameRate(url, headers, det)
         val cached = FrameRateUtils.getCachedFrameRate(url, headers)
@@ -694,11 +694,11 @@ class FrameRateUtilsAfrTest {
         val cases = listOf(
             Case("public mkv no headers", "https://cdn/x.mkv", emptyMap(), true),
             Case("public mp4 no headers", "https://cdn/x.mp4", emptyMap(), true),
-            Case("public + UA only", "https://cdn/x.mkv", mapOf("User-Agent" to "Nuvio"), true),
+            Case("public + UA only", "https://cdn/x.mkv", mapOf("User-Agent" to "Movies"), true),
             Case(
                 "public + UA + Connection",
                 "https://cdn/x.mkv",
-                mapOf("User-Agent" to "Nuvio", "Connection" to "close"),
+                mapOf("User-Agent" to "Movies", "Connection" to "close"),
                 true
             ),
             Case(
@@ -718,7 +718,7 @@ class FrameRateUtilsAfrTest {
                 "https://cdn/x.mkv",
                 FrameRateUtils.streamHeadersForAfrProbe(
                     mapOf(
-                        "User-Agent" to "Nuvio",
+                        "User-Agent" to "Movies",
                         "Authorization" to "Bearer t",
                         "Range" to "bytes=0-"
                     )
@@ -729,7 +729,7 @@ class FrameRateUtilsAfrTest {
                 "public after streamHeadersForAfrProbe strips Range",
                 "https://cdn/x.mkv",
                 FrameRateUtils.streamHeadersForAfrProbe(
-                    mapOf("User-Agent" to "Nuvio", "Range" to "bytes=0-")
+                    mapOf("User-Agent" to "Movies", "Range" to "bytes=0-")
                 ),
                 true
             ),

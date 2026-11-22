@@ -61,7 +61,7 @@ import com.kien.movies.ui.components.SourceChipItem
 import com.kien.movies.ui.components.SourceChipStatus
 import com.kien.movies.ui.components.SourceStatusFilterChip
 import com.kien.movies.ui.components.StreamBadgeChips
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.toAbsoluteAlignment
 import androidx.compose.ui.res.stringResource
@@ -94,7 +94,7 @@ internal fun StreamItem(
     // Pre-upscale: decode at 2× target pixels so the hardware compositor
     // has enough pixel data for smooth edges inside Card RenderNodes.
     val logoDecodeSize = remember(density) {
-        with(density) { NuvioTheme.spacing.xxl.roundToPx() } * 2
+        with(density) { MoviesTheme.spacing.xxl.roundToPx() } * 2
     }
     val addonLogoModel = remember(context, stream.addonLogo, logoDecodeSize) {
         stream.addonLogo?.let { logo ->
@@ -130,13 +130,13 @@ internal fun StreamItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 if (hasBadges && badgePlacement == StreamBadgePlacement.TOP) {
                     StreamBadgeChips(
@@ -144,14 +144,14 @@ internal fun StreamItem(
                         fileSizeBytes = stream.behaviorHints?.videoSize,
                         showFileSizeBadge = showFileSizeBadges
                     )
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                 }
 
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Row(
                         modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                     ) {
                         Text(
                             text = streamName,
@@ -167,7 +167,7 @@ internal fun StreamItem(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(999.dp))
                                     .background(PlayerListItemStyle.labelColor().copy(alpha = 0.16f))
-                                    .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs)
+                                    .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
                             ) {
                                 Text(
                                     text = stringResource(R.string.sources_playing),
@@ -201,7 +201,7 @@ internal fun StreamItem(
                         badges = stream.badges,
                         fileSizeBytes = stream.behaviorHints?.videoSize,
                         showFileSizeBadge = showFileSizeBadges,
-                        modifier = Modifier.padding(top = NuvioTheme.spacing.xxs)
+                        modifier = Modifier.padding(top = MoviesTheme.spacing.xxs)
                     )
                 }
             }
@@ -217,13 +217,13 @@ internal fun StreamItem(
                             // so naming the logo too would duplicate it in the merged card.
                             contentDescription = null,
                             modifier = Modifier
-                                .size(NuvioTheme.spacing.xxl)
-                                .clip(RoundedCornerShape(NuvioTheme.radii.xs)),
+                                .size(MoviesTheme.spacing.xxl)
+                                .clip(RoundedCornerShape(MoviesTheme.radii.xs)),
                             contentScale = ContentScale.Fit
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
                     Text(
                         text = stream.addonName,
@@ -372,8 +372,8 @@ internal fun AddonFilterChips(
 
     LazyRow(
         state = chipListState,
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
-        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
+        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
         modifier = Modifier
             .onFocusChanged { focusState ->
                 val hasFocus = focusState.hasFocus

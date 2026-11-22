@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,15 +21,15 @@ import com.kien.movies.R
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NuvioTopBar(
+fun MoviesTopBar(
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(80.dp)
-            .background(NuvioTheme.colors.Background)
-            .padding(horizontal = NuvioTheme.spacing.xxxl),
+            .background(MoviesTheme.colors.Background)
+            .padding(horizontal = MoviesTheme.spacing.xxxl),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -38,11 +38,11 @@ fun NuvioTopBar(
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.Bold
             ),
-            color = NuvioTheme.colors.Primary
+            color = MoviesTheme.colors.Primary
         )
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxl),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TopBarNavItem(text = stringResource(R.string.nav_home), isSelected = true)
@@ -64,7 +64,7 @@ private fun TopBarNavItem(
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium,
-        color = if (isSelected) NuvioTheme.colors.Primary else NuvioTheme.colors.TextSecondary,
+        color = if (isSelected) MoviesTheme.colors.Primary else MoviesTheme.colors.TextSecondary,
         modifier = modifier
     )
 }

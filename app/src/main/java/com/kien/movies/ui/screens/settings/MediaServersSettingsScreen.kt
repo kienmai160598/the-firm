@@ -35,7 +35,7 @@ import com.kien.movies.data.mediaserver.ServerConnection
 import com.kien.movies.data.mediaserver.ServerFailure
 import com.kien.movies.data.mediaserver.plex.PlexProvider
 import com.kien.movies.data.mediaserver.silo.SiloProvider
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun MediaServersSettingsContent(
@@ -63,7 +63,7 @@ internal fun MediaServersSettingsContent(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+                    contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     item(key = "servers_label") { ServerSectionLabel(stringResource(R.string.servers_section_connected)) }
@@ -72,8 +72,8 @@ internal fun MediaServersSettingsContent(
                             Text(
                                 text = stringResource(R.string.servers_empty),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextSecondary,
-                                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.sm)
+                                color = MoviesTheme.colors.TextSecondary,
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.sm)
                             )
                         }
                     }
@@ -142,8 +142,8 @@ internal fun ServerSectionLabel(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleSmall,
-        color = NuvioTheme.colors.TextPrimary,
-        modifier = Modifier.padding(start = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.sm)
+        color = MoviesTheme.colors.TextPrimary,
+        modifier = Modifier.padding(start = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.sm)
     )
 }
 

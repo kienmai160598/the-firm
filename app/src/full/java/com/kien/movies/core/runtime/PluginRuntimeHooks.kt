@@ -7,7 +7,7 @@ import android.util.Log
 import com.lagradost.cloudstream3.AcraApplication
 import com.lagradost.cloudstream3.app
 import com.lagradost.nicehttp.ignoreAllSSLErrors
-import com.kien.movies.NuvioApplication
+import com.kien.movies.MoviesApplication
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.conscrypt.Conscrypt
@@ -45,13 +45,13 @@ object PluginRuntimeHooks {
             try {
                 Security.insertProviderAt(Conscrypt.newProvider(), 1)
             } catch (e: Exception) {
-                Log.w("NuvioApplication", "Failed to install Conscrypt: ${e.message}")
+                Log.w("MoviesApplication", "Failed to install Conscrypt: ${e.message}")
             }
 
             try {
                 app.baseClient = OkHttpClient.Builder()
                     .dns(com.kien.movies.core.network.IPv4FirstDns())
-                    .cookieJar(NuvioApplication.extensionCookieJar)
+                    .cookieJar(MoviesApplication.extensionCookieJar)
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .ignoreAllSSLErrors()
@@ -61,7 +61,7 @@ object PluginRuntimeHooks {
                     ))
                     .build()
             } catch (e: Throwable) {
-                Log.w("NuvioApplication", "Failed to initialize NiceHttp client (API ${Build.VERSION.SDK_INT}): ${e.message}")
+                Log.w("MoviesApplication", "Failed to initialize NiceHttp client (API ${Build.VERSION.SDK_INT}): ${e.message}")
             }
             
             isCloudstreamInitialized = true

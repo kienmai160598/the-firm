@@ -38,7 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Card
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 
 /**
@@ -86,7 +86,7 @@ internal fun ChaptersSidePanel(
                 Text(
                     text = stringResource(R.string.player_chapters_title, chapters.size),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 DialogButton(
                     text = stringResource(R.string.episodes_panel_close),
@@ -95,12 +95,12 @@ internal fun ChaptersSidePanel(
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             LazyColumn(
                 state = listState,
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                contentPadding = PaddingValues(vertical = NuvioTheme.spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                contentPadding = PaddingValues(vertical = MoviesTheme.spacing.xs),
                 modifier = Modifier.fillMaxHeight()
             ) {
                 itemsIndexed(chapters, key = { _, chapter -> chapter.startMs }) { index, chapter ->

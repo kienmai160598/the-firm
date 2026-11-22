@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.screens.home.HeroBackdropState
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -136,18 +136,18 @@ internal fun DiscoverSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = NuvioTheme.spacing.xxxl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            .padding(horizontal = MoviesTheme.spacing.xxxl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         Text(
             text = stringResource(R.string.discover_title),
             style = MaterialTheme.typography.headlineMedium,
-            color = if (showBuiltInHeader) NuvioTheme.colors.TextPrimary else Color.Transparent
+            color = if (showBuiltInHeader) MoviesTheme.colors.TextPrimary else Color.Transparent
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             DiscoverDropdownPicker(
                 modifier = Modifier.weight(1f)
@@ -221,7 +221,7 @@ internal fun DiscoverSection(
             Text(
                 text = metadataSegments.joinToString(" • "),
                 style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
         }
 
@@ -358,12 +358,12 @@ private fun DiscoverDropdownPicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = discoverFieldContent(isFocused, NuvioTheme.colors.TextTertiary)
+                    color = discoverFieldContent(isFocused, MoviesTheme.colors.TextTertiary)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -375,7 +375,7 @@ private fun DiscoverDropdownPicker(
                         style = MaterialTheme.typography.titleMedium.copy(
                             textDirection = value.contentTextDirection()
                         ),
-                        color = discoverFieldContent(isFocused, NuvioTheme.colors.TextPrimary),
+                        color = discoverFieldContent(isFocused, MoviesTheme.colors.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -399,22 +399,22 @@ private fun DiscoverDropdownPicker(
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
             shape = DiscoverFieldShape,
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            tonalElevation = NuvioTheme.spacing.none,
-            shadowElevation = NuvioTheme.spacing.sm,
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            tonalElevation = MoviesTheme.spacing.none,
+            shadowElevation = MoviesTheme.spacing.sm,
             border = discoverMenuBorder()
         ) {
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
                 val itemTextColor = when {
-                    isOptionFocused -> NuvioTheme.colors.OnSecondary
-                    isSelected -> NuvioTheme.colors.TextPrimary
-                    else -> NuvioTheme.colors.TextPrimary
+                    isOptionFocused -> MoviesTheme.colors.OnSecondary
+                    isSelected -> MoviesTheme.colors.TextPrimary
+                    else -> MoviesTheme.colors.TextPrimary
                 }
                 val itemBackgroundColor = when {
-                    isOptionFocused -> NuvioTheme.colors.Secondary
-                    isSelected -> NuvioTheme.colors.FocusBackground
+                    isOptionFocused -> MoviesTheme.colors.Secondary
+                    isSelected -> MoviesTheme.colors.FocusBackground
                     else -> Color.Transparent
                 }
 
@@ -429,7 +429,7 @@ private fun DiscoverDropdownPicker(
                                 Modifier
                             }
                         )
-                        .padding(horizontal = 6.dp, vertical = NuvioTheme.spacing.xxs)
+                        .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(10.dp)
@@ -456,7 +456,7 @@ private fun DiscoverDropdownPicker(
                     onClick = { onSelect(option) },
                     colors = MenuDefaults.itemColors(
                         textColor = itemTextColor,
-                        disabledTextColor = NuvioTheme.colors.TextDisabled
+                        disabledTextColor = MoviesTheme.colors.TextDisabled
                     )
                 )
             }
@@ -644,9 +644,9 @@ internal fun DiscoverGrid(
                     }
                 }
             ),
-        contentPadding = PaddingValues(bottom = NuvioTheme.spacing.xxl),
+        contentPadding = PaddingValues(bottom = MoviesTheme.spacing.xxl),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
         itemsIndexed(
             items = items,
@@ -767,12 +767,12 @@ private fun DiscoverActionCard(
                 ),
             shape = CardDefaults.shape(shape = cardShape),
             colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = MoviesTheme.colors.FocusBackground
             ),
             border = CardDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = cardShape
                 )
             ),
@@ -795,7 +795,7 @@ private fun DiscoverActionCard(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -805,7 +805,7 @@ private fun DiscoverActionCard(
         Spacer(
             modifier = Modifier
                 .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                .padding(top = NuvioTheme.spacing.sm)
+                .padding(top = MoviesTheme.spacing.sm)
                 .height(MaterialTheme.typography.titleMedium.lineHeight.value.dp)
         )
     }

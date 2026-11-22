@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import com.kien.movies.LocalContentFocusRequester
@@ -482,7 +482,7 @@ fun ClassicHomeContent(
     val immersiveBackdropVisible = remember(immersiveBackdropAlpha) {
         derivedStateOf { immersiveBackdropAlpha.value > 0f }
     }
-    val backgroundColor = NuvioTheme.colors.Background
+    val backgroundColor = MoviesTheme.colors.Background
     CompositionLocalProvider(
         LocalBringIntoViewSpec provides rememberTopRowHold(verticalBringIntoViewSpec, columnListState),
         LocalFastScrollActive provides isFastScrollingState,
@@ -594,8 +594,8 @@ fun ClassicHomeContent(
                     null // Classic uses imperative requestFocus
                 },
             ),
-        contentPadding = PaddingValues(top = if (heroVisible) NuvioTheme.spacing.none else homeFirstRowTopPadding(), bottom = NuvioTheme.spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxl)
+        contentPadding = PaddingValues(top = if (heroVisible) MoviesTheme.spacing.none else homeFirstRowTopPadding(), bottom = MoviesTheme.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl)
     ) {
         if (heroVisible) {
             item(key = "hero_carousel", contentType = "hero") {

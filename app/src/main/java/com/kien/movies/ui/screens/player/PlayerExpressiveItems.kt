@@ -21,7 +21,7 @@ import androidx.tv.material3.CardScale
 import androidx.tv.material3.CardShape
 import androidx.tv.material3.LocalContentColor
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 /** The Apple TV list row: a focused row fills solid white with black content, others stay clear. */
 internal object PlayerListItemStyle {
@@ -29,7 +29,7 @@ internal object PlayerListItemStyle {
     private const val SUPPORTING_ALPHA = 0.64f
     private const val SELECTED_RESTING_ALPHA = 0.14f
 
-    val shape: CardShape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.lg))
+    val shape: CardShape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.lg))
     val stillScale: CardScale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
 
     @Composable
@@ -41,10 +41,10 @@ internal object PlayerListItemStyle {
                 resting
             },
             contentColor = Color.White,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary,
-            pressedContainerColor = NuvioTheme.colors.Secondary,
-            pressedContentColor = NuvioTheme.colors.OnSecondary
+            focusedContainerColor = MoviesTheme.colors.Secondary,
+            focusedContentColor = MoviesTheme.colors.OnSecondary,
+            pressedContainerColor = MoviesTheme.colors.Secondary,
+            pressedContentColor = MoviesTheme.colors.OnSecondary
         )
 
     @Composable

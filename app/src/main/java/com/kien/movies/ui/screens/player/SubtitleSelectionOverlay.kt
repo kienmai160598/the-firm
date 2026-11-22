@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
@@ -483,7 +483,7 @@ internal fun SubtitleSelectionOverlay(
                 text = stringResource(R.string.subtitle_dialog_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = NuvioTheme.spacing.md)
+                modifier = Modifier.padding(bottom = MoviesTheme.spacing.md)
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -687,8 +687,8 @@ private fun SubtitleLanguageRail(
     RailColumn(width = 200.dp, title = stringResource(R.string.subtitle_tab_languages)) {
         LazyColumn(
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs),
-            contentPadding = PaddingValues(top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
+            contentPadding = PaddingValues(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm),
             modifier = Modifier
                 .heightIn(max = 720.dp)
         ) {
@@ -781,8 +781,8 @@ private fun SubtitleOptionsRail(
             else -> {
                 LazyColumn(
                     state = listState,
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs),
-                    contentPadding = PaddingValues(top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
+                    contentPadding = PaddingValues(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm),
                     modifier = Modifier
                         .heightIn(max = 720.dp)
                 ) {
@@ -846,7 +846,7 @@ private fun SubtitleStyleRail(
         LazyColumn(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+            contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
             modifier = Modifier
                 .heightIn(max = 720.dp)
         ) {
@@ -884,7 +884,7 @@ private fun SubtitleStyleRail(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = NuvioTheme.spacing.md, vertical = 10.dp),
+                            .padding(horizontal = MoviesTheme.spacing.md, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -1034,7 +1034,7 @@ private fun SubtitleStyleRail(
                     title = stringResource(R.string.subtitle_style_outline),
                     modifier = styleCardModifier
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                         ToggleChip(
                             label = if (subtitleStyle.outlineEnabled) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),
                             isEnabled = subtitleStyle.outlineEnabled,
@@ -1124,7 +1124,7 @@ private fun SubtitleStyleRail(
                         text = stringResource(R.string.subtitle_reset_defaults),
                         style = MaterialTheme.typography.bodyMedium,
                         color = PlayerListItemStyle.labelColor(),
-                        modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = 10.dp)
+                        modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = 10.dp)
                     )
                 }
             }
@@ -1141,12 +1141,12 @@ private fun RailColumn(
 ) {
     Column(
         modifier = modifier.width(width),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.labelLarge,
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
         content()
     }
@@ -1209,7 +1209,7 @@ private fun SubtitleLanguageCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = NuvioTheme.spacing.sm),
+                .padding(horizontal = 10.dp, vertical = MoviesTheme.spacing.sm),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1300,7 +1300,7 @@ private fun SubtitleOptionCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.md, vertical = 9.dp),
+                .padding(horizontal = MoviesTheme.spacing.md, vertical = 9.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1350,7 +1350,7 @@ private fun CountBadge(count: Int) {
                 color = PlayerListItemStyle.labelColor().copy(alpha = NEUTRAL_CHIP_ALPHA),
                 shape = RoundedCornerShape(999.dp)
             )
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = 3.dp)
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = 3.dp)
     ) {
         Text(
             text = count.toString(),
@@ -1368,7 +1368,7 @@ private fun SourceChip(label: String, modifier: Modifier = Modifier) {
                 PlayerListItemStyle.labelColor().copy(alpha = NEUTRAL_CHIP_ALPHA),
                 RoundedCornerShape(999.dp)
             )
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = 3.dp)
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = 3.dp)
     ) {
         Text(
             text = label,
@@ -1392,11 +1392,11 @@ private fun OverlayLoadingCard(text: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            LoadingIndicator(modifier = Modifier.size(NuvioTheme.spacing.xl))
+            LoadingIndicator(modifier = Modifier.size(MoviesTheme.spacing.xl))
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
         }
     }
@@ -1412,7 +1412,7 @@ private fun OverlayEmptyCard(text: String) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
     }
 }
@@ -1451,7 +1451,7 @@ internal fun StepperRow(
     onFocusChanged: ((String) -> Unit)? = null
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         StepperButton(
@@ -1466,8 +1466,8 @@ internal fun StepperRow(
         Box(
             modifier = Modifier
                 .width(valueWidth)
-                .background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(NuvioTheme.radii.md))
-                .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
+                .background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(MoviesTheme.radii.md))
+                .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -1619,7 +1619,7 @@ internal fun ToggleChip(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
             color = PlayerListItemStyle.labelColor(),
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm)
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm)
         )
     }
 }
@@ -1675,7 +1675,7 @@ private fun ColorChip(
             focusedContainerColor = color
         ),
         modifier = Modifier
-            .size(NuvioTheme.spacing.xxl)
+            .size(MoviesTheme.spacing.xxl)
             .clearAndSetSemantics {
                 contentDescription = swatchLabel
                 role = Role.RadioButton
@@ -1702,8 +1702,8 @@ private fun ColorChip(
             }
             .then(
                 when {
-                    isSelected -> Modifier.border(NuvioTheme.spacing.xxs, Color.White, CircleShape)
-                    isFocused -> Modifier.border(NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs), CircleShape)
+                    isSelected -> Modifier.border(MoviesTheme.spacing.xxs, Color.White, CircleShape)
+                    isFocused -> Modifier.border(MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs), CircleShape)
                     else -> Modifier
                 }
             )

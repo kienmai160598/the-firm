@@ -53,7 +53,7 @@ import com.kien.movies.domain.model.MembershipOverviewState
 import com.kien.movies.ui.components.badgeStyle
 import com.kien.movies.ui.components.rememberMemberBadgeGradientBrush
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -104,8 +104,8 @@ internal fun SupporterMembershipPanel(
             .fillMaxSize()
             .clip(RoundedCornerShape(28.dp))
             .background(MembershipCardColor)
-            .border(NuvioTheme.spacing.hairline, Color.White.copy(alpha = 0.1f), RoundedCornerShape(28.dp))
-            .padding(horizontal = 28.dp, vertical = NuvioTheme.spacing.xxl)
+            .border(MoviesTheme.spacing.hairline, Color.White.copy(alpha = 0.1f), RoundedCornerShape(28.dp))
+            .padding(horizontal = 28.dp, vertical = MoviesTheme.spacing.xxl)
     ) {
         MembershipPanelFront(
             state = state,
@@ -382,9 +382,9 @@ private fun MembershipRefreshButton(
             },
         colors = ButtonDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground,
             contentColor = MembershipSecondaryText,
-            focusedContentColor = NuvioTheme.colors.Primary
+            focusedContentColor = MoviesTheme.colors.Primary
         ),
         shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
         scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -397,7 +397,7 @@ private fun MembershipRefreshButton(
                     R.string.supporter_membership_refresh
                 }
             ),
-            modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
+            modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -419,16 +419,16 @@ private fun MembershipPrimaryButton(
             .fillMaxWidth(),
         colors = ButtonDefaults.colors(
             containerColor = MembershipPrimaryText,
-            focusedContainerColor = NuvioTheme.colors.Primary,
+            focusedContainerColor = MoviesTheme.colors.Primary,
             contentColor = MembershipCardColor,
-            focusedContentColor = NuvioTheme.colors.OnPrimary
+            focusedContentColor = MoviesTheme.colors.OnPrimary
         ),
         shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
         scale = ButtonDefaults.scale().expressiveControlGrow()
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
+            modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -481,7 +481,7 @@ private fun MembershipPanelBack(
                 contentDescription = stringResource(R.string.cd_membership_qr),
                 modifier = Modifier
                     .size(220.dp)
-                    .clip(RoundedCornerShape(NuvioTheme.spacing.xl))
+                    .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
             )
         }
         Spacer(modifier = Modifier.height(18.dp))
@@ -493,17 +493,17 @@ private fun MembershipPanelBack(
                 .focusProperties { canFocus = isVisible }
                 .fillMaxWidth(),
             colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                contentColor = NuvioTheme.colors.TextPrimary,
-                focusedContentColor = NuvioTheme.colors.Primary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                contentColor = MoviesTheme.colors.TextPrimary,
+                focusedContentColor = MoviesTheme.colors.Primary
             ).expressiveControl(),
             shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
             scale = ButtonDefaults.scale().expressiveControlGrow()
         ) {
             Text(
                 text = stringResource(R.string.supporters_contributors_back_button),
-                modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
+                modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
                 fontWeight = FontWeight.Medium
             )
         }

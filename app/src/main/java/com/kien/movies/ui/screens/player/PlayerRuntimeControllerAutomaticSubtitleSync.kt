@@ -37,7 +37,7 @@ import kotlinx.coroutines.withContext
 /** Thin TV adapter around the feature-owned Mobile AutoSync V2 pipeline. */
 
 /**
- * Wraps Nuvio's extractors so AutoSync can observe embedded subtitle timing (output is forwarded
+ * Wraps Movies's extractors so AutoSync can observe embedded subtitle timing (output is forwarded
  * unchanged), and starts AutoSync's embedded subtitle index download while the stream opens.
  */
 internal fun PlayerRuntimeController.autoSyncExtractorsFactory(
@@ -648,7 +648,7 @@ private fun PlayerRuntimeController.runLibassAutomaticSubtitleSync(
 
 /**
  * Applies [resolved] for the libass path. An ASS/SSA result is retimed as text and loaded into
- * libass's track, after Nuvio's own switch when AutoSync picked another ASS file. An SRT/VTT result
+ * libass's track, after Movies's own switch when AutoSync picked another ASS file. An SRT/VTT result
  * (no ASS/SSA fitted) is shown by the sidecar renderer and retimed there; if that fails, the
  * selected ASS subtitle is put back, so the viewer is never left without a subtitle.
  */

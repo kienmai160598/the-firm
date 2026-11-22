@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import com.kien.movies.R
 import com.kien.movies.core.tracking.TrackingRatings
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -75,7 +75,7 @@ internal fun RatingStars(
     var focused by remember { mutableStateOf(false) }
     var confirmArmed by remember { mutableStateOf(false) }
     val description = stringResource(R.string.rating_value, value.toString())
-    val shape = RoundedCornerShape(NuvioTheme.radii.xl)
+    val shape = RoundedCornerShape(MoviesTheme.radii.xl)
     val container by animateColorAsState(
         targetValue = ratingStarsContainer(focused),
         animationSpec = effectsSpec(tween(durationMillis = 180)),
@@ -146,7 +146,7 @@ internal fun RatingStars(
             }
             .focusable()
             .background(container, shape)
-            .border(NuvioTheme.spacing.xxs, border, shape)
+            .border(MoviesTheme.spacing.xxs, border, shape)
             .padding(horizontal = 18.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(starSize / 6)
     ) {
@@ -156,8 +156,8 @@ internal fun RatingStars(
                 delayMillis = (index - cascadeFrom).coerceAtLeast(0) * 40L,
                 size = starSize,
                 rtl = rtl,
-                filledColor = NuvioTheme.colors.Secondary,
-                emptyColor = NuvioTheme.colors.TextPrimary.copy(alpha = 0.12f)
+                filledColor = MoviesTheme.colors.Secondary,
+                emptyColor = MoviesTheme.colors.TextPrimary.copy(alpha = 0.12f)
             )
         }
     }

@@ -15,7 +15,7 @@ import androidx.navigation.NavHostController
 import com.kien.movies.DrawerItem
 import com.kien.movies.LocalContentFocusRequester
 import com.kien.movies.LocalSidebarExpanded
-import com.kien.movies.ui.navigation.NuvioNavHost
+import com.kien.movies.ui.navigation.MoviesNavHost
 import com.kien.movies.ui.navigation.Screen
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.util.rememberDrawerItemFocusRequesters
@@ -86,7 +86,7 @@ internal fun TopTabBarScaffold(
                 LocalContentFocusRequester provides state.contentFocusRequester,
                 LocalTopTabBarScreenFocus provides state.screenFocusRequester
             ) {
-                NuvioNavHost(
+                MoviesNavHost(
                     navController = navController,
                     startDestination = startDestination,
                     hideBuiltInHeaders = false,

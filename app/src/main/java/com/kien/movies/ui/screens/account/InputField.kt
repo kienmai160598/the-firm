@@ -5,7 +5,7 @@ package com.kien.movies.ui.screens.account
 import com.kien.movies.ui.screens.settings.expressiveCard
 import com.kien.movies.ui.screens.settings.expressiveCardFocusFill
 import com.kien.movies.ui.screens.settings.expressiveRingless
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.tvControlHeight
 
@@ -68,20 +68,20 @@ internal fun InputField(
         onClick = { isEditing = true },
         modifier = modifier.tvControlHeight(),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ).expressiveRingless(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
             .expressiveCard(),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
@@ -90,7 +90,7 @@ internal fun InputField(
             onValueChange = onValueChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                 .focusRequester(textFieldFocusRequester)
                 .onFocusChanged {
                     if (!it.isFocused && isEditing) {
@@ -116,17 +116,17 @@ internal fun InputField(
                 }
             ),
             textStyle = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 textDirection = TextDirection.Content
             ),
-            cursorBrush = SolidColor(if (isEditing) NuvioTheme.colors.Secondary else Color.Transparent),
+            cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Secondary else Color.Transparent),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) {
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                        color = NuvioTheme.colors.TextTertiary
+                        color = MoviesTheme.colors.TextTertiary
                     )
                 }
                 innerTextField()

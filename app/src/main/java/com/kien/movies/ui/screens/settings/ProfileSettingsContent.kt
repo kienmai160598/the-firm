@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,7 +23,7 @@ internal fun ProfileSettingsContent(
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.profile_title),

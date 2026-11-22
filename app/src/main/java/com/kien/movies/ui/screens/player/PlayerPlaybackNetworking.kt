@@ -169,7 +169,7 @@ internal object PlayerPlaybackNetworking {
             }
         }
         val http1Client = builder
-            .let { NuvioExoPlayerPerformanceHelper.applyNetworkOptimizations(it) }
+            .let { MoviesExoPlayerPerformanceHelper.applyNetworkOptimizations(it) }
             .build()
         if (proxyHeaders.isEmpty()) return http1Client
 

@@ -25,7 +25,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 // Shared by the detail, stream, search, library, profile, party, cast and ambient screens: each
@@ -81,7 +81,7 @@ internal fun TextStyle.atLeastOnBox(floor: TextUnit): TextStyle {
  */
 @Composable
 internal fun tonalCardColors(resting: Color): CardColors {
-    val focused = NuvioTheme.colors.FocusBackground
+    val focused = MoviesTheme.colors.FocusBackground
     return CardDefaults.colors(
         containerColor = resting,
         focusedContainerColor = focused,
@@ -99,21 +99,21 @@ internal fun noRingCardBorder(): CardBorder = CardDefaults.border(
 /** A tonal dialog button; on the box build it rests frosted and turns white on focus. */
 @Composable
 internal fun tonalButtonColors(
-    resting: Color = forBuild(NuvioTheme.colors.BackgroundCard, ExpressiveColors.frosted)
+    resting: Color = forBuild(MoviesTheme.colors.BackgroundCard, ExpressiveColors.frosted)
 ): ButtonColors {
     if (!isExpressiveBuild) {
         return ButtonDefaults.colors(
             containerColor = resting,
-            contentColor = NuvioTheme.colors.TextPrimary
+            contentColor = MoviesTheme.colors.TextPrimary
         )
     }
     return ButtonDefaults.colors(
         containerColor = resting,
-        contentColor = NuvioTheme.colors.TextPrimary,
-        focusedContainerColor = NuvioTheme.colors.Secondary,
-        focusedContentColor = NuvioTheme.colors.OnSecondary,
-        pressedContainerColor = NuvioTheme.colors.Secondary,
-        pressedContentColor = NuvioTheme.colors.OnSecondary
+        contentColor = MoviesTheme.colors.TextPrimary,
+        focusedContainerColor = MoviesTheme.colors.Secondary,
+        focusedContentColor = MoviesTheme.colors.OnSecondary,
+        pressedContainerColor = MoviesTheme.colors.Secondary,
+        pressedContentColor = MoviesTheme.colors.OnSecondary
     )
 }
 
@@ -129,14 +129,14 @@ internal fun buttonLabelStyle(): TextStyle =
 @Composable
 internal fun selectableButtonColors(
     selected: Boolean,
-    upstreamSelected: Color = NuvioTheme.colors.Secondary,
-    upstreamSelectedContent: Color = NuvioTheme.colors.OnSecondary
+    upstreamSelected: Color = MoviesTheme.colors.Secondary,
+    upstreamSelectedContent: Color = MoviesTheme.colors.OnSecondary
 ): ButtonColors {
-    val resting = NuvioTheme.colors.BackgroundCard
+    val resting = MoviesTheme.colors.BackgroundCard
     if (!isExpressiveBuild) {
         return ButtonDefaults.colors(
             containerColor = if (selected) upstreamSelected else resting,
-            contentColor = if (selected) upstreamSelectedContent else NuvioTheme.colors.TextPrimary
+            contentColor = if (selected) upstreamSelectedContent else MoviesTheme.colors.TextPrimary
         )
     }
     return tonalButtonColors(

@@ -125,7 +125,7 @@ internal class MpvEventRelay(
     }
 }
 
-internal fun PlayerRuntimeController.registerMpvEventRelay(view: NuvioMpvSurfaceView) {
+internal fun PlayerRuntimeController.registerMpvEventRelay(view: MoviesMpvSurfaceView) {
     unregisterMpvEventRelay()
     mpvEventRelayEpoch += 1
     mpvErrorRecoveryArmed = false
@@ -344,7 +344,7 @@ private fun PlayerRuntimeController.attemptMpvAutoRetry(
     return true
 }
 
-internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: NuvioMpvSurfaceView) {
+internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: MoviesMpvSurfaceView) {
     if (hasRenderedFirstFrame) return
 
     val enabled = _uiState.value.error == null &&

@@ -46,8 +46,8 @@ import com.kien.movies.domain.model.LibraryListTab
 import com.kien.movies.domain.model.LibraryListPrivacy
 import kotlinx.coroutines.delay
 import com.kien.movies.domain.model.localizedTitle
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesTheme
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import com.kien.movies.R
@@ -92,14 +92,14 @@ internal fun ManageListsDialog(
         Box(
             modifier = Modifier
                 .width(620.dp)
-                .background(NuvioTheme.colors.BackgroundElevated, RoundedCornerShape(NuvioTheme.radii.xl))
-                .padding(NuvioTheme.spacing.xl)
+                .background(MoviesTheme.colors.BackgroundElevated, RoundedCornerShape(MoviesTheme.radii.xl))
+                .padding(MoviesTheme.spacing.xl)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(
                     text = stringResource(R.string.library_manage_lists),
                     style = MaterialTheme.typography.titleLarge,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
 
                 if (errorMessage != null) {
@@ -114,7 +114,7 @@ internal fun ManageListsDialog(
                     Text(
                         text = stringResource(R.string.library_no_lists),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.extendedColors.textSecondary
+                        color = MoviesTheme.extendedColors.textSecondary
                     )
                 } else {
                     LazyColumn(
@@ -140,8 +140,8 @@ internal fun ManageListsDialog(
                                 },
                                 colors = selectableButtonColors(
                                     selected = selected,
-                                    upstreamSelected = NuvioTheme.colors.FocusBackground,
-                                    upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                                    upstreamSelected = MoviesTheme.colors.FocusBackground,
+                                    upstreamSelectedContent = MoviesTheme.colors.TextPrimary
                                 ),
                                 contentPadding = tvButtonPadding()
                             ) {
@@ -263,7 +263,7 @@ internal fun ListEditorDialog(
         nameFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onCancel,
         title = if (state.mode == LibraryListEditorState.Mode.CREATE) stringResource(R.string.library_list_create_dialog_title) else stringResource(R.string.library_list_edit_dialog_title),
         width = 560.dp
@@ -304,15 +304,15 @@ internal fun ListEditorDialog(
                 textDirection = TextDirection.Content
             ),
             colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                focusedTextColor = NuvioTheme.colors.TextPrimary,
-                unfocusedTextColor = NuvioTheme.colors.TextPrimary,
-                focusedContainerColor = NuvioTheme.colors.BackgroundCard,
-                unfocusedContainerColor = NuvioTheme.colors.BackgroundCard,
-                focusedBorderColor = NuvioTheme.colors.FocusRing,
-                unfocusedBorderColor = NuvioTheme.colors.Border,
-                focusedLabelColor = NuvioTheme.colors.TextSecondary,
-                unfocusedLabelColor = NuvioTheme.colors.TextTertiary,
-                cursorColor = NuvioTheme.colors.FocusRing,
+                focusedTextColor = MoviesTheme.colors.TextPrimary,
+                unfocusedTextColor = MoviesTheme.colors.TextPrimary,
+                focusedContainerColor = MoviesTheme.colors.BackgroundCard,
+                unfocusedContainerColor = MoviesTheme.colors.BackgroundCard,
+                focusedBorderColor = MoviesTheme.colors.FocusRing,
+                unfocusedBorderColor = MoviesTheme.colors.Border,
+                focusedLabelColor = MoviesTheme.colors.TextSecondary,
+                unfocusedLabelColor = MoviesTheme.colors.TextTertiary,
+                cursorColor = MoviesTheme.colors.FocusRing,
             )
         )
 
@@ -346,15 +346,15 @@ internal fun ListEditorDialog(
                     textDirection = TextDirection.Content
                 ),
                 colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = NuvioTheme.colors.TextPrimary,
-                    unfocusedTextColor = NuvioTheme.colors.TextPrimary,
-                    focusedContainerColor = NuvioTheme.colors.BackgroundCard,
-                    unfocusedContainerColor = NuvioTheme.colors.BackgroundCard,
-                    focusedBorderColor = NuvioTheme.colors.FocusRing,
-                    unfocusedBorderColor = NuvioTheme.colors.Border,
-                    focusedLabelColor = NuvioTheme.colors.TextSecondary,
-                    unfocusedLabelColor = NuvioTheme.colors.TextTertiary,
-                    cursorColor = NuvioTheme.colors.FocusRing,
+                    focusedTextColor = MoviesTheme.colors.TextPrimary,
+                    unfocusedTextColor = MoviesTheme.colors.TextPrimary,
+                    focusedContainerColor = MoviesTheme.colors.BackgroundCard,
+                    unfocusedContainerColor = MoviesTheme.colors.BackgroundCard,
+                    focusedBorderColor = MoviesTheme.colors.FocusRing,
+                    unfocusedBorderColor = MoviesTheme.colors.Border,
+                    focusedLabelColor = MoviesTheme.colors.TextSecondary,
+                    unfocusedLabelColor = MoviesTheme.colors.TextTertiary,
+                    cursorColor = MoviesTheme.colors.FocusRing,
                 )
             )
         }
@@ -362,7 +362,7 @@ internal fun ListEditorDialog(
         Text(
             text = stringResource(R.string.library_list_privacy),
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.extendedColors.textSecondary
+            color = MoviesTheme.extendedColors.textSecondary
         )
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -379,8 +379,8 @@ internal fun ListEditorDialog(
                     },
                     colors = selectableButtonColors(
                         selected = selected,
-                        upstreamSelected = NuvioTheme.colors.FocusBackground,
-                        upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                        upstreamSelected = MoviesTheme.colors.FocusBackground,
+                        upstreamSelectedContent = MoviesTheme.colors.TextPrimary
                     ),
                     contentPadding = tvButtonPadding()
                 ) {

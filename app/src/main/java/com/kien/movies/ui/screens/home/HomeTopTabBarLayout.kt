@@ -15,13 +15,13 @@ import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
 import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
 import com.kien.movies.ui.navigation.toptabbar.isScrolledDown
 import com.kien.movies.ui.navigation.toptabbar.topTabBarFloatsOver
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 private val HeroLogoMaxWidth = 220.dp
 
 /** Top padding of a home page whose first row starts at the top: below the top tab bar if shown. */
 @Composable
-internal fun homeFirstRowTopPadding(): Dp = LocalTopTabBarInset.current + NuvioTheme.spacing.xl
+internal fun homeFirstRowTopPadding(): Dp = LocalTopTabBarInset.current + MoviesTheme.spacing.xl
 
 @Composable
 internal fun ReportHomePageScroll(pageState: LazyListState) {

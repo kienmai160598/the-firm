@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.home
 
 import com.kien.movies.domain.model.catalogRowLegacyKey
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
@@ -363,7 +363,7 @@ internal fun ModernHomeRowsList(
                     },
                 ),
             contentPadding = PaddingValues(bottom = rowsViewportHeight),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
         ) {
             itemsIndexed(
                 items = carouselRows.list,

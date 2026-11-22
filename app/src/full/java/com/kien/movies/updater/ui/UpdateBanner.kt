@@ -60,7 +60,7 @@ import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.updater.UpdateUiState
@@ -87,13 +87,13 @@ internal fun UpdateBanner(
         animationSpec = tween(durationMillis = 180),
         label = "updateBannerProgress"
     )
-    val containerColor = NuvioTheme.colors.BackgroundElevated
+    val containerColor = MoviesTheme.colors.BackgroundElevated
     // A light accent (White, Graphite, Gold, ...) washes out the light title on a solid fill, and its dark
     // on-accent text is unreadable on the banner until the fill reaches it. Tint instead, as White always did.
-    val lightAccent = NuvioTheme.colors.OnSecondary.luminance() < 0.5f
-    val progressBrush = ThemeColors.getColorPalette(NuvioTheme.currentTheme).accentBrush()
+    val lightAccent = MoviesTheme.colors.OnSecondary.luminance() < 0.5f
+    val progressBrush = ThemeColors.getColorPalette(MoviesTheme.currentTheme).accentBrush()
     val progressAlpha = if (lightAccent) 0.18f else 1f
-    val dividerColor = NuvioTheme.colors.Border
+    val dividerColor = MoviesTheme.colors.Border
     var bannerHasFocus by remember { mutableStateOf(false) }
     val subtitle = when {
         isInstalledUpdate -> stringResource(R.string.update_installed_automatically)
@@ -151,7 +151,7 @@ internal fun UpdateBanner(
                 Box(
                     modifier = Modifier
                         .size(28.dp)
-                        .background(NuvioTheme.colors.Success, CircleShape),
+                        .background(MoviesTheme.colors.Success, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -165,7 +165,7 @@ internal fun UpdateBanner(
                 Icon(
                     imageVector = Icons.Default.CloudDownload,
                     contentDescription = null,
-                    tint = NuvioTheme.colors.TextPrimary,
+                    tint = MoviesTheme.colors.TextPrimary,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -179,7 +179,7 @@ internal fun UpdateBanner(
                     style = MaterialTheme.typography.titleMedium.copy(
                         textDirection = TextDirection.Ltr
                     ),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -188,10 +188,10 @@ internal fun UpdateBanner(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = when {
-                        state.errorMessage != null -> NuvioTheme.colors.Error
-                        state.isDownloading && lightAccent -> NuvioTheme.colors.TextPrimary
-                        state.isDownloading -> NuvioTheme.colors.OnSecondary
-                        else -> NuvioTheme.colors.TextSecondary
+                        state.errorMessage != null -> MoviesTheme.colors.Error
+                        state.isDownloading && lightAccent -> MoviesTheme.colors.TextPrimary
+                        state.isDownloading -> MoviesTheme.colors.OnSecondary
+                        else -> MoviesTheme.colors.TextSecondary
                     },
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -219,10 +219,10 @@ internal fun UpdateBanner(
                         state.downloadedApkPath != null ||
                         state.isUpdateAvailable,
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.Secondary,
-                        focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                        contentColor = NuvioTheme.colors.OnSecondary,
-                        focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                        containerColor = MoviesTheme.colors.Secondary,
+                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                        contentColor = MoviesTheme.colors.OnSecondary,
+                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                     ),
                     shape = ButtonDefaults.shape(RoundedCornerShape(50)),
                     contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
@@ -277,7 +277,7 @@ private fun AutoDismissCloseButton(paused: Boolean, onDismiss: () -> Unit) {
             currentOnDismiss()
         }
     }
-    val ringColor = NuvioTheme.colors.TextSecondary
+    val ringColor = MoviesTheme.colors.TextSecondary
     Box(
         modifier = Modifier
             .size(44.dp)
@@ -317,14 +317,14 @@ private fun UpdateBannerIconButton(
         enabled = enabled,
         modifier = Modifier.size(44.dp),
         colors = IconButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.Secondary,
+            contentColor = MoviesTheme.colors.TextPrimary,
+            focusedContentColor = MoviesTheme.colors.OnSecondary
         ),
         border = IconButtonDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(2.dp, NuvioTheme.colors.FocusRing),
+                border = BorderStroke(2.dp, MoviesTheme.colors.FocusRing),
                 shape = CircleShape
             )
         ),

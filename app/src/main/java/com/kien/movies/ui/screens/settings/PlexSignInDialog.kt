@@ -24,7 +24,7 @@ import com.kien.movies.data.mediaserver.plex.PlexAccountClient
 import com.kien.movies.data.mediaserver.plex.PlexHomeUser
 import com.kien.movies.data.mediaserver.plex.PlexReach
 import com.kien.movies.data.mediaserver.plex.PlexServer
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 
 /** Adding Plex: a code at plex.tv/link, then a server, then a Plex Home user (each step only when there is a choice). */
 @Composable
@@ -65,7 +65,7 @@ internal fun PlexSignInDialog(
         else -> state.server?.name
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = { if (!busy) onDismiss() },
         title = title,
         subtitle = subtitle,

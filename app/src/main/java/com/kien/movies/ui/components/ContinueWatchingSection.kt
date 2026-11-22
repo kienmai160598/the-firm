@@ -71,7 +71,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import com.kien.movies.ui.screens.home.canMarkWatched
 import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -98,7 +98,7 @@ import com.kien.movies.domain.model.CardDepthStyle
 import kotlinx.coroutines.delay
 
 private val BadgeShape =
-    RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.sm else NuvioTheme.radii.xs)
+    RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.sm else MoviesTheme.radii.xs)
 
 private fun newSeasonBadgeColor(): Color =
     if (isExpressiveBuild) ExpressiveColors.tertiaryContainer else CwNewSeasonBadgeColor
@@ -107,7 +107,7 @@ private val CwNewEpisodeBadgeColor = Color(0xFF1D4ED8)
 /** Netflix red over a translucent white track on the box build; upstream's accent elsewhere. */
 @Composable
 private fun progressFillColor(): Color =
-    if (isExpressiveBuild) ExpressiveColors.accentRed else NuvioTheme.colors.Secondary
+    if (isExpressiveBuild) ExpressiveColors.accentRed else MoviesTheme.colors.Secondary
 
 private fun progressTrackColor(): Color =
     if (isExpressiveBuild) Color.White.copy(alpha = 0.24f) else Color.Black.copy(alpha = 0.3f)
@@ -164,7 +164,7 @@ fun ContinueWatchingSection(
     cardWidth: Dp = 288.dp,
     imageHeight: Dp = 162.dp,
     cardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
-    cornerRadius: Dp = NuvioTheme.radii.md,
+    cornerRadius: Dp = MoviesTheme.radii.md,
     posterTitleOverride: TextStyle? = null
 ) {
     if (items.isEmpty()) return
@@ -199,14 +199,14 @@ fun ContinueWatchingSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.lg),
+                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title ?: stringResource(R.string.continue_watching),
                 style = MaterialTheme.typography.headlineMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
         }
 
@@ -215,7 +215,7 @@ fun ContinueWatchingSection(
         val layoutDirection = LocalLayoutDirection.current
         val isRtl = layoutDirection == LayoutDirection.Rtl
         val horizontalBringIntoViewSpec = remember(density, defaultBringIntoViewSpec, isRtl) {
-            val startPx = with(density) { NuvioTheme.spacing.xxxl.roundToPx() }
+            val startPx = with(density) { MoviesTheme.spacing.xxxl.roundToPx() }
             @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
             object : BringIntoViewSpec {
                 override val scrollAnimationSpec: AnimationSpec<Float> =
@@ -257,8 +257,8 @@ fun ContinueWatchingSection(
                         ?: FocusRequester.Default
                 }
                 .focusGroup(),
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
             state = listState
         ) {
             itemsIndexed(
@@ -459,7 +459,7 @@ fun ContinueWatchingCard(
     useEpisodeThumbnails: Boolean = true,
     cardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
     isFocused: Boolean = false,
-    cornerRadius: Dp = NuvioTheme.radii.md,
+    cornerRadius: Dp = MoviesTheme.radii.md,
     posterTitleOverride: TextStyle? = null
 ) {
     val isPosterStyle = cardStyle == ContinueWatchingCardStyle.POSTER
@@ -624,7 +624,7 @@ fun ContinueWatchingCard(
         builder.build()
     }
 
-    val bgColor = NuvioTheme.colors.Background
+    val bgColor = MoviesTheme.colors.Background
     val newEpisodeBadgeColor =
         if (isExpressiveBuild) ExpressiveColors.accentRed else CwNewEpisodeBadgeColor
     val badgeBackground = remember(bgColor, newEpisodeBadgeColor, nextUp) {
@@ -635,7 +635,7 @@ fun ContinueWatchingCard(
         }
     }
     
-    val bgCardColor = NuvioTheme.colors.BackgroundCard
+    val bgCardColor = MoviesTheme.colors.BackgroundCard
     val backgroundPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
 
     LightweightCard(
@@ -684,11 +684,11 @@ fun ContinueWatchingCard(
             Border.None
         } else {
             Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = cwCardShape
             )
         },
-        focusedScale = NuvioTheme.cardFocusScale,
+        focusedScale = MoviesTheme.cardFocusScale,
         liftShadow = !textBelowArtwork
     ) {
         if (isWideStyle) {
@@ -754,7 +754,7 @@ fun ContinueWatchingCard(
                     .then(
                         if (textBelowArtwork && isFocused && !isExpressiveBuild) {
                             Modifier.border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                 shape = cwClipShape
                             )
                         } else {
@@ -822,7 +822,7 @@ fun ContinueWatchingCard(
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(NuvioTheme.spacing.md)
+                            .padding(MoviesTheme.spacing.md)
                     ) {
                         ContinueWatchingCardText(
                             episodeStr = episodeStr,
@@ -841,15 +841,15 @@ fun ContinueWatchingCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(NuvioTheme.spacing.sm)
+                            .padding(MoviesTheme.spacing.sm)
                             .clip(BadgeShape)
                             .background(badgeBackground)
-                            .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs)
+                            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
                     ) {
                         Text(
                             text = badgeText,
                             style = MaterialTheme.typography.labelSmall.rememberMetaFloor(),
-                            color = NuvioTheme.colors.TextPrimary
+                            color = MoviesTheme.colors.TextPrimary
                         )
                     }
                 }
@@ -857,7 +857,7 @@ fun ContinueWatchingCard(
                 if (progress != null) {
                     // The poster card lifts its bar off the bottom edge and sits it on a pill, matching mobile.
                     val barInset =
-                        if (isPosterStyle) NuvioTheme.spacing.sm else NuvioTheme.spacing.xs
+                        if (isPosterStyle) MoviesTheme.spacing.sm else MoviesTheme.spacing.xs
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
@@ -867,8 +867,8 @@ fun ContinueWatchingCard(
                                 if (isPosterStyle) {
                                     Modifier
                                         .clip(RoundedCornerShape(999.dp))
-                                        .background(NuvioTheme.colors.Background.copy(alpha = 0.7f))
-                                        .padding(NuvioTheme.spacing.xxs)
+                                        .background(MoviesTheme.colors.Background.copy(alpha = 0.7f))
+                                        .padding(MoviesTheme.spacing.xxs)
                                 } else {
                                     Modifier
                                 }
@@ -901,9 +901,9 @@ fun ContinueWatchingCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            top = NuvioTheme.spacing.xxs,
-                            start = NuvioTheme.spacing.xs,
-                            end = NuvioTheme.spacing.xs
+                            top = MoviesTheme.spacing.xxs,
+                            start = MoviesTheme.spacing.xs,
+                            end = MoviesTheme.spacing.xs
                         )
                         .height(titleBlockHeight),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -913,7 +913,7 @@ fun ContinueWatchingCard(
                         Text(
                             text = titleText,
                             style = titleStyle,
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -921,13 +921,13 @@ fun ContinueWatchingCard(
                     if (episodeStr != null) {
                         Text(
                             text = episodeStr,
-                            modifier = Modifier.padding(start = NuvioTheme.spacing.xs),
+                            modifier = Modifier.padding(start = MoviesTheme.spacing.xs),
                             style = if (posterTitleOverride != null) {
                                 MaterialTheme.typography.labelMedium.rememberMetaFloor()
                             } else {
                                 MaterialTheme.typography.labelSmall.rememberMetaFloor()
                             },
-                            color = NuvioTheme.extendedColors.textSecondary,
+                            color = MoviesTheme.extendedColors.textSecondary,
                             maxLines = 1
                         )
                     }
@@ -972,7 +972,7 @@ private fun WideCardContent(
                 style = cardDepthStyle
             )
             .clip(cardShape)
-            .background(NuvioTheme.colors.BackgroundCard)
+            .background(MoviesTheme.colors.BackgroundCard)
     ) {
         Box(
             modifier = Modifier
@@ -1003,15 +1003,15 @@ private fun WideCardContent(
                 .fillMaxHeight()
                 .weight(1f)
                 .padding(
-                    horizontal = NuvioTheme.spacing.md,
-                    vertical = NuvioTheme.spacing.sm
+                    horizontal = MoviesTheme.spacing.md,
+                    vertical = MoviesTheme.spacing.sm
                 ),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
         ) {
             // Text content takes available space; progress bar appears at bottom only when present.
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1023,24 +1023,24 @@ private fun WideCardContent(
                             text = titleText,
                             focused = titleMarqueeActive,
                             style = titleStyle,
-                            color = NuvioTheme.colors.TextPrimary
+                            color = MoviesTheme.colors.TextPrimary
                         )
                     }
                     if (showBadge) {
                         Box(
                             modifier = Modifier
-                                .padding(start = NuvioTheme.spacing.xs)
+                                .padding(start = MoviesTheme.spacing.xs)
                                 .clip(BadgeShape)
                                 .background(badgeBackground)
                                 .padding(
-                                    horizontal = NuvioTheme.spacing.sm,
-                                    vertical = NuvioTheme.spacing.xxs
+                                    horizontal = MoviesTheme.spacing.sm,
+                                    vertical = MoviesTheme.spacing.xxs
                                 )
                         ) {
                             Text(
                                 text = badgeText,
                                 style = MaterialTheme.typography.labelSmall.rememberMetaFloor(),
-                                color = NuvioTheme.colors.TextPrimary
+                                color = MoviesTheme.colors.TextPrimary
                             )
                         }
                     }
@@ -1049,7 +1049,7 @@ private fun WideCardContent(
                 Text(
                     text = episodeStr.orEmpty(),
                     style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                    color = NuvioTheme.extendedColors.textSecondary,
+                    color = MoviesTheme.extendedColors.textSecondary,
                     maxLines = 1,
                     minLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1059,7 +1059,7 @@ private fun WideCardContent(
                         text = episodeTitle.orEmpty(),
                         focused = titleMarqueeActive,
                         style = MaterialTheme.typography.bodySmall.rememberMetaFloor(),
-                        color = NuvioTheme.extendedColors.textSecondary
+                        color = MoviesTheme.extendedColors.textSecondary
                     )
                 }
             }
@@ -1067,9 +1067,9 @@ private fun WideCardContent(
             // The bar keeps its space even with no progress so every card lays out identically.
             Column(
                 modifier = Modifier
-                    .padding(top = NuvioTheme.spacing.xxs)
+                    .padding(top = MoviesTheme.spacing.xxs)
                     .alpha(if (hasProgress) 1f else 0f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
             ) {
                 Box(
                     modifier = Modifier
@@ -1089,7 +1089,7 @@ private fun WideCardContent(
                 Text(
                     text = badgeText,
                     style = MaterialTheme.typography.labelSmall.rememberMetaFloor(),
-                    color = NuvioTheme.extendedColors.textSecondary,
+                    color = MoviesTheme.extendedColors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1112,7 +1112,7 @@ private fun ContinueWatchingCardText(
         Text(
             text = episodeStr,
             style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
     }
 
@@ -1120,7 +1120,7 @@ private fun ContinueWatchingCardText(
         ContinueWatchingEllipsizedTitle(
             text = titleText,
             style = titleStyle,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             hasArtwork = hasArtwork
         )
     } else {
@@ -1128,7 +1128,7 @@ private fun ContinueWatchingCardText(
             text = titleText,
             focused = titleMarqueeActive,
             style = titleStyle,
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
     }
 
@@ -1136,7 +1136,7 @@ private fun ContinueWatchingCardText(
         Text(
             text = title,
             style = MaterialTheme.typography.bodySmall.rememberMetaFloor(),
-            color = NuvioTheme.extendedColors.textSecondary,
+            color = MoviesTheme.extendedColors.textSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -1167,7 +1167,7 @@ fun ContinueWatchingOptionsDialog(
         detailsFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.cw_dialog_subtitle)
@@ -1178,8 +1178,8 @@ fun ContinueWatchingOptionsDialog(
                 .fillMaxWidth()
                 .focusRequester(detailsFocusRequester),
             colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                contentColor = MoviesTheme.colors.TextPrimary
             )
         ) {
             Text(stringResource(R.string.cw_action_go_to_details))
@@ -1189,8 +1189,8 @@ fun ContinueWatchingOptionsDialog(
             Button(
                 onClick = onPlayManually,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -1202,8 +1202,8 @@ fun ContinueWatchingOptionsDialog(
             Button(
                 onClick = onStartFromBeginning,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -1215,8 +1215,8 @@ fun ContinueWatchingOptionsDialog(
             Button(
                 onClick = onMarkWatched,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -1227,8 +1227,8 @@ fun ContinueWatchingOptionsDialog(
         Button(
             onClick = onRemove,
             colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                contentColor = MoviesTheme.colors.TextPrimary
             ),
             modifier = Modifier.fillMaxWidth()
         ) {

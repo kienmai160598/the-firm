@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -27,8 +27,8 @@ import androidx.tv.material3.Icon
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 private const val INDICATOR_FADE_MS = 150
-private val IndicatorIconSize = NuvioTheme.spacing.xxl
-private val IndicatorEdgeInset = NuvioTheme.spacing.xxs
+private val IndicatorIconSize = MoviesTheme.spacing.xxl
+private val IndicatorEdgeInset = MoviesTheme.spacing.xxs
 
 /**
  * The strip a vertical chevron covers at a list's top or bottom edge. On the box build a list
@@ -57,7 +57,7 @@ internal fun BoxScope.SettingsVerticalScrollIndicators(
         Icon(
             imageVector = Icons.Default.KeyboardArrowUp,
             contentDescription = null,
-            tint = NuvioTheme.colors.TextSecondary.copy(alpha = 0.55f),
+            tint = MoviesTheme.colors.TextSecondary.copy(alpha = 0.55f),
             modifier = Modifier.size(IndicatorIconSize)
         )
     }
@@ -72,7 +72,7 @@ internal fun BoxScope.SettingsVerticalScrollIndicators(
         Icon(
             imageVector = Icons.Default.KeyboardArrowDown,
             contentDescription = null,
-            tint = NuvioTheme.colors.TextSecondary.copy(alpha = 0.55f),
+            tint = MoviesTheme.colors.TextSecondary.copy(alpha = 0.55f),
             modifier = Modifier.size(IndicatorIconSize)
         )
     }
@@ -94,7 +94,7 @@ internal fun BoxScope.SettingsHorizontalScrollIndicators(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = null,
-            tint = NuvioTheme.colors.TextSecondary.copy(alpha = 0.55f),
+            tint = MoviesTheme.colors.TextSecondary.copy(alpha = 0.55f),
             modifier = Modifier.size(IndicatorIconSize)
         )
     }
@@ -109,7 +109,7 @@ internal fun BoxScope.SettingsHorizontalScrollIndicators(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = NuvioTheme.colors.TextSecondary.copy(alpha = 0.55f),
+            tint = MoviesTheme.colors.TextSecondary.copy(alpha = 0.55f),
             modifier = Modifier.size(IndicatorIconSize)
         )
     }

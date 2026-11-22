@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -28,9 +28,9 @@ fun MonochromePosterPlaceholder(
     modifier: Modifier = Modifier,
     contentDescription: String? = null
 ) {
-    val base = NuvioTheme.colors.BackgroundCard
-    val strokeColor = NuvioTheme.colors.TextTertiary.copy(alpha = 0.28f)
-    val centerButtonBorder = NuvioTheme.colors.TextTertiary.copy(alpha = 0.18f)
+    val base = MoviesTheme.colors.BackgroundCard
+    val strokeColor = MoviesTheme.colors.TextTertiary.copy(alpha = 0.28f)
+    val centerButtonBorder = MoviesTheme.colors.TextTertiary.copy(alpha = 0.18f)
     val backgroundGradient = remember(base) {
         Brush.verticalGradient(
             colors = listOf(
@@ -54,7 +54,7 @@ fun MonochromePosterPlaceholder(
             modifier = Modifier
                 .align(Alignment.Center)
                 .size(46.dp)
-                .border(width = NuvioTheme.spacing.hairline, color = strokeColor, shape = CircleShape)
+                .border(width = MoviesTheme.spacing.hairline, color = strokeColor, shape = CircleShape)
         )
 
         Box(
@@ -62,16 +62,16 @@ fun MonochromePosterPlaceholder(
                 .align(Alignment.Center)
                 .size(42.dp)
                 .background(Color.White.copy(alpha = 0.92f), CircleShape)
-                .border(BorderStroke(NuvioTheme.spacing.hairline, centerButtonBorder), CircleShape),
+                .border(BorderStroke(MoviesTheme.spacing.hairline, centerButtonBorder), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.PlayArrow,
                 contentDescription = null,
-                tint = NuvioTheme.colors.BackgroundCard.copy(alpha = 0.8f),
+                tint = MoviesTheme.colors.BackgroundCard.copy(alpha = 0.8f),
                 modifier = Modifier
-                    .size(NuvioTheme.spacing.xl)
-                    .offset(x = NuvioTheme.spacing.hairline)
+                    .size(MoviesTheme.spacing.xl)
+                    .offset(x = MoviesTheme.spacing.hairline)
             )
         }
     }

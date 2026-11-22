@@ -5,8 +5,8 @@ import com.kien.movies.ui.navigation.LocalDetailChildClosedEpoch
 import com.kien.movies.ui.navigation.LocalDetailChildOverlayVisible
 import android.widget.Toast
 
-import com.kien.movies.ui.theme.NuvioTheme
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesTheme
+import com.kien.movies.ui.theme.MoviesMotion
 
 import android.view.KeyEvent
 import android.os.SystemClock
@@ -491,7 +491,7 @@ fun MetaDetailsScreen(
     }
     val playOnLoadReturnContentAlpha by animateFloatAsState(
         targetValue = if (playOnLoadReturnRevealRequested) 1f else 0f,
-        animationSpec = NuvioMotion.mediumTween(),
+        animationSpec = MoviesMotion.mediumTween(),
         label = "playOnLoadReturnContentAlpha",
         finishedListener = { playOnLoadReturnContentRevealed = it == 1f }
     )
@@ -584,7 +584,7 @@ fun MetaDetailsScreen(
     }
 
     val rootBackgroundTrailerController = LocalBackgroundTrailerController.current
-    val rootBackgroundColor = NuvioTheme.colors.Background
+    val rootBackgroundColor = MoviesTheme.colors.Background
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -738,7 +738,7 @@ fun MetaDetailsScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .graphicsLayer { alpha = loadingBackdropAlpha }
-                                .background(NuvioTheme.colors.Background)
+                                .background(MoviesTheme.colors.Background)
                         )
                     }
                     if (!(uiState.isTrailerPlaying && loadingTrailerRendering)) {
@@ -1191,7 +1191,7 @@ fun MetaDetailsScreen(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = NuvioTheme.spacing.xl)
+                    .padding(top = MoviesTheme.spacing.xl)
                     .background(
                         color = detailMessageContainer(uiState.userMessageIsError),
                         shape = detailMessageShape()
@@ -1202,7 +1202,7 @@ fun MetaDetailsScreen(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium
                         .atLeastOnBox(TvSizeFloors.bodyText),
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
             }
         }
@@ -1553,7 +1553,7 @@ private fun MetaDetailsContent(
         if (currentIndex == index) {
             val delta = (offset - currentOffset).toFloat()
             if (kotlin.math.abs(delta) > 1f) {
-                listState.animateScrollBy(delta, NuvioMotion.slowTween())
+                listState.animateScrollBy(delta, MoviesMotion.slowTween())
             }
             return
         }
@@ -1581,7 +1581,7 @@ private fun MetaDetailsContent(
         }
         if (distance <= 1f) return
         coroutineScope.launch {
-            listState.animateScrollBy(distance, NuvioMotion.slowTween())
+            listState.animateScrollBy(distance, MoviesMotion.slowTween())
         }
     }
 
@@ -1883,7 +1883,7 @@ private fun MetaDetailsContent(
 
     val belowHeroAlpha = animateFloatAsState(
         targetValue = if (isTrailerPlaying) 0f else 1f,
-        animationSpec = tween(NuvioMotion.tokens.durations.overlay),
+        animationSpec = tween(MoviesMotion.tokens.durations.overlay),
         label = "belowHeroFade"
     )
 
@@ -2149,7 +2149,7 @@ private fun MetaDetailsContent(
     }
 
     // Backdrop alpha for crossfade
-    val backgroundColor = NuvioTheme.colors.Background
+    val backgroundColor = MoviesTheme.colors.Background
 
     // Pre-compute gradient brushes once
 
@@ -2920,7 +2920,7 @@ private fun MetaDetailsContent(
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     firstItemFocusRequester = ratingsContentFocusRequester,
                                     ratingsGridFocusRequester = ratingsGridFocusRequester,
-                                    modifier = Modifier.heightIn(min = if (!hasItemsBelow) castSectionHeight else NuvioTheme.spacing.none)
+                                    modifier = Modifier.heightIn(min = if (!hasItemsBelow) castSectionHeight else MoviesTheme.spacing.none)
                                 )
                             }
                         }
@@ -3502,8 +3502,8 @@ private fun PeopleSectionTabs(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            .padding(top = 20.dp, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         @Composable
         fun androidx.compose.foundation.layout.RowScope.renderTabs(items: List<PeopleTabItem>) {
@@ -3514,7 +3514,7 @@ private fun PeopleSectionTabs(
                             .padding(horizontal = 10.dp)
                             .width(1.dp)
                             .height(16.dp)
-                            .background(NuvioTheme.colors.TextPrimary.copy(alpha = 0.45f))
+                            .background(MoviesTheme.colors.TextPrimary.copy(alpha = 0.45f))
                     )
                 }
 

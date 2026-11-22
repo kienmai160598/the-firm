@@ -1,7 +1,7 @@
 package com.kien.movies.ui.components
 
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
@@ -91,7 +91,7 @@ private fun getBadgeImageLoader(context: android.content.Context): ImageLoader {
 }
 
 /** Shared shape instance — all badge chips use the same corner radius. */
-private val BadgeChipShape = RoundedCornerShape(NuvioTheme.radii.sm)
+private val BadgeChipShape = RoundedCornerShape(MoviesTheme.radii.sm)
 private val BadgeImageShape = RoundedCornerShape(6.dp)
 
 /** Marquee scroll speed — matches FocusMarqueeText velocity for visual consistency. */
@@ -131,7 +131,7 @@ fun StreamBadgeChips(
         Row(
             modifier = Modifier.wrapContentWidth(align = Alignment.Start, unbounded = true),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
         ) {
             imageBadges.forEach { badge ->
                 StreamImportedBadgeChip(badge = badge)
@@ -160,14 +160,14 @@ private fun StreamFileSizeBadge(bytes: Long) {
     Box(
         modifier = Modifier
             .height(20.dp)
-            .background(NuvioTheme.colors.SurfaceVariant, BadgeChipShape)
+            .background(MoviesTheme.colors.SurfaceVariant, BadgeChipShape)
             .padding(horizontal = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = stringResource(R.string.streams_size, label),
             style = MaterialTheme.typography.labelSmall,
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
     }
 }
@@ -186,7 +186,7 @@ internal fun StreamImportedBadgeChip(badge: StreamBadge, crossfade: Boolean = fa
     // Pre-upscale: decode at 2× target pixels so the hardware compositor
     // has enough pixel data for smooth edges inside Card RenderNodes.
     val decodeHeight = remember(density) {
-        with(density) { NuvioTheme.spacing.lg.roundToPx() } * 2
+        with(density) { MoviesTheme.spacing.lg.roundToPx() } * 2
     }
     // Use a wide max-width to let Coil decode at aspect ratio constrained by height.
     val decodeWidth = remember(density) {
@@ -213,11 +213,11 @@ internal fun StreamImportedBadgeChip(badge: StreamBadge, crossfade: Boolean = fa
     val chipModifier = Modifier
         .height(20.dp)
         .then(if (backgroundColor != null) Modifier.background(backgroundColor, BadgeChipShape) else Modifier)
-        .then(if (outlineColor != null) Modifier.border(NuvioTheme.spacing.hairline, outlineColor, BadgeChipShape) else Modifier)
+        .then(if (outlineColor != null) Modifier.border(MoviesTheme.spacing.hairline, outlineColor, BadgeChipShape) else Modifier)
 
     Box(
         modifier = chipModifier
-            .padding(horizontal = 3.dp, vertical = NuvioTheme.spacing.xxs),
+            .padding(horizontal = 3.dp, vertical = MoviesTheme.spacing.xxs),
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(
@@ -225,7 +225,7 @@ internal fun StreamImportedBadgeChip(badge: StreamBadge, crossfade: Boolean = fa
             imageLoader = getBadgeImageLoader(context),
             contentDescription = badge.name,
             modifier = Modifier
-                .height(NuvioTheme.spacing.lg)
+                .height(MoviesTheme.spacing.lg)
                 .widthIn(min = 34.dp, max = 92.dp)
                 .clip(BadgeImageShape),
             contentScale = ContentScale.Fit

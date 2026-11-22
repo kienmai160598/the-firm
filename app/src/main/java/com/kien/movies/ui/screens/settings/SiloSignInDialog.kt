@@ -33,9 +33,9 @@ import com.kien.movies.data.mediaserver.ServerConnection
 import com.kien.movies.data.mediaserver.ServerFailure
 import com.kien.movies.data.mediaserver.silo.SiloProfile
 import com.kien.movies.data.mediaserver.silo.SiloSignInProblem
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.account.InputField
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 /** Adding Silo: the server's address, then a code approved on another device (or the password), then a Silo profile. */
 @Composable
@@ -63,7 +63,7 @@ internal fun SiloSignInDialog(
         else -> serverName
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = { if (!busy) onDismiss() },
         title = title,
         subtitle = subtitle,
@@ -233,9 +233,9 @@ private fun SiloProfile.tags(): String = listOfNotNull(
 private fun SiloField(label: String, field: @Composable () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
-        Text(text = label, style = MaterialTheme.typography.labelMedium, color = NuvioTheme.colors.TextSecondary)
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = MoviesTheme.colors.TextSecondary)
         field()
     }
 }

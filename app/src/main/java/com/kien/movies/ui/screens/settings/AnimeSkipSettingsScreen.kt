@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent
 import android.widget.Toast
@@ -50,7 +50,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -76,7 +76,7 @@ fun AnimeSkipSettingsContent(
             LazyColumn(
                 state = animeSkipListState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+                contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 item(key = "animeskip_enabled") {
@@ -86,7 +86,7 @@ fun AnimeSkipSettingsContent(
                         checked = enabled,
                         onToggle = { viewModel.setEnabled(!enabled) },
                         modifier = Modifier
-                            .padding(top = NuvioTheme.spacing.xxs)
+                            .padding(top = MoviesTheme.spacing.xxs)
                             .then(
                                 if (initialFocusRequester != null) {
                             Modifier.focusRequester(initialFocusRequester)
@@ -144,7 +144,7 @@ private fun AnimeSkipClientIdDialog(
         }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.animeskip_dialog_title),
         subtitle = stringResource(R.string.animeskip_dialog_subtitle),
@@ -154,18 +154,18 @@ private fun AnimeSkipClientIdDialog(
             onClick = { inputFocusRequester.requestFocus() },
             modifier = Modifier.fillMaxWidth().onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundElevated,
+                containerColor = MoviesTheme.colors.BackgroundElevated,
                 focusedContainerColor = expressiveCardFocusFill(
-                    NuvioTheme.colors.BackgroundElevated
+                    MoviesTheme.colors.BackgroundElevated
                 )
             ),
             border = CardDefaults.border(
                 border = Border(
-                    border = androidx.compose.foundation.BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                    border = androidx.compose.foundation.BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                 ),
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                 )
             ).expressiveRingless(),
@@ -173,7 +173,7 @@ private fun AnimeSkipClientIdDialog(
                 .expressiveCard(),
             scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
+            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },
@@ -188,11 +188,11 @@ private fun AnimeSkipClientIdDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         textDirection = TextDirection.Content
                     ),
                     cursorBrush = SolidColor(
-                        if (isInputFocused) NuvioTheme.colors.Primary
+                        if (isInputFocused) MoviesTheme.colors.Primary
                         else androidx.compose.ui.graphics.Color.Transparent
                     ),
                     decorationBox = { innerTextField ->
@@ -200,7 +200,7 @@ private fun AnimeSkipClientIdDialog(
                             Text(
                                 text = stringResource(R.string.animeskip_dialog_placeholder),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextTertiary
+                                color = MoviesTheme.colors.TextTertiary
                             )
                         }
                         innerTextField()
@@ -214,30 +214,30 @@ private fun AnimeSkipClientIdDialog(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundElevated,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundElevated,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
             ) { Text(stringResource(R.string.action_cancel)) }
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Button(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onClear,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundElevated,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundElevated,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
             ) { Text(stringResource(R.string.action_clear)) }
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Button(
                 modifier = Modifier.tvControlHeight(),
                 onClick = { if (!validating) viewModel.validateAndSave(value, onSaved) },
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()

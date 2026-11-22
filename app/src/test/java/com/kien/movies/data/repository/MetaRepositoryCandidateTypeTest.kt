@@ -22,7 +22,7 @@ import retrofit2.Response
 
 /**
  * A meta candidate must only ever be built with a type the addon advertises.
- * Nuvio uses "tv" internally for episodic content while addons declare "series",
+ * Movies uses "tv" internally for episodic content while addons declare "series",
  * so a "tv" request against a series-only addon must go out as "series" and never
  * as "tv", which returns null meta and leaves the seasons list empty.
  */

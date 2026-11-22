@@ -178,7 +178,7 @@ internal class AudioSyncDecoder(
 
     private fun ensureThread() {
         if (thread != null) return
-        thread = Thread({ runLoop() }, "NuvioAudioSync").apply {
+        thread = Thread({ runLoop() }, "MoviesAudioSync").apply {
             isDaemon = true
             start()
         }

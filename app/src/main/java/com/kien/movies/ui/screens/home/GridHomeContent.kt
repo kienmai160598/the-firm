@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.home
 
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.State
@@ -236,7 +236,7 @@ fun GridHomeContent(
     val hasHero = remember(gridItems) {
         gridItems.firstOrNull() is GridItem.Hero
     }
-    val topPadding = if (hasHero) NuvioTheme.spacing.none else homeFirstRowTopPadding()
+    val topPadding = if (hasHero) MoviesTheme.spacing.none else homeFirstRowTopPadding()
     val sectionHeaderWithoutHero = rememberGridSectionHeaderWithoutHero(gridState)
 
     // Determine if hero is scrolled past
@@ -375,13 +375,13 @@ fun GridHomeContent(
         return
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(NuvioTheme.colors.Background)) {
+    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
         val contentFocusRequester = LocalContentFocusRequester.current
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val gridWidth = maxWidth
         // Calculate actual columns from available width (matching GridCells.Adaptive logic)
-        val horizontalPadding = NuvioTheme.spacing.xxxl + NuvioTheme.spacing.xl
-        val spacing = NuvioTheme.spacing.md
+        val horizontalPadding = MoviesTheme.spacing.xxxl + MoviesTheme.spacing.xl
+        val spacing = MoviesTheme.spacing.md
         val availableWidth = gridWidth - horizontalPadding
         val globalLandscape = LocalLandscapePosterMode.current
         val landscapeGridMinWidth = posterCardStyle.height // portrait height ≈ good landscape card width
@@ -465,13 +465,13 @@ fun GridHomeContent(
                 }
                 .dpadRepeatThrottle(),
             contentPadding = PaddingValues(
-                start = NuvioTheme.spacing.xxxl,
-                end = NuvioTheme.spacing.xl,
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xl,
                 top = topPadding,
-                bottom = NuvioTheme.spacing.xxl
+                bottom = MoviesTheme.spacing.xxl
             ),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             var firstGridFocusableAssigned = false
 
@@ -901,14 +901,14 @@ private fun SectionDivider(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = NuvioTheme.spacing.xl, bottom = NuvioTheme.spacing.md)
+            .padding(top = MoviesTheme.spacing.xl, bottom = MoviesTheme.spacing.md)
     ) {
         Text(
             text = catalogName,
             style = MaterialTheme.typography.headlineMedium.copy(
                 textDirection = catalogName.contentTextDirection()
             ),
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
     }
 }
@@ -918,7 +918,7 @@ private fun StickyCategoryHeader(
     sectionName: String,
     modifier: Modifier = Modifier
 ) {
-    val bgColor = NuvioTheme.colors.Background
+    val bgColor = MoviesTheme.colors.Background
     val headerGradient = remember(bgColor) {
         Brush.verticalGradient(
             colorStops = arrayOf(
@@ -933,14 +933,14 @@ private fun StickyCategoryHeader(
         modifier = modifier
             .fillMaxWidth()
             .background(headerGradient)
-            .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.md)
+            .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
     ) {
         Text(
             text = sectionName,
             style = MaterialTheme.typography.titleLarge.copy(
                 textDirection = sectionName.contentTextDirection()
             ),
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
     }
 }
@@ -979,12 +979,12 @@ private fun SeeAllGridCard(
                 shape = seeAllCardShape
             ),
             colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = MoviesTheme.colors.BackgroundCard
             ),
             border = CardDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = seeAllCardShape
                 )
             ),
@@ -1010,14 +1010,14 @@ private fun SeeAllGridCard(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = null,
-                        modifier = Modifier.size(NuvioTheme.spacing.xxl),
-                        tint = NuvioTheme.colors.TextSecondary
+                        modifier = Modifier.size(MoviesTheme.spacing.xxl),
+                        tint = MoviesTheme.colors.TextSecondary
                     )
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     Text(
                         text = label ?: stringResource(R.string.action_see_all),
                         style = MaterialTheme.typography.titleSmall.rememberBodyFloor(),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -1027,7 +1027,7 @@ private fun SeeAllGridCard(
         Spacer(
             modifier = Modifier
                 .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                .padding(top = NuvioTheme.spacing.sm)
+                .padding(top = MoviesTheme.spacing.sm)
                 .height(MaterialTheme.typography.titleMedium.lineHeight.value.dp)
         )
     }
@@ -1070,12 +1070,12 @@ private fun GridCollectionFolderCard(
             },
         shape = CardDefaults.shape(shape = cardShape),
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.BackgroundCard
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                 shape = cardShape
             )
         ),
@@ -1109,7 +1109,7 @@ private fun GridCollectionFolderCard(
                     Text(
                         text = folder.title.take(2).uppercase(),
                         style = MaterialTheme.typography.headlineMedium,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -1145,7 +1145,7 @@ private fun GridCollectionFolderCard(
                                 colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
                             )
                         )
-                        .padding(NuvioTheme.spacing.sm),
+                        .padding(MoviesTheme.spacing.sm),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(

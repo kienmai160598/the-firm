@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.brandWordmarkResource
 
 @Composable
@@ -17,7 +17,7 @@ fun BrandWordmark(
     drawableOverride: Int? = null
 ) {
     Image(
-        painter = painterResource(id = drawableOverride ?: NuvioTheme.currentTheme.brandWordmarkResource),
+        painter = painterResource(id = drawableOverride ?: MoviesTheme.currentTheme.brandWordmarkResource),
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale,

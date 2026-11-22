@@ -9,10 +9,10 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.layout.boundsInWindow
 import android.graphics.RectF
 import com.kien.movies.ui.screens.detail.formatPlaybackTime
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 import kotlinx.coroutines.delay
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveFocus
 
@@ -1059,7 +1059,7 @@ private fun PlayerScreenContent(
             label = "postPlayRecommendationPlayerWidth"
         )
         val postPlayRecommendationPlayerPadding by animateDpAsState(
-            targetValue = if (postPlayRecommendationState.isVisible) NuvioTheme.spacing.xxl else 0.dp,
+            targetValue = if (postPlayRecommendationState.isVisible) MoviesTheme.spacing.xxl else 0.dp,
             animationSpec = tween(durationMillis = POST_PLAY_RECOMMENDATION_TRANSITION_MS),
             label = "postPlayRecommendationPlayerPadding"
         )
@@ -1458,7 +1458,7 @@ private fun PlayerScreenContent(
                 viewModel = viewModel,
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(start = NuvioTheme.spacing.xl, top = NuvioTheme.spacing.xl)
+                    .padding(start = MoviesTheme.spacing.xl, top = MoviesTheme.spacing.xl)
                     .zIndex(2.75f)
                     .then(playerControlsDim)
             )
@@ -1475,7 +1475,7 @@ private fun PlayerScreenContent(
             totalProgress = uiState.torrentTotalProgress,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = NuvioTheme.spacing.lg, end = NuvioTheme.spacing.lg)
+                .padding(top = MoviesTheme.spacing.lg, end = MoviesTheme.spacing.lg)
                 .zIndex(2.7f)
                 .then(playerControlsDim)
         )
@@ -1520,7 +1520,7 @@ private fun PlayerScreenContent(
 
         val skipButtonBottomPadding by animateDpAsState(
             targetValue = if (uiState.showControls) 122.dp else 30.dp,
-            animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast),
+            animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
             label = "skipButtonBottomPadding"
         )
 
@@ -1568,7 +1568,7 @@ private fun PlayerScreenContent(
             },
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = NuvioTheme.spacing.xxl, bottom = skipButtonBottomPadding)
+                .padding(start = MoviesTheme.spacing.xxl, bottom = skipButtonBottomPadding)
                 .zIndex(2.1f)
                 .then(playerControlsDim)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { skipClearancePx = it }
@@ -1639,7 +1639,7 @@ private fun PlayerScreenContent(
                 .align(Alignment.TopEnd)
                 .padding(
                     end = PlayerTenFoot.atLeast(28.dp, PlayerTenFoot.sideMargin),
-                    top = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+                    top = PlayerTenFoot.atLeast(MoviesTheme.spacing.xl, PlayerTenFoot.edgeMargin)
                 )
                 .zIndex(2.15f)
                 .then(playerControlsDim)
@@ -1763,8 +1763,8 @@ private fun PlayerScreenContent(
 
         AnimatedVisibility(
             visible = uiState.showStreamSourceIndicator,
-            enter = fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
-            exit = fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
+            enter = fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
+            exit = fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 128.dp)
@@ -1805,8 +1805,8 @@ private fun PlayerScreenContent(
 
         AnimatedVisibility(
             visible = uiState.showPlayerEngineSwitchInfo && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
-            exit = fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
+            enter = fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
+            exit = fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
             modifier = Modifier
                 .align(Alignment.Center)
                 .zIndex(2.35f)
@@ -2245,7 +2245,7 @@ private fun MpvPlayerSurface(
     val latestSubtitleStyle by rememberUpdatedState(subtitleStyle)
     val latestMetricsCallback by rememberUpdatedState(onSubtitleTextMetricsChanged)
     val mpvView = remember(context) {
-        NuvioMpvSurfaceView(context).apply {
+        MoviesMpvSurfaceView(context).apply {
             isFocusable = false
             isFocusableInTouchMode = false
         }
@@ -2835,7 +2835,7 @@ private fun PlayerControlsOverlay(
     onSubtitleTitleBoundsChanged: (Float, Float) -> Unit = { _, _ -> }
 ) {
     val density = LocalDensity.current
-    val controlsEdgePadding = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+    val controlsEdgePadding = PlayerTenFoot.atLeast(MoviesTheme.spacing.xl, PlayerTenFoot.edgeMargin)
     val clearanceOffsetPx = with(density) { (controlsEdgePadding - SUBTITLE_CONTROLS_GAP).toPx() }
     val subtitleGapPx = with(density) { SUBTITLE_CONTROLS_GAP.toPx() }
     val latestClearanceCallback by rememberUpdatedState(onSubtitleClearanceChanged)
@@ -2920,7 +2920,7 @@ private fun PlayerControlsOverlay(
                 }
                 .padding(
                     horizontal = PlayerTenFoot.atLeast(
-                        NuvioTheme.spacing.xxl,
+                        MoviesTheme.spacing.xxl,
                         PlayerTenFoot.sideMargin
                     ),
                     vertical = controlsEdgePadding
@@ -2930,8 +2930,8 @@ private fun PlayerControlsOverlay(
 
             AnimatedVisibility(
                 visible = !skipIntroVisible,
-                enter = fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
-                exit = fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.fast))
+                enter = fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
+                exit = fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.fast))
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     val displayName = if (uiState.currentSeason != null && uiState.currentEpisode != null) {
@@ -2982,7 +2982,7 @@ private fun PlayerControlsOverlay(
                         PlayerBadges(
                             badges = playerBadges,
                             modifier = Modifier
-                                .padding(vertical = NuvioTheme.spacing.xs)
+                                .padding(vertical = MoviesTheme.spacing.xs)
                                 .reportRightEdge("badges", titleRights)
                         )
                     }
@@ -2998,7 +2998,7 @@ private fun PlayerControlsOverlay(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             if (!isLivePlayback) {
                 // Progress bar — always LTR regardless of locale
@@ -3035,9 +3035,9 @@ private fun PlayerControlsOverlay(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
             } else {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
             }
 
             // Control buttons row — always LTR regardless of locale
@@ -3049,7 +3049,7 @@ private fun PlayerControlsOverlay(
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(
-                        if (isExpressiveBuild) NuvioTheme.spacing.md else NuvioTheme.spacing.xs
+                        if (isExpressiveBuild) MoviesTheme.spacing.md else MoviesTheme.spacing.xs
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -3148,7 +3148,7 @@ private fun PlayerControlsOverlay(
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
-                            contentColor = if (partyActive) NuvioTheme.colors.Secondary else Color.White,
+                            contentColor = if (partyActive) MoviesTheme.colors.Secondary else Color.White,
                             active = partyActive
                         )
                     }
@@ -3156,9 +3156,9 @@ private fun PlayerControlsOverlay(
                     AnimatedVisibility(
                         visible = uiState.showMoreDialog,
                         enter = slideInHorizontally(
-                            animationSpec = tween(NuvioMotion.tokens.durations.fast),
+                            animationSpec = tween(MoviesMotion.tokens.durations.fast),
                             initialOffsetX = { it / 2 }
-                        ) + fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
+                        ) + fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
                         exit = slideOutHorizontally(
                             animationSpec = tween(160),
                             targetOffsetX = { it / 2 }
@@ -3166,7 +3166,7 @@ private fun PlayerControlsOverlay(
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(
-                                if (isExpressiveBuild) NuvioTheme.spacing.md else NuvioTheme.spacing.xs
+                                if (isExpressiveBuild) MoviesTheme.spacing.md else MoviesTheme.spacing.xs
                             ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -3352,8 +3352,8 @@ private fun ReportControlButton(
         )
         AnimatedVisibility(
             visible = showReportId && !reportId.isNullOrBlank(),
-            enter = fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
-            exit = fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.fast)),
+            enter = fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
+            exit = fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.fast)),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = (-30).dp)
@@ -3394,7 +3394,7 @@ private fun ControlButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier
-            .size(NuvioTheme.spacing.xxxl)
+            .size(MoviesTheme.spacing.xxxl)
             .then(
                 if (focusRequester != null) Modifier.focusRequester(focusRequester)
                 else Modifier
@@ -3441,7 +3441,7 @@ private fun ControlButton(
                 painter = iconPainter,
                 contentDescription = contentDescription,
                 modifier = Modifier.size(
-                    PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.controlIcon)
+                    PlayerTenFoot.atLeast(MoviesTheme.spacing.xl, PlayerTenFoot.controlIcon)
                 )
             )
         } else {
@@ -3495,7 +3495,7 @@ private fun ProgressBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(NuvioTheme.spacing.md)
+            .height(MoviesTheme.spacing.md)
             .then(
                 if (focusRequester != null) Modifier.focusRequester(focusRequester)
                 else Modifier
@@ -3639,7 +3639,7 @@ private fun ChapterTitle(chapters: List<PlayerChapter>, positionMs: Long) {
         color = Color.White.copy(alpha = 0.9f),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(bottom = NuvioTheme.spacing.xs)
+        modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
     )
 }
 
@@ -3656,10 +3656,10 @@ private fun SeekOverlay(
             .fillMaxWidth()
             .padding(
                 horizontal = PlayerTenFoot.atLeast(
-                    NuvioTheme.spacing.xxl,
+                    MoviesTheme.spacing.xxl,
                     PlayerTenFoot.sideMargin
                 ),
-                vertical = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+                vertical = PlayerTenFoot.atLeast(MoviesTheme.spacing.xl, PlayerTenFoot.edgeMargin)
             )
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -3675,7 +3675,7 @@ private fun SeekOverlay(
                 chapters = chapters
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -3740,7 +3740,7 @@ private fun PlayerClockOverlay(
 
     Column(
         modifier = Modifier
-            .padding(horizontal = NuvioTheme.spacing.xxs, vertical = NuvioTheme.spacing.xxs),
+            .padding(horizontal = MoviesTheme.spacing.xxs, vertical = MoviesTheme.spacing.xxs),
         horizontalAlignment = Alignment.End
     ) {
         Text(
@@ -3815,9 +3815,9 @@ private fun AspectRatioIndicator(text: String) {
         modifier = Modifier
             .background(
                 color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.85f)),
-                shape = PlayerSurfaceStyle.pillShape(RoundedCornerShape(NuvioTheme.spacing.xl))
+                shape = PlayerSurfaceStyle.pillShape(RoundedCornerShape(MoviesTheme.spacing.xl))
             )
-            .padding(horizontal = 20.dp, vertical = NuvioTheme.spacing.md),
+            .padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -3839,7 +3839,7 @@ private fun AspectRatioIndicator(text: String) {
             )
         }
 
-        Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
 
         // Text
         Text(
@@ -3861,7 +3861,7 @@ private fun StreamSourceIndicator(text: String) {
                 color = PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.82f)),
                 shape = PlayerSurfaceStyle.pillShape(RoundedCornerShape(20.dp))
             )
-            .padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.sm),
+            .padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -3883,7 +3883,7 @@ private fun PlayerEngineSwitchIndicator(
         modifier = Modifier
             .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(20.dp)))
             .background(PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.86f)))
-            .padding(horizontal = 22.dp, vertical = NuvioTheme.spacing.lg),
+            .padding(horizontal = 22.dp, vertical = MoviesTheme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -3903,7 +3903,7 @@ private fun PlayerEngineSwitchIndicator(
             )
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
         Text(
             text = message,
@@ -3935,13 +3935,13 @@ private fun SubtitleDelayOverlay(
 ) {
     val fraction = ((subtitleDelayMs - SUBTITLE_DELAY_MIN_MS).toFloat() /
         (SUBTITLE_DELAY_MAX_MS - SUBTITLE_DELAY_MIN_MS).toFloat()).coerceIn(0f, 1f)
-    val sliderAccent = if (isSliderFocused) NuvioTheme.colors.Secondary else Color.White
+    val sliderAccent = if (isSliderFocused) MoviesTheme.colors.Secondary else Color.White
 
     Column(
         modifier = Modifier
             .fillMaxWidth(0.6f)
-            .clip(RoundedCornerShape(NuvioTheme.radii.xxl))
-            .background(NuvioTheme.colors.Surface.copy(alpha = 0.9f))
+            .clip(RoundedCornerShape(MoviesTheme.radii.xxl))
+            .background(MoviesTheme.colors.Surface.copy(alpha = 0.9f))
             .padding(horizontal = 26.dp, vertical = 20.dp)
     ) {
         Row(
@@ -3966,7 +3966,7 @@ private fun SubtitleDelayOverlay(
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(NuvioTheme.spacing.xl)
+                .height(MoviesTheme.spacing.xl)
         ) {
             val thumbWidth = 22.dp
             val thumbOffset = (maxWidth - thumbWidth) * fraction
@@ -3974,8 +3974,8 @@ private fun SubtitleDelayOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(NuvioTheme.spacing.xs)
-                    .clip(RoundedCornerShape(NuvioTheme.radii.xxs))
+                    .height(MoviesTheme.spacing.xs)
+                    .clip(RoundedCornerShape(MoviesTheme.radii.xxs))
                     .align(AbsoluteAlignment.CenterLeft)
                     .background(Color.White.copy(alpha = 0.15f))
             )
@@ -3989,7 +3989,7 @@ private fun SubtitleDelayOverlay(
                     val tickHeight = if (index == 2) 13.dp else 9.dp
                     Box(
                         modifier = Modifier
-                            .width(NuvioTheme.spacing.hairline)
+                            .width(MoviesTheme.spacing.hairline)
                             .height(tickHeight)
                             .background(sliderAccent.copy(alpha = if (isSliderFocused) 0.52f else 0.22f))
                     )
@@ -4001,13 +4001,13 @@ private fun SubtitleDelayOverlay(
                     .absoluteOffset(x = thumbOffset)
                     .align(AbsoluteAlignment.CenterLeft)
                     .width(thumbWidth)
-                    .height(NuvioTheme.spacing.sm)
-                    .clip(RoundedCornerShape(NuvioTheme.radii.sm))
+                    .height(MoviesTheme.spacing.sm)
+                    .clip(RoundedCornerShape(MoviesTheme.radii.sm))
                     .background(sliderAccent.copy(alpha = 0.95f))
             )
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -4097,11 +4097,11 @@ private fun LoadingIssueReportAction(
     }
     Column(
         modifier = modifier
-            .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(NuvioTheme.radii.lg)))
+            .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(MoviesTheme.radii.lg)))
             .background(PlayerSurfaceStyle.floatingContainer(Color.Black.copy(alpha = 0.72f)))
-            .padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.md),
+            .padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         val reportMessage = when (reportStatus) {
             PlaybackIssueReportStatus.Sent -> stringResource(R.string.player_report_issue_sent, reportId.orEmpty())
@@ -4191,7 +4191,7 @@ private fun ErrorOverlay(
         Column(
             modifier = Modifier.focusGroup(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             Text(
                 text = stringResource(R.string.player_error_title),
@@ -4205,11 +4205,11 @@ private fun ErrorOverlay(
                 color = Color.White.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .padding(horizontal = NuvioTheme.spacing.xxl)
+                    .padding(horizontal = MoviesTheme.spacing.xxl)
                     .semantics { liveRegion = LiveRegionMode.Polite }
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             val reportMessage = when (reportStatus) {
                 PlaybackIssueReportStatus.Idle -> null
@@ -4222,7 +4222,7 @@ private fun ErrorOverlay(
                     text = reportMessage,
                     style = MaterialTheme.typography.bodyMedium,
                     color = when (reportStatus) {
-                        PlaybackIssueReportStatus.Sent -> NuvioTheme.colors.Secondary
+                        PlaybackIssueReportStatus.Sent -> MoviesTheme.colors.Secondary
                         PlaybackIssueReportStatus.Failed -> PlayerSurfaceStyle.errorText(
                             upstream = Color(0xFFFF8A80)
                         )
@@ -4230,13 +4230,13 @@ private fun ErrorOverlay(
                     },
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(horizontal = NuvioTheme.spacing.xxl)
+                        .padding(horizontal = MoviesTheme.spacing.xxl)
                         .semantics { liveRegion = LiveRegionMode.Polite }
                 )
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (onSwitchMpvAction != null) {
@@ -4316,7 +4316,7 @@ internal fun PlayerOverlayButton(
         colors = PlayerControlStyle.pillButtonColors(isFocused, primary),
         shape = PlayerControlStyle.capsuleShape,
         contentPadding = PaddingValues(
-            horizontal = NuvioTheme.spacing.lg,
+            horizontal = MoviesTheme.spacing.lg,
             vertical = 14.dp
         ),
         scale = PlayerControlStyle.stillScale
@@ -4357,23 +4357,23 @@ private fun SpeedSelectionDialog(
             modifier = Modifier
                 .playerControlsBrightness(brightness)
                 .width(300.dp)
-                .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(NuvioTheme.radii.xxl)))
-                .background(NuvioTheme.colors.BackgroundElevated)
+                .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(MoviesTheme.radii.xxl)))
+                .background(MoviesTheme.colors.BackgroundElevated)
         ) {
             Column(
-                modifier = Modifier.padding(NuvioTheme.spacing.xl)
+                modifier = Modifier.padding(MoviesTheme.spacing.xl)
             ) {
                 Text(
                     text = stringResource(R.string.player_speed_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.lg)
+                    color = MoviesTheme.colors.TextPrimary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.lg)
                 )
 
                 LazyColumn(
                     state = listState,
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                    contentPadding = PaddingValues(top = NuvioTheme.spacing.xs)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                    contentPadding = PaddingValues(top = MoviesTheme.spacing.xs)
                 ) {
                     itemsIndexed(PLAYBACK_SPEEDS) { index, speed ->
                         SpeedItem(
@@ -4400,18 +4400,18 @@ private fun MoreActionsDialog(
         Box(
             modifier = Modifier
                 .width(360.dp)
-                .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(NuvioTheme.radii.xl)))
-                .background(NuvioTheme.colors.BackgroundElevated)
+                .clip(PlayerSurfaceStyle.cardShape(RoundedCornerShape(MoviesTheme.radii.xl)))
+                .background(MoviesTheme.colors.BackgroundElevated)
         ) {
             Column(
-                modifier = Modifier.padding(NuvioTheme.spacing.xl),
+                modifier = Modifier.padding(MoviesTheme.spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
                     text = stringResource(R.string.player_more_actions_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm)
+                    color = MoviesTheme.colors.TextPrimary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
                 )
 
                 MoreActionItem(
@@ -4441,7 +4441,7 @@ private fun MoreActionItem(
         modifier = Modifier
             .fillMaxWidth()
             .focusSpringScale(),
-        colors = PlayerListItemStyle.colors(resting = NuvioTheme.colors.BackgroundCard),
+        colors = PlayerListItemStyle.colors(resting = MoviesTheme.colors.BackgroundCard),
         shape = PlayerListItemStyle.shape,
         border = PlayerListItemStyle.noBorder(),
         scale = PlayerListItemStyle.stillScale
@@ -4450,7 +4450,7 @@ private fun MoreActionItem(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             color = PlayerListItemStyle.labelColor(),
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
         )
     }
 }
@@ -4478,22 +4478,22 @@ private fun SpeedItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = if (speed == 1f) stringResource(R.string.player_speed_normal) else "${speed}x",
                 style = MaterialTheme.typography.bodyLarge,
-                color = ExpressiveFocus.contentColor(isFocused, isSelected, NuvioTheme.colors.TextPrimary)
+                color = ExpressiveFocus.contentColor(isFocused, isSelected, MoviesTheme.colors.TextPrimary)
             )
 
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = stringResource(R.string.cd_selected),
-                    tint = if (isFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Secondary,
-                    modifier = Modifier.size(NuvioTheme.spacing.xl)
+                    tint = if (isFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Secondary,
+                    modifier = Modifier.size(MoviesTheme.spacing.xl)
                 )
             }
         }
@@ -4584,14 +4584,14 @@ private fun PlayerBufferingIndicator(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 LoadingIndicator()
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                 Text(
                     text = torrentBufferingMessage,
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White.copy(alpha = 0.8f)
                 )
                 if (torrentBufferingProgress > 0f) {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     Spacer(
                         modifier = Modifier
                             .width(200.dp)

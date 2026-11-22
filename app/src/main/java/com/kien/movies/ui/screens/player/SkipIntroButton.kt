@@ -2,8 +2,8 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 import androidx.compose.animation.AnimatedVisibility
@@ -217,7 +217,7 @@ fun SkipIntroButton(
             scale = skipButtonScale()
         ) {
             val countdownRunning = !(controlsVisible || autoHidden || dismissed)
-            val contentColor = if (isFocused) NuvioTheme.colors.OnSecondary else Color.White
+            val contentColor = if (isFocused) MoviesTheme.colors.OnSecondary else Color.White
             androidx.compose.foundation.layout.Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
             ) {
@@ -233,7 +233,7 @@ fun SkipIntroButton(
                         )
                         .padding(
                             horizontal = skipButtonHorizontalPadding(),
-                            vertical = NuvioTheme.spacing.md
+                            vertical = MoviesTheme.spacing.md
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -247,7 +247,7 @@ fun SkipIntroButton(
                         text = getSkipLabel(lastType, targetsPostCredits),
                         color = contentColor,
                         fontSize = PlayerTenFoot.atLeast(14.sp, PlayerTenFoot.bodyText),
-                        modifier = Modifier.padding(start = NuvioTheme.spacing.sm)
+                        modifier = Modifier.padding(start = MoviesTheme.spacing.sm)
                     )
                 }
                 if (!isExpressiveBuild) {
@@ -276,12 +276,12 @@ private val CountdownRemainingColor = Color.White.copy(alpha = 0.12f)
 private fun skipButtonColors(focused: Boolean): CardColors = if (isExpressiveBuild) {
     PlayerPillStyle.colors(
         focused = focused,
-        resting = PlayerSurfaceStyle.floatingContainer(NuvioPrimitives.neutral875)
+        resting = PlayerSurfaceStyle.floatingContainer(MoviesPrimitives.neutral875)
     )
 } else {
     CardDefaults.colors(
-        containerColor = NuvioPrimitives.neutral875.copy(alpha = 0.85f),
-        focusedContainerColor = NuvioTheme.colors.Secondary
+        containerColor = MoviesPrimitives.neutral875.copy(alpha = 0.85f),
+        focusedContainerColor = MoviesTheme.colors.Secondary
     )
 }
 
@@ -289,7 +289,7 @@ private fun skipButtonColors(focused: Boolean): CardColors = if (isExpressiveBui
 private fun skipButtonShape(focused: Boolean): CardShape = if (isExpressiveBuild) {
     PlayerPillStyle.shape(focused)
 } else {
-    CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+    CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
 }
 
 @Composable
@@ -301,7 +301,7 @@ private fun skipButtonScale(): CardScale =
 
 @Composable
 private fun skipButtonHorizontalPadding(): Dp =
-    if (isExpressiveBuild) NuvioTheme.spacing.xl else 18.dp
+    if (isExpressiveBuild) MoviesTheme.spacing.xl else 18.dp
 
 /**
  * The time left before the button hides, as a faint fill inside the pill that shrinks toward
@@ -321,16 +321,16 @@ private fun Modifier.skipCountdownFill(running: Boolean, progress: () -> Float):
 @Composable
 private fun UpstreamSkipCountdownBar(running: Boolean, progress: () -> Float) {
     val trackAlpha = if (running) 0.15f else 0f
-    val fillColor = NuvioPrimitives.neutral875.copy(alpha = if (running) 0.85f else 0f)
+    val fillColor = MoviesPrimitives.neutral875.copy(alpha = if (running) 0.85f else 0f)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(NuvioTheme.spacing.xs)
+            .height(MoviesTheme.spacing.xs)
             .clip(
                 RoundedCornerShape(
-                    bottomStart = NuvioTheme.spacing.md,
-                    bottomEnd = NuvioTheme.spacing.md
+                    bottomStart = MoviesTheme.spacing.md,
+                    bottomEnd = MoviesTheme.spacing.md
                 )
             )
             .background(Color.White.copy(alpha = trackAlpha))

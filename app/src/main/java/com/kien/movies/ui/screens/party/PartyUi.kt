@@ -53,7 +53,7 @@ import com.kien.movies.core.party.PartyMemberStatus
 import com.kien.movies.core.party.PartyPresence
 import com.kien.movies.core.party.PartyProfile
 import com.kien.movies.ui.components.ProfileAvatarCircle
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 
 internal enum class PartyPresenceState {
@@ -69,7 +69,7 @@ internal fun PartyAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,
     presence: PartyPresenceState? = null,
-    ringColor: Color = NuvioTheme.colors.Background,
+    ringColor: Color = MoviesTheme.colors.Background,
 ) {
     PartyAvatar(
         name = member.displayName,
@@ -90,7 +90,7 @@ internal fun PartyAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,
     presence: PartyPresenceState? = null,
-    ringColor: Color = NuvioTheme.colors.Background,
+    ringColor: Color = MoviesTheme.colors.Background,
 ) {
     Box(modifier = modifier.size(size)) {
         ProfileAvatarCircle(
@@ -117,7 +117,7 @@ private fun PresenceDot(
     ringColor: Color,
     modifier: Modifier = Modifier,
 ) {
-    val accent = NuvioTheme.colors.Secondary
+    val accent = MoviesTheme.colors.Secondary
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (state == PartyPresenceState.Busy) {
             val transition = rememberInfiniteTransition(label = "presence")
@@ -152,8 +152,8 @@ private fun PresenceDot(
                 .then(
                     when (state) {
                         PartyPresenceState.Watching, PartyPresenceState.Busy -> Modifier.background(accent)
-                        PartyPresenceState.Away -> Modifier.background(NuvioTheme.colors.TextTertiary)
-                        PartyPresenceState.Offline -> Modifier.border(NuvioTheme.strokes.thin, NuvioTheme.colors.TextTertiary, CircleShape)
+                        PartyPresenceState.Away -> Modifier.background(MoviesTheme.colors.TextTertiary)
+                        PartyPresenceState.Offline -> Modifier.border(MoviesTheme.strokes.thin, MoviesTheme.colors.TextTertiary, CircleShape)
                     },
                 ),
         )
@@ -165,7 +165,7 @@ internal fun AvatarStack(
     members: List<PartyMember>,
     size: Dp,
     modifier: Modifier = Modifier,
-    ringColor: Color = NuvioTheme.colors.Background,
+    ringColor: Color = MoviesTheme.colors.Background,
     animateIn: Boolean = false,
 ) {
     val shown = members.take(3)
@@ -186,12 +186,12 @@ internal fun AvatarStack(
                     modifier = Modifier
                         .size(size)
                         .clip(CircleShape)
-                        .background(NuvioTheme.colors.BackgroundCard),
+                        .background(MoviesTheme.colors.BackgroundCard),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = "+$extra",
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         fontSize = (size.value * 0.36f).sp,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -225,7 +225,7 @@ private fun StackSlot(
                 scaleX = scale.value
                 scaleY = scale.value
             }
-            .border(NuvioTheme.strokes.medium, ringColor, CircleShape),
+            .border(MoviesTheme.strokes.medium, ringColor, CircleShape),
     ) {
         content()
     }
@@ -236,7 +236,7 @@ internal fun OpenSeat(
     size: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val outline = NuvioTheme.colors.TextTertiary
+    val outline = MoviesTheme.colors.TextTertiary
     Box(
         modifier = modifier
             .size(size)
@@ -245,7 +245,7 @@ internal fun OpenSeat(
                     color = outline,
                     radius = this.size.minDimension / 2f - 1.dp.toPx(),
                     style = Stroke(
-                        width = NuvioTheme.strokes.thin.toPx(),
+                        width = MoviesTheme.strokes.thin.toPx(),
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx())),
                     ),
                 )
@@ -255,7 +255,7 @@ internal fun OpenSeat(
         Icon(
             imageVector = Icons.Rounded.Add,
             contentDescription = null,
-            tint = NuvioTheme.colors.TextSecondary,
+            tint = MoviesTheme.colors.TextSecondary,
             modifier = Modifier.size(size * 0.42f),
         )
     }
@@ -279,7 +279,7 @@ internal fun SeatsHero(
             size = size,
             modifier = Modifier
                 .zIndex(1f)
-                .border(NuvioTheme.strokes.heavy, ringColor, CircleShape),
+                .border(MoviesTheme.strokes.heavy, ringColor, CircleShape),
         )
     }
 }
@@ -298,7 +298,7 @@ internal fun PulsingDot() {
             .size(8.dp)
             .alpha(alpha)
             .clip(CircleShape)
-            .background(NuvioTheme.colors.Secondary),
+            .background(MoviesTheme.colors.Secondary),
     )
 }
 
@@ -307,7 +307,7 @@ internal fun PartyNote(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
-        color = NuvioTheme.colors.TextTertiary,
+        color = MoviesTheme.colors.TextTertiary,
         modifier = modifier,
     )
 }
@@ -317,7 +317,7 @@ internal fun ExperimentalNote() {
     Text(
         text = stringResource(R.string.party_experimental),
         style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-        color = NuvioTheme.colors.TextTertiary,
+        color = MoviesTheme.colors.TextTertiary,
     )
 }
 

@@ -45,7 +45,7 @@ class SimklSettingsPolicyTest {
         assertEquals(
             SimklSettingsRefreshAction.FETCH,
             simklSettingsRefreshAction(
-                SimklAuthState(username = "Nuvio User"),
+                SimklAuthState(username = "Movies User"),
                 "2026-07-22T08:48:07Z"
             )
         )

@@ -4,7 +4,7 @@ package com.kien.movies.ui.theme
 // round to 12dp, dialogs to 20dp. Other builds keep upstream's tokens untouched.
 internal object ExpressiveComponents {
     private val cardCorner = ExpressiveRadii.forBuild.md
-    private val upstream = NuvioComponents.tokens
+    private val upstream = MoviesComponents.tokens
     private val expressive = upstream.copy(
         posterCard = upstream.posterCard.copy(
             focusedScale = ExpressiveMotion.EXPRESSIVE_CARD_FOCUS_SCALE
@@ -15,5 +15,5 @@ internal object ExpressiveComponents {
         dialog = upstream.dialog.copy(cornerRadius = ExpressiveRadii.forBuild.xxl)
     )
 
-    val forBuild: NuvioComponentTokens = if (isExpressiveBuild) expressive else upstream
+    val forBuild: MoviesComponentTokens = if (isExpressiveBuild) expressive else upstream
 }

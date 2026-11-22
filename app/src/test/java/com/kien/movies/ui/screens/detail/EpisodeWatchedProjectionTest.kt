@@ -6,7 +6,7 @@ import org.junit.Test
 
 class EpisodeWatchedProjectionTest {
     @Test
-    fun `unsupported video id resolution preserves Nuvio Sync watched state`() {
+    fun `unsupported video id resolution preserves Movies Sync watched state`() {
         assertTrue(
             resolveEpisodeWatchedState(
                 currentlyWatched = true,

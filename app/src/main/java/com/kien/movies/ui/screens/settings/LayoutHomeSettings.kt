@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,7 +60,7 @@ internal fun LayoutHomeLayoutSection(
         modifier = Modifier
             .fillMaxWidth()
             .settingsOptionRow(firstHomeLayoutFocusRequester),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         listOf(HomeLayout.MODERN, HomeLayout.GRID, HomeLayout.CLASSIC).forEachIndexed { index, layout ->
             LayoutCard(
@@ -107,18 +107,18 @@ internal fun LayoutHomeLayoutSection(
             Text(
                 text = stringResource(R.string.layout_hero_catalogs),
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
             Text(
                 text = stringResource(R.string.layout_hero_catalogs_sub),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
             val firstHeroCatalogFocusRequester = remember { FocusRequester() }
             LazyRow(
                 modifier = Modifier.settingsOptionRow(firstHeroCatalogFocusRequester),
-                contentPadding = PaddingValues(end = NuvioTheme.spacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                contentPadding = PaddingValues(end = MoviesTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 itemsIndexed(
                     items = uiState.availableCatalogs,
@@ -270,16 +270,16 @@ private fun LayoutCard(
                 this.selected = isSelected
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (isSelected) Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.hairline),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             ) else Border.None,
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
         ).expressiveSelection(isSelected),
@@ -324,9 +324,9 @@ private fun LayoutCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = NuvioTheme.colors.FocusRing,
+                        tint = MoviesTheme.colors.FocusRing,
                         modifier = Modifier
-                            .size(NuvioTheme.spacing.lg)
+                            .size(MoviesTheme.spacing.lg)
                             .padding(end = 6.dp)
                     )
                 }
@@ -337,7 +337,7 @@ private fun LayoutCard(
                         HomeLayout.MODERN -> stringResource(R.string.layout_modern)
                     },
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected || isFocused) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary
+                    color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
                 )
             }
         }

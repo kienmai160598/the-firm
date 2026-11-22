@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 // Stays under the 38 dp step buttons beside it, so the row keeps its height.
@@ -75,14 +75,14 @@ internal fun SettingsExpressiveSlider(
 /** White on the box build, black while the row behind it is focused and white. */
 @Composable
 private fun sliderActiveColor(focused: Boolean): Color = when {
-    !isExpressiveBuild -> NuvioTheme.colors.Secondary
+    !isExpressiveBuild -> MoviesTheme.colors.Secondary
     focused -> ExpressiveColors.onFocus
     else -> ExpressiveColors.focus
 }
 
 @Composable
 private fun sliderInactiveColor(focused: Boolean, contentAlpha: Float): Color = when {
-    !isExpressiveBuild -> NuvioTheme.colors.SurfaceVariant.copy(alpha = contentAlpha)
+    !isExpressiveBuild -> MoviesTheme.colors.SurfaceVariant.copy(alpha = contentAlpha)
     else -> sliderActiveColor(focused).copy(alpha = INACTIVE_TRACK_ALPHA * contentAlpha)
 }
 

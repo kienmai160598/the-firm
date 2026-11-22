@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 
 import android.os.SystemClock
@@ -43,7 +43,7 @@ import com.kien.movies.ui.theme.isExpressiveBuild
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NuvioDialog(
+fun MoviesDialog(
     onDismiss: () -> Unit,
     title: String,
     subtitle: String? = null,
@@ -53,15 +53,15 @@ fun NuvioDialog(
     usePlatformDefaultWidth: Boolean = true,
     containerBrush: Brush? = null,
     containerBorderColor: Color? = null,
-    containerBorderWidth: Dp = NuvioTheme.spacing.hairline,
-    containerCornerRadius: Dp = NuvioTheme.components.dialog.cornerRadius,
-    contentPadding: Dp = NuvioTheme.spacing.xl,
-    contentSpacing: Dp = NuvioTheme.spacing.lg,
+    containerBorderWidth: Dp = MoviesTheme.spacing.hairline,
+    containerCornerRadius: Dp = MoviesTheme.components.dialog.cornerRadius,
+    contentPadding: Dp = MoviesTheme.spacing.xl,
+    contentSpacing: Dp = MoviesTheme.spacing.lg,
     backgroundContent: @Composable BoxScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
     var isReady by remember { mutableStateOf(!suppressFirstKeyUp) }
-    val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - NuvioTheme.spacing.xxxl).coerceAtLeast(320.dp)
+    val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - MoviesTheme.spacing.xxxl).coerceAtLeast(320.dp)
     val containerShape = RoundedCornerShape(containerCornerRadius)
     val backgroundModifier = if (containerBrush == null) {
         Modifier.background(dialogPanelColor(), containerShape)
@@ -111,7 +111,7 @@ fun NuvioDialog(
                         style = MaterialTheme.typography.headlineSmall.copy(
                             textDirection = title.contentTextDirection()
                         ),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = titleTextAlign,
                         maxLines = 1,
@@ -123,7 +123,7 @@ fun NuvioDialog(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
 
@@ -136,7 +136,7 @@ fun NuvioDialog(
 /** A dark frosted panel on the box build, upstream's modal surface elsewhere. */
 @Composable
 private fun dialogPanelColor(): Color =
-    if (isExpressiveBuild) ExpressiveColors.dialogPanel else NuvioTheme.colors.Modal
+    if (isExpressiveBuild) ExpressiveColors.dialogPanel else MoviesTheme.colors.Modal
 
 /** The faint white edge an Apple dark panel carries; none on other builds. */
 private fun dialogEdgeColor(): Color =

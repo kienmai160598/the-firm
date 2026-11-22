@@ -52,7 +52,7 @@ import coil3.request.crossfade
 import com.kien.movies.R
 import com.kien.movies.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -70,8 +70,8 @@ fun ProfileBackgroundPicker(
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         ProfileBackgroundItem(
             label = stringResource(R.string.profile_background_normal),
@@ -84,9 +84,9 @@ fun ProfileBackgroundPicker(
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                lerp(NuvioTheme.colors.BackgroundElevated, standardBackgroundColor, 0.3f),
-                                lerp(NuvioTheme.colors.Background, standardBackgroundColor, 0.14f),
-                                NuvioTheme.colors.Background
+                                lerp(MoviesTheme.colors.BackgroundElevated, standardBackgroundColor, 0.3f),
+                                lerp(MoviesTheme.colors.Background, standardBackgroundColor, 0.14f),
+                                MoviesTheme.colors.Background
                             )
                         )
                     )
@@ -141,11 +141,11 @@ private fun ProfileBackgroundItem(
         label = "profileBackgroundBorder"
     )
     val labelColor by animateColorAsState(
-        targetValue = if (isSelected || isFocused) Color.White else NuvioTheme.colors.TextSecondary,
+        targetValue = if (isSelected || isFocused) Color.White else MoviesTheme.colors.TextSecondary,
         animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "profileBackgroundLabel"
     )
-    val shape = RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.lg else 12.dp)
+    val shape = RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.lg else 12.dp)
 
     Column(
         modifier = Modifier
@@ -165,19 +165,19 @@ private fun ProfileBackgroundItem(
                 selected = isSelected
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(86.dp)
                 .clip(shape)
-                .background(NuvioTheme.colors.BackgroundCard)
+                .background(MoviesTheme.colors.BackgroundCard)
                 .border(
                     border = if (isSelected || isFocused) {
-                        NuvioTheme.focusRing.border(borderWidth)
+                        MoviesTheme.focusRing.border(borderWidth)
                     } else {
-                        BorderStroke(borderWidth, NuvioTheme.colors.Border)
+                        BorderStroke(borderWidth, MoviesTheme.colors.Border)
                     },
                     shape = shape
                 )

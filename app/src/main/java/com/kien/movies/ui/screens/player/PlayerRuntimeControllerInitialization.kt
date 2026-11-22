@@ -486,16 +486,16 @@ internal fun PlayerRuntimeController.initializePlayer(
             // lowmemorykiller spiral, so for confirmed DV7 on low-RAM we drop the back buffer
             // and shrink the budget at first frame (below).
             val libdoviConversionActive = effectiveDv7Mode == Dv7HandlingMode.DV81_LIBDOVI
-            NuvioExoPlayerPerformanceHelper.updateSettings(playerSettings, context)
-            NuvioExoPlayerPerformanceHelper.enabled = playerSettings.nuvioPerformanceModeEnabled
+            MoviesExoPlayerPerformanceHelper.updateSettings(playerSettings, context)
+            MoviesExoPlayerPerformanceHelper.enabled = playerSettings.nuvioPerformanceModeEnabled
             val streamMime = currentStreamMimeType
             val isHls = streamMime != null && (
                 streamMime.equals(MimeTypes.APPLICATION_M3U8, ignoreCase = true) ||
                 streamMime.lowercase().contains("mpegurl") ||
                 streamMime.lowercase().contains("m3u8")
             )
-            val rawBandwidthMeter = if (NuvioExoPlayerPerformanceHelper.enabled) {
-                NuvioExoPlayerPerformanceHelper.buildBandwidthMeter(context)
+            val rawBandwidthMeter = if (MoviesExoPlayerPerformanceHelper.enabled) {
+                MoviesExoPlayerPerformanceHelper.buildBandwidthMeter(context)
             } else {
                 DefaultBandwidthMeter.Builder(context)
                     .setInitialBitrateEstimate(ADAPTIVE_INITIAL_BITRATE_ESTIMATE_BPS)
@@ -524,13 +524,13 @@ internal fun PlayerRuntimeController.initializePlayer(
             currentParallelChunkOverheadMb = parallelOverheadMb
 
             val loadControl = if (playerSettings.nuvioPerformanceModeEnabled) {
-                effectiveBackBufferDurationMs = NuvioExoPlayerPerformanceHelper.backBufferMs
+                effectiveBackBufferDurationMs = MoviesExoPlayerPerformanceHelper.backBufferMs
                 currentBitrateAwareLoadControl = null
                 Log.i(
                     PlayerRuntimeController.TAG,
-                    "BUFFER_GATE: engine=exo-native-perf master=on parallelOverheadMb=$parallelOverheadMb; NuvioExoPlayerPerformanceHelper.buildLoadControl host=${url.safeHost()}"
+                    "BUFFER_GATE: engine=exo-native-perf master=on parallelOverheadMb=$parallelOverheadMb; MoviesExoPlayerPerformanceHelper.buildLoadControl host=${url.safeHost()}"
                 )
-                NuvioExoPlayerPerformanceHelper.buildLoadControl(context, parallelOverheadMb)
+                MoviesExoPlayerPerformanceHelper.buildLoadControl(context, parallelOverheadMb)
             } else if (playerSettings.bufferEngineEnabled) {
                 val bufferSettings = playerSettings.bufferSettings
                 // Managed (default) caps the buffer at the device budget; off uses Target Buffer Size.
@@ -566,7 +566,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                     playerSettings.nuvioPerformanceModeEnabled
                 )
                 // Both engines report through the same sampler, so whichever built last owns it.
-                NuvioExoPlayerPerformanceHelper.liveAllocator = allocator
+                MoviesExoPlayerPerformanceHelper.liveAllocator = allocator
                 BitrateAwareLoadControl(
                     minBufferMs = bufferSettings.minBufferMs,
                     maxBufferMs = bufferSettings.maxBufferMs,
@@ -690,7 +690,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                         streamMime.lowercase().contains("mpegurl") ||
                         streamMime.lowercase().contains("m3u8")
                     )
-                    Log.d("NuvioTrackSelector", "selectAllTracks run: streamMime=$streamMime, isHls=$isHls")
+                    Log.d("MoviesTrackSelector", "selectAllTracks run: streamMime=$streamMime, isHls=$isHls")
                     if (isHls) {
                         for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
                             if (mappedTrackInfo.getRendererType(rendererIndex) == C.TRACK_TYPE_VIDEO) {
@@ -701,7 +701,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                                         val format = group.getFormat(trackIndex)
                                         val support = rendererFormatSupports[rendererIndex][groupIndex][trackIndex]
                                         val formatSupport = RendererCapabilities.getFormatSupport(support)
-                                        Log.d("NuvioTrackSelector", "Evaluating track: id=${format.id}, res=${format.width}x${format.height}, mime=${format.sampleMimeType}, codecs=${format.codecs}, support=${formatSupport}")
+                                        Log.d("MoviesTrackSelector", "Evaluating track: id=${format.id}, res=${format.width}x${format.height}, mime=${format.sampleMimeType}, codecs=${format.codecs}, support=${formatSupport}")
                                         if (formatSupport == C.FORMAT_EXCEEDS_CAPABILITIES) {
                                             val mime = format.sampleMimeType
                                             val isAvcOrHevc = mime == MimeTypes.VIDEO_H264 || mime == MimeTypes.VIDEO_H265
@@ -711,9 +711,9 @@ internal fun PlayerRuntimeController.initializePlayer(
                                             val isHdr = format.colorInfo?.colorTransfer == C.COLOR_TRANSFER_ST2084
                                             val isStandard8Bit = !is10Bit && !isHdr
 
-                                            Log.d("NuvioTrackSelector", "Conditions for id=${format.id}: isAvcOrHevc=$isAvcOrHevc, isAtMost1080p=$isAtMost1080p, isStandard8Bit=$isStandard8Bit")
+                                            Log.d("MoviesTrackSelector", "Conditions for id=${format.id}: isAvcOrHevc=$isAvcOrHevc, isAtMost1080p=$isAtMost1080p, isStandard8Bit=$isStandard8Bit")
                                             if (isAvcOrHevc && isAtMost1080p && isStandard8Bit) {
-                                                Log.i("NuvioTrackSelector", "Upgraded track support to FORMAT_HANDLED for id=${format.id}")
+                                                Log.i("MoviesTrackSelector", "Upgraded track support to FORMAT_HANDLED for id=${format.id}")
                                                 rendererFormatSupports[rendererIndex][groupIndex][trackIndex] =
                                                     RendererCapabilities.create(
                                                         C.FORMAT_HANDLED,
@@ -744,7 +744,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                                         formatSupport != C.FORMAT_UNSUPPORTED_DRM
                                     ) {
                                         forceVc1VideoSelection = true
-                                        Log.i("NuvioTrackSelector", "Upgraded VC-1 track support to FORMAT_HANDLED so ExoPlayer attempts decoding: id=${format.id}")
+                                        Log.i("MoviesTrackSelector", "Upgraded VC-1 track support to FORMAT_HANDLED so ExoPlayer attempts decoding: id=${format.id}")
                                         rendererFormatSupports[rendererIndex][groupIndex][trackIndex] =
                                             RendererCapabilities.create(
                                                 C.FORMAT_HANDLED,
@@ -1207,7 +1207,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                             )
                         _uiState.update {
                             it.copy(
-                                isBuffering = if (NuvioExoPlayerPerformanceHelper.shouldSuppressBufferingUi(
+                                isBuffering = if (MoviesExoPlayerPerformanceHelper.shouldSuppressBufferingUi(
                                     suppressBufferingUiForSeek, seekBufferingUiDeferred, isBuffering
                                 )) false else isBuffering,
                                 playbackEnded = naturalEnded
@@ -1356,7 +1356,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                             tryApplyPendingResumeProgress(this@apply)
                             _uiState.value.pendingSeekPosition?.let { position ->
                                 seekTo(position)
-                                if (NuvioExoPlayerPerformanceHelper.enabled) {
+                                if (MoviesExoPlayerPerformanceHelper.enabled) {
                                     seekBufferingUiDeferred = true
                                     seekBufferingUiJob?.cancel()
                                     seekBufferingUiJob = scope.launch {
@@ -1379,7 +1379,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                                 )
                             }
                             tryAutoSelectPreferredSubtitleFromAvailableTracks()
-                            if (!NuvioExoPlayerPerformanceHelper.shouldGuardTrackRebuild() || !hasRenderedFirstFrame) {
+                            if (!MoviesExoPlayerPerformanceHelper.shouldGuardTrackRebuild() || !hasRenderedFirstFrame) {
                                 trackSelectionParameters = trackSelectionParameters.buildUpon().build()
                             }
                             maybeScheduleFirstFrameWatchdog()

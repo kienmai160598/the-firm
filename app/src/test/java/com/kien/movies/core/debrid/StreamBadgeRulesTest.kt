@@ -246,7 +246,7 @@ class StreamBadgeRulesTest {
                             audio = listOf("Atmos"),
                             channels = listOf("5.1"),
                             languages = listOf("en"),
-                            group = "Nuvio",
+                            group = "Movies",
                             network = null,
                             edition = null,
                             duration = null,

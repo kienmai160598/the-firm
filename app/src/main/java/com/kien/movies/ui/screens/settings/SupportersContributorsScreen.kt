@@ -7,7 +7,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.content.Intent
 import android.net.Uri
@@ -82,7 +82,7 @@ import com.kien.movies.data.repository.DevelopmentSponsor
 import com.kien.movies.data.repository.GitHubContributor
 import com.kien.movies.data.repository.SupporterMember
 import com.kien.movies.domain.model.MemberTier
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import java.time.Instant
 import java.time.ZoneId
@@ -180,7 +180,7 @@ fun SupportersContributorsScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
             ) {
                 SupporterMembershipPanel(
                     state = uiState.membership,
@@ -272,16 +272,16 @@ private fun SupportersContentPanel(
         modifier = modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(28.dp))
-            .background(NuvioTheme.colors.BackgroundElevated)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, RoundedCornerShape(28.dp))
-            .padding(NuvioTheme.spacing.xl),
+            .background(MoviesTheme.colors.BackgroundElevated)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(28.dp))
+            .padding(MoviesTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRestorer(selectedTabRequester),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             SupportersTabButton(
                 label = stringResource(R.string.supporters_tab),
@@ -351,9 +351,9 @@ private fun SupportersTabContent(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(NuvioTheme.spacing.xl))
-            .background(NuvioTheme.colors.Background)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, RoundedCornerShape(NuvioTheme.spacing.xl))
+            .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
+            .background(MoviesTheme.colors.Background)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.spacing.xl))
     ) {
         when {
             uiState.isSupportersLoading -> CenterStatusText(
@@ -386,8 +386,8 @@ private fun SupportersTabContent(
                         .fillMaxSize()
                         .padding(14.dp)
                         .focusRestorer(firstRequester),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-                    contentPadding = PaddingValues(top = 6.dp, bottom = NuvioTheme.spacing.sm)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                    contentPadding = PaddingValues(top = 6.dp, bottom = MoviesTheme.spacing.sm)
                 ) {
                     items(uiState.supporters, key = { it.key }) { supporter ->
                         val requester = remember(supporter.key) {
@@ -422,9 +422,9 @@ private fun SponsorsTabContent(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(NuvioTheme.spacing.xl))
-            .background(NuvioTheme.colors.Background)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, RoundedCornerShape(NuvioTheme.spacing.xl))
+            .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
+            .background(MoviesTheme.colors.Background)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.spacing.xl))
     ) {
         when {
             uiState.isSponsorsLoading -> CenterStatusText(
@@ -457,8 +457,8 @@ private fun SponsorsTabContent(
                         .fillMaxSize()
                         .padding(14.dp)
                         .focusRestorer(firstRequester),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-                    contentPadding = PaddingValues(top = 6.dp, bottom = NuvioTheme.spacing.sm)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                    contentPadding = PaddingValues(top = 6.dp, bottom = MoviesTheme.spacing.sm)
                 ) {
                     items(uiState.sponsors, key = { it.id }) { sponsor ->
                         val requester = remember(sponsor.id) {
@@ -493,9 +493,9 @@ private fun ContributorsTabContent(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(NuvioTheme.spacing.xl))
-            .background(NuvioTheme.colors.Background)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, RoundedCornerShape(NuvioTheme.spacing.xl))
+            .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
+            .background(MoviesTheme.colors.Background)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.spacing.xl))
     ) {
         when {
             uiState.isContributorsLoading -> CenterStatusText(
@@ -528,8 +528,8 @@ private fun ContributorsTabContent(
                         .fillMaxSize()
                         .padding(14.dp)
                         .focusRestorer(firstRequester),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-                    contentPadding = PaddingValues(top = 6.dp, bottom = NuvioTheme.spacing.sm)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                    contentPadding = PaddingValues(top = 6.dp, bottom = MoviesTheme.spacing.sm)
                 ) {
                     items(uiState.contributors, key = { it.id }) { contributor ->
                         val requester = remember(contributor.id) {
@@ -563,7 +563,7 @@ private fun CenterStatusText(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
     }
@@ -584,7 +584,7 @@ private fun TabErrorState(
     }
 
     Box(
-        modifier = modifier.padding(NuvioTheme.spacing.xl),
+        modifier = modifier.padding(MoviesTheme.spacing.xl),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -594,13 +594,13 @@ private fun TabErrorState(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center
             )
             Button(
@@ -610,10 +610,10 @@ private fun TabErrorState(
                     .focusRequester(retryFocusRequester)
                     .focusProperties { left = leftFocusRequester },
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -645,16 +645,16 @@ private fun SupporterCard(
             }
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
         ),
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                 shape = RoundedCornerShape(22.dp)
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(22.dp)
             )
         ).expressiveRingless(),
@@ -664,9 +664,9 @@ private fun SupporterCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.lg),
+                .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             PersonAvatar(
                 label = supporter.name,
@@ -678,24 +678,24 @@ private fun SupporterCard(
                 Text(
                     text = supporter.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = supporterTierLabel(supporter.membershipLevel),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 formatSupporterDate(supporter.supporterSince)?.let { date ->
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                     Text(
                         text = stringResource(R.string.supporters_since, date),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -705,7 +705,7 @@ private fun SupporterCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = if (isFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.TextTertiary,
+                tint = if (isFocused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextTertiary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -733,16 +733,16 @@ private fun SponsorCard(
             }
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
         ),
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                 shape = RoundedCornerShape(22.dp)
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(22.dp)
             )
         ).expressiveRingless(),
@@ -752,9 +752,9 @@ private fun SponsorCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.lg),
+                .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             NameAvatar(
                 label = sponsor.name,
@@ -765,7 +765,7 @@ private fun SponsorCard(
                 Text(
                     text = sponsor.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -774,7 +774,7 @@ private fun SponsorCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = if (isFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.TextTertiary,
+                tint = if (isFocused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextTertiary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -802,16 +802,16 @@ private fun ContributorCard(
             }
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
         ),
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                 shape = RoundedCornerShape(22.dp)
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(22.dp)
             )
         ).expressiveRingless(),
@@ -821,9 +821,9 @@ private fun ContributorCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.lg),
+                .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             PersonAvatar(
                 label = contributor.name,
@@ -834,12 +834,12 @@ private fun ContributorCard(
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     Text(
                         text = contributor.name,
                         style = MaterialTheme.typography.titleMedium,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -852,7 +852,7 @@ private fun ContributorCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
-                tint = if (isFocused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.TextTertiary,
+                tint = if (isFocused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextTertiary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -863,16 +863,16 @@ private fun ContributorCard(
 private fun ContributorRoleBadge(role: String) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(NuvioTheme.radii.sm))
-            .background(NuvioTheme.colors.Background)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, RoundedCornerShape(NuvioTheme.radii.sm))
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
+            .clip(RoundedCornerShape(MoviesTheme.radii.sm))
+            .background(MoviesTheme.colors.Background)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, RoundedCornerShape(MoviesTheme.radii.sm))
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = role,
             style = MaterialTheme.typography.labelSmall,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             fontWeight = FontWeight.Medium
         )
     }
@@ -888,14 +888,14 @@ private fun NameAvatar(
     Box(
         modifier = modifier
             .clip(CircleShape)
-            .background(NuvioTheme.colors.Background)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, CircleShape),
+            .background(MoviesTheme.colors.Background)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = initial,
             style = MaterialTheme.typography.titleMedium,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -918,15 +918,15 @@ private fun PersonAvatar(
     Box(
         modifier = modifier
             .clip(CircleShape)
-            .background(NuvioTheme.colors.Background)
-            .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, CircleShape),
+            .background(MoviesTheme.colors.Background)
+            .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         if (avatarUrl.isNullOrBlank() || painter.state.collectAsState().value is AsyncImagePainter.State.Error) {
             Text(
                 text = label.take(1).uppercase(),
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold
             )
         } else {
@@ -973,20 +973,20 @@ private fun RowScope.SupportersTabButton(
                 if (state.isFocused) onClick()
             },
         colors = CardDefaults.colors(
-            containerColor = if (selected) NuvioTheme.colors.BackgroundCard else NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+            containerColor = if (selected) MoviesTheme.colors.BackgroundCard else MoviesTheme.colors.Background,
+            focusedContainerColor = MoviesTheme.colors.BackgroundCard
         ).expressiveControl(selected = selected),
         border = CardDefaults.border(
             border = if (selected) {
                 Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.hairline, alpha = 0.8f),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline, alpha = 0.8f),
                     shape = RoundedCornerShape(999.dp)
                 )
             } else {
                 Border.None
             },
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(999.dp)
             )
         ).expressiveRingless(),
@@ -1006,9 +1006,9 @@ private fun RowScope.SupportersTabButton(
                 color = expressiveControlContent(
                     focused = isFocused,
                     upstream = when {
-                        isFocused -> NuvioTheme.colors.TextPrimary
-                        selected -> NuvioTheme.colors.TextPrimary
-                        else -> NuvioTheme.colors.TextSecondary
+                        isFocused -> MoviesTheme.colors.TextPrimary
+                        selected -> MoviesTheme.colors.TextPrimary
+                        else -> MoviesTheme.colors.TextSecondary
                     }
                 ),
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
@@ -1031,7 +1031,7 @@ private fun SponsorDetailsDialog(
         primaryFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = sponsor.name,
         subtitle = sponsor.channelUrl ?: stringResource(R.string.sponsors_channel_unavailable),
@@ -1040,7 +1040,7 @@ private fun SponsorDetailsDialog(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             NameAvatar(
                 label = sponsor.name,
@@ -1048,24 +1048,24 @@ private fun SponsorDetailsDialog(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 Text(
                     text = stringResource(R.string.sponsors_detail_copy),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
                 sponsor.channelUrl?.let { url ->
                     Text(
                         text = url,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             Button(
                 onClick = {
                     val channelUrl = sponsor.channelUrl ?: return@Button
@@ -1076,10 +1076,10 @@ private fun SponsorDetailsDialog(
                 enabled = sponsor.channelUrl != null,
                 modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1091,10 +1091,10 @@ private fun SponsorDetailsDialog(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                    contentColor = NuvioTheme.colors.TextPrimary,
-                    focusedContentColor = NuvioTheme.colors.Primary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                    contentColor = MoviesTheme.colors.TextPrimary,
+                    focusedContentColor = MoviesTheme.colors.Primary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1117,7 +1117,7 @@ private fun SupporterDetailsDialog(
         primaryFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = supporter.name,
         subtitle = supporterTierLabel(supporter.membershipLevel),
@@ -1126,7 +1126,7 @@ private fun SupporterDetailsDialog(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             PersonAvatar(
                 label = supporter.name,
@@ -1138,12 +1138,12 @@ private fun SupporterDetailsDialog(
                     stringResource(R.string.supporters_since, date)
                 } ?: stringResource(R.string.supporters_since_unknown),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 modifier = Modifier.weight(1f)
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             Button(
                 onClick = {
                     runCatching {
@@ -1152,10 +1152,10 @@ private fun SupporterDetailsDialog(
                 },
                 modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1167,10 +1167,10 @@ private fun SupporterDetailsDialog(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                    contentColor = NuvioTheme.colors.TextPrimary,
-                    focusedContentColor = NuvioTheme.colors.Primary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                    contentColor = MoviesTheme.colors.TextPrimary,
+                    focusedContentColor = MoviesTheme.colors.Primary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1201,7 +1201,7 @@ private fun ContributorDetailsDialog(
         primaryFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = contributor.name,
         width = 560.dp,
@@ -1209,7 +1209,7 @@ private fun ContributorDetailsDialog(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             PersonAvatar(
                 label = contributor.name,
@@ -1218,7 +1218,7 @@ private fun ContributorDetailsDialog(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 contributorRoleLabel(contributorSupportKey)?.let { role ->
                     ContributorRoleBadge(role = role)
@@ -1226,13 +1226,13 @@ private fun ContributorDetailsDialog(
                 Text(
                     text = contributor.profileUrl ?: stringResource(R.string.contributors_profile_unavailable),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
                 supportLink?.kofiUrl?.let { url ->
                     Text(
                         text = url,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -1242,7 +1242,7 @@ private fun ContributorDetailsDialog(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = NuvioTheme.spacing.sm),
+                    .padding(top = MoviesTheme.spacing.sm),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -1255,7 +1255,7 @@ private fun ContributorDetailsDialog(
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             Button(
                 onClick = {
                     val profileUrl = contributor.profileUrl ?: return@Button
@@ -1268,10 +1268,10 @@ private fun ContributorDetailsDialog(
                 enabled = contributor.profileUrl != null,
                 modifier = Modifier.tvControlHeight().focusRequester(primaryFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1284,10 +1284,10 @@ private fun ContributorDetailsDialog(
                     modifier = Modifier.tvControlHeight(),
                     onClick = { showSupportQr = !showSupportQr },
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        contentColor = NuvioTheme.colors.TextPrimary,
-                        focusedContentColor = NuvioTheme.colors.Primary
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        contentColor = MoviesTheme.colors.TextPrimary,
+                        focusedContentColor = MoviesTheme.colors.Primary
                     ).expressiveControl(),
                     shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                     scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1308,10 +1308,10 @@ private fun ContributorDetailsDialog(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                    contentColor = NuvioTheme.colors.TextPrimary,
-                    focusedContentColor = NuvioTheme.colors.Primary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                    contentColor = MoviesTheme.colors.TextPrimary,
+                    focusedContentColor = MoviesTheme.colors.Primary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 scale = ButtonDefaults.scale().expressiveControlGrow()

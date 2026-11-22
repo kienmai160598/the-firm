@@ -21,7 +21,7 @@ import com.kien.movies.ui.components.expressivePrimaryButtonColors
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveRadii
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -52,7 +52,7 @@ internal fun Modifier.settingsRowFocusScale(focused: Boolean): Modifier = expres
 @Composable
 @ReadOnlyComposable
 internal fun settingsRowCornerShape(): RoundedCornerShape =
-    if (isExpressiveBuild) ExpressiveRowShape else RoundedCornerShape(NuvioTheme.radii.xl)
+    if (isExpressiveBuild) ExpressiveRowShape else RoundedCornerShape(MoviesTheme.radii.xl)
 
 /**
  * A settings row on the box build, in the tvOS Settings manner: frosted at rest with white
@@ -90,7 +90,7 @@ internal fun settingsOptionScale(): Float = if (isExpressiveBuild) OPTION_FOCUS_
 
 @Composable
 @ReadOnlyComposable
-internal fun settingsOptionShape(): RoundedCornerShape = RoundedCornerShape(NuvioTheme.radii.lg)
+internal fun settingsOptionShape(): RoundedCornerShape = RoundedCornerShape(MoviesTheme.radii.lg)
 
 /** A picker option: tonal when chosen, accent when focused; its text follows LocalContentColor. */
 @Composable
@@ -110,10 +110,10 @@ internal fun settingsOptionColors(selected: Boolean): CardColors = if (isExpress
 @Composable
 private fun upstreamOptionColors(selected: Boolean): CardColors = CardDefaults.colors(
     containerColor =
-        if (selected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-    contentColor = NuvioTheme.colors.TextPrimary,
-    focusedContainerColor = NuvioTheme.colors.Secondary,
-    focusedContentColor = NuvioTheme.colors.OnSecondary
+        if (selected) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
+    contentColor = MoviesTheme.colors.TextPrimary,
+    focusedContainerColor = MoviesTheme.colors.Secondary,
+    focusedContentColor = MoviesTheme.colors.OnSecondary
 )
 
 @Composable
@@ -138,12 +138,12 @@ internal fun settingsDialogButtonColors(primary: Boolean, focused: Boolean): But
     val container = ExpressiveFocus.containerColor(
         focused = focused,
         resting =
-            if (primary) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground
+            if (primary) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground
     )
     val content = ExpressiveFocus.contentColor(
         focused = focused,
         resting =
-            if (primary) NuvioTheme.colors.OnSecondaryVariant else NuvioTheme.colors.TextPrimary
+            if (primary) MoviesTheme.colors.OnSecondaryVariant else MoviesTheme.colors.TextPrimary
     )
     return ButtonDefaults.colors(
         containerColor = container,
@@ -174,7 +174,7 @@ internal fun settingsCapsuleOr(upstream: Shape): Shape =
 @Composable
 @ReadOnlyComposable
 internal fun settingsRowValueColor(valueColor: Color, contentAlpha: Float, focused: Boolean): Color =
-    if (isExpressiveBuild && (focused || valueColor == NuvioTheme.colors.TextSecondary)) {
+    if (isExpressiveBuild && (focused || valueColor == MoviesTheme.colors.TextSecondary)) {
         settingsRowText(valueColor, contentAlpha, SETTINGS_SECONDARY_TEXT_ALPHA)
     } else {
         valueColor.copy(alpha = contentAlpha)

@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -73,7 +73,7 @@ import com.kien.movies.domain.model.isWatchedAsOneItem
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
 import com.kien.movies.ui.components.MDBListRatingsRow
 import com.kien.movies.ui.components.SynopsisDescription
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -173,7 +173,7 @@ fun HeroContentSection(
         label = "logoHeight"
     )
     val logoBottomPadding by animateDpAsState(
-        targetValue = if (isTrailerPlaying) NuvioTheme.spacing.xl else NuvioTheme.spacing.lg,
+        targetValue = if (isTrailerPlaying) MoviesTheme.spacing.xl else MoviesTheme.spacing.lg,
         animationSpec = spatialSpec(tween(600)),
         label = "logoPadding"
     )
@@ -202,7 +202,7 @@ fun HeroContentSection(
                 .animateContentSize(
                     animationSpec = spatialSpec(tween(600))
                 )
-                .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.lg),
+                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
             verticalArrangement = Arrangement.Bottom
         ) {
             // Logo/Title — always visible during trailer, animates size
@@ -222,14 +222,14 @@ fun HeroContentSection(
                 // Text title hides entirely during trailer
                 AnimatedVisibility(
                     visible = !isTrailerPlaying,
-                    enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.overlay))),
-                    exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.overlay)))
+                    enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.overlay))),
+                    exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.overlay)))
                 ) {
                     Text(
                         text = meta.name,
                         style = MaterialTheme.typography.displayMedium,
-                        color = NuvioTheme.colors.TextPrimary,
-                        modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm)
+                        color = MoviesTheme.colors.TextPrimary,
+                        modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
                     )
                 }
             }
@@ -244,16 +244,16 @@ fun HeroContentSection(
                     text = stringResource(R.string.hero_press_back_trailer),
                     style = MaterialTheme.typography.labelMedium
                         .atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.sm)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
                 )
             }
 
             // Everything below the logo fades out during trailer
             AnimatedVisibility(
                 visible = !isTrailerPlaying,
-                enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.overlay))),
-                exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.overlay)))
+                enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.overlay))),
+                exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.overlay)))
             ) {
                 Column {
                     if (isExpressiveBuild) {
@@ -263,10 +263,10 @@ fun HeroContentSection(
                             showFullReleaseDate = showFullReleaseDate,
                             tmdbRating = tmdbRating
                         )
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                     }
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         PlayButton(
@@ -345,7 +345,7 @@ fun HeroContentSection(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                     // Director/Writer line above description
                     if (!creditLine.isNullOrBlank()) {
@@ -354,12 +354,12 @@ fun HeroContentSection(
                             style = MaterialTheme.typography.labelLarge.copy(
                                 textDirection = creditLine.contentTextDirection()
                             ),
-                            color = NuvioTheme.extendedColors.textSecondary,
+                            color = MoviesTheme.extendedColors.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.fillMaxWidth(0.6f)
                         )
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                     }
 
                     if (mdbListRatings?.isEmpty() == false) {
@@ -377,7 +377,7 @@ fun HeroContentSection(
                             maxLines = forBuild(DESCRIPTION_MAX_LINES, BOX_DESCRIPTION_MAX_LINES),
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
-                                .padding(bottom = NuvioTheme.spacing.md)
+                                .padding(bottom = MoviesTheme.spacing.md)
                         )
                     }
 
@@ -483,16 +483,16 @@ internal fun PlayButton(
         shape = look.shape,
         scale = look.scale,
         interactionSource = look.interactionSource,
-        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xl, vertical = 14.dp)
+        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xl, vertical = 14.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
             modifier = Modifier.animateContentSize(
                 animationSpec = fastSpatialSpec(
                     tween(
-                        durationMillis = NuvioMotion.tokens.durations.fast,
-                        easing = NuvioMotion.tokens.easings.standard
+                        durationMillis = MoviesMotion.tokens.durations.fast,
+                        easing = MoviesMotion.tokens.easings.standard
                     )
                 )
             )
@@ -506,8 +506,8 @@ internal fun PlayButton(
             )
             AnimatedVisibility(
                 visible = text != null,
-                enter = fadeIn(effectsSpec(tween(NuvioMotion.tokens.durations.fast))),
-                exit = fadeOut(effectsSpec(tween(NuvioMotion.tokens.durations.quick)))
+                enter = fadeIn(effectsSpec(tween(MoviesMotion.tokens.durations.fast))),
+                exit = fadeOut(effectsSpec(tween(MoviesMotion.tokens.durations.quick)))
             ) {
                 Text(
                     text = text ?: "",
@@ -533,7 +533,7 @@ private fun ActionIconButtonPainter(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier
-            .size(NuvioTheme.spacing.xxxl)
+            .size(MoviesTheme.spacing.xxxl)
             .then(look.focusScale)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
@@ -583,7 +583,7 @@ private fun ActionIconButton(
         enabled = enabled,
         modifier = Modifier
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .size(NuvioTheme.spacing.xxxl)
+            .size(MoviesTheme.spacing.xxxl)
             .then(look.focusScale)
             .onFocusChanged { state ->
                 if (state.isFocused) onFocused()
@@ -641,7 +641,7 @@ private fun ActionIconButton(
             icon != null -> Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                modifier = Modifier.size(NuvioTheme.spacing.xl)
+                modifier = Modifier.size(MoviesTheme.spacing.xl)
             )
         }
     }
@@ -717,11 +717,11 @@ private fun MetaInfoRow(
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
         // Primary row: Genres, Release, Ratings
         Row(
             modifier = if (reserveImdbRatingHeight) Modifier.height(30.dp) else Modifier,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (meta.genres.isNotEmpty()) {
@@ -729,7 +729,7 @@ private fun MetaInfoRow(
                     text = genresText,
                     modifier = Modifier.weight(1f, fill = false),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.extendedColors.textSecondary,
+                    color = MoviesTheme.extendedColors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -742,7 +742,7 @@ private fun MetaInfoRow(
                 Text(
                     text = year,
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.extendedColors.textSecondary
+                    color = MoviesTheme.extendedColors.textSecondary
                 )
                 if (shouldShowImdbRating || shouldShowTmdbRating) {
                     MetaInfoDivider()
@@ -752,18 +752,18 @@ private fun MetaInfoRow(
             imdbRating?.let { rating ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
                 ) {
                     ImdbRatingSourceLabel(
                         logoModifier = Modifier.size(30.dp),
                         textStyle = MaterialTheme.typography.labelLarge,
-                        textColor = NuvioTheme.extendedColors.textSecondary
+                        textColor = MoviesTheme.extendedColors.textSecondary
                     )
                     val ratingText = remember(rating) { String.format("%.1f", rating) }
                     Text(
                         text = ratingText,
                         style = MaterialTheme.typography.labelLarge,
-                        color = NuvioTheme.extendedColors.textSecondary
+                        color = MoviesTheme.extendedColors.textSecondary
                     )
                 }
             }
@@ -771,19 +771,19 @@ private fun MetaInfoRow(
             tmdbRating?.let { rating ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
                 ) {
                     AsyncImage(
                         model = tmdbModel,
                         contentDescription = null,
-                        modifier = Modifier.size(NuvioTheme.spacing.xl),
+                        modifier = Modifier.size(MoviesTheme.spacing.xl),
                         contentScale = ContentScale.Fit
                     )
                     val ratingText = remember(rating) { (rating * 10).toInt().toString() }
                     Text(
                         text = ratingText,
                         style = MaterialTheme.typography.labelLarge,
-                        color = NuvioTheme.extendedColors.textSecondary
+                        color = MoviesTheme.extendedColors.textSecondary
                     )
                 }
             }
@@ -792,15 +792,15 @@ private fun MetaInfoRow(
         // Secondary row: Runtime, Age Rating, Status, Country, Language
         if (ageRatingBadge != null || statusBadge != null || secondaryItems.isNotEmpty()) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (ageRatingBadge != null && statusBadge != null) {
                     CombinedMetaBadge(
                         leftText = ageRatingBadge,
-                        leftColor = NuvioTheme.colors.TextSecondary,
+                        leftColor = MoviesTheme.colors.TextSecondary,
                         rightText = statusBadge,
-                        rightColor = NuvioTheme.colors.TextPrimary
+                        rightColor = MoviesTheme.colors.TextPrimary
                     )
                 } else {
                     ageRatingBadge?.let { badge ->
@@ -809,7 +809,7 @@ private fun MetaInfoRow(
                     statusBadge?.let { badge ->
                         HeroMetaBadge(
                             text = badge,
-                            contentColor = NuvioTheme.colors.TextPrimary
+                            contentColor = MoviesTheme.colors.TextPrimary
                         )
                     }
                 }
@@ -821,7 +821,7 @@ private fun MetaInfoRow(
                         text = value,
                         style = MaterialTheme.typography.labelMedium
                             .atLeastOnBox(TvSizeFloors.metaText),
-                        color = NuvioTheme.colors.TextPrimary
+                        color = MoviesTheme.colors.TextPrimary
                     )
                     if (index < secondaryItems.lastIndex) {
                         MetaInfoDivider()
@@ -835,15 +835,15 @@ private fun MetaInfoRow(
 @Composable
 private fun HeroMetaBadge(
     text: String,
-    contentColor: Color = NuvioTheme.colors.TextSecondary
+    contentColor: Color = MoviesTheme.colors.TextSecondary
 ) {
     Box(
         modifier = Modifier
             .border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
+                border = BorderStroke(MoviesTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
                 shape = heroBadgeShape()
             )
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -858,20 +858,20 @@ private fun HeroMetaBadge(
 @Composable
 private fun CombinedMetaBadge(
     leftText: String,
-    leftColor: Color = NuvioTheme.colors.TextSecondary,
+    leftColor: Color = MoviesTheme.colors.TextSecondary,
     rightText: String,
-    rightColor: Color = NuvioTheme.colors.TextPrimary
+    rightColor: Color = MoviesTheme.colors.TextPrimary
 ) {
     val dividerColor = leftColor.copy(alpha = 0.55f)
     Row(
         modifier = Modifier
             .border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, dividerColor),
+                border = BorderStroke(MoviesTheme.spacing.hairline, dividerColor),
                 shape = heroBadgeShape()
             )
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = leftText,
@@ -881,8 +881,8 @@ private fun CombinedMetaBadge(
         )
         Box(
             modifier = Modifier
-                .width(NuvioTheme.spacing.hairline)
-                .height(NuvioTheme.spacing.md)
+                .width(MoviesTheme.spacing.hairline)
+                .height(MoviesTheme.spacing.md)
                 .background(dividerColor)
         )
         Text(
@@ -972,6 +972,6 @@ private fun MetaInfoDivider() {
     Text(
         text = "•",
         style = MaterialTheme.typography.labelLarge,
-        color = NuvioTheme.extendedColors.textTertiary
+        color = MoviesTheme.extendedColors.textTertiary
     )
 }

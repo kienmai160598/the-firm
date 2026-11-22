@@ -5,8 +5,8 @@ import kotlin.math.max
 
 /**
  * AutoSync's subtitle cue parser (SRT, WebVTT, ASS/SSA and TTML), with cooperative cancellation
- * for long files. Nuvio TV's own [com.kien.movies.ui.screens.player.PlayerSubtitleCueParser] only
- * reads SRT and WebVTT, so AutoSync keeps this one to itself and leaves Nuvio's untouched.
+ * for long files. Movies's own [com.kien.movies.ui.screens.player.PlayerSubtitleCueParser] only
+ * reads SRT and WebVTT, so AutoSync keeps this one to itself and leaves Movies's untouched.
  */
 internal object AutoSyncSubtitleCueParser {
     private val timestampRegex = Regex("""(?:(\d+):)?(\d{1,2}):(\d{2})([.,](\d+))?""")

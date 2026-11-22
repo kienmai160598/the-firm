@@ -65,7 +65,7 @@ import androidx.tv.material3.CardDefaults
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.components.FocusScrollingText
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.SourceChipStatus
@@ -135,7 +135,7 @@ internal fun EpisodesSidePanel(
                     Text(
                         text = if (uiState.showEpisodeStreams) stringResource(R.string.episodes_panel_streams_title) else stringResource(R.string.episodes_panel_title),
                         style = MaterialTheme.typography.headlineSmall,
-                        color = NuvioTheme.colors.TextPrimary
+                        color = MoviesTheme.colors.TextPrimary
                     )
 
                     DialogButton(
@@ -145,7 +145,7 @@ internal fun EpisodesSidePanel(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 if (uiState.showEpisodeStreams) {
                     EpisodeStreamsView(
@@ -314,7 +314,7 @@ private fun EpisodeStreamsView(
 
     // --- Header ---
     Row(
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         verticalAlignment = Alignment.CenterVertically
     ) {
         DialogButton(
@@ -348,13 +348,13 @@ private fun EpisodeStreamsView(
                 }
             },
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.extendedColors.textSecondary,
+            color = MoviesTheme.extendedColors.textSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
 
-    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
     // --- Filter chips ---
     AnimatedVisibility(
@@ -386,7 +386,7 @@ private fun EpisodeStreamsView(
         }
     }
 
-    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
     // --- Content ---
     when {
@@ -394,7 +394,7 @@ private fun EpisodeStreamsView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = NuvioTheme.spacing.xl),
+                    .padding(vertical = MoviesTheme.spacing.xl),
                 contentAlignment = Alignment.Center
             ) {
                 LoadingIndicator()
@@ -422,8 +422,8 @@ private fun EpisodeStreamsView(
 
             LazyColumn(
                 state = streamListState,
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                contentPadding = PaddingValues(top = NuvioTheme.spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                contentPadding = PaddingValues(top = MoviesTheme.spacing.xs),
                 modifier = Modifier
                     .fillMaxHeight()
                     .onFocusChanged { listHasFocus = it.hasFocus }
@@ -563,7 +563,7 @@ private fun EpisodesListView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = NuvioTheme.spacing.xl),
+                    .padding(vertical = MoviesTheme.spacing.xl),
                 contentAlignment = Alignment.Center
             ) {
                 LoadingIndicator()
@@ -605,13 +605,13 @@ private fun EpisodesListView(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                 }
 
                 LazyColumn(
                     state = episodesListState,
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-                    contentPadding = PaddingValues(top = NuvioTheme.spacing.xs),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                    contentPadding = PaddingValues(top = MoviesTheme.spacing.xs),
                     modifier = Modifier
                         .fillMaxHeight()
                         .focusProperties { up = seasonTabFocusRequester }
@@ -717,8 +717,8 @@ private fun EpisodesSeasonTabs(
         modifier = Modifier
             .fillMaxWidth()
             .focusRestorer(selectedTabFocusRequester),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xs, vertical = NuvioTheme.spacing.xs)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xs, vertical = MoviesTheme.spacing.xs)
     ) {
         itemsIndexed(seasons, key = { _, season -> season }) { index, season ->
             val isSelected = selectedSeason == season
@@ -855,8 +855,8 @@ private fun EpisodeItem(
                 modifier = Modifier
                     .width(130.dp)
                     .height(90.dp)
-                    .clip(RoundedCornerShape(NuvioTheme.radii.md))
-                    .background(NuvioTheme.colors.SurfaceVariant)
+                    .clip(RoundedCornerShape(MoviesTheme.radii.md))
+                    .background(MoviesTheme.colors.SurfaceVariant)
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -877,10 +877,10 @@ private fun EpisodeItem(
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(NuvioTheme.spacing.sm)
+                            .padding(MoviesTheme.spacing.sm)
                             .clip(RoundedCornerShape(6.dp))
                             .background(Color.Black.copy(alpha = 0.75f))
-                            .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs)
+                            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
                     ) {
                         Text(
                             text = episodeCode,
@@ -903,7 +903,7 @@ private fun EpisodeItem(
                         Icon(
                             imageVector = Icons.Default.Visibility,
                             contentDescription = stringResource(R.string.cd_current),
-                            tint = NuvioTheme.colors.Primary,
+                            tint = MoviesTheme.colors.Primary,
                             modifier = Modifier.size(14.dp)
                         )
                     }
@@ -920,7 +920,7 @@ private fun EpisodeItem(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
-                            tint = NuvioTheme.colors.Primary,
+                            tint = MoviesTheme.colors.Primary,
                             modifier = Modifier.size(14.dp)
                         )
                     }
@@ -930,7 +930,7 @@ private fun EpisodeItem(
             // Episode info
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 Text(
                     text = episodeTitle,

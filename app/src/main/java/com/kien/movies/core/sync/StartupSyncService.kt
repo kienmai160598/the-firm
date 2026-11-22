@@ -231,7 +231,7 @@ class StartupSyncService @Inject constructor(
             when (surface) {
                 "addons" -> pullRealtimeAddons(profileId)
                 "plugins" -> enqueuePluginSync()
-                "library" -> pullNuvioLibrary(profileId)
+                "library" -> pullMoviesLibrary(profileId)
                 "watch_progress" -> {
                     syncWatchProgressDelta(
                         profileId = profileId,
@@ -360,7 +360,7 @@ class StartupSyncService @Inject constructor(
 
         val profileId = profileManager.activeProfileId.value
         Log.d(TAG, "Periodic library pull requested profile=$profileId")
-        return pullNuvioLibrary(profileId)
+        return pullMoviesLibrary(profileId)
     }
 
     private fun pullKey(userId: String): String {
@@ -710,11 +710,11 @@ class StartupSyncService @Inject constructor(
         }
     }
 
-    private suspend fun pullNuvioLibrary(profileId: Int): Boolean {
+    private suspend fun pullMoviesLibrary(profileId: Int): Boolean {
         val isTrackingLibrary = libraryRepository.sourceMode.first() != LibrarySourceMode.LOCAL
         if (isTrackingLibrary) {
             libraryRepository.hasCompletedInitialPull = true
-            Log.d(TAG, "Skipping Nuvio library pull for profile $profileId because a tracking library provider is active")
+            Log.d(TAG, "Skipping Movies library pull for profile $profileId because a tracking library provider is active")
             return true
         }
 
@@ -730,7 +730,7 @@ class StartupSyncService @Inject constructor(
             true
         } catch (e: Exception) {
             libraryRepository.hasCompletedInitialPull = true
-            Log.e(TAG, "Periodic Nuvio library pull failed profile=$profileId", e)
+            Log.e(TAG, "Periodic Movies library pull failed profile=$profileId", e)
             false
         } finally {
             libraryRepository.isSyncingFromRemote = false

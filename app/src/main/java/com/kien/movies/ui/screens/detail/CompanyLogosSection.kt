@@ -65,13 +65,13 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.domain.model.MetaCompany
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 
 // Logos keep their white tile, which most brand marks are drawn for; the box rounds it like
 // M3's medium cards.
 private val LogoTileShape = RoundedCornerShape(
-    forBuild(upstream = NuvioTheme.radii.sm, expressive = NuvioTheme.radii.md)
+    forBuild(upstream = MoviesTheme.radii.sm, expressive = MoviesTheme.radii.md)
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -122,7 +122,7 @@ fun CompanyLogosSection(
     var revealOverflowPx by remember { mutableFloatStateOf(0f) }
     val view = LocalView.current
     val density = LocalDensity.current
-    val revealPaddingPx = remember(density) { with(density) { NuvioTheme.spacing.md.toPx() } }
+    val revealPaddingPx = remember(density) { with(density) { MoviesTheme.spacing.md.toPx() } }
     val allowPageScrollState = rememberUpdatedState(allowPageScroll)
     val suppressRestoreScroll =
         holdRestoreScrollSuppress || (restoreCompanyId != null && restoreFocusToken > 0)
@@ -160,7 +160,7 @@ fun CompanyLogosSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, bottom = NuvioTheme.spacing.sm)
+            .padding(top = 20.dp, bottom = MoviesTheme.spacing.sm)
             .onGloballyPositioned { coords ->
                 val bounds = coords.boundsInWindow()
                 revealOverflowPx = (bounds.bottom - view.height + revealPaddingPx).coerceAtLeast(0f)
@@ -169,8 +169,8 @@ fun CompanyLogosSection(
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            color = NuvioTheme.colors.TextPrimary,
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)
+            color = MoviesTheme.colors.TextPrimary,
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)
         )
 
         LazyRow(
@@ -185,8 +185,8 @@ fun CompanyLogosSection(
                 }
                 .focusGroup(),
             state = listState,
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             itemsIndexed(
                 items = companies,
@@ -258,7 +258,7 @@ private fun CompanyLogoCard(
     val context = LocalContext.current
     val density = LocalDensity.current
     val logoWidthPx = remember(density) { with(density) { 140.dp.roundToPx() } }
-    val logoHeightPx = remember(density) { with(density) { NuvioTheme.spacing.huge.roundToPx() } }
+    val logoHeightPx = remember(density) { with(density) { MoviesTheme.spacing.huge.roundToPx() } }
     val logoModel = remember(context, company.logo, logoWidthPx, logoHeightPx) {
         company.logo?.let { logo ->
             ImageRequest.Builder(context)
@@ -278,7 +278,7 @@ private fun CompanyLogoCard(
         },
         modifier = Modifier
             .width(140.dp)
-            .height(NuvioTheme.spacing.huge)
+            .height(MoviesTheme.spacing.huge)
             .then(
                 if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
             )
@@ -305,7 +305,7 @@ private fun CompanyLogoCard(
         border = posterFocusBorder(
             CardDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = LogoTileShape
                 )
             )
@@ -315,7 +315,7 @@ private fun CompanyLogoCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(NuvioTheme.spacing.huge)
+                .height(MoviesTheme.spacing.huge)
                 .clip(LogoTileShape)
                 .background(Color.White),
         contentAlignment = Alignment.Center
@@ -334,10 +334,10 @@ private fun CompanyLogoCard(
                 Text(
                     text = company.name,
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.extendedColors.textSecondary,
+                    color = MoviesTheme.extendedColors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg)
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg)
                 )
             }
         }

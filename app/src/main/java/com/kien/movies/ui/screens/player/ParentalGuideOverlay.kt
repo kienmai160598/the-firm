@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.accentBrush
 
 import androidx.compose.animation.core.Animatable
@@ -37,7 +37,7 @@ import kotlinx.coroutines.delay
 
 private val ROW_HEIGHT = PlayerTenFoot.atLeast(18.dp, 22.dp)
 private val OVERLAY_TEXT_SIZE = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
-private val ROW_GAP = NuvioTheme.spacing.xxs
+private val ROW_GAP = MoviesTheme.spacing.xxs
 
 /**
  * Parental guide overlay showing content warnings with animated vertical line + staggered items.
@@ -57,7 +57,7 @@ fun ParentalGuideOverlay(
 
     val count = warnings.size
     val totalLineHeight = (ROW_HEIGHT.value * count) + (ROW_GAP.value * (count - 1))
-    val accentBrush = NuvioTheme.palette.accentBrush()
+    val accentBrush = MoviesTheme.palette.accentBrush()
 
     val containerAlpha = remember { Animatable(0f) }
     val lineHeightFraction = remember { Animatable(0f) }
@@ -119,8 +119,8 @@ fun ParentalGuideOverlay(
         modifier = modifier
             .graphicsLayer { alpha = containerAlpha.value }
             .padding(
-                start = PlayerTenFoot.atLeast(NuvioTheme.spacing.xxl, PlayerTenFoot.sideMargin),
-                top = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+                start = PlayerTenFoot.atLeast(MoviesTheme.spacing.xxl, PlayerTenFoot.sideMargin),
+                top = PlayerTenFoot.atLeast(MoviesTheme.spacing.xl, PlayerTenFoot.edgeMargin)
             ),
         verticalAlignment = Alignment.Top
     ) {
@@ -129,7 +129,7 @@ fun ParentalGuideOverlay(
             modifier = Modifier
                 .width(3.dp)
                 .growingHeight(totalLineHeight.dp) { lineHeightFraction.value }
-                .clip(RoundedCornerShape(NuvioTheme.spacing.hairline))
+                .clip(RoundedCornerShape(MoviesTheme.spacing.hairline))
                 .background(accentBrush)
         )
 

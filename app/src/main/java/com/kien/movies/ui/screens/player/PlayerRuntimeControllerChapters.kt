@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
  * They always feed skip intro, and reach the UI only while the chapters setting is on, the same as
  * on ExoPlayer. Turning the setting on mid-stream reads them again on the next tick.
  */
-internal fun PlayerRuntimeController.refreshMpvChapters(view: NuvioMpvSurfaceView) {
+internal fun PlayerRuntimeController.refreshMpvChapters(view: MoviesMpvSurfaceView) {
     val showChapters = _uiState.value.chaptersEnabled
     if (mpvChaptersStreamUrl == currentStreamUrl &&
         skipDetectionChapters.isNotEmpty() &&

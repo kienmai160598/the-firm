@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.content.Intent
 import android.net.Uri
@@ -395,7 +395,7 @@ private fun AuthQrLoginPane(
 
         Spacer(modifier = Modifier.height(28.dp))
         Row(
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (isSignedIn || !useEmailLogin) {
@@ -491,7 +491,7 @@ private fun AuthEmailLoginForm(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         InputField(
             value = email,
@@ -725,15 +725,15 @@ private fun StatusPill(
         modifier = Modifier
             .fillMaxWidth()
             .border(
-                NuvioTheme.spacing.hairline,
-                NuvioTheme.colors.Border.copy(alpha = if (isExpressiveBuild) 0f else 0.35f),
-                expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                MoviesTheme.spacing.hairline,
+                MoviesTheme.colors.Border.copy(alpha = if (isExpressiveBuild) 0f else 0.35f),
+                expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
             )
             .background(
                 containerColor,
-                expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
             )
-            .padding(horizontal = NuvioTheme.spacing.md, vertical = 10.dp)
+            .padding(horizontal = MoviesTheme.spacing.md, vertical = 10.dp)
             .semantics { liveRegion = LiveRegionMode.Polite },
         contentAlignment = Alignment.Center
     ) {
@@ -771,13 +771,13 @@ private fun AccountConnectedStatsStrip(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(NuvioTheme.spacing.hairline)
-                .background(NuvioTheme.colors.Border.copy(alpha = 0.8f))
+                .height(MoviesTheme.spacing.hairline)
+                .background(MoviesTheme.colors.Border.copy(alpha = 0.8f))
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -793,8 +793,8 @@ private fun AccountConnectedStatsStrip(
                     Box(
                         modifier = Modifier
                             .height(44.dp)
-                            .width(NuvioTheme.spacing.hairline)
-                            .background(NuvioTheme.colors.Border.copy(alpha = 0.75f))
+                            .width(MoviesTheme.spacing.hairline)
+                            .background(MoviesTheme.colors.Border.copy(alpha = 0.75f))
                     )
                 }
             }
@@ -802,8 +802,8 @@ private fun AccountConnectedStatsStrip(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(NuvioTheme.spacing.hairline)
-                .background(NuvioTheme.colors.Border.copy(alpha = 0.8f))
+                .height(MoviesTheme.spacing.hairline)
+                .background(MoviesTheme.colors.Border.copy(alpha = 0.8f))
         )
     }
 }
@@ -821,14 +821,14 @@ private fun AccountStatItem(
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
     }

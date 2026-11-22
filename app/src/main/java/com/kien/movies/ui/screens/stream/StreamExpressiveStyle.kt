@@ -24,7 +24,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 private const val STREAM_CARD_FOCUS_SCALE = 1.04f
@@ -83,20 +83,20 @@ internal fun streamCardColors(): CardColors = if (isExpressiveBuild) {
     )
 } else {
     CardDefaults.colors(
-        containerColor = NuvioTheme.colors.BackgroundElevated,
-        focusedContainerColor = NuvioTheme.colors.FocusBackground
+        containerColor = MoviesTheme.colors.BackgroundElevated,
+        focusedContainerColor = MoviesTheme.colors.FocusBackground
     )
 }
 
 /** Whether a ring may mark focus; the Apple TV look marks focus with the white fill alone. */
 @Composable
 internal fun streamCardUsesFocusRing(): Boolean =
-    !isExpressiveBuild && NuvioTheme.palette.focusRingGradient.size > 1
+    !isExpressiveBuild && MoviesTheme.palette.focusRingGradient.size > 1
 
 /** Primary text of a stream row: black on the white focused row, white otherwise. */
 @Composable
 internal fun streamRowTextColor(cardFocused: Boolean): Color = when {
-    !isExpressiveBuild -> NuvioTheme.colors.TextPrimary
+    !isExpressiveBuild -> MoviesTheme.colors.TextPrimary
     cardFocused -> ExpressiveColors.onFocus
     else -> ExpressiveColors.textPrimary
 }
@@ -104,7 +104,7 @@ internal fun streamRowTextColor(cardFocused: Boolean): Color = when {
 /** Secondary text of a stream row, such as its description. */
 @Composable
 internal fun streamRowSupportingColor(cardFocused: Boolean): Color = when {
-    !isExpressiveBuild -> NuvioTheme.extendedColors.textSecondary
+    !isExpressiveBuild -> MoviesTheme.extendedColors.textSecondary
     cardFocused -> ExpressiveColors.onFocus.copy(alpha = FOCUSED_SUPPORTING_ALPHA)
     else -> Color.White.copy(alpha = ROW_SUPPORTING_ALPHA)
 }
@@ -113,8 +113,8 @@ internal fun streamRowSupportingColor(cardFocused: Boolean): Color = when {
 @Composable
 internal fun streamAddonNameColor(cardFocused: Boolean): Color = when {
     isExpressiveBuild -> streamRowSupportingColor(cardFocused)
-    cardFocused -> NuvioTheme.extendedColors.textSecondary
-    else -> NuvioTheme.extendedColors.textTertiary
+    cardFocused -> MoviesTheme.extendedColors.textSecondary
+    else -> MoviesTheme.extendedColors.textTertiary
 }
 
 @Composable
@@ -139,7 +139,7 @@ internal fun streamPillColors(focused: Boolean, resting: Color): CardColors {
 internal fun streamPillContentColor(focused: Boolean): Color = if (isExpressiveBuild) {
     if (focused) ExpressiveColors.onFocus else ExpressiveColors.textPrimary
 } else {
-    ExpressiveFocus.contentColor(focused, resting = NuvioTheme.colors.TextPrimary)
+    ExpressiveFocus.contentColor(focused, resting = MoviesTheme.colors.TextPrimary)
 }
 
 @Composable
@@ -154,13 +154,13 @@ internal object StreamPanelStyle {
     val usesBlur: Boolean = !isExpressiveBuild
 
     @Composable
-    fun radius(): Dp = if (isExpressiveBuild) StreamPanelRadius else NuvioTheme.radii.panel
+    fun radius(): Dp = if (isExpressiveBuild) StreamPanelRadius else MoviesTheme.radii.panel
 
     @Composable
     fun background(blurred: Boolean): Color = when {
         isExpressiveBuild -> Color.Black.copy(alpha = PANEL_SCRIM_ALPHA)
-        blurred -> NuvioTheme.colors.Panel.copy(alpha = 0.65f)
-        else -> NuvioTheme.colors.BackgroundCard.copy(alpha = 0.5f)
+        blurred -> MoviesTheme.colors.Panel.copy(alpha = 0.65f)
+        else -> MoviesTheme.colors.BackgroundCard.copy(alpha = 0.5f)
     }
 }
 

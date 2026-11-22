@@ -45,9 +45,9 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.AppIconOption
 import com.kien.movies.launcher.AppIconSettingsState
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -62,7 +62,7 @@ internal fun AppIconPickerDialog(
         selectedFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.appearance_app_icon_picker_title),
         subtitle = stringResource(
@@ -119,7 +119,7 @@ internal fun AppIconChangeConfirmationDialog(
         confirmFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.appearance_app_icon_confirmation_title),
         subtitle = stringResource(
@@ -130,14 +130,14 @@ internal fun AppIconChangeConfirmationDialog(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.tvControlHeight().weight(1f),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
@@ -151,8 +151,8 @@ internal fun AppIconChangeConfirmationDialog(
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
@@ -181,20 +181,20 @@ private fun AppIconOptionCard(
                 this.selected = selected
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
             border = if (selected) {
                 Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.hairline),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
                     shape = shape
                 )
             } else {
                 Border.None
             },
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = shape
             )
         ).expressiveSelection(selected),
@@ -230,7 +230,7 @@ private fun AppIconOptionCard(
                     text = option.localizedName(),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.labelMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -239,7 +239,7 @@ private fun AppIconOptionCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = NuvioTheme.colors.Primary,
+                        tint = MoviesTheme.colors.Primary,
                         modifier = Modifier.size(18.dp)
                     )
                 }

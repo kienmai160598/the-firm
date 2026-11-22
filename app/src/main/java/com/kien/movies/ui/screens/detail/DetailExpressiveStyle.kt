@@ -30,8 +30,8 @@ import androidx.tv.material3.CardShape
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -47,14 +47,14 @@ internal class HeroButtonLook(
 /** Play and the icon actions rest frosted and turn solid white with black content on focus. */
 @Composable
 internal fun heroPlayLook(): HeroButtonLook = heroButtonLook(
-    upstreamResting = NuvioTheme.colors.SecondaryVariant,
-    upstreamRestingContent = NuvioTheme.colors.OnSecondaryVariant
+    upstreamResting = MoviesTheme.colors.SecondaryVariant,
+    upstreamRestingContent = MoviesTheme.colors.OnSecondaryVariant
 )
 
 @Composable
 internal fun heroIconLook(selected: Boolean = false): HeroButtonLook = heroButtonLook(
-    upstreamResting = NuvioTheme.colors.BackgroundCard,
-    upstreamRestingContent = NuvioTheme.colors.TextPrimary,
+    upstreamResting = MoviesTheme.colors.BackgroundCard,
+    upstreamRestingContent = MoviesTheme.colors.TextPrimary,
     selected = selected
 )
 
@@ -75,7 +75,7 @@ private fun heroButtonLook(
 ): HeroButtonLook {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     val resting = forBuild(upstreamResting, ExpressiveColors.frosted)
     val restingContent = forBuild(upstreamRestingContent, colors.TextPrimary)
     val selectedContainer = forBuild(colors.FocusBackground, ExpressiveColors.frostedStrong)
@@ -102,7 +102,7 @@ private fun heroButtonLook(
  */
 @Composable
 internal fun seasonTabColors(selected: Boolean): CardColors {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     val resting = when {
         !selected -> forBuild(colors.BackgroundCard, Color.Transparent)
         else -> colors.FocusBackground
@@ -120,9 +120,9 @@ internal fun seasonTabColors(selected: Boolean): CardColors {
 /** The text colour of a season or people tab, fixed per state. */
 @Composable
 internal fun textTabContentColor(focused: Boolean, selected: Boolean): Color = when {
-    focused -> NuvioTheme.colors.OnSecondary
-    selected -> NuvioTheme.colors.TextPrimary
-    else -> NuvioTheme.extendedColors.textSecondary
+    focused -> MoviesTheme.colors.OnSecondary
+    selected -> MoviesTheme.colors.TextPrimary
+    else -> MoviesTheme.extendedColors.textSecondary
 }
 
 // A tv Card draws a focus border by default, so dropping the ring needs an explicit None.
@@ -149,7 +149,7 @@ internal fun peopleTabColors(focused: Boolean, selected: Boolean): CardColors {
 internal fun peopleTabContentColor(focused: Boolean, selected: Boolean): Color {
     if (isExpressiveBuild) return textTabContentColor(focused, selected)
 
-    val primary = NuvioTheme.colors.TextPrimary
+    val primary = MoviesTheme.colors.TextPrimary
     return when {
         focused -> primary
         selected -> primary.copy(alpha = PEOPLE_TAB_SELECTED_ALPHA)
@@ -163,8 +163,8 @@ internal fun peopleTabBorder(): CardBorder {
 
     return CardDefaults.border(
         focusedBorder = Border(
-            border = BorderStroke(NuvioTheme.spacing.none, Color.Transparent),
-            shape = RoundedCornerShape(NuvioTheme.radii.xl)
+            border = BorderStroke(MoviesTheme.spacing.none, Color.Transparent),
+            shape = RoundedCornerShape(MoviesTheme.radii.xl)
         )
     )
 }
@@ -181,9 +181,9 @@ internal fun peopleTabScale(): CardScale = CardDefaults.scale(
 // Title large is 28 sp tall, so 12 dp above and below clears the 48 dp TV control height.
 @Composable
 internal fun peopleTabPadding(): PaddingValues = if (isExpressiveBuild) {
-    PaddingValues(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.md)
+    PaddingValues(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.md)
 } else {
-    PaddingValues(horizontal = NuvioTheme.spacing.xxs, vertical = NuvioTheme.spacing.xxs)
+    PaddingValues(horizontal = MoviesTheme.spacing.xxs, vertical = MoviesTheme.spacing.xxs)
 }
 
 private const val ERROR_MESSAGE_TINT = 0.24f
@@ -193,16 +193,16 @@ private val UpstreamMessageCorner = 10.dp
 /** The detail page's toast: a raised M3 surface, tinted with the theme's error tone if failed. */
 @Composable
 internal fun detailMessageContainer(isError: Boolean): Color {
-    val raised = NuvioTheme.colors.BackgroundElevated
+    val raised = MoviesTheme.colors.BackgroundElevated
     if (!isError) return raised
     if (!isExpressiveBuild) return UpstreamMessageError
 
-    return NuvioTheme.colors.Error.copy(alpha = ERROR_MESSAGE_TINT)
-        .compositeOver(NuvioTheme.colors.BackgroundCard)
+    return MoviesTheme.colors.Error.copy(alpha = ERROR_MESSAGE_TINT)
+        .compositeOver(MoviesTheme.colors.BackgroundCard)
 }
 
 internal fun detailMessageShape(): Shape =
-    RoundedCornerShape(forBuild(UpstreamMessageCorner, NuvioTheme.radii.lg))
+    RoundedCornerShape(forBuild(UpstreamMessageCorner, MoviesTheme.radii.lg))
 
 private val UpstreamHeroBadgeShape = RoundedCornerShape(6.dp)
 
@@ -215,13 +215,13 @@ private const val UPSTREAM_STARS_FOCUS_ALPHA = 0.32f
 @Composable
 internal fun ratingStarsContainer(focused: Boolean): Color = when {
     !focused -> Color.Transparent
-    isExpressiveBuild -> NuvioTheme.colors.FocusBackground
-    else -> NuvioTheme.colors.FocusBackground.copy(alpha = UPSTREAM_STARS_FOCUS_ALPHA)
+    isExpressiveBuild -> MoviesTheme.colors.FocusBackground
+    else -> MoviesTheme.colors.FocusBackground.copy(alpha = UPSTREAM_STARS_FOCUS_ALPHA)
 }
 
 @Composable
 internal fun ratingStarsRing(focused: Boolean): Color =
-    if (focused && !isExpressiveBuild) NuvioTheme.colors.FocusRing else Color.Transparent
+    if (focused && !isExpressiveBuild) MoviesTheme.colors.FocusRing else Color.Transparent
 
 private val UpstreamSeasonChipShape = RoundedCornerShape(14.dp)
 
@@ -229,25 +229,25 @@ private val UpstreamSeasonChipShape = RoundedCornerShape(14.dp)
 // than animated: tonal while selected, the accent while focused, a pill without a ring.
 @Composable
 internal fun ratingSeasonChipColors(selected: Boolean): CardColors {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     val resting = if (selected) colors.FocusBackground else colors.BackgroundCard
     if (!isExpressiveBuild) {
         return CardDefaults.colors(
             containerColor = resting,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         )
     }
     return CardDefaults.colors(
         containerColor = resting,
-        contentColor = NuvioTheme.colors.TextPrimary,
-        focusedContainerColor = NuvioTheme.colors.Secondary,
-        focusedContentColor = NuvioTheme.colors.OnSecondary
+        contentColor = MoviesTheme.colors.TextPrimary,
+        focusedContainerColor = MoviesTheme.colors.Secondary,
+        focusedContentColor = MoviesTheme.colors.OnSecondary
     )
 }
 
 @Composable
 internal fun ratingSeasonChipContent(): Color =
-    if (isExpressiveBuild) LocalContentColor.current else NuvioTheme.colors.TextPrimary
+    if (isExpressiveBuild) LocalContentColor.current else MoviesTheme.colors.TextPrimary
 
 @Composable
 internal fun ratingSeasonChipShape(): CardShape =
@@ -259,7 +259,7 @@ internal fun ratingSeasonChipBorder(): CardBorder {
 
     return CardDefaults.border(
         focusedBorder = Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
             shape = UpstreamSeasonChipShape
         )
     )
@@ -277,15 +277,15 @@ private val UpstreamOverlayGradientMid = Color(0xFF090909)
 /** The episode overlay sits on the theme's background on the box build, not a near-black. */
 @Composable
 internal fun episodeOverlaySurface(): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.Background else UpstreamOverlaySurface
+    if (isExpressiveBuild) MoviesTheme.colors.Background else UpstreamOverlaySurface
 
 @Composable
 internal fun episodeOverlayNoneGradient(): List<Color> {
     if (!isExpressiveBuild) {
-        val bottom = NuvioPrimitives.neutral925
+        val bottom = MoviesPrimitives.neutral925
         return listOf(UpstreamOverlaySurface, UpstreamOverlayGradientMid, bottom)
     }
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     return listOf(colors.Background, colors.Background, colors.BackgroundElevated)
 }
 
@@ -296,7 +296,7 @@ private val UpstreamShuffleGradient =
 internal fun shufflePreviewGradient(): List<Color> {
     if (!isExpressiveBuild) return UpstreamShuffleGradient
 
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     return listOf(colors.Background, colors.BackgroundElevated, colors.BackgroundCard)
 }
 

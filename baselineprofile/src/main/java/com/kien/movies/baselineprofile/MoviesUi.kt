@@ -73,7 +73,7 @@ internal const val TEST_MODULE_PACKAGE = "com.kien.movies.baselineprofile"
  */
 internal const val TARGET_PACKAGE_ARGUMENT = "androidx.benchmark.targetPackageName"
 
-private const val LOG_TAG = "NuvioBaselineProfile"
+private const val LOG_TAG = "MoviesBaselineProfile"
 
 /** Default time budget for a single UI expectation before a journey gives up. */
 internal const val UI_TIMEOUT_MS = 8_000L

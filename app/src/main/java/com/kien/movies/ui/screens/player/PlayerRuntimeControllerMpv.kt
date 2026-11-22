@@ -11,7 +11,7 @@ import kotlin.math.abs
 
 private const val MPV_RESUME_SEEK_TOLERANCE_MS = 1500L
 
-internal fun PlayerRuntimeController.attachMpvView(view: NuvioMpvSurfaceView?) {
+internal fun PlayerRuntimeController.attachMpvView(view: MoviesMpvSurfaceView?) {
     if (mpvView === view) return
     mpvView = view
 
@@ -505,7 +505,7 @@ private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnap
     )
 }
 
-private fun PlayerRuntimeController.performPendingMpvHardRestartIfNeeded(view: NuvioMpvSurfaceView): Boolean {
+private fun PlayerRuntimeController.performPendingMpvHardRestartIfNeeded(view: MoviesMpvSurfaceView): Boolean {
     if (!pendingMpvHardRestartOnNextAttach) return false
     pendingMpvHardRestartOnNextAttach = false
     runCatching {
@@ -518,7 +518,7 @@ private fun PlayerRuntimeController.performPendingMpvHardRestartIfNeeded(view: N
 }
 
 internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
-    view: NuvioMpvSurfaceView,
+    view: MoviesMpvSurfaceView,
     currentPositionMs: Long = view.currentPositionMs().coerceAtLeast(0L),
     durationMs: Long = view.durationMs().coerceAtLeast(0L)
 ) {
@@ -639,10 +639,10 @@ internal fun PlayerRuntimeController.seekPlaybackTo(
         refreshMpvMediaSession()
     } else {
         _exoPlayer?.let { player ->
-            if (NuvioExoPlayerPerformanceHelper.enabled) {
+            if (MoviesExoPlayerPerformanceHelper.enabled) {
                 val currentPos = player.currentPosition
                 val isForwardSeek = positionMs >= currentPos
-                val inBuffer = isForwardSeek && NuvioExoPlayerPerformanceHelper.isSeekInBuffer(player, positionMs)
+                val inBuffer = isForwardSeek && MoviesExoPlayerPerformanceHelper.isSeekInBuffer(player, positionMs)
                 if (inBuffer) {
                     suppressBufferingUiForSeek = true
                     scheduleSeekSuppressTimeout()
@@ -653,7 +653,7 @@ internal fun PlayerRuntimeController.seekPlaybackTo(
                     seekBufferingUiJob?.cancel()
                     _uiState.update { it.copy(isBuffering = true) }
                 }
-                NuvioExoPlayerPerformanceHelper.buildScrubbingParams()?.let { params ->
+                MoviesExoPlayerPerformanceHelper.buildScrubbingParams()?.let { params ->
                     isScrubbingModeActive = true
                     player.setScrubbingModeParameters(params)
                 }
@@ -722,7 +722,7 @@ internal fun PlayerRuntimeController.keepMpvPlayingIfNeeded(wasPlaying: Boolean)
  */
 internal fun PlayerRuntimeController.scheduleSeekSuppressTimeout() {
     scope.launch {
-        delay(NuvioExoPlayerPerformanceHelper.SEEK_SUPPRESS_TIMEOUT_MS)
+        delay(MoviesExoPlayerPerformanceHelper.SEEK_SUPPRESS_TIMEOUT_MS)
         suppressBufferingUiForSeek = false
     }
 }

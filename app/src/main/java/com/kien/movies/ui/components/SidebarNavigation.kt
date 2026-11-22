@@ -42,12 +42,12 @@ import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.ui.theme.NuvioComponents
-import com.kien.movies.ui.theme.NuvioStrokes
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesComponents
+import com.kien.movies.ui.theme.MoviesStrokes
+import com.kien.movies.ui.theme.MoviesTheme
 
-private val NavItemShape = RoundedCornerShape(NuvioComponents.tokens.sidebar.panelRadius / 2)
-private val NavItemIconShape = RoundedCornerShape(NuvioComponents.tokens.sidebar.panelRadius / 3)
+private val NavItemShape = RoundedCornerShape(MoviesComponents.tokens.sidebar.panelRadius / 2)
+private val NavItemIconShape = RoundedCornerShape(MoviesComponents.tokens.sidebar.panelRadius / 3)
 
 data class SidebarItem(
     val route: String,
@@ -66,7 +66,7 @@ fun SidebarNavigation(
     onFocusChange: (Boolean) -> Unit,
     onNavigate: (String) -> Unit
 ) {
-    val sidebarWidth = NuvioTheme.sizes.sidebar.expandedWidth
+    val sidebarWidth = MoviesTheme.sizes.sidebar.expandedWidth
     val sidebarAlpha by animateFloatAsState(
         targetValue = if (isExpanded) 1f else 0f,
         label = "sidebarAlpha"
@@ -77,21 +77,21 @@ fun SidebarNavigation(
             .width(sidebarWidth)
             .fillMaxHeight()
             .graphicsLayer { alpha = sidebarAlpha }
-            .background(NuvioTheme.colors.BackgroundElevated)
-            .padding(vertical = NuvioTheme.spacing.xl, horizontal = NuvioTheme.spacing.lg)
+            .background(MoviesTheme.colors.BackgroundElevated)
+            .padding(vertical = MoviesTheme.spacing.xl, horizontal = MoviesTheme.spacing.lg)
             .onFocusChanged { state ->
                 onFocusChange(state.hasFocus)
                 onExpandedChange(state.hasFocus)
             },
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         Text(
             text = stringResource(R.string.app_name).uppercase(),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            color = NuvioTheme.colors.Primary
+            color = MoviesTheme.colors.Primary
         )
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
         items.forEach { item ->
             SidebarNavItem(
@@ -114,11 +114,11 @@ private fun SidebarNavItem(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val backgroundColor by animateColorAsState(
-        targetValue = if (isFocused || isSelected) NuvioTheme.colors.FocusBackground else Color.Transparent,
+        targetValue = if (isFocused || isSelected) MoviesTheme.colors.FocusBackground else Color.Transparent,
         label = "navItemBackground"
     )
     val borderColor by animateColorAsState(
-        targetValue = if (isFocused) NuvioTheme.colors.FocusRing else Color.Transparent,
+        targetValue = if (isFocused) MoviesTheme.colors.FocusRing else Color.Transparent,
         label = "navItemBorder"
     )
 
@@ -126,7 +126,7 @@ private fun SidebarNavItem(
         onClick = { onNavigate(item.route) },
         modifier = Modifier
             .fillMaxWidth()
-            .height(NuvioTheme.sizes.settings.railItemHeight)
+            .height(MoviesTheme.sizes.settings.railItemHeight)
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .onFocusChanged { state ->
                 isFocused = state.hasFocus
@@ -138,7 +138,7 @@ private fun SidebarNavItem(
         border = CardDefaults.border(
             border = androidx.tv.material3.Border.None,
             focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(NuvioStrokes.tokens.focus, borderColor),
+                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.focus, borderColor),
                 shape = NavItemShape
             )
         ),
@@ -147,30 +147,30 @@ private fun SidebarNavItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(NuvioTheme.sizes.settings.railItemHeight)
-                .padding(horizontal = NuvioTheme.spacing.md),
+                .height(MoviesTheme.sizes.settings.railItemHeight)
+                .padding(horizontal = MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
         Box(
             modifier = Modifier
-                .size(NuvioTheme.sizes.icons.xl - NuvioTheme.spacing.xs)
+                .size(MoviesTheme.sizes.icons.xl - MoviesTheme.spacing.xs)
                 .clip(NavItemIconShape)
-                .background(NuvioTheme.colors.SurfaceVariant),
+                .background(MoviesTheme.colors.SurfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = item.icon,
                 contentDescription = null,
-                tint = NuvioTheme.colors.TextPrimary,
-                modifier = Modifier.size(NuvioTheme.sizes.icons.sm)
+                tint = MoviesTheme.colors.TextPrimary,
+                modifier = Modifier.size(MoviesTheme.sizes.icons.sm)
             )
         }
 
         Text(
             text = item.label,
             style = MaterialTheme.typography.titleMedium,
-            color = if (isFocused || isSelected) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary
+            color = if (isFocused || isSelected) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
         )
     }
     }

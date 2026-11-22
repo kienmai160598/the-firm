@@ -49,7 +49,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.formatHexColor
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.roundToInt
 import com.kien.movies.ui.theme.TvSizeFloors
 
@@ -182,8 +182,8 @@ private fun ColorChannelSlider(
                 }
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         shape = CardDefaults.shape(shape).expressiveCard(),
         border = CardDefaults.border(
@@ -196,8 +196,8 @@ private fun ColorChannelSlider(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(title, style = MaterialTheme.typography.labelMedium, color = NuvioTheme.colors.TextPrimary)
-                Text(valueLabel, style = MaterialTheme.typography.labelSmall, color = NuvioTheme.colors.TextSecondary)
+                Text(title, style = MaterialTheme.typography.labelMedium, color = MoviesTheme.colors.TextPrimary)
+                Text(valueLabel, style = MaterialTheme.typography.labelSmall, color = MoviesTheme.colors.TextSecondary)
             }
             Box(
                 Modifier

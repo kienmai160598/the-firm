@@ -1,7 +1,7 @@
 package com.kien.movies.ui.components
 
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -142,9 +142,9 @@ fun AvatarPickerGrid(
         FlowRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = NuvioTheme.spacing.lg),
+                .padding(bottom = MoviesTheme.spacing.lg),
             horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             categories.forEach { category ->
                 CategoryTab(
@@ -156,7 +156,7 @@ fun AvatarPickerGrid(
                     onClick = { selectedCategory = category }
                 )
                 if (category != categories.last()) {
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                 }
             }
         }
@@ -167,8 +167,8 @@ fun AvatarPickerGrid(
                 .wrapContentHeight()
         ) {
             val minCellWidth = 88.dp
-            val horizontalSpacing = NuvioTheme.spacing.md
-            val horizontalPadding = NuvioTheme.spacing.lg
+            val horizontalSpacing = MoviesTheme.spacing.md
+            val horizontalPadding = MoviesTheme.spacing.lg
             val availableWidth = maxWidth - horizontalPadding
             val columnCount = max(
                 1,
@@ -181,9 +181,9 @@ fun AvatarPickerGrid(
             key(filteredAvatars) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = minCellWidth),
-                    contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
+                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
                     horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     itemsIndexed(filteredAvatars, key = { _, avatar -> avatar.id }) { index, avatar ->
@@ -223,12 +223,12 @@ private fun CategoryTab(
 
     val bgColor by animateColorAsState(
         targetValue = when {
-            isExpressiveBuild && isFocused -> NuvioTheme.colors.Secondary
-            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusBackground
-            isExpressiveBuild -> NuvioTheme.colors.BackgroundCard
-            isSelected && isFocused -> NuvioTheme.colors.FocusBackground
-            isSelected -> NuvioTheme.colors.Secondary.copy(alpha = 0.22f)
-            isFocused -> NuvioTheme.colors.FocusBackground
+            isExpressiveBuild && isFocused -> MoviesTheme.colors.Secondary
+            isExpressiveBuild && isSelected -> MoviesTheme.colors.FocusBackground
+            isExpressiveBuild -> MoviesTheme.colors.BackgroundCard
+            isSelected && isFocused -> MoviesTheme.colors.FocusBackground
+            isSelected -> MoviesTheme.colors.Secondary.copy(alpha = 0.22f)
+            isFocused -> MoviesTheme.colors.FocusBackground
             else -> Color.White.copy(alpha = 0.06f)
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(150)),
@@ -236,30 +236,30 @@ private fun CategoryTab(
     )
     val borderColor by animateColorAsState(
         targetValue = when {
-            isSelected && isFocused -> NuvioTheme.colors.FocusRing
-            isFocused -> NuvioTheme.colors.FocusRing
-            isSelected -> NuvioTheme.colors.Secondary
-            else -> NuvioTheme.colors.Border
+            isSelected && isFocused -> MoviesTheme.colors.FocusRing
+            isFocused -> MoviesTheme.colors.FocusRing
+            isSelected -> MoviesTheme.colors.Secondary
+            else -> MoviesTheme.colors.Border
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryBorder"
     )
     val borderWidth by animateDpAsState(
         targetValue = when {
-            isSelected && isFocused -> NuvioTheme.spacing.xxs
-            isFocused -> NuvioTheme.spacing.xxs
-            isSelected -> NuvioTheme.spacing.hairline
-            else -> NuvioTheme.spacing.hairline
+            isSelected && isFocused -> MoviesTheme.spacing.xxs
+            isFocused -> MoviesTheme.spacing.xxs
+            isSelected -> MoviesTheme.spacing.hairline
+            else -> MoviesTheme.spacing.hairline
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryBorderWidth"
     )
     val textColor by animateColorAsState(
         targetValue = when {
-            isExpressiveBuild && isFocused -> NuvioTheme.colors.OnSecondary
-            isExpressiveBuild && isSelected -> NuvioTheme.colors.FocusContent
+            isExpressiveBuild && isFocused -> MoviesTheme.colors.OnSecondary
+            isExpressiveBuild && isSelected -> MoviesTheme.colors.FocusContent
             isSelected || isFocused -> Color.White
-            else -> NuvioTheme.colors.TextSecondary
+            else -> MoviesTheme.colors.TextSecondary
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(150)),
         label = "categoryText"
@@ -280,7 +280,7 @@ private fun CategoryTab(
                 } else {
                     Modifier.border(
                         border = if (isFocused) {
-                            NuvioTheme.focusRing.border(borderWidth)
+                            MoviesTheme.focusRing.border(borderWidth)
                         } else {
                             BorderStroke(borderWidth, borderColor)
                         },
@@ -299,7 +299,7 @@ private fun CategoryTab(
                 selected = isSelected
             }
             .tvControlHeight()
-            .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm),
+            .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -333,8 +333,8 @@ private fun AvatarGridItem(
     val borderWidth by animateDpAsState(
         targetValue = when {
             isSelected -> 3.dp
-            isFocused -> NuvioTheme.spacing.xxs
-            else -> NuvioTheme.spacing.none
+            isFocused -> MoviesTheme.spacing.xxs
+            else -> MoviesTheme.spacing.none
         },
         animationSpec = ExpressiveMotion.effectsOr(tween(120)),
         label = "avatarBorder"
@@ -359,7 +359,7 @@ private fun AvatarGridItem(
             .clip(CircleShape)
             .border(
                 border = if (isSelected || isFocused) {
-                    NuvioTheme.focusRing.border(borderWidth)
+                    MoviesTheme.focusRing.border(borderWidth)
                 } else {
                     BorderStroke(borderWidth, Color.Transparent)
                 },

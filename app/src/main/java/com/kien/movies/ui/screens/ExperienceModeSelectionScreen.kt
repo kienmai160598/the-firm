@@ -7,7 +7,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.expressiveFocusScale
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -92,7 +92,7 @@ fun ExperienceModeSelectionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 64.dp, vertical = NuvioTheme.spacing.xxxl),
+            .padding(horizontal = 64.dp, vertical = MoviesTheme.spacing.xxxl),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -102,13 +102,13 @@ fun ExperienceModeSelectionScreen(
             Text(
                 text = stringResource(R.string.experience_mode_choose_title),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             Text(
                 text = stringResource(R.string.experience_mode_choose_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(36.dp))
             Row(
@@ -146,7 +146,7 @@ private fun ExperienceModeCard(
     modifier: Modifier = Modifier
 ) {
     val experienceCardShape =
-        RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.xl else NuvioTheme.radii.md)
+        RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.xl else MoviesTheme.radii.md)
     var hasFocus by remember { mutableStateOf(false) }
     val tvosFill = ExpressiveFocus.containerColor(hasFocus, resting = ExpressiveColors.frosted)
     Surface(
@@ -165,19 +165,19 @@ private fun ExperienceModeCard(
             ClickableSurfaceDefaults.colors(containerColor = tvosFill, focusedContainerColor = tvosFill)
         } else {
             ClickableSurfaceDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = MoviesTheme.colors.FocusBackground
             )
         },
         border = if (isExpressiveBuild) {
             ClickableSurfaceDefaults.border(border = Border.None, focusedBorder = Border.None)
         } else ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, experienceCardRestingBorder()),
+                border = BorderStroke(MoviesTheme.spacing.hairline, experienceCardRestingBorder()),
                 shape = experienceCardShape
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = experienceCardShape
             )
         ),
@@ -198,25 +198,25 @@ private fun ExperienceModeCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(NuvioTheme.spacing.xl),
+                    .padding(MoviesTheme.spacing.xl),
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = experienceCardText(hasFocus, NuvioTheme.colors.TextSecondary)
+                    tint = experienceCardText(hasFocus, MoviesTheme.colors.TextSecondary)
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = experienceCardText(hasFocus, NuvioTheme.colors.TextPrimary)
+                    color = experienceCardText(hasFocus, MoviesTheme.colors.TextPrimary)
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = experienceCardText(hasFocus, NuvioTheme.colors.TextSecondary)
+                    color = experienceCardText(hasFocus, MoviesTheme.colors.TextSecondary)
                 )
             }
         }
@@ -228,7 +228,7 @@ private fun experienceCardRestingBorder(): androidx.compose.ui.graphics.Color =
     if (isExpressiveBuild) {
         androidx.compose.ui.graphics.Color.Transparent
     } else {
-        NuvioTheme.colors.Border
+        MoviesTheme.colors.Border
     }
 
 private const val EXPERIENCE_CARD_LIFT = 1.04f
@@ -240,7 +240,7 @@ private fun experienceCardText(
     upstream: androidx.compose.ui.graphics.Color
 ): androidx.compose.ui.graphics.Color =
     if (isExpressiveBuild && focused) {
-        NuvioTheme.colors.OnSecondary.copy(alpha = upstream.alpha)
+        MoviesTheme.colors.OnSecondary.copy(alpha = upstream.alpha)
     } else {
         upstream
     }

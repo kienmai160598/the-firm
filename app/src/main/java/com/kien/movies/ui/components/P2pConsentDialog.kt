@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -76,23 +76,23 @@ fun P2pConsentDialog(
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             Box(
                 modifier = Modifier
-                    .clip(expressiveDialogShape(RoundedCornerShape(NuvioTheme.radii.xl)))
-                    .background(NuvioTheme.colors.BackgroundCard)
+                    .clip(expressiveDialogShape(RoundedCornerShape(MoviesTheme.radii.xl)))
+                    .background(MoviesTheme.colors.BackgroundCard)
             ) {
                 Column(
                     modifier = Modifier
                         .width(520.dp) // Increased width from 460.dp to 520.dp for better text distribution
-                        .padding(NuvioTheme.spacing.xl),
+                        .padding(MoviesTheme.spacing.xl),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = stringResource(R.string.p2p_consent_title),
                         style = MaterialTheme.typography.headlineSmall,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                     val scrollState = rememberScrollState()
                     val coroutineScope = rememberCoroutineScope()
@@ -133,16 +133,16 @@ fun P2pConsentDialog(
                             style = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
                                 textDirection = bodyText.contentTextDirection()
                             ),
-                            color = NuvioTheme.colors.TextSecondary,
+                            color = MoviesTheme.colors.TextSecondary,
                             textAlign = TextAlign.Start,
-                            modifier = Modifier.padding(end = NuvioTheme.spacing.xs)
+                            modifier = Modifier.padding(end = MoviesTheme.spacing.xs)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Card(
@@ -151,17 +151,17 @@ fun P2pConsentDialog(
                                 .weight(1f)
                                 .focusRequester(focusRequester),
                             colors = expressiveActionCardColors(CardDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundElevated,
-                                focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                                containerColor = MoviesTheme.colors.BackgroundElevated,
+                                focusedContainerColor = MoviesTheme.colors.BackgroundElevated
                             )),
                             border = expressiveActionCardBorder(CardDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                                 )
                             )),
                             shape = expressiveActionCardShape(
-                                CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+                                CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
                             ),
                             scale = expressiveCardScale(
                                 CardDefaults.scale(focusedScale = 1.05f)
@@ -170,9 +170,9 @@ fun P2pConsentDialog(
                             Text(
                                 text = stringResource(R.string.p2p_consent_cancel),
                                 style = MaterialTheme.typography.titleMedium,
-                                color = actionCardContentColor(NuvioTheme.colors.TextPrimary),
+                                color = actionCardContentColor(MoviesTheme.colors.TextPrimary),
                                 modifier = Modifier
-                                    .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                                    .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                     .fillMaxWidth(),
                                 textAlign = TextAlign.Center
                             )
@@ -185,17 +185,17 @@ fun P2pConsentDialog(
                                 .weight(1f)
                                 .onFocusChanged { enableFocused = it.isFocused },
                             colors = expressiveActionCardColors(CardDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundElevated,
-                                focusedContainerColor = NuvioTheme.colors.Secondary
+                                containerColor = MoviesTheme.colors.BackgroundElevated,
+                                focusedContainerColor = MoviesTheme.colors.Secondary
                             )),
                             border = expressiveActionCardBorder(CardDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                                 )
                             )),
                             shape = expressiveActionCardShape(
-                                CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+                                CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
                             ),
                             scale = expressiveCardScale(
                                 CardDefaults.scale(focusedScale = 1.05f)
@@ -205,10 +205,10 @@ fun P2pConsentDialog(
                                 text = stringResource(R.string.p2p_consent_enable),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = actionCardContentColor(
-                                    if (enableFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary
+                                    if (enableFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextPrimary
                                 ),
                                 modifier = Modifier
-                                    .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                                    .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                     .fillMaxWidth(),
                                 textAlign = TextAlign.Center
                             )

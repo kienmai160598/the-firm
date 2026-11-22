@@ -39,7 +39,7 @@ import com.kien.movies.ui.screens.cast.CastDetailScreen
 import java.util.WeakHashMap
 import com.kien.movies.ui.screens.detail.MetaDetailsScreen
 import com.kien.movies.ui.screens.tmdb.TmdbEntityBrowseScreen
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 internal const val DETAIL_CHILD_IDLE = "detail_child_idle"
 
@@ -133,7 +133,7 @@ internal fun DetailChildHost(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(NuvioTheme.colors.Background)
+                    .background(MoviesTheme.colors.Background)
             )
         }
         CompositionLocalProvider(LocalDetailChildOverlayVisible provides false) {
@@ -158,7 +158,7 @@ internal fun DetailChildHost(
                         }
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().background(NuvioTheme.colors.Background)) {
+                    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
                         CastDetailScreen(
                             onBackPress = { childNav.popBackStack() },
                             onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
@@ -179,7 +179,7 @@ internal fun DetailChildHost(
                         }
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().background(NuvioTheme.colors.Background)) {
+                    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
                         TmdbEntityBrowseScreen(
                             onBackPress = { childNav.popBackStack() },
                             onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
@@ -231,7 +231,7 @@ internal fun DetailChildHost(
                     )
                 ) { nestedEntry ->
                     val nestedArgs = nestedEntry.arguments
-                    Box(modifier = Modifier.fillMaxSize().background(NuvioTheme.colors.Background)) {
+                    Box(modifier = Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) {
                     MetaDetailsScreen(
                         viewModel = hiltViewModel(nestedEntry),
                         heroBackdropUrl = nestedArgs?.getString("heroBackdropUrl")?.takeIf { it.isNotBlank() },

@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.kien.movies.data.local.BufferSettings
 import com.kien.movies.data.local.PlayerSettings
-import com.kien.movies.ui.screens.player.NuvioExoPlayerPerformanceHelper
+import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
 
 /**
  * Shared memory budget constants and helpers for buffer + parallel connection settings.
@@ -82,7 +82,7 @@ object MemoryBudget {
     fun init(context: Context) {
         snapshot = snapshotFor(
             maxHeapMb = runtimeMaxHeapMb(),
-            physicalRamBytes = NuvioExoPlayerPerformanceHelper.getDevicePhysicalRamBytes(context),
+            physicalRamBytes = MoviesExoPlayerPerformanceHelper.getDevicePhysicalRamBytes(context),
         )
         Log.i(TAG, "Memory budget: $snapshot")
     }
@@ -138,7 +138,7 @@ object MemoryBudget {
 
     // Some 1 GB TVs ship dalvik.vm.heapsize=512m, so largeHeap reports a high-RAM heap on a device
     // that can't back it. Only that case is resized: half the heap, the same 1 GB class as
-    // NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb().
+    // MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb().
     internal fun budgetHeapMb(maxHeapMb: Long, physicalRamBytes: Long): Long =
         if (maxHeapMb >= HIGH_HEAP_THRESHOLD_MB && physicalRamBytes in 1 until ONE_GB_CLASS_MAX_BYTES) {
             maxHeapMb / 2

@@ -34,7 +34,7 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Rule
@@ -61,7 +61,7 @@ class MDBListSettingsReorderFocusTest {
         var railStoleFocus = false
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 val railRequester = remember { FocusRequester() }
                 var railHadFocus by remember { mutableStateOf(false) }
                 Row(modifier = Modifier.fillMaxSize()) {

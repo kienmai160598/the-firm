@@ -36,7 +36,7 @@ class TrackingSourcesTest {
     }
 
     @Test
-    fun `remote watch source falls back to Nuvio Sync when disconnected`() {
+    fun `remote watch source falls back to Movies Sync when disconnected`() {
         assertEquals(
             WatchProgressSource.NUVIO_SYNC,
             effectiveWatchProgressSource(WatchProgressSource.SIMKL) { false }
@@ -138,7 +138,7 @@ class TrackingSourcesTest {
     }
 
     @Test
-    fun `both connected pickers expose Nuvio Trakt and Simkl in stable order`() {
+    fun `both connected pickers expose Movies Trakt and Simkl in stable order`() {
         val connected = setOf(TrackingProviderId.TRAKT, TrackingProviderId.SIMKL)
 
         assertEquals(

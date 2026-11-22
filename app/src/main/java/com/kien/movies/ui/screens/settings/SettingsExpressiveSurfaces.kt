@@ -35,7 +35,7 @@ import com.kien.movies.ui.components.expressivePrimaryButtonColors
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveRadii
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -67,12 +67,12 @@ internal fun buttonIconSize(upstream: Dp): Dp =
 /** A focused card's fill, tonal once its ring is gone. */
 @Composable
 internal fun expressiveCardFocusFill(upstream: Color): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.FocusBackground else upstream
+    if (isExpressiveBuild) MoviesTheme.colors.FocusBackground else upstream
 
 /** A notice drawn in a fixed blue upstream: the theme's tonal container on the box. */
 @Composable
 internal fun expressiveNoticeColor(upstream: Color): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.FocusBackground else upstream
+    if (isExpressiveBuild) MoviesTheme.colors.FocusBackground else upstream
 
 @Composable
 internal fun ClickableSurfaceBorder.expressiveRingless(): ClickableSurfaceBorder =
@@ -165,9 +165,9 @@ internal fun expressiveControlContent(focused: Boolean, upstream: Color): Color 
     if (!isExpressiveBuild) {
         upstream
     } else if (focused) {
-        NuvioTheme.colors.OnSecondary
+        MoviesTheme.colors.OnSecondary
     } else {
-        NuvioTheme.colors.TextPrimary
+        MoviesTheme.colors.TextPrimary
     }
 
 @Composable
@@ -242,17 +242,17 @@ internal fun onControlColor(upstream: Color): Color =
 @Composable
 @ReadOnlyComposable
 internal fun expressiveSurfaceOr(upstream: Color): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.SurfaceVariant else upstream
+    if (isExpressiveBuild) MoviesTheme.colors.SurfaceVariant else upstream
 
 @Composable
 @ReadOnlyComposable
 internal fun expressiveErrorOr(upstream: Color): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.Error else upstream
+    if (isExpressiveBuild) MoviesTheme.colors.Error else upstream
 
 @Composable
 @ReadOnlyComposable
 internal fun expressiveWarningOr(upstream: Color): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.Warning else upstream
+    if (isExpressiveBuild) MoviesTheme.colors.Warning else upstream
 
 /**
  * A choice card drops its focus ring on the box but keeps its selection readable: an accent
@@ -263,7 +263,7 @@ internal fun CardBorder.expressiveSelection(selected: Boolean): CardBorder {
     if (!isExpressiveBuild) return this
     val outline = if (selected) {
         Border(
-            border = BorderStroke(SelectedOutlineWidth, NuvioTheme.colors.Secondary),
+            border = BorderStroke(SelectedOutlineWidth, MoviesTheme.colors.Secondary),
             shape = ExpressiveCardShape
         )
     } else {

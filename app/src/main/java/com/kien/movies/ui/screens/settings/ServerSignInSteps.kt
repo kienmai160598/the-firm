@@ -37,7 +37,7 @@ import com.kien.movies.core.qr.QrCodeGenerator
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.screens.account.InputField
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 /** A sign-in code approved on another device: the instructions, a QR code for [link], the code and the page to type it on. */
 @Composable
@@ -46,7 +46,7 @@ internal fun ColumnScope.ServerSignInCode(instructions: String, link: String, co
     Text(
         text = instructions,
         style = MaterialTheme.typography.bodyMedium,
-        color = NuvioTheme.colors.TextSecondary,
+        color = MoviesTheme.colors.TextSecondary,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth()
     )
@@ -63,19 +63,19 @@ internal fun ColumnScope.ServerSignInCode(instructions: String, link: String, co
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = code,
             style = MaterialTheme.typography.headlineSmall,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )
         Text(
             text = page,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             textAlign = TextAlign.Center
         )
     }
@@ -96,7 +96,7 @@ internal fun <T> ColumnScope.ServerSignInPicker(
         modifier = Modifier
             .weight(1f, fill = false)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
     ) {
         items.forEachIndexed { index, item ->
             row(item, if (index == focusIndex) Modifier.focusRequester(focus) else Modifier)
@@ -148,14 +148,14 @@ internal fun ServerSignInPin(
 internal fun ServerSignInStatus(text: String, loading: Boolean = false, error: Boolean = false) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (loading) LoadingIndicator(modifier = Modifier.size(NuvioTheme.spacing.lg))
+        if (loading) LoadingIndicator(modifier = Modifier.size(MoviesTheme.spacing.lg))
         Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,
-            color = if (error) NuvioTheme.colors.Error else NuvioTheme.colors.TextSecondary,
+            color = if (error) MoviesTheme.colors.Error else MoviesTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
     }

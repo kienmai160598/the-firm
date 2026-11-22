@@ -2,7 +2,7 @@ package com.kien.movies.ui.screens.collection
 
 import androidx.compose.ui.semantics.clearAndSetSemantics
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -128,7 +128,7 @@ fun FolderDetailScreen(
 
     if (folder == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.folder_detail_not_found), color = NuvioTheme.colors.TextSecondary)
+            Text(stringResource(R.string.folder_detail_not_found), color = MoviesTheme.colors.TextSecondary)
         }
         return
     }
@@ -190,7 +190,7 @@ fun FolderDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = NuvioTheme.spacing.xl)
+                .padding(top = MoviesTheme.spacing.xl)
         ) {
             when (uiState.viewMode) {
                 FolderViewMode.TABBED_GRID -> TabbedGridContent(
@@ -250,17 +250,17 @@ private fun FolderHeader(folder: com.kien.movies.domain.model.CollectionFolder) 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.sm),
+            .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
         if (!folder.coverImageUrl.isNullOrBlank()) {
             val iconWidth: androidx.compose.ui.unit.Dp
             val iconHeight: androidx.compose.ui.unit.Dp
             when (folder.tileShape) {
-                com.kien.movies.domain.model.PosterShape.POSTER -> { iconWidth = NuvioTheme.spacing.xxl; iconHeight = NuvioTheme.spacing.xxxl }
+                com.kien.movies.domain.model.PosterShape.POSTER -> { iconWidth = MoviesTheme.spacing.xxl; iconHeight = MoviesTheme.spacing.xxxl }
                 com.kien.movies.domain.model.PosterShape.LANDSCAPE -> { iconWidth = 64.dp; iconHeight = 36.dp }
-                com.kien.movies.domain.model.PosterShape.SQUARE -> { iconWidth = NuvioTheme.spacing.xxxl; iconHeight = NuvioTheme.spacing.xxxl }
+                com.kien.movies.domain.model.PosterShape.SQUARE -> { iconWidth = MoviesTheme.spacing.xxxl; iconHeight = MoviesTheme.spacing.xxxl }
             }
             AsyncImage(
                 model = folder.coverImageUrl,
@@ -268,7 +268,7 @@ private fun FolderHeader(folder: com.kien.movies.domain.model.CollectionFolder) 
                 modifier = Modifier
                     .width(iconWidth)
                     .height(iconHeight)
-                    .clip(RoundedCornerShape(NuvioTheme.radii.sm)),
+                    .clip(RoundedCornerShape(MoviesTheme.radii.sm)),
                 contentScale = ContentScale.FillBounds
             )
         } else if (!folder.coverEmoji.isNullOrBlank()) {
@@ -282,7 +282,7 @@ private fun FolderHeader(folder: com.kien.movies.domain.model.CollectionFolder) 
             style = MaterialTheme.typography.headlineMedium.screenTitleFloor().copy(
                 textDirection = folder.title.contentTextDirection()
             ),
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -314,17 +314,17 @@ private fun TabbedGridContent(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.sm),
+            .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         if (!folder.coverImageUrl.isNullOrBlank()) {
             val iconWidth: androidx.compose.ui.unit.Dp
             val iconHeight: androidx.compose.ui.unit.Dp
             when (folder.tileShape) {
-                com.kien.movies.domain.model.PosterShape.POSTER -> { iconWidth = NuvioTheme.spacing.xxl; iconHeight = NuvioTheme.spacing.xxxl }
+                com.kien.movies.domain.model.PosterShape.POSTER -> { iconWidth = MoviesTheme.spacing.xxl; iconHeight = MoviesTheme.spacing.xxxl }
                 com.kien.movies.domain.model.PosterShape.LANDSCAPE -> { iconWidth = 64.dp; iconHeight = 36.dp }
-                com.kien.movies.domain.model.PosterShape.SQUARE -> { iconWidth = NuvioTheme.spacing.xxxl; iconHeight = NuvioTheme.spacing.xxxl }
+                com.kien.movies.domain.model.PosterShape.SQUARE -> { iconWidth = MoviesTheme.spacing.xxxl; iconHeight = MoviesTheme.spacing.xxxl }
             }
             AsyncImage(
                 model = folder.coverImageUrl,
@@ -332,7 +332,7 @@ private fun TabbedGridContent(
                 modifier = Modifier
                     .width(iconWidth)
                     .height(iconHeight)
-                    .clip(RoundedCornerShape(NuvioTheme.radii.sm)),
+                    .clip(RoundedCornerShape(MoviesTheme.radii.sm)),
                 contentScale = ContentScale.FillBounds
             )
         } else if (!folder.coverEmoji.isNullOrBlank()) {
@@ -346,7 +346,7 @@ private fun TabbedGridContent(
             style = MaterialTheme.typography.headlineMedium.screenTitleFloor().copy(
                 textDirection = folder.title.contentTextDirection()
             ),
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.widthIn(max = 300.dp)
@@ -373,7 +373,7 @@ private fun TabbedGridContent(
                         } else Modifier
                     ) {
                         Column(
-                            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.sm),
+                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.sm),
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
@@ -390,7 +390,7 @@ private fun TabbedGridContent(
                                 Text(
                                     text = localizedType,
                                     style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                    color = NuvioTheme.colors.TextTertiary
+                                    color = MoviesTheme.colors.TextTertiary
                                 )
                             }
                         }
@@ -413,7 +413,7 @@ private fun TabbedGridContent(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = currentTab.error,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -525,13 +525,13 @@ private fun TabbedGridContent(
                     }
                     .dpadRepeatThrottle(),
                 contentPadding = PaddingValues(
-                    start = NuvioTheme.spacing.xxxl,
-                    end = NuvioTheme.spacing.xxxl,
-                    top = NuvioTheme.spacing.lg,
-                    bottom = NuvioTheme.spacing.xxxl
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    top = MoviesTheme.spacing.lg,
+                    bottom = MoviesTheme.spacing.xxxl
                 ),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
             ) {
                 itemsIndexed(
                     items = items,
@@ -584,8 +584,8 @@ private fun TabbedGridContent(
                               .focusProperties { canFocus = false },
                                 shape = CardDefaults.shape(shape = cardShape),
                                 colors = CardDefaults.colors(
-                                    containerColor = NuvioTheme.colors.BackgroundCard,
-                                    focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                                    containerColor = MoviesTheme.colors.BackgroundCard,
+                                    focusedContainerColor = MoviesTheme.colors.BackgroundCard
                                 )
                             ) {
                                 Box(
@@ -606,7 +606,7 @@ private fun TabbedGridContent(
                             Spacer(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = NuvioTheme.spacing.sm)
+                                    .padding(top = MoviesTheme.spacing.sm)
                                     .height(
                                         MaterialTheme.typography.titleMedium.lineHeight.value.dp +
                                             MaterialTheme.typography.labelMedium
@@ -803,8 +803,8 @@ private fun RowsContent(
                     null
                 },
             ),
-        contentPadding = PaddingValues(top = NuvioTheme.spacing.lg, bottom = NuvioTheme.spacing.xxxl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxl)
+        contentPadding = PaddingValues(top = MoviesTheme.spacing.lg, bottom = MoviesTheme.spacing.xxxl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxl)
     ) {
         sourceTabs.forEachIndexed { index, tab ->
             // Compute rowKey early so we can use it as item key for focus restoration
@@ -838,8 +838,8 @@ private fun RowsContent(
                             Text(
                                 text = rowTitle,
                                 style = MaterialTheme.typography.headlineSmall,
-                                color = NuvioTheme.colors.TextPrimary,
-                                modifier = Modifier.padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.md)
+                                color = MoviesTheme.colors.TextPrimary,
+                                modifier = Modifier.padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md)
                             )
                             Box(
                                 modifier = Modifier
@@ -856,8 +856,8 @@ private fun RowsContent(
                             Text(
                                 text = rowTitle,
                                 style = MaterialTheme.typography.headlineSmall,
-                                color = NuvioTheme.colors.TextPrimary,
-                                modifier = Modifier.padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.md)
+                                color = MoviesTheme.colors.TextPrimary,
+                                modifier = Modifier.padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md)
                             )
                             Box(
                                 modifier = Modifier
@@ -865,7 +865,7 @@ private fun RowsContent(
                                     .height(containerHeight),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = tab.error, color = NuvioTheme.colors.TextSecondary)
+                                Text(text = tab.error, color = MoviesTheme.colors.TextSecondary)
                             }
                         }
                     }

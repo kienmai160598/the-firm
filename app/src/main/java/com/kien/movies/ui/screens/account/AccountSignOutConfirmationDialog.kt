@@ -18,9 +18,9 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.screens.settings.expressiveControl
 import com.kien.movies.ui.screens.settings.expressiveControlGrow
@@ -38,7 +38,7 @@ internal fun AccountSignOutConfirmationDialog(
         cancelFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.account_sign_out_confirm_title),
         subtitle = stringResource(R.string.account_sign_out_confirm_subtitle),
@@ -46,7 +46,7 @@ internal fun AccountSignOutConfirmationDialog(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
@@ -55,8 +55,8 @@ internal fun AccountSignOutConfirmationDialog(
                     .tvControlHeight()
                     .focusRequester(cancelFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape().expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -68,7 +68,7 @@ internal fun AccountSignOutConfirmationDialog(
                 onClick = onConfirm,
                 modifier = Modifier.weight(1f).tvControlHeight(),
                 colors = accountDestructiveColors(ButtonDefaults.colors(
-                    containerColor = NuvioPrimitives.red600.copy(alpha = 0.25f),
+                    containerColor = MoviesPrimitives.red600.copy(alpha = 0.25f),
                     contentColor = Color(0xFFF44336)
                 )),
                 shape = ButtonDefaults.shape().expressivePill(),

@@ -82,7 +82,7 @@ import com.kien.movies.core.tracking.TrackingRatingState
 import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.BlurTransformation
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
@@ -446,24 +446,24 @@ internal fun EpisodeOptionsOverlay(
                             }
                         ),
                     verticalArrangement = if (isNoneStyle) {
-                        Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                        Arrangement.spacedBy(MoviesTheme.spacing.lg)
                     } else {
-                        Arrangement.spacedBy(NuvioTheme.spacing.lg, Alignment.CenterVertically)
+                        Arrangement.spacedBy(MoviesTheme.spacing.lg, Alignment.CenterVertically)
                     }
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl),
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = episodeLabel,
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = NuvioTheme.colors.Primary
+                            color = MoviesTheme.colors.Primary
                         )
 
                         ratingLabel?.let { rating ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ImdbRatingSourceLabel(
@@ -544,7 +544,7 @@ internal fun EpisodeOptionsOverlay(
                                     }
                                 }
                                 .focusGroup(),
-                            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                         ) {
                             actions.forEachIndexed { index, action ->
                                 Button(

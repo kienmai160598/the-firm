@@ -25,7 +25,7 @@ import androidx.tv.material3.LocalTextStyle
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveRadii
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -214,7 +214,7 @@ internal fun expressiveCardScale(upstream: CardScale): CardScale =
         CardDefaults.scale(focusedScale = ExpressiveFocus.CONTROL_SCALE)
     }
 
-/** The corner of a dialog drawn by hand instead of through NuvioDialog. */
+/** The corner of a dialog drawn by hand instead of through MoviesDialog. */
 internal fun expressiveDialogShape(upstream: Shape): Shape =
     if (isExpressiveBuild) ExpressiveContainerShape else upstream
 

@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
@@ -108,7 +108,7 @@ import com.kien.movies.ui.components.TvReorderList
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
 import com.kien.movies.ui.components.TrackingAddonConsentDialog
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.ui.util.contentTextDirection
 import androidx.lifecycle.Lifecycle
@@ -261,7 +261,7 @@ private fun AddonManagerScreenBody(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(NuvioTheme.colors.Background),
+                .background(MoviesTheme.colors.Background),
             contentAlignment = Alignment.Center
         ) {
             LoadingIndicator()
@@ -518,7 +518,7 @@ private fun AddonManagerScreenBody(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
     ) {
         TvReorderList(
             items = uiState.installedAddons,
@@ -551,7 +551,7 @@ private fun AddonManagerScreenBody(
             Text(
                 text = stringResource(R.string.addon_title),
                 style = MaterialTheme.typography.headlineMedium,
-                color = if (showBuiltInHeader) NuvioTheme.colors.TextPrimary else Color.Transparent
+                color = if (showBuiltInHeader) MoviesTheme.colors.TextPrimary else Color.Transparent
             )
 
             if (viewModel.isReadOnly) {
@@ -560,13 +560,13 @@ private fun AddonManagerScreenBody(
                         colors = CardDefaults.cardColors(
                             containerColor = expressiveNoticeColor(Color(0xFF1A3A5C))
                         ),
-                        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                     ) {
                         Text(
                             text = stringResource(R.string.addon_readonly_notice),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = NuvioTheme.colors.TextSecondary,
-                            modifier = androidx.compose.ui.Modifier.padding(NuvioTheme.spacing.lg)
+                            color = MoviesTheme.colors.TextSecondary,
+                            modifier = androidx.compose.ui.Modifier.padding(MoviesTheme.spacing.lg)
                         )
                     }
             }
@@ -576,19 +576,19 @@ private fun AddonManagerScreenBody(
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateContentSize(),
-                        colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-                        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                        colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
+                        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Text(
                                 text = stringResource(R.string.addon_install_title),
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                             )
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 // Surface always stays in the tree for stable D-pad focus
@@ -598,28 +598,28 @@ private fun AddonManagerScreenBody(
                                         .weight(1f)
                                         .focusRequester(surfaceFocusRequester),
                                     colors = ClickableSurfaceDefaults.colors(
-                                        containerColor = NuvioTheme.colors.BackgroundElevated,
+                                        containerColor = MoviesTheme.colors.BackgroundElevated,
                                         focusedContainerColor = expressiveCardFocusFill(
-                                            NuvioTheme.colors.BackgroundElevated
+                                            MoviesTheme.colors.BackgroundElevated
                                         )
                                     ),
                                     border = ClickableSurfaceDefaults.border(
                                         border = Border(
-                                            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
+                                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                                         ),
                                         focusedBorder = Border(
-                                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                                         )
                                     ).expressiveRingless(),
                                     shape = ClickableSurfaceDefaults.shape(
-                                        RoundedCornerShape(NuvioTheme.radii.md)
+                                        RoundedCornerShape(MoviesTheme.radii.md)
                                     ).expressiveCard(),
                                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                                         .expressiveCardGrow()
                                 ) {
-                                    Box(modifier = Modifier.padding(NuvioTheme.spacing.md)) {
+                                    Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
                                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                                             BasicTextField(
                                                 value = uiState.installUrl,
@@ -649,17 +649,17 @@ private fun AddonManagerScreenBody(
                                                 textStyle = MaterialTheme.typography.bodyMedium
                                                     .bodyFloor()
                                                     .copy(
-                                                    color = NuvioTheme.colors.TextPrimary,
+                                                    color = MoviesTheme.colors.TextPrimary,
                                                 textDirection = TextDirection.Content
                                                 ),
-                                                cursorBrush = SolidColor(if (isEditing) NuvioTheme.colors.Primary else Color.Transparent),
+                                                cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
                                                 decorationBox = { innerTextField ->
                                                     if (uiState.installUrl.isEmpty()) {
                                                         Text(
                                                             text = stringResource(R.string.addon_install_placeholder),
                                                             style = MaterialTheme.typography
                                                                 .bodyMedium.bodyFloor(),
-                                                            color = NuvioTheme.colors.TextTertiary
+                                                            color = MoviesTheme.colors.TextTertiary
                                                         )
                                                     }
                                                     innerTextField()
@@ -682,12 +682,12 @@ private fun AddonManagerScreenBody(
                                         .semantics { role = Role.Button }
                                         .tvControlHeight(),
                                     colors = ButtonDefaults.colors(
-                                        containerColor = NuvioTheme.colors.BackgroundCard,
-                                        contentColor = NuvioTheme.colors.TextPrimary,
-                                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                                        focusedContentColor = NuvioTheme.colors.Primary
+                                        containerColor = MoviesTheme.colors.BackgroundCard,
+                                        contentColor = MoviesTheme.colors.TextPrimary,
+                                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                                        focusedContentColor = MoviesTheme.colors.Primary
                                     ).expressiveControl(primary = true),
-                                    shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                                    shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                                         .expressivePill(),
                                     border = ButtonDefaults.border().expressiveRingless(),
                                     scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -700,7 +700,7 @@ private fun AddonManagerScreenBody(
                                 Text(
                                     text = uiState.error.orEmpty(),
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = NuvioTheme.colors.Error,
+                                    color = MoviesTheme.colors.Error,
                                     modifier = Modifier.padding(top = 10.dp)
                                 )
                             }
@@ -777,11 +777,11 @@ private fun AddonManagerScreenBody(
                         Text(
                             text = stringResource(R.string.addon_installed_section),
                             style = MaterialTheme.typography.titleLarge.copy(textDirection = TextDirection.Content),
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                         )
-                        Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                         if (uiState.isLoading && uiState.installedAddons.isEmpty()) {
-                            LoadingIndicator(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                            LoadingIndicator(modifier = Modifier.height(MoviesTheme.spacing.xl))
                         }
                     }
 
@@ -789,7 +789,7 @@ private fun AddonManagerScreenBody(
                         Text(
                             text = stringResource(R.string.addon_empty),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -856,7 +856,7 @@ private fun AddonManagerScreenBody(
                 addonUrlPendingDeletion = null
                 pendingDeleteFocusRestore = AddonDeleteFocusRestore.Cancel(addonUrl)
             }
-            NuvioDialog(
+            MoviesDialog(
                 onDismiss = dismissDeleteDialog,
                 title = stringResource(R.string.addon_delete_confirm_title),
                 subtitle = stringResource(R.string.addon_delete_confirm_message),
@@ -864,7 +864,7 @@ private fun AddonManagerScreenBody(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.End)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
                 ) {
                     Button(
                         onClick = dismissDeleteDialog,
@@ -911,7 +911,7 @@ internal fun AddonMessageOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(NuvioTheme.spacing.xl),
+            .padding(MoviesTheme.spacing.xl),
         contentAlignment = Alignment.BottomCenter
     ) {
         AnimatedVisibility(
@@ -924,19 +924,19 @@ internal fun AddonMessageOverlay(
                 onClick = { },
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = if (isError) {
-                        NuvioPrimitives.red600.copy(alpha = 0.92f)
+                        MoviesPrimitives.red600.copy(alpha = 0.92f)
                     } else {
-                        NuvioPrimitives.green700.copy(alpha = 0.92f)
+                        MoviesPrimitives.green700.copy(alpha = 0.92f)
                     }
                 ),
                 shape = ClickableSurfaceDefaults.shape(
-                    RoundedCornerShape(NuvioTheme.radii.md)
+                    RoundedCornerShape(MoviesTheme.radii.md)
                 ).expressiveCard()
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = NuvioTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     Icon(
                         imageVector = if (isError) Icons.Default.Close else Icons.Default.Check,
@@ -975,12 +975,12 @@ private fun ManageFromPhoneCard(
             }
             .semantics { role = Role.Button },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
         ).expressiveRingless(),
@@ -999,19 +999,19 @@ private fun ManageFromPhoneCard(
                     imageVector = Icons.Default.QrCode2,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.addon_manage_from_phone_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -1019,7 +1019,7 @@ private fun ManageFromPhoneCard(
                 imageVector = Icons.Default.PhoneAndroid,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = NuvioTheme.colors.TextSecondary
+                tint = MoviesTheme.colors.TextSecondary
             )
         }
     }
@@ -1041,12 +1041,12 @@ private fun CatalogOrderEntryCard(
             .onFocusChanged { isFocused = it.isFocused }
             .semantics { role = Role.Button },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
         ).expressiveRingless(),
@@ -1065,19 +1065,19 @@ private fun CatalogOrderEntryCard(
                     imageVector = Icons.Default.Reorder,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.addon_reorder_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = stringResource(R.string.addon_reorder_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -1085,7 +1085,7 @@ private fun CatalogOrderEntryCard(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = NuvioTheme.colors.TextSecondary
+                tint = MoviesTheme.colors.TextSecondary
             )
         }
     }
@@ -1107,12 +1107,12 @@ private fun CollectionsEntryCard(
             .onFocusChanged { isFocused = it.isFocused }
             .semantics { role = Role.Button },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
         ).expressiveRingless(),
@@ -1131,19 +1131,19 @@ private fun CollectionsEntryCard(
                     imageVector = Icons.Default.FolderOpen,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.collections_card_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = stringResource(R.string.collections_card_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -1151,7 +1151,7 @@ private fun CollectionsEntryCard(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = NuvioTheme.colors.TextSecondary
+                tint = MoviesTheme.colors.TextSecondary
             )
         }
     }
@@ -1173,12 +1173,12 @@ private fun RefreshAddonsEntryCard(
             .onFocusChanged { isFocused = it.isFocused }
             .semantics { role = Role.Button },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
         ).expressiveRingless(),
@@ -1197,19 +1197,19 @@ private fun RefreshAddonsEntryCard(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.addon_refresh_action),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -1217,7 +1217,7 @@ private fun RefreshAddonsEntryCard(
                 imageVector = Icons.Default.Refresh,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = NuvioTheme.colors.TextSecondary
+                tint = MoviesTheme.colors.TextSecondary
             )
         }
     }
@@ -1256,11 +1256,11 @@ internal fun QrCodeOverlay(
             Text(
                 text = instruction,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             if (qrBitmap != null) {
                 Image(
@@ -1271,18 +1271,18 @@ internal fun QrCodeOverlay(
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             if (serverUrl != null) {
                 Text(
                     text = serverUrl,
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             Surface(
                 onClick = onClose,
@@ -1290,12 +1290,12 @@ internal fun QrCodeOverlay(
                     .focusRequester(focusRequester)
                     .semantics { role = Role.Button }.tvControlHeight(),
                 colors = ClickableSurfaceDefaults.colors(
-                    containerColor = NuvioTheme.colors.Surface,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    containerColor = MoviesTheme.colors.Surface,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground
                 ).expressiveControl(),
                 border = ClickableSurfaceDefaults.border(
                     focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                         shape = RoundedCornerShape(50)
                     )
                 ).expressiveRingless(),
@@ -1303,19 +1303,19 @@ internal fun QrCodeOverlay(
                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = null,
                         modifier = Modifier.size(buttonIconSize(18.dp)),
-                        tint = onControlColor(NuvioTheme.colors.TextPrimary)
+                        tint = onControlColor(MoviesTheme.colors.TextPrimary)
                     )
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.addon_qr_close),
-                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
                     )
                 }
@@ -1354,98 +1354,98 @@ internal fun ConfirmAddonChangesDialog(
                 .width(560.dp)
                 .heightIn(max = 640.dp),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = NuvioTheme.colors.SurfaceVariant
+                containerColor = MoviesTheme.colors.SurfaceVariant
             ),
             shape = ClickableSurfaceDefaults.shape(
-                expressivePanelShape(RoundedCornerShape(NuvioTheme.radii.xl))
+                expressivePanelShape(RoundedCornerShape(MoviesTheme.radii.xl))
             ).expressiveCard()
         ) {
             Column(
-                modifier = Modifier.padding(NuvioTheme.spacing.xl),
+                modifier = Modifier.padding(MoviesTheme.spacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = stringResource(R.string.addon_confirm_title),
                     style = MaterialTheme.typography.headlineSmall.copy(textDirection = TextDirection.Content),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Text(
                     text = stringResource(R.string.addon_confirm_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 320.dp)
                         .background(
-                            color = NuvioTheme.colors.Surface,
-                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                            color = MoviesTheme.colors.Surface,
+                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                         )
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(NuvioTheme.spacing.md)
+                            .padding(MoviesTheme.spacing.md)
                             .verticalScroll(scrollState)
                     ) {
                         if (pendingChange.addedUrls.isNotEmpty()) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_added),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.Success,
+                                color = MoviesTheme.colors.Success,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             pendingChange.addedUrls.forEach { url ->
                                 val displayName = pendingChange.addedNames[url] ?: url
                                 Text(
                                     text = "+ $displayName",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Success,
+                                    color = MoviesTheme.colors.Success,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (pendingChange.removedUrls.isNotEmpty()) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_removed),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.Error,
+                                color = MoviesTheme.colors.Error,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             pendingChange.removedUrls.forEach { url ->
                                 val displayName = pendingChange.removedNames[url] ?: url
                                 Text(
                                     text = "- $displayName",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Error,
+                                    color = MoviesTheme.colors.Error,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (pendingChange.catalogsReordered) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_catalog_reordered),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextSecondary,
+                                color = MoviesTheme.colors.TextSecondary,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 6.dp)
@@ -1456,64 +1456,64 @@ internal fun ConfirmAddonChangesDialog(
                             Text(
                                 text = stringResource(R.string.addon_confirm_catalogs_disabled),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.Error,
+                                color = MoviesTheme.colors.Error,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             pendingChange.disabledCatalogNames.forEach { name ->
                                 Text(
                                     text = "- $name",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Error,
+                                    color = MoviesTheme.colors.Error,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (pendingChange.enabledCatalogNames.isNotEmpty()) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_catalogs_enabled),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.Success,
+                                color = MoviesTheme.colors.Success,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             pendingChange.enabledCatalogNames.forEach { name ->
                                 Text(
                                     text = "+ $name",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Success,
+                                    color = MoviesTheme.colors.Success,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (pendingChange.collectionsChanged) {
                             Text(
                                 text = stringResource(R.string.addon_pending_collections_updated),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             Text(
                                 text = stringResource(R.string.addon_pending_collections_replace, pendingChange.proposedCollectionCount),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NuvioTheme.colors.TextSecondary,
+                                color = MoviesTheme.colors.TextSecondary,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                    .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                             )
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (
@@ -1527,7 +1527,7 @@ internal fun ConfirmAddonChangesDialog(
                             Text(
                                 text = stringResource(R.string.addon_confirm_no_changes),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
                         }
                     }
@@ -1536,34 +1536,34 @@ internal fun ConfirmAddonChangesDialog(
                 Text(
                     text = stringResource(R.string.addon_confirm_total_addons, pendingChange.proposedUrls.size),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
                     text = stringResource(R.string.addon_confirm_total_catalogs, pendingChange.proposedCatalogOrderKeys.size),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                 if (pendingChange.isApplying) {
                     LoadingIndicator(modifier = Modifier.size(36.dp))
                 } else {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                     ) {
                         Surface(
                             onClick = onReject,
                             modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = NuvioTheme.colors.Surface,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                                containerColor = MoviesTheme.colors.Surface,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground
                             ).expressiveControl(),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                     shape = RoundedCornerShape(50)
                                 )
                             ).expressiveRingless(),
@@ -1571,19 +1571,19 @@ internal fun ConfirmAddonChangesDialog(
                                 .expressivePill()
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = null,
                                     modifier = Modifier.size(buttonIconSize(18.dp)),
-                                    tint = onControlColor(NuvioTheme.colors.TextPrimary)
+                                    tint = onControlColor(MoviesTheme.colors.TextPrimary)
                                 )
-                                Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                                Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                                 Text(
                                     text = stringResource(R.string.addon_confirm_reject),
-                                    color = onControlColor(NuvioTheme.colors.TextPrimary),
+                                    color = onControlColor(MoviesTheme.colors.TextPrimary),
                                     style = LocalTextStyle.current.copy(textDirection = TextDirection.Content),
                                 )
                             }
@@ -1595,12 +1595,12 @@ internal fun ConfirmAddonChangesDialog(
                                 .focusRequester(focusRequester)
                                 .semantics { role = Role.Button }.tvControlHeight(),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = NuvioTheme.colors.Secondary,
-                                focusedContainerColor = NuvioTheme.colors.SecondaryVariant
+                                containerColor = MoviesTheme.colors.Secondary,
+                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant
                             ).expressiveControl(primary = true),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                     shape = RoundedCornerShape(50)
                                 )
                             ).expressiveRingless(),
@@ -1609,8 +1609,8 @@ internal fun ConfirmAddonChangesDialog(
                         ) {
                             Text(
                                 text = stringResource(R.string.addon_confirm_confirm),
-                                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
-                                color = onControlColor(NuvioTheme.colors.OnSecondary)
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                                color = onControlColor(MoviesTheme.colors.OnSecondary)
                             )
                         }
                     }
@@ -1644,17 +1644,17 @@ private fun AddonCard(
                 .fillMaxWidth()
                 .animateContentSize(),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.BackgroundCard)
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.BackgroundCard)
             ),
             border = ClickableSurfaceDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                 )
             ).expressiveRingless(),
             shape = ClickableSurfaceDefaults.shape(
-                RoundedCornerShape(NuvioTheme.radii.md)
+                RoundedCornerShape(MoviesTheme.radii.md)
             ).expressiveCard(),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
@@ -1665,19 +1665,19 @@ private fun AddonCard(
         val effectiveToggleFocusRequester = toggleFocusRequester ?: internalToggleFocusRequester
         val cardColor by animateColorAsState(
             targetValue = if (isMoving) {
-                NuvioTheme.colors.FocusBackground
+                MoviesTheme.colors.FocusBackground
             } else {
-                NuvioTheme.colors.BackgroundCard
+                MoviesTheme.colors.BackgroundCard
             },
             animationSpec = if (isExpressiveBuild) {
                 ExpressiveMotion.defaultEffects()
             } else {
-                com.kien.movies.ui.theme.NuvioMotion.focusTween()
+                com.kien.movies.ui.theme.MoviesMotion.focusTween()
             },
             label = "addonCardColor",
         )
         val cardBorder = if (isMoving && !isExpressiveBuild) {
-            BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.FocusRing)
+            BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.FocusRing)
         } else {
             null
         }
@@ -1690,7 +1690,7 @@ private fun AddonCard(
                     enter = { effectiveToggleFocusRequester }
                 },
             colors = CardDefaults.cardColors(containerColor = cardColor),
-            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md)),
+            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md)),
             border = cardBorder
         ) {
             AddonCardContent(
@@ -1737,7 +1737,7 @@ private fun AddonCardContent(
                 Text(
                     text = addon.displayName,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -1747,14 +1747,14 @@ private fun AddonCardContent(
                         Text(
                             text = "v${addon.version}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                     if (!addon.enabled) {
                         Text(
                             text = stringResource(R.string.addons_badge_disabled),
                             style = MaterialTheme.typography.labelSmall,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
@@ -1764,7 +1764,7 @@ private fun AddonCardContent(
                 // without this a screen reader hears only "switch, on".
                 val toggleLabel = stringResource(R.string.cd_enable_addon, addon.displayName)
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Surface(
@@ -1780,16 +1780,16 @@ private fun AddonCardContent(
                             },
                         colors = ClickableSurfaceDefaults.colors(
                             containerColor = Color.Transparent,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground
                         ),
                         border = ClickableSurfaceDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         ).expressiveRingless(),
                         shape = ClickableSurfaceDefaults.shape(
-                            RoundedCornerShape(NuvioTheme.radii.md)
+                            RoundedCornerShape(MoviesTheme.radii.md)
                         ).expressivePill(),
                         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                             .expressiveControlGrow()
@@ -1807,19 +1807,19 @@ private fun AddonCardContent(
                             enabled = isMoving || (canMove && actionsEnabled),
                             modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
                             colors = ButtonDefaults.colors(
-                                containerColor = if (isMoving) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
-                                contentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
-                                focusedContainerColor = if (isMoving) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
-                                focusedContentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Primary
+                                containerColor = if (isMoving) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
+                                contentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
+                                focusedContainerColor = if (isMoving) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
+                                focusedContentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Primary
                             ).expressiveChoice(selected = isMoving),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                                 ),
-                                focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                                focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                             ).reorderExpressive(),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                                 .expressivePill(),
                             scale = ButtonDefaults.scale().expressiveControlGrow()
                         ) {
@@ -1841,19 +1841,19 @@ private fun AddonCardContent(
                             .semantics { role = Role.Button }
                             .tvControlHeight(),
                         colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextSecondary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Error
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            contentColor = MoviesTheme.colors.TextSecondary,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Error
                         ).expressiveControl(),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             ),
-                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                         ).reorderExpressive(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                             .expressivePill(),
                         scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
@@ -1867,21 +1867,21 @@ private fun AddonCardContent(
         }
 
         if (!addon.description.isNullOrBlank()) {
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
             Text(
                 text = addon.description ?: "",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     textDirection = (addon.description ?: "").contentTextDirection()
                 ),
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
         Text(
             text = stringResource(R.string.addon_catalogs_types, addon.catalogs.size, addon.rawTypes.joinToString()),
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
     }
 }
@@ -1898,8 +1898,8 @@ internal fun ListToggleSwitch(checked: Boolean, focused: Boolean, enabled: Boole
         onCheckedChange = null,
         enabled = enabled,
         colors = SwitchDefaults.colors(
-            checkedThumbColor = NuvioTheme.colors.Secondary,
-            checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f)
+            checkedThumbColor = MoviesTheme.colors.Secondary,
+            checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f)
         )
     )
 }

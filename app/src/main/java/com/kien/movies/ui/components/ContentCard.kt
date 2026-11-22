@@ -75,7 +75,7 @@ import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.CachePolicy
@@ -295,7 +295,7 @@ fun ContentCard(
             builder.build()
         }
         val logoRequestHeightPx = remember(density) {
-            with(density) { NuvioTheme.spacing.xxxl.roundToPx() }
+            with(density) { MoviesTheme.spacing.xxxl.roundToPx() }
         }
         val logoModel = remember(item.logo, logoRequestWidthPx, logoRequestHeightPx) {
             item.logo?.let { logoUrl ->
@@ -310,7 +310,7 @@ fun ContentCard(
         var logoLoadFailed by remember(item.logo) { mutableStateOf(false) }
         val showExpandedLogo = !item.logo.isNullOrBlank() && !logoLoadFailed
 
-        val bgCardColor = NuvioTheme.colors.BackgroundCard
+        val bgCardColor = MoviesTheme.colors.BackgroundCard
         val backgroundPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
 
         Card(
@@ -395,7 +395,7 @@ fun ContentCard(
             ),
             border = posterFocusBorder(CardDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = cardShape
                 )
             )),
@@ -424,7 +424,7 @@ fun ContentCard(
                             .semantics { this.contentDescription = item.name }
                             .placeholderCardShimmer(
                                 shimmerOffsetState = effectivePlaceholderShimmerOffsetState,
-                                backgroundColor = NuvioTheme.colors.BackgroundCard
+                                backgroundColor = MoviesTheme.colors.BackgroundCard
                             )
                     )
                 } else if (!imageUrl.isNullOrBlank()) {
@@ -532,7 +532,7 @@ fun ContentCard(
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(start = NuvioTheme.spacing.md, end = NuvioTheme.spacing.md, bottom = NuvioTheme.spacing.md)
+                            .padding(start = MoviesTheme.spacing.md, end = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.md)
                             .fillMaxWidth(0.75f)
                     ) {
                         if (showExpandedLogo) {
@@ -541,7 +541,7 @@ fun ContentCard(
                                 contentDescription = item.name,
                                 onError = { logoLoadFailed = true },
                                 modifier = Modifier
-                                    .height(NuvioTheme.spacing.xxxl)
+                                    .height(MoviesTheme.spacing.xxxl)
                                     .fillMaxWidth(),
                                 contentScale = ContentScale.Fit,
                                 alignment = Alignment.CenterStart
@@ -589,7 +589,7 @@ fun ContentCard(
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
                             .height(baseCardHeight * 0.34f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = NuvioTheme.spacing.sm)
+                            .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.sm)
                             .zIndex(1.6f),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterStart
@@ -620,7 +620,7 @@ fun ContentCard(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = NuvioTheme.spacing.md)
+                            .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.md)
                             .zIndex(1.6f)
                     )
                 }
@@ -629,7 +629,7 @@ fun ContentCard(
                     WatchedMarker(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(end = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.sm)
+                            .padding(end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.sm)
                             .zIndex(2f)
                     )
                 }
@@ -644,7 +644,7 @@ fun ContentCard(
             Column(
                 modifier = Modifier
                     .then(if (isBackdropExpanded && !globalLandscape) Modifier.requiredWidth(expandedCardWidth) else Modifier.fillMaxWidth())
-                    .padding(top = NuvioTheme.spacing.sm)
+                    .padding(top = MoviesTheme.spacing.sm)
                     .then(
                         if (effectiveExpandEnabled) {
                             Modifier.defaultMinSize(minHeight = 60.dp)
@@ -671,7 +671,7 @@ fun ContentCard(
                             Text(
                                 text = metaTokens.joinToString("  •  "),
                                 style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                                color = NuvioTheme.extendedColors.textSecondary,
+                                color = MoviesTheme.extendedColors.textSecondary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f, fill = false)
@@ -683,7 +683,7 @@ fun ContentCard(
                                     text = "  •  ",
                                     style = MaterialTheme.typography.labelMedium
                                         .rememberMetaFloor(),
-                                    color = NuvioTheme.extendedColors.textSecondary
+                                    color = MoviesTheme.extendedColors.textSecondary
                                 )
                             }
                             Box(
@@ -691,12 +691,12 @@ fun ContentCard(
                                     
                                     .border(
                                         border = BorderStroke(
-                                            NuvioTheme.spacing.hairline,
-                                            NuvioTheme.extendedColors.textSecondary.copy(alpha = 0.55f)
+                                            MoviesTheme.spacing.hairline,
+                                            MoviesTheme.extendedColors.textSecondary.copy(alpha = 0.55f)
                                         ),
                                         shape = RoundedCornerShape(4.dp)
                                     )
-                                    .padding(horizontal = NuvioTheme.spacing.sm, vertical = 2.dp),
+                                    .padding(horizontal = MoviesTheme.spacing.sm, vertical = 2.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -704,20 +704,20 @@ fun ContentCard(
                                     style = MaterialTheme.typography.labelSmall
                                         .rememberMetaFloor()
                                         .copy(fontWeight = FontWeight.SemiBold),
-                                    color = NuvioTheme.extendedColors.textSecondary,
+                                    color = MoviesTheme.extendedColors.textSecondary,
                                     maxLines = 1
                                 )
                             }
                         }
                     }
                     item.description?.takeIf { it.isNotBlank() }?.let { description ->
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                         Text(
                             text = description,
                             style = MaterialTheme.typography.bodySmall.rememberMetaFloor().copy(
                                 textDirection = description.contentTextDirection()
                             ),
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -729,7 +729,7 @@ fun ContentCard(
                         text = item.name,
                         focused = isFocused,
                         style = MaterialTheme.typography.titleMedium,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                     item.releaseInfo?.let { info ->
                         Spacer(modifier = Modifier.height(2.dp))
@@ -737,7 +737,7 @@ fun ContentCard(
                             text = info,
                             focused = isFocused,
                             style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                            color = NuvioTheme.extendedColors.textSecondary,
+                            color = MoviesTheme.extendedColors.textSecondary,
                         )
                     }
                     if (effectiveExpandEnabled) {

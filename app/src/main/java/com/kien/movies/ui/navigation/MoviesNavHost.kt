@@ -1,6 +1,6 @@
 package com.kien.movies.ui.navigation
 
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.components.PlaybackAvailabilityProvider
 import com.kien.movies.ui.components.LocalPlaybackAvailability
 import com.kien.movies.ui.components.canStream
@@ -75,7 +75,7 @@ import com.kien.movies.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.kien.movies.ui.screens.home.HeroBackdropState
 
 @Composable
-fun NuvioNavHost(
+fun MoviesNavHost(
     navController: NavHostController,
     startDestination: String = Screen.Home.route,
     hideBuiltInHeaders: Boolean = false,
@@ -169,7 +169,7 @@ private fun PlaybackNavHost(
             if (isStreamToPlayer(from, to) && isAutoPlayNav) {
                 EnterTransition.None
             } else {
-                fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.medium))
+                fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.medium))
             }
         },
         exitTransition = {
@@ -181,9 +181,9 @@ private fun PlaybackNavHost(
             if (isStreamToPlayer(from, to) && isAutoPlayNav) {
                 ExitTransition.None
             } else if (isLeavingFramedHeroTrailer()) {
-                fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.medium), targetAlpha = 1f)
+                fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.medium), targetAlpha = 1f)
             } else {
-                fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.medium))
+                fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.medium))
             }
         },
         popEnterTransition = {
@@ -195,7 +195,7 @@ private fun PlaybackNavHost(
             if (isPlayerToStream(from, to) && isAutoPlayNav) {
                 EnterTransition.None
             } else {
-                fadeIn(animationSpec = tween(NuvioMotion.tokens.durations.medium))
+                fadeIn(animationSpec = tween(MoviesMotion.tokens.durations.medium))
             }
         },
         popExitTransition = {
@@ -207,7 +207,7 @@ private fun PlaybackNavHost(
             if (isPlayerToStream(from, to) && isAutoPlayNav) {
                 ExitTransition.None
             } else {
-                fadeOut(animationSpec = tween(NuvioMotion.tokens.durations.medium))
+                fadeOut(animationSpec = tween(MoviesMotion.tokens.durations.medium))
             }
         }
     ) {
@@ -1391,7 +1391,7 @@ private fun PlaybackNavHost(
             )
         }
 
-        if (AppFeaturePolicy.supportNuvioEnabled) {
+        if (AppFeaturePolicy.supportMoviesEnabled) {
             composable(Screen.SupportersContributors.route) {
                 SupportersContributorsScreen(
                     onBackPress = { navController.popBackStack() }

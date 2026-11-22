@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -96,7 +96,7 @@ fun LayoutSettingsContent(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 18.dp),
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                     ) {
                         items(items = sections, key = { it.name }) { section ->
                             val expanded = section.name in expandedSections

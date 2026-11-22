@@ -6,7 +6,7 @@
 
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.AnimationSpec
@@ -716,7 +716,7 @@ fun ModernHomeContent(
     val screenHeight = localConfiguration.screenHeightDp.dp
 
     val backgroundTrailerController = LocalBackgroundTrailerController.current
-    val rootBackgroundColor = NuvioTheme.colors.Background
+    val rootBackgroundColor = MoviesTheme.colors.Background
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1043,7 +1043,7 @@ fun ModernHomeContent(
             val rowTitleHeight = remember(rowTitleLineHeight, localDensity) {
                 with(localDensity) {
                     runCatching { rowTitleLineHeight.toDp() }
-                        .getOrDefault(NuvioTheme.spacing.xl)
+                        .getOrDefault(MoviesTheme.spacing.xl)
                 }
             }
             val heroBackdropHeight = remember(screenHeight, rowsViewportHeight, rowTitleHeight) { (screenHeight - rowsViewportHeight + rowTitleHeight + 14.dp).coerceAtMost(screenHeight) }
@@ -1079,7 +1079,7 @@ fun ModernHomeContent(
                 if (fullScreenBackdrop) {
                     Modifier.align(Alignment.TopStart).fillMaxWidth().height(screenHeight)
                 } else {
-                    Modifier.align(Alignment.TopEnd).offset(x = NuvioTheme.spacing.huge).fillMaxWidth(MODERN_HERO_MEDIA_WIDTH_FRACTION).height(heroBackdropHeight)
+                    Modifier.align(Alignment.TopEnd).offset(x = MoviesTheme.spacing.huge).fillMaxWidth(MODERN_HERO_MEDIA_WIDTH_FRACTION).height(heroBackdropHeight)
                 }
             }
 
@@ -1129,7 +1129,7 @@ fun ModernHomeContent(
             val heroMetadataModifier = remember(rowHorizontalPadding, rowsViewportHeight) {
                 Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = rowHorizontalPadding, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.none + rowsViewportHeight + NuvioTheme.spacing.lg)
+                    .padding(start = rowHorizontalPadding, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.none + rowsViewportHeight + MoviesTheme.spacing.lg)
                     .fillMaxWidth(MODERN_HERO_TEXT_WIDTH_FRACTION)
             }
 
@@ -1208,7 +1208,7 @@ fun ModernHomeContent(
                 onFastScrollingChanged = onFastScrollingChangedLambda,
                 contentFocusRequester = contentFocusRequester,
                 rowsViewportHeight = rowsViewportHeight,
-                catalogBottomPadding = NuvioTheme.spacing.none,
+                catalogBottomPadding = MoviesTheme.spacing.none,
                 verticalRowBringIntoViewSpec = verticalRowBringIntoViewSpec,
                 onRowItemFocusedInternal = onRowItemFocusedInternalLambda,
                 onNavigateToDetail = onNavigateToDetail,
@@ -1326,7 +1326,7 @@ private fun ModernHeroSection(
     onFirstFrameRendered: () -> Unit
 ) {
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
-    val bgColor = NuvioTheme.colors.Background
+    val bgColor = MoviesTheme.colors.Background
     ModernHeroScene(
         state = heroSceneState,
         isFullScreen = isFullScreen,

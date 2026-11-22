@@ -519,7 +519,7 @@ internal object AutomaticSubtitleSync {
                     )
 
             // Put the selected subtitle into the same pool. It remains eligible, but is no
-            // longer privileged merely because Nuvio auto-selected it.
+            // longer privileged merely because Movies auto-selected it.
             alternatives = (alternatives + selectedCandidateMetadata)
                 .distinctBy { it.url }
 

@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicReference
  * ([arm]); when it keeps the subtitle's original timing (no embedded subtitles, no usable
  * reference, or a weak match) the audio takes over ([takeOver]); otherwise nothing more is done
  * ([disarm]). The mapping found is applied by retiming the cues the player's sidecar shows, the
- * same way AutoSync applies its own result, so Nuvio's subtitle rendering is untouched. When the
+ * same way AutoSync applies its own result, so Movies's subtitle rendering is untouched. When the
  * sidecar moves on (another subtitle or track), the fallback stops on its own.
  *
  * With the mpv engine ([player] is null) no audio passes through ExoPlayer, so the film is heard
@@ -513,7 +513,7 @@ internal class AudioSyncFallback private constructor(
         private val allSubtitles = WeakHashMap<PlayerRuntimeController, Pair<String?, List<Subtitle>>>()
 
         /**
-         * The add-on subtitles found for [runtime]'s current title before Nuvio hides languages
+         * The add-on subtitles found for [runtime]'s current title before Movies hides languages
          * the user didn't ask for; the audio sync still uses those as references.
          */
         fun offerSubtitles(runtime: PlayerRuntimeController, subtitles: List<Subtitle>) {

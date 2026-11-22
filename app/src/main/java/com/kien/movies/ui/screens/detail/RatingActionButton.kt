@@ -50,8 +50,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.expressiveFocusScale
 import kotlin.math.PI
@@ -95,22 +95,22 @@ internal fun RatingActionButton(
             },
         shape = ClickableSurfaceDefaults.shape(shape = CircleShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = forBuild(NuvioTheme.colors.BackgroundCard, ExpressiveColors.frosted),
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary
+            containerColor = forBuild(MoviesTheme.colors.BackgroundCard, ExpressiveColors.frosted),
+            focusedContainerColor = MoviesTheme.colors.Secondary,
+            contentColor = MoviesTheme.colors.TextPrimary,
+            focusedContentColor = MoviesTheme.colors.OnSecondary
         ),
         scale = ClickableSurfaceScale.None
     ) {
         Row(
             modifier = Modifier
-                .height(NuvioTheme.spacing.xxxl)
-                .defaultMinSize(minWidth = NuvioTheme.spacing.xxxl)
+                .height(MoviesTheme.spacing.xxxl)
+                .defaultMinSize(minWidth = MoviesTheme.spacing.xxxl)
                 .animateContentSize(
                     animationSpec = fastSpatialSpec(
                         tween(
-                            durationMillis = NuvioMotion.tokens.durations.fast,
-                            easing = NuvioMotion.tokens.easings.standard
+                            durationMillis = MoviesMotion.tokens.durations.fast,
+                            easing = MoviesMotion.tokens.easings.standard
                         )
                     )
                 )
@@ -121,9 +121,9 @@ internal fun RatingActionButton(
             Icon(
                 imageVector = if (rated) Icons.Rounded.Star else Icons.Rounded.StarOutline,
                 contentDescription = null,
-                tint = if (rated && !focused) NuvioTheme.colors.Secondary else LocalContentColor.current,
+                tint = if (rated && !focused) MoviesTheme.colors.Secondary else LocalContentColor.current,
                 modifier = Modifier
-                    .size(NuvioTheme.spacing.xl)
+                    .size(MoviesTheme.spacing.xl)
                     .graphicsLayer {
                         val progress = twirl.value
                         val pop = 1f + 0.3f * sin(PI * progress.coerceIn(0f, 1f)).toFloat()

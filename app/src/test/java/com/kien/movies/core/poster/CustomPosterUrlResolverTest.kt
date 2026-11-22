@@ -61,10 +61,10 @@ class CustomPosterUrlResolverTest {
         assertEquals("tt0137523", ids.imdbId)
     }
 
-    // ── Nuvio native placeholders ───────────────────────────────────────
+    // ── Movies native placeholders ───────────────────────────────────────
 
     @Test
-    fun `resolve Nuvio native pattern with IMDb id`() {
+    fun `resolve Movies native pattern with IMDb id`() {
         val ids = CustomPosterUrlResolver.extractIds("tt0137523")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}",
@@ -74,7 +74,7 @@ class CustomPosterUrlResolverTest {
     }
 
     @Test
-    fun `resolve Nuvio native pattern with TMDB id`() {
+    fun `resolve Movies native pattern with TMDB id`() {
         val ids = CustomPosterUrlResolver.extractIds("tmdb:1396")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}",
@@ -84,7 +84,7 @@ class CustomPosterUrlResolverTest {
     }
 
     @Test
-    fun `resolve Nuvio native pattern with Kitsu id`() {
+    fun `resolve Movies native pattern with Kitsu id`() {
         val ids = CustomPosterUrlResolver.extractIds("kitsu:7442")
         val url = CustomPosterUrlResolver.resolve(
             "https://example.com/poster?id={id}&id_type={id_type}&type={type}",

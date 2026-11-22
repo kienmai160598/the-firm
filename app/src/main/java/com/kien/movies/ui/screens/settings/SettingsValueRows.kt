@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 
 import android.view.KeyEvent
@@ -206,7 +206,7 @@ private fun SliderSettingsItemLayout(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = SettingsRowContentInset, vertical = NuvioTheme.spacing.md)
+                .padding(horizontal = SettingsRowContentInset, vertical = MoviesTheme.spacing.md)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -216,17 +216,17 @@ private fun SliderSettingsItemLayout(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = settingsRowText(NuvioTheme.colors.TextPrimary, contentAlpha),
+                        color = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (subtitle != null) {
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
                             color = settingsRowText(
-                                NuvioTheme.colors.TextSecondary,
+                                MoviesTheme.colors.TextSecondary,
                                 contentAlpha,
                                 SETTINGS_SECONDARY_TEXT_ALPHA
                             ),
@@ -236,12 +236,12 @@ private fun SliderSettingsItemLayout(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
 
                 Text(
                     text = valueText.keepLtr(),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = settingsRowText(NuvioTheme.colors.Primary, contentAlpha)
+                    color = settingsRowText(MoviesTheme.colors.Primary, contentAlpha)
                 )
             }
 
@@ -249,7 +249,7 @@ private fun SliderSettingsItemLayout(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 SliderStepButton(
@@ -307,14 +307,14 @@ private fun SliderStepButton(
         colors = if (isExpressiveBuild) {
             CardDefaults.colors(
                 containerColor = ink.copy(alpha = STEP_BUTTON_FILL_ALPHA),
-                focusedContainerColor = NuvioTheme.colors.Secondary
+                focusedContainerColor = MoviesTheme.colors.Secondary
             )
         } else CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
+            containerColor = MoviesTheme.colors.Background,
             focusedContainerColor = if (flat) {
                 settingsFocusFillColor()
             } else {
-                NuvioTheme.colors.Secondary
+                MoviesTheme.colors.Secondary
             }
         ),
         border = settingsRowBorder(),
@@ -330,10 +330,10 @@ private fun SliderStepButton(
                 contentDescription = contentDescription,
                 tint = when {
                     isExpressiveBuild && !isFocused -> ink
-                    isExpressiveBuild -> NuvioTheme.colors.OnSecondary
-                    !isFocused -> NuvioTheme.colors.TextPrimary
-                    flat -> NuvioTheme.colors.TextPrimary
-                    else -> NuvioTheme.colors.OnSecondary
+                    isExpressiveBuild -> MoviesTheme.colors.OnSecondary
+                    !isFocused -> MoviesTheme.colors.TextPrimary
+                    flat -> MoviesTheme.colors.TextPrimary
+                    else -> MoviesTheme.colors.OnSecondary
                 }.copy(alpha = contentAlpha),
                 modifier = Modifier.size(20.dp)
             )
@@ -374,19 +374,19 @@ internal fun ColorSettingsItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 62.dp)
-                .padding(horizontal = SettingsRowContentInset, vertical = NuvioTheme.spacing.md),
+                .padding(horizontal = SettingsRowContentInset, vertical = MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = settingsRowText(NuvioTheme.colors.TextPrimary, contentAlpha),
+                color = settingsRowText(MoviesTheme.colors.TextPrimary, contentAlpha),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
 
             if (showTransparent || currentColor.alpha == 0f) {
                 Box(
@@ -394,7 +394,7 @@ internal fun ColorSettingsItem(
                         .size(28.dp)
                         .clip(CircleShape)
                         .background(Color.Gray)
-                        .border(NuvioTheme.spacing.xxs, NuvioTheme.colors.Border, CircleShape)
+                        .border(MoviesTheme.spacing.xxs, MoviesTheme.colors.Border, CircleShape)
                 ) {
                     Box(
                         modifier = Modifier
@@ -408,7 +408,7 @@ internal fun ColorSettingsItem(
                         .size(28.dp)
                         .clip(CircleShape)
                         .background(currentColor)
-                        .border(NuvioTheme.spacing.xxs, NuvioTheme.colors.Border, CircleShape)
+                        .border(MoviesTheme.spacing.xxs, MoviesTheme.colors.Border, CircleShape)
                 )
             }
         }
@@ -420,4 +420,4 @@ private const val STEP_BUTTON_FILL_ALPHA = 0.14f
 /** A step button's content on the box build: black while its row is focused and white. */
 @Composable
 private fun sliderStepInk(rowFocused: Boolean): Color =
-    if (rowFocused) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextPrimary
+    if (rowFocused) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextPrimary

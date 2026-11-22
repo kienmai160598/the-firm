@@ -2,8 +2,8 @@
 
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -113,14 +113,14 @@ private fun CatalogOrderScreenBody(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background),
+            .background(MoviesTheme.colors.Background),
     ) {
         when {
             uiState.isLoading -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl),
+                        .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
                 ) {
                     CatalogOrderHeader(
                         followAddonsOrder = uiState.followAddonsOrder,
@@ -142,7 +142,7 @@ private fun CatalogOrderScreenBody(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl),
+                        .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
                 ) {
                     CatalogOrderHeader(
                         followAddonsOrder = uiState.followAddonsOrder,
@@ -152,7 +152,7 @@ private fun CatalogOrderScreenBody(
                     Text(
                         text = stringResource(R.string.catalog_order_empty),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                     )
                 }
             }
@@ -175,10 +175,10 @@ private fun CatalogOrderScreenBody(
                     modifier = Modifier.fillMaxSize(),
                     scrollState = reorderScrollState,
                     contentPadding = PaddingValues(
-                        start = NuvioTheme.spacing.xxxl,
-                        end = NuvioTheme.spacing.xxxl,
-                        top = NuvioTheme.spacing.xl,
-                        bottom = NuvioTheme.spacing.xxxl,
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xxxl,
+                        top = MoviesTheme.spacing.xl,
+                        bottom = MoviesTheme.spacing.xxxl,
                     ),
                     header = {
                         CatalogOrderHeader(
@@ -220,31 +220,31 @@ private fun CatalogOrderScreenBody(
             exit = fadeOut(),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl),
+                .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
         ) {
             val visibleMessage = pinnedNoticeMessage ?: return@AnimatedVisibility
             Surface(
-                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md)),
-                colors = SurfaceDefaults.colors(containerColor = NuvioTheme.colors.BackgroundElevated),
+                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md)),
+                colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundElevated),
                 border = Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md),
+                    border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
+                    shape = RoundedCornerShape(MoviesTheme.radii.md),
                 ).let { if (isExpressiveBuild) Border.None else it },
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = NuvioTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Lock,
                         contentDescription = null,
-                        tint = NuvioTheme.colors.Secondary,
+                        tint = MoviesTheme.colors.Secondary,
                     )
                     Text(
                         text = visibleMessage,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                 }
             }
@@ -262,15 +262,15 @@ private fun CatalogOrderHeader(
     Text(
         text = stringResource(R.string.catalog_order_title),
         style = MaterialTheme.typography.headlineLarge,
-        color = NuvioTheme.colors.TextPrimary,
+        color = MoviesTheme.colors.TextPrimary,
     )
-    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
     Text(
         text = stringResource(R.string.catalog_order_subtitle),
         style = MaterialTheme.typography.bodyMedium,
-        color = NuvioTheme.colors.TextSecondary,
+        color = MoviesTheme.colors.TextSecondary,
     )
-    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -280,12 +280,12 @@ private fun CatalogOrderHeader(
             Text(
                 text = stringResource(R.string.catalog_order_follow_addons),
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
             )
             Text(
                 text = stringResource(R.string.catalog_order_follow_addons_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
             )
         }
         Surface(
@@ -300,16 +300,16 @@ private fun CatalogOrderHeader(
             },
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = Color.Transparent,
-                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                focusedContainerColor = MoviesTheme.colors.FocusBackground
             ),
             border = ClickableSurfaceDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                 )
             ).expressiveRingless(),
             shape = ClickableSurfaceDefaults.shape(
-                RoundedCornerShape(NuvioTheme.radii.md)
+                RoundedCornerShape(MoviesTheme.radii.md)
             ).expressivePill(),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
         ) {
@@ -325,7 +325,7 @@ private fun CatalogOrderHeader(
             }
         }
     }
-    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
     }
 }
 
@@ -341,19 +341,19 @@ private fun CatalogOrderCard(
 ) {
     val cardColor by animateColorAsState(
         targetValue = if (isMoving) {
-            NuvioTheme.colors.FocusBackground
+            MoviesTheme.colors.FocusBackground
         } else {
-            NuvioTheme.colors.BackgroundCard
+            MoviesTheme.colors.BackgroundCard
         },
         animationSpec = if (isExpressiveBuild) {
             ExpressiveMotion.defaultEffects()
         } else {
-            NuvioMotion.focusTween()
+            MoviesMotion.focusTween()
         },
         label = "catalogOrderCardColor",
     )
     val cardBorder = if (isMoving && !isExpressiveBuild) {
-        BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.FocusRing)
+        BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.FocusRing)
     } else {
         null
     }
@@ -362,7 +362,7 @@ private fun CatalogOrderCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = cardColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md)),
         border = cardBorder,
     ) {
         Row(
@@ -375,15 +375,15 @@ private fun CatalogOrderCard(
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             ) {
                 Column {
                     Text(
                         text = "${item.catalogName} - ${item.typeLabel.toDisplayTypeLabel()}",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = if (item.isDisabled) NuvioTheme.colors.TextSecondary else NuvioTheme.colors.TextPrimary
+                        color = if (item.isDisabled) MoviesTheme.colors.TextSecondary else MoviesTheme.colors.TextPrimary
                     )
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                     val subtitle = if (item.isPinnedToTop) {
                         "${item.addonName} • ${stringResource(R.string.catalog_order_pinned_to_top)}"
                     } else {
@@ -392,21 +392,21 @@ private fun CatalogOrderCard(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                     if (item.isDisabled) {
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                         Text(
                             text = stringResource(R.string.catalog_order_disabled_on_home),
                             style = MaterialTheme.typography.bodySmall,
-                            color = NuvioTheme.colors.Error
+                            color = MoviesTheme.colors.Error
                         )
                     }
                 }
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val toggleLabel = stringResource(
@@ -423,16 +423,16 @@ private fun CatalogOrderCard(
                     },
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = Color.Transparent,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ),
                     border = ClickableSurfaceDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         )
                     ).expressiveRingless(),
                     shape = ClickableSurfaceDefaults.shape(
-                        RoundedCornerShape(NuvioTheme.radii.md)
+                        RoundedCornerShape(MoviesTheme.radii.md)
                     ).expressivePill(),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                         .expressiveControlGrow()
@@ -450,19 +450,19 @@ private fun CatalogOrderCard(
                         enabled = actionsEnabled,
                         modifier = Modifier.tvControlHeight(),
                         colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextSecondary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            contentColor = MoviesTheme.colors.TextSecondary,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Primary
                         ).expressiveControl(),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             ),
-                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                         ).reorderExpressive(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                             .expressivePill(),
                         scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
@@ -478,27 +478,27 @@ private fun CatalogOrderCard(
                         modifier = Modifier.tvControlHeight(),
                         colors = if (isMoving) {
                             ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.Secondary,
-                                contentColor = NuvioTheme.colors.OnSecondary,
-                                focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                                focusedContentColor = NuvioTheme.colors.OnSecondary,
+                                containerColor = MoviesTheme.colors.Secondary,
+                                contentColor = MoviesTheme.colors.OnSecondary,
+                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                                focusedContentColor = MoviesTheme.colors.OnSecondary,
                             )
                         } else {
                             ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundCard,
-                                contentColor = NuvioTheme.colors.TextSecondary,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                                focusedContentColor = NuvioTheme.colors.Primary
+                                containerColor = MoviesTheme.colors.BackgroundCard,
+                                contentColor = MoviesTheme.colors.TextSecondary,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                                focusedContentColor = MoviesTheme.colors.Primary
                             )
                         }.expressiveChoice(selected = isMoving),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             ),
-                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                         ).reorderExpressive(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                             .expressivePill(),
                         scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {

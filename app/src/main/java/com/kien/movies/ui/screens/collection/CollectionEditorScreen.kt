@@ -8,7 +8,7 @@ import com.kien.movies.ui.components.expressiveButtonShape
 import com.kien.movies.ui.components.expressiveOptionCardBorder
 import com.kien.movies.ui.components.expressiveOptionCardColors
 import com.kien.movies.ui.components.expressiveOptionCardShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
@@ -95,7 +95,7 @@ import com.kien.movies.domain.model.TmdbCollectionSort
 import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TmdbCollectionSourceType
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
 import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
@@ -238,10 +238,10 @@ fun CollectionEditorScreen(
         ensureComposedKey = ensureComposedFolderId,
         rowHeightCache = folderRowHeightCache,
         contentPadding = PaddingValues(
-            top = NuvioTheme.spacing.xxxl,
-            start = NuvioTheme.spacing.xxxl,
-            end = NuvioTheme.spacing.xxxl,
-            bottom = NuvioTheme.spacing.xxxl
+            top = MoviesTheme.spacing.xxxl,
+            start = MoviesTheme.spacing.xxxl,
+            end = MoviesTheme.spacing.xxxl,
+            bottom = MoviesTheme.spacing.xxxl
         ),
         header = {
             Column {
@@ -250,43 +250,43 @@ fun CollectionEditorScreen(
                     style = MaterialTheme.typography.headlineMedium
                         .screenTitleFloor()
                         .copy(textDirection = TextDirection.Content),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                 Text(
                     text = stringResource(R.string.collections_editor_row_title),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusEntryTarget(titleFocusRequester),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    NuvioTextField(
+                    MoviesTextField(
                         value = uiState.title,
                         onValueChange = { viewModel.setTitle(it) },
                         modifier = Modifier.weight(1f),
                         placeholder = stringResource(R.string.collections_editor_placeholder_name),
                         focusRequester = titleFocusRequester
                     )
-                    NuvioButton(onClick = { viewModel.save { onBack() } }, enabled = uiState.canSaveCollection) {
+                    MoviesButton(onClick = { viewModel.save { onBack() } }, enabled = uiState.canSaveCollection) {
                         Text(stringResource(R.string.collections_editor_save))
                     }
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Text(
                     text = stringResource(R.string.collections_editor_backdrop),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
-                NuvioTextField(
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                MoviesTextField(
                     value = uiState.backdropImageUrl,
                     onValueChange = { viewModel.setBackdropImageUrl(it) },
                     modifier = Modifier
@@ -294,7 +294,7 @@ fun CollectionEditorScreen(
                         .blockHorizontalFocus(),
                     placeholder = stringResource(R.string.collections_editor_placeholder_backdrop)
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Card(
                     onClick = { viewModel.setPinToTop(!uiState.pinToTop) },
@@ -306,17 +306,17 @@ fun CollectionEditorScreen(
                             toggleableState = if (uiState.pinToTop) ToggleableState.On else ToggleableState.Off
                         },
                     colors = expressiveOptionCardColors(CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     )),
                     border = expressiveOptionCardBorder(CardDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         )
                     )),
                     shape = expressiveOptionCardShape(
-                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1.02f)
                 ) {
@@ -331,29 +331,29 @@ fun CollectionEditorScreen(
                             Text(
                                 text = stringResource(R.string.collections_editor_pin_above),
                                 style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                             )
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_pin_above_desc),
                                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
                         }
-                        Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                         Switch(
                             checked = uiState.pinToTop,
                             onCheckedChange = null,
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = NuvioTheme.colors.Secondary,
-                                checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f),
-                                uncheckedThumbColor = NuvioTheme.colors.TextSecondary,
-                                uncheckedTrackColor = NuvioTheme.colors.BackgroundCard
+                                checkedThumbColor = MoviesTheme.colors.Secondary,
+                                checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
+                                uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
+                                uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
                             )
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Card(
                     onClick = { viewModel.setFocusGlowEnabled(!uiState.focusGlowEnabled) },
@@ -365,17 +365,17 @@ fun CollectionEditorScreen(
                             toggleableState = if (uiState.focusGlowEnabled) ToggleableState.On else ToggleableState.Off
                         },
                     colors = expressiveOptionCardColors(CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     )),
                     border = expressiveOptionCardBorder(CardDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         )
                     )),
                     shape = expressiveOptionCardShape(
-                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1.02f)
                 ) {
@@ -390,36 +390,36 @@ fun CollectionEditorScreen(
                             Text(
                                 text = stringResource(R.string.collections_editor_focus_glow),
                                 style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                             )
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_editor_focus_glow_desc),
                                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
                         }
-                        Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                         Switch(
                             checked = uiState.focusGlowEnabled,
                             onCheckedChange = null,
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = NuvioTheme.colors.Secondary,
-                                checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f),
-                                uncheckedThumbColor = NuvioTheme.colors.TextSecondary,
-                                uncheckedTrackColor = NuvioTheme.colors.BackgroundCard
+                                checkedThumbColor = MoviesTheme.colors.Secondary,
+                                checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
+                                uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
+                                uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
                             )
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Text(
                     text = stringResource(R.string.collections_editor_view_mode),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 val viewModeFocusRequesters = remember {
                     FolderViewMode.entries.associateWith { FocusRequester() }
                 }
@@ -427,7 +427,7 @@ fun CollectionEditorScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusEntryTarget(viewModeFocusRequesters[uiState.viewMode] ?: FocusRequester.Default),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     val viewModes = listOf(
                         FolderViewMode.TABBED_GRID to stringResource(R.string.collections_editor_view_mode_tabs),
@@ -445,23 +445,23 @@ fun CollectionEditorScreen(
                                     selected = isSelected
                                 }.tvControlHeight(),
                             colors = expressiveButtonColors(ButtonDefaults.colors(
-                                containerColor = if (isSelected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
-                                contentColor = if (isSelected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                                focusedContentColor = NuvioTheme.colors.Primary
+                                containerColor = if (isSelected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
+                                contentColor = if (isSelected) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                                focusedContentColor = MoviesTheme.colors.Primary
                             ), selected = isSelected),
                             border = expressiveButtonBorder(ButtonDefaults.border(
                                 border = if (isSelected) Border(
-                                    border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
-                                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                    border = BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.Secondary),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                                 ) else Border.None,
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                                 )
                             )),
                             shape = expressiveButtonShape(
-                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                                ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                             ),
                             scale = expressiveButtonScale(ButtonDefaults.scale())
                         ) {
@@ -469,7 +469,7 @@ fun CollectionEditorScreen(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             if (uiState.viewMode == FolderViewMode.TABBED_GRID) {
                     Card(
@@ -482,17 +482,17 @@ fun CollectionEditorScreen(
                                 toggleableState = if (uiState.showAllTab) ToggleableState.On else ToggleableState.Off
                             },
                         colors = expressiveOptionCardColors(CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground
                         )),
                         border = expressiveOptionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         )),
                         shape = expressiveOptionCardShape(
-                            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                         ),
                         scale = CardDefaults.scale(focusedScale = 1.02f)
                     ) {
@@ -507,29 +507,29 @@ fun CollectionEditorScreen(
                                 Text(
                                     text = stringResource(R.string.collections_editor_show_all_tab),
                                     style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                                    color = NuvioTheme.colors.TextPrimary,
+                                    color = MoviesTheme.colors.TextPrimary,
                                 )
-                                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                                 Text(
                                     text = stringResource(R.string.collections_editor_show_all_tab_desc),
                                     style = MaterialTheme.typography.bodySmall.metaFloor(),
-                                    color = NuvioTheme.colors.TextSecondary
+                                    color = MoviesTheme.colors.TextSecondary
                                 )
                             }
-                            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                             Switch(
                                 checked = uiState.showAllTab,
                                 onCheckedChange = null,
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = NuvioTheme.colors.Secondary,
-                                    checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f),
-                                    uncheckedThumbColor = NuvioTheme.colors.TextSecondary,
-                                    uncheckedTrackColor = NuvioTheme.colors.BackgroundCard
+                                    checkedThumbColor = MoviesTheme.colors.Secondary,
+                                    checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
+                                    uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
+                                    uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
                                 )
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             }
 
                 Row(
@@ -540,7 +540,7 @@ fun CollectionEditorScreen(
                     Text(
                         text = stringResource(R.string.collections_editor_folders),
                         style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                     Text(
                         text = stringResource(
@@ -549,21 +549,21 @@ fun CollectionEditorScreen(
                             uiState.folders.size
                         ),
                         style = MaterialTheme.typography.bodySmall.metaFloor(),
-                        color = NuvioTheme.colors.TextTertiary
+                        color = MoviesTheme.colors.TextTertiary
                     )
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             }
         },
         footer = {
             Box(
                 modifier = Modifier.padding(
-                    start = NuvioTheme.spacing.sm,
-                    end = NuvioTheme.spacing.sm,
-                    top = if (uiState.folders.isEmpty()) NuvioTheme.spacing.xs else NuvioTheme.spacing.lg
+                    start = MoviesTheme.spacing.sm,
+                    end = MoviesTheme.spacing.sm,
+                    top = if (uiState.folders.isEmpty()) MoviesTheme.spacing.xs else MoviesTheme.spacing.lg
                 )
             ) {
-                NuvioButton(
+                MoviesButton(
                     onClick = {
                         lastFocusedFolderTarget = "add_folder"
                         pendingFocusTarget = "add_folder"
@@ -575,7 +575,7 @@ fun CollectionEditorScreen(
                         .blockHorizontalFocus()
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Text(stringResource(R.string.collections_editor_add_folder))
                 }
             }
@@ -583,7 +583,7 @@ fun CollectionEditorScreen(
     ) { folder, isMoving, onStartMove, onConfirmMove ->
         val editFocusRequester = folderFocusRequesters.getOrPut(folder.id) { FocusRequester() }
         val deleteFocusRequester = folderDeleteFocusRequesters.getOrPut(folder.id) { FocusRequester() }
-        Box(modifier = Modifier.padding(start = NuvioTheme.spacing.sm, end = NuvioTheme.spacing.sm)) {
+        Box(modifier = Modifier.padding(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm)) {
             FolderListItem(
                 folder = folder,
                 isMoving = isMoving,
@@ -613,7 +613,7 @@ fun CollectionEditorScreen(
     }
 
     folderToDelete?.let { folder ->
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = {
                 folderToDelete = null
                 pendingFocusTarget = "folder_delete:${folder.id}"
@@ -624,7 +624,7 @@ fun CollectionEditorScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.End)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
             ) {
                 Button(
                     onClick = {
@@ -714,23 +714,23 @@ private fun FolderListItem(
 ) {
     val cardColor by animateColorAsState(
         targetValue = if (isMoving) {
-            NuvioTheme.colors.FocusBackground
+            MoviesTheme.colors.FocusBackground
         } else {
-            NuvioTheme.colors.BackgroundCard
+            MoviesTheme.colors.BackgroundCard
         },
-        animationSpec = com.kien.movies.ui.theme.NuvioMotion.focusTween(),
+        animationSpec = com.kien.movies.ui.theme.MoviesMotion.focusTween(),
         label = "folderCardColor",
     )
     val cardBorder = if (isMoving) {
         Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-            shape = RoundedCornerShape(NuvioTheme.radii.md)
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+            shape = RoundedCornerShape(MoviesTheme.radii.md)
         )
     } else {
         Border.None
     }
     Surface(
-        shape = RoundedCornerShape(NuvioTheme.radii.md),
+        shape = RoundedCornerShape(MoviesTheme.radii.md),
         colors = SurfaceDefaults.colors(containerColor = cardColor),
         border = cardBorder,
         modifier = Modifier.fillMaxWidth()
@@ -738,7 +738,7 @@ private fun FolderListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.md),
+                .padding(MoviesTheme.spacing.md),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -748,7 +748,7 @@ private fun FolderListItem(
                     style = MaterialTheme.typography.titleSmall.bodyFloor().copy(
                         textDirection = folder.title.contentTextDirection()
                     ),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -762,12 +762,12 @@ private fun FolderListItem(
                 Text(
                     text = "$shapeLabel - ${stringResource(R.string.collections_editor_source_count, folder.sources.size)}",
                     style = MaterialTheme.typography.bodySmall.metaFloor(),
-                    color = NuvioTheme.colors.TextTertiary
+                    color = MoviesTheme.colors.TextTertiary
                 )
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.trapHorizontalFocus()
             ) {
                 Button(
@@ -777,20 +777,20 @@ private fun FolderListItem(
                         role = Role.Button
                     }.tvControlHeight(),
                     colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = if (isMoving) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
-                        contentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = if (isMoving) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Primary
+                        containerColor = if (isMoving) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
+                        contentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = if (isMoving) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Primary
                     ), selected = isMoving),
                     border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                     )),
                     shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
@@ -808,20 +808,20 @@ private fun FolderListItem(
                             editFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                         ),
                     colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = NuvioTheme.colors.Primary
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = MoviesTheme.colors.Primary
                     )),
                     border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                     )),
                     shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
@@ -836,20 +836,20 @@ private fun FolderListItem(
                             deleteFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                         ),
                     colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = NuvioTheme.colors.Error
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = MoviesTheme.colors.Error
                     ), destructive = true),
                     border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                     )),
                     shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {

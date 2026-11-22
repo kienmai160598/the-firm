@@ -11,7 +11,7 @@ import androidx.tv.material3.CardColors
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.IconButtonDefaults
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 /**
  * Apple TV transport buttons: a frosted circle at rest that the video shows through, solid white
@@ -33,8 +33,8 @@ internal object PlayerControlStyle {
                 alpha = if (active) ACTIVE_CONTAINER_ALPHA else RESTING_CONTAINER_ALPHA
             ),
             contentColor = contentColor,
-            focusedContainerColor = NuvioTheme.colors.Secondary,
-            focusedContentColor = NuvioTheme.colors.OnSecondary
+            focusedContainerColor = MoviesTheme.colors.Secondary,
+            focusedContentColor = MoviesTheme.colors.OnSecondary
         )
 
     val capsuleShape: ButtonShape = ButtonDefaults.shape(shape = CircleShape)
@@ -45,14 +45,14 @@ internal object PlayerControlStyle {
         val container = ExpressiveFocus.containerColor(
             focused = focused,
             resting = if (primary) {
-                NuvioTheme.colors.SecondaryVariant
+                MoviesTheme.colors.SecondaryVariant
             } else {
                 Color.White.copy(alpha = RESTING_CONTAINER_ALPHA)
             }
         )
         val content = ExpressiveFocus.contentColor(
             focused = focused,
-            resting = if (primary) NuvioTheme.colors.OnSecondaryVariant else Color.White
+            resting = if (primary) MoviesTheme.colors.OnSecondaryVariant else Color.White
         )
 
         return ButtonDefaults.colors(
@@ -72,7 +72,7 @@ internal object PlayerControlStyle {
             alpha = if (enabled) RESTING_STEP_ALPHA else DISABLED_STEP_ALPHA
         ),
         contentColor = Color.White.copy(alpha = if (enabled) 1f else DISABLED_CONTENT_ALPHA),
-        focusedContainerColor = NuvioTheme.colors.Secondary,
-        focusedContentColor = NuvioTheme.colors.OnSecondary
+        focusedContainerColor = MoviesTheme.colors.Secondary,
+        focusedContentColor = MoviesTheme.colors.OnSecondary
     )
 }

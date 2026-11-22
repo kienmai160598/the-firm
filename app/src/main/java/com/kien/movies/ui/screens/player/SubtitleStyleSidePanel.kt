@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 
 import androidx.compose.foundation.background
@@ -70,7 +70,7 @@ import com.kien.movies.R
 
 private val StyleCardWidth = 220.dp
 private val StyleCardHeight = 102.dp
-private val StyleCardGap = NuvioTheme.spacing.md
+private val StyleCardGap = MoviesTheme.spacing.md
 private val StyleGridWidth = (StyleCardWidth * 3) + (StyleCardGap * 2)
 
 @Composable
@@ -104,9 +104,9 @@ internal fun SubtitleStyleSidePanel(
             .width(760.dp)
             .height(330.dp)
             .clip(RoundedCornerShape(bottomStart = PanelCorner, bottomEnd = PanelCorner))
-            .background(if (isExpressiveBuild) NuvioTheme.colors.Surface else Color(0xFF101010))
+            .background(if (isExpressiveBuild) MoviesTheme.colors.Surface else Color(0xFF101010))
             .then(if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier)
-            .padding(start = NuvioTheme.spacing.lg, end = NuvioTheme.spacing.lg, top = 22.dp, bottom = 10.dp)
+            .padding(start = MoviesTheme.spacing.lg, end = MoviesTheme.spacing.lg, top = 22.dp, bottom = 10.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),
@@ -134,7 +134,7 @@ internal fun SubtitleStyleSidePanel(
             horizontalArrangement = Arrangement.spacedBy(StyleCardGap, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Top
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                 SubtitleStyleSection(
                     title = stringResource(R.string.subtitle_style_font_size),
                     modifier = Modifier
@@ -171,7 +171,7 @@ internal fun SubtitleStyleSidePanel(
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                 SubtitleStyleSection(
                     title = if (isEditingHdrStyle) {
                         stringResource(R.string.subtitle_style_text_color_hdr)
@@ -186,9 +186,9 @@ internal fun SubtitleStyleSidePanel(
                     val currentAlphaPercent = (Color(subtitleStyle.textColor).alpha * 100f).roundToInt().coerceIn(0, 100)
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                     ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                             SubtitleTextColorPresets.forEach { color ->
                                 SubtitleStyleColorChip(
                                     color = color,
@@ -201,7 +201,7 @@ internal fun SubtitleStyleSidePanel(
                             }
                         }
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             SubtitleStyleStepperButton(
@@ -270,7 +270,7 @@ internal fun SubtitleStyleSidePanel(
                                 color = Color.White.copy(alpha = 0.7f)
                             )
                         }
-                        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                             SubtitleOutlineColorPresets.forEach { color ->
                                 SubtitleStyleColorChip(
                                     color = color.copy(alpha = if (subtitleStyle.outlineEnabled) 1f else 0.35f),
@@ -288,7 +288,7 @@ internal fun SubtitleStyleSidePanel(
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                 SubtitleStyleSection(
                     title = stringResource(R.string.subtitle_style_bottom_offset),
                     modifier = Modifier
@@ -325,7 +325,7 @@ internal fun SubtitleStyleSidePanel(
                         ),
                         shape = styleButtonShape(
                             focused = resetFocused,
-                            upstream = RoundedCornerShape(NuvioTheme.radii.md)
+                            upstream = RoundedCornerShape(MoviesTheme.radii.md)
                         )
                     ) {
                         Text(
@@ -335,7 +335,7 @@ internal fun SubtitleStyleSidePanel(
                                 focused = resetFocused,
                                 upstream = Color.White.copy(alpha = 0.8f)
                             ),
-                            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = 10.dp)
+                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 10.dp)
                         )
                     }
                 }
@@ -353,15 +353,15 @@ private fun SubtitleStyleSection(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(if (isExpressiveBuild) NuvioTheme.radii.lg else 14.dp))
+            .clip(RoundedCornerShape(if (isExpressiveBuild) MoviesTheme.radii.lg else 14.dp))
             .background(
                 if (isExpressiveBuild) {
-                    NuvioTheme.colors.BackgroundCard
+                    MoviesTheme.colors.BackgroundCard
                 } else {
                     Color.White.copy(alpha = 0.06f)
                 }
             )
-            .padding(NuvioTheme.spacing.md)
+            .padding(MoviesTheme.spacing.md)
     ) {
         Column(
             modifier = Modifier.align(Alignment.TopStart)
@@ -405,7 +405,7 @@ private fun SubtitleStyleSettingRow(
             )
         }
         Row(
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             content()
@@ -425,7 +425,7 @@ private fun SubtitleStyleStepperButton(
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .size(NuvioTheme.spacing.xxl)
+            .size(MoviesTheme.spacing.xxl)
             .onFocusChanged { isFocused = it.isFocused },
         colors = if (isExpressiveBuild) {
             PlayerControlStyle.iconButtonColors(Color.White)
@@ -443,7 +443,7 @@ private fun SubtitleStyleStepperButton(
             IconButtonDefaults.shape(shape = RoundedCornerShape(10.dp))
         }
     ) {
-        Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(NuvioTheme.spacing.lg))
+        Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(MoviesTheme.spacing.lg))
     }
 }
 
@@ -478,8 +478,8 @@ private fun SubtitleStyleColorChip(
     val swatchLabel = stringResource(R.string.cd_color_swatch, panelSwatchColorLabel(color))
 
     val borderModifier = when {
-        isFocused -> Modifier.border(NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs), CircleShape)
-        isSelected -> Modifier.border(NuvioTheme.spacing.xxs, Color.White, CircleShape)
+        isFocused -> Modifier.border(MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs), CircleShape)
+        isSelected -> Modifier.border(MoviesTheme.spacing.xxs, Color.White, CircleShape)
         else -> Modifier
     }
 
@@ -531,7 +531,7 @@ private fun SubtitleStyleToggleButton(
             text = if (isEnabled) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),
             style = MaterialTheme.typography.bodySmall,
             color = if (isEnabled) Color.White else Color.White.copy(alpha = 0.55f),
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = 6.dp)
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = 6.dp)
         )
     }
 }
@@ -541,12 +541,12 @@ private fun SubtitleStyleToggleButton(
 private fun ExpressiveStyleToggleButton(isEnabled: Boolean, onClick: () -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
     val resting = if (isEnabled) {
-        NuvioTheme.colors.SecondaryVariant
+        MoviesTheme.colors.SecondaryVariant
     } else {
         Color.White.copy(alpha = 0.08f)
     }
     val restingContent = if (isEnabled) {
-        NuvioTheme.colors.OnSecondaryVariant
+        MoviesTheme.colors.OnSecondaryVariant
     } else {
         Color.White.copy(alpha = 0.55f)
     }
@@ -571,7 +571,7 @@ private fun ExpressiveStyleToggleButton(isEnabled: Boolean, onClick: () -> Unit)
             },
             style = MaterialTheme.typography.bodySmall,
             color = ExpressiveFocus.contentColor(isFocused, resting = restingContent),
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = 6.dp)
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = 6.dp)
         )
     }
 }

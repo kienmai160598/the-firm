@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.addon
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -93,13 +93,13 @@ private fun EssentialAddonSetupBody(
             Text(
                 text = stringResource(R.string.essential_addon_setup_title),
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = stringResource(R.string.essential_addon_setup_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(28.dp))
             Row(
@@ -111,8 +111,8 @@ private fun EssentialAddonSetupBody(
                     modifier = Modifier
                         .weight(1f)
                         .height(setupCardHeight()),
-                    colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-                    shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                    colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
+                    shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                 ) {
                     Column(
                         modifier = Modifier.padding(22.dp),
@@ -121,14 +121,14 @@ private fun EssentialAddonSetupBody(
                         Text(
                             text = stringResource(R.string.addon_install_title),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                         )
                         BasicTextField(
                             value = uiState.installUrl,
                             onValueChange = viewModel::onInstallUrlChange,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(NuvioTheme.spacing.xxxl),
+                                .height(MoviesTheme.spacing.xxxl),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Uri,
@@ -141,21 +141,21 @@ private fun EssentialAddonSetupBody(
                                 }
                             ),
                             textStyle = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                                 textDirection = TextDirection.Content
                             ),
-                            cursorBrush = SolidColor(NuvioTheme.colors.Primary),
+                            cursorBrush = SolidColor(MoviesTheme.colors.Primary),
                             decorationBox = { innerTextField ->
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)
+                                        .padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)
                                 ) {
                                     if (uiState.installUrl.isEmpty()) {
                                         Text(
                                             text = stringResource(R.string.addon_install_placeholder),
                                             style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                                            color = NuvioTheme.colors.TextTertiary
+                                            color = MoviesTheme.colors.TextTertiary
                                         )
                                     }
                                     innerTextField()
@@ -170,9 +170,9 @@ private fun EssentialAddonSetupBody(
                             enabled = !uiState.isInstalling,
                             modifier = Modifier.tvControlHeight(),
                             colors = ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.Secondary,
-                                contentColor = NuvioTheme.colors.OnSecondary,
-                                focusedContainerColor = NuvioTheme.colors.SecondaryVariant
+                                containerColor = MoviesTheme.colors.Secondary,
+                                contentColor = MoviesTheme.colors.OnSecondary,
+                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant
                             ).expressiveControl(primary = true),
                             shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                             border = ButtonDefaults.border().expressiveRingless(),
@@ -190,7 +190,7 @@ private fun EssentialAddonSetupBody(
                             Text(
                                 text = uiState.error.orEmpty(),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NuvioTheme.colors.Error
+                                color = MoviesTheme.colors.Error
                             )
                         }
                     }
@@ -199,8 +199,8 @@ private fun EssentialAddonSetupBody(
                     modifier = Modifier
                         .weight(1f)
                         .height(setupCardHeight()),
-                    colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-                    shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                    colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
+                    shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                 ) {
                     Column(
                         modifier = Modifier.padding(22.dp),
@@ -209,26 +209,26 @@ private fun EssentialAddonSetupBody(
                         Icon(
                             imageVector = Icons.Default.PhoneAndroid,
                             contentDescription = null,
-                            tint = NuvioTheme.colors.Primary
+                            tint = MoviesTheme.colors.Primary
                         )
                         Text(
                             text = stringResource(R.string.addon_manage_from_phone_title),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                         )
                         Text(
                             text = stringResource(R.string.addon_manage_addons_only_from_phone_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                         Button(
                             onClick = { viewModel.startQrMode(AddonWebConfigMode.ADDONS_ONLY) },
                             modifier = Modifier.tvControlHeight(),
                             colors = ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundElevated,
-                                contentColor = NuvioTheme.colors.TextPrimary,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                                focusedContentColor = NuvioTheme.colors.Primary
+                                containerColor = MoviesTheme.colors.BackgroundElevated,
+                                contentColor = MoviesTheme.colors.TextPrimary,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                                focusedContentColor = MoviesTheme.colors.Primary
                             ).expressiveControl(),
                             shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                             border = ButtonDefaults.border().expressiveRingless(),
@@ -240,15 +240,15 @@ private fun EssentialAddonSetupBody(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
             Button(
                 onClick = onSkip,
                 modifier = Modifier.tvControlHeight(),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                    focusedContentColor = NuvioTheme.colors.Primary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                    focusedContentColor = MoviesTheme.colors.Primary
                 ).expressiveControl(),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),

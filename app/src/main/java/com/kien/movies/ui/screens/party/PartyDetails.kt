@@ -68,7 +68,7 @@ import com.kien.movies.R
 import com.kien.movies.core.party.ActiveParty
 import com.kien.movies.core.party.PartyMember
 import com.kien.movies.core.qr.QrCodeGenerator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.formatPlaybackTime
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.settings.SettingsActionRow
@@ -80,7 +80,7 @@ import com.kien.movies.ui.screens.settings.SettingsRowRestFill
 import com.kien.movies.ui.screens.settings.settingsRowBorder
 import com.kien.movies.ui.screens.settings.settingsRowColors
 import com.kien.movies.ui.screens.settings.settingsRowShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun CodeSection(
@@ -89,7 +89,7 @@ internal fun CodeSection(
     modifier: Modifier = Modifier,
     slotHeight: Dp = 48.dp,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
         AnimatedContent(
             targetState = connected,
             transitionSpec = {
@@ -101,18 +101,18 @@ internal fun CodeSection(
                 Text(
                     text = stringResource(R.string.party_code_label),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                 )
             } else {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     PulsingDot()
                     Text(
                         text = stringResource(R.string.party_reconnecting),
                         style = MaterialTheme.typography.labelLarge,
-                        color = NuvioTheme.colors.Secondary,
+                        color = MoviesTheme.colors.Secondary,
                     )
                 }
             }
@@ -136,14 +136,14 @@ internal fun MembersSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = NuvioTheme.spacing.sm),
+                .padding(bottom = MoviesTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = stringResource(R.string.party_seats, party.members.size, party.maxMembers),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary,
             )
             SeatDots(filled = party.members.size, total = party.maxMembers)
         }
@@ -174,7 +174,7 @@ internal fun MembersSection(
                 Text(
                     text = stringResource(R.string.party_open_seat),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                 )
             }
         }
@@ -214,10 +214,10 @@ private fun MemberRow(
         )
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs),
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -229,7 +229,7 @@ private fun MemberRow(
                     modifier = Modifier.weight(1f, fill = false),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -239,7 +239,7 @@ private fun MemberRow(
                         style = MaterialTheme.typography.labelMedium
                             .atLeastOnBox(TvSizeFloors.metaText),
                         fontWeight = FontWeight.SemiBold,
-                        color = NuvioTheme.colors.Secondary,
+                        color = MoviesTheme.colors.Secondary,
                     )
                 }
             }
@@ -262,7 +262,7 @@ private fun MemberRow(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     maxLines = 1,
                 )
             }
@@ -271,7 +271,7 @@ private fun MemberRow(
             Icon(
                 imageVector = Icons.Rounded.Close,
                 contentDescription = stringResource(R.string.party_remove),
-                tint = NuvioTheme.colors.TextTertiary,
+                tint = MoviesTheme.colors.TextTertiary,
                 modifier = Modifier.size(20.dp.atLeastOnBox(TvSizeFloors.buttonIcon)),
             )
         }
@@ -282,8 +282,8 @@ private fun MemberRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             content = content,
         )
@@ -306,8 +306,8 @@ private fun PartyRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             content = content,
         )
@@ -330,10 +330,10 @@ private fun partyRowColors(): CardColors = if (isExpressiveBuild) {
 
 @Composable
 private fun SeatDots(filled: Int, total: Int) {
-    Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
         repeat(total) { index ->
             val color by animateColorAsState(
-                targetValue = if (index < filled) NuvioTheme.colors.Secondary else NuvioTheme.colors.Border,
+                targetValue = if (index < filled) MoviesTheme.colors.Secondary else MoviesTheme.colors.Border,
                 animationSpec = effectsSpec(tween(300)),
                 label = "seatDot",
             )
@@ -388,20 +388,20 @@ private fun PartyHint(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+        modifier = modifier.padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = NuvioTheme.colors.TextSecondary,
+            tint = MoviesTheme.colors.TextSecondary,
             modifier = Modifier.size(16.dp),
         )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
         )
     }
 }
@@ -457,7 +457,7 @@ internal fun ConfirmDialog(
 ) {
     val cancelFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { cancelFocusRequester.requestFocusAfterFrames() }
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = message,
@@ -489,13 +489,13 @@ private fun InviteDialog(
         runCatching { QrCodeGenerator.generate(link, 420, margin = 1) }.getOrNull()
     }
     LaunchedEffect(Unit) { closeFocusRequester.requestFocusAfterFrames() }
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.party_open_seat),
         width = 640.dp,
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (qr != null) {
@@ -504,23 +504,23 @@ private fun InviteDialog(
                     contentDescription = stringResource(R.string.party_invite_qr),
                     modifier = Modifier
                         .size(168.dp)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.md)),
+                        .clip(RoundedCornerShape(MoviesTheme.radii.md)),
                 )
             }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             ) {
                 Text(
                     text = stringResource(R.string.party_invite_scan),
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
                 CodeSlots(code = code, slotHeight = 52.dp, textStyle = MaterialTheme.typography.headlineMedium)
                 Text(
                     text = stringResource(R.string.party_invite_share),
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                 )
             }
         }

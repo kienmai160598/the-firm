@@ -12,7 +12,7 @@ internal object SharedRecognizer {
     private const val KEEP_AFTER_LAST_USE_MS = 3 * 60_000L
 
     private val closer = Executors.newSingleThreadScheduledExecutor { runnable ->
-        Thread(runnable, "NuvioAsrRelease").apply { isDaemon = true }
+        Thread(runnable, "MoviesAsrRelease").apply { isDaemon = true }
     }
     private val cache = SharedResource<SherpaSpeechToText>(closer, KEEP_AFTER_LAST_USE_MS) {
         runCatching { it.close() }

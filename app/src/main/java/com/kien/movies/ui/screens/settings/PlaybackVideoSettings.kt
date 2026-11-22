@@ -44,7 +44,7 @@ import com.kien.movies.data.local.FrameRateMatchingMode
 import com.kien.movies.data.local.MpvHardwareDecodeMode
 import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.data.local.PlayerSettings
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun PlaybackVideoSection(
@@ -67,7 +67,7 @@ internal fun PlaybackVideoSection(
         subtitle = null,
         value = frameRateMatchingLabel(settings.frameRateMatchingMode),
         titleTrailingIcon = if (showAfrWarning) Icons.Default.Warning else null,
-        titleTrailingIconTint = NuvioTheme.colors.Warning,
+        titleTrailingIconTint = MoviesTheme.colors.Warning,
         enabled = enabled,
         modifier = Modifier.focusRequester(frameRateFocusRequester),
         onClick = { onOpenDialog(PlaybackDialog.FRAME_RATE_MATCHING) }
@@ -85,7 +85,7 @@ internal fun PlaybackVideoSection(
         } else {
             null
         },
-        titleTrailingIconTint = NuvioTheme.colors.Warning,
+        titleTrailingIconTint = MoviesTheme.colors.Warning,
         enabled = enabled
     )
     AfrCapabilityWarningCard(
@@ -237,15 +237,15 @@ private fun AfrCapabilityWarningCard(
         afrProblem -> onDisableAfrOnly
         else -> onDisableResolutionOnly
     }
-    val warningTone = NuvioTheme.colors.Warning
+    val warningTone = MoviesTheme.colors.Warning
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(SettingsSecondaryCardRadius))
-            .background(NuvioTheme.colors.BackgroundCard)
+            .background(MoviesTheme.colors.BackgroundCard)
             .border(
-                width = NuvioTheme.spacing.hairline,
+                width = MoviesTheme.spacing.hairline,
                 color = warningTone.copy(alpha = 0.55f),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
@@ -262,7 +262,7 @@ private fun AfrCapabilityWarningCard(
             Text(
                 text = stringResource(R.string.playback_afr_capability_unsupported_title),
                 style = MaterialTheme.typography.titleSmall,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -271,9 +271,9 @@ private fun AfrCapabilityWarningCard(
         Text(
             text = stringResource(bodyRes),
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
         SettingsActionRow(
             title = stringResource(buttonRes),
             subtitle = null,

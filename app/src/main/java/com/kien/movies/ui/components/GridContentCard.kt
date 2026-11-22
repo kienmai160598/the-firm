@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.tween
@@ -189,7 +189,7 @@ fun GridContentCard(
             ),
             border = posterFocusBorder(CardDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                    border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = cardShape
                 )
             )),
@@ -206,7 +206,7 @@ fun GridContentCard(
                     )
             ) {
                 val context = LocalContext.current
-                val bgCardColor = NuvioTheme.colors.BackgroundCard
+                val bgCardColor = MoviesTheme.colors.BackgroundCard
                 val bgPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
                 val alwaysBackdropWithLogo = LocalAlwaysBackdropWithLogo.current
                 val effectiveLandscapePoster = if (globalLandscape && alwaysBackdropWithLogo) null else item.landscapePoster
@@ -282,7 +282,7 @@ fun GridContentCard(
                                 .align(Alignment.BottomStart)
                                 .fillMaxWidth(0.62f)
                                 .then(if (globalLandscape) Modifier.fillMaxHeight(0.34f) else Modifier.height(cardHeight * 0.34f))
-                                .padding(start = 10.dp, end = 10.dp, bottom = NuvioTheme.spacing.sm),
+                                .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.sm),
                             contentScale = ContentScale.Fit,
                             alignment = Alignment.CenterStart,
                             onError = { landscapeLogoFailed = true }
@@ -312,7 +312,7 @@ fun GridContentCard(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = NuvioTheme.spacing.md)
+                            .padding(start = 10.dp, end = 10.dp, bottom = MoviesTheme.spacing.md)
                     )
                 } else if (showLogo && !item.logo.isNullOrBlank()) {
                     Box(
@@ -344,7 +344,7 @@ fun GridContentCard(
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
                             .heightIn(max = cardHeight * 0.35f)
-                            .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                            .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                     )
                 }
 
@@ -352,7 +352,7 @@ fun GridContentCard(
                     WatchedMarker(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(end = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.sm)
+                            .padding(end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.sm)
                             .zIndex(2f)
                     )
                 }
@@ -364,20 +364,20 @@ fun GridContentCard(
                 text = item.name,
                 focused = isFocused,
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier
                     .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                    .padding(top = NuvioTheme.spacing.sm, start = NuvioTheme.spacing.xxs, end = NuvioTheme.spacing.xxs)
+                    .padding(top = MoviesTheme.spacing.sm, start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs)
             )
             item.releaseInfo?.takeIf { showReleaseInfo }?.let { info ->
                 FocusMarqueeText(
                     text = info,
                     focused = isFocused,
                     style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                    color = NuvioTheme.extendedColors.textSecondary,
+                    color = MoviesTheme.extendedColors.textSecondary,
                     modifier = Modifier
                         .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                        .padding(top = 2.dp, start = NuvioTheme.spacing.xxs, end = NuvioTheme.spacing.xxs)
+                        .padding(top = 2.dp, start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs)
                 )
             }
         }

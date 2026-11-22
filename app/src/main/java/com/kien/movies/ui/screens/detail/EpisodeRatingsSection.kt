@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -97,8 +97,8 @@ fun EpisodeRatingsSection(
             .distinctBy { it.season to it.episode }
             .sortedBy { it.episode }
     }
-    val defaultChipColor = NuvioTheme.colors.BackgroundCard
-    val defaultChipTextColor = NuvioTheme.colors.TextSecondary
+    val defaultChipColor = MoviesTheme.colors.BackgroundCard
+    val defaultChipTextColor = MoviesTheme.colors.TextSecondary
     val seasonRatings = remember(episodesForSeason, ratings) {
         episodesForSeason.mapNotNull { episode ->
             val season = episode.season ?: return@mapNotNull null
@@ -127,14 +127,14 @@ fun EpisodeRatingsSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = if (hasTitle) 14.dp else 6.dp, bottom = NuvioTheme.spacing.sm)
+            .padding(top = if (hasTitle) 14.dp else 6.dp, bottom = MoviesTheme.spacing.sm)
     ) {
         if (hasTitle) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary,
-                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)
+                color = MoviesTheme.colors.TextPrimary,
+                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)
             )
         }
 
@@ -143,24 +143,24 @@ fun EpisodeRatingsSection(
                 Text(
                     text = stringResource(R.string.ratings_loading),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.md)
+                    color = MoviesTheme.colors.TextSecondary,
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
                 )
             }
             error != null -> {
                 Text(
                     text = error,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.md)
+                    color = MoviesTheme.colors.TextSecondary,
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
                 )
             }
             seasonNumbers.isEmpty() -> {
                 Text(
                     text = stringResource(R.string.ratings_unavailable),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.md)
+                    color = MoviesTheme.colors.TextSecondary,
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.md)
                 )
             }
             else -> {
@@ -169,7 +169,7 @@ fun EpisodeRatingsSection(
                         .fillMaxWidth()
                         .focusRestorer { selectedSeasonRequester }
                         .focusGroup(),
-                    contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
+                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     items(seasonNumbers, key = { it }) { season ->
@@ -218,8 +218,8 @@ fun EpisodeRatingsSection(
                     text = stringResource(R.string.ratings_season_summary, selectedSeason, episodesForSeason.size),
                     style = MaterialTheme.typography.labelSmall
                         .atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xxs)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xxs)
                 )
 
                 LazyRow(
@@ -228,7 +228,7 @@ fun EpisodeRatingsSection(
                         .focusRequester(effectiveRatingsGridFocusRequester)
                         .focusRestorer(firstEpisodeRatingFocusRequester)
                         .focusGroup(),
-                    contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
+                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     items(seasonRatings, key = { "${it.seasonNumber}:${it.episodeNumber}" }) { episodeRating ->
@@ -263,7 +263,7 @@ fun EpisodeRatingsSection(
                             ),
                             border = CardDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                     shape = RoundedCornerShape(14.dp)
                                 )
                             ),
@@ -272,7 +272,7 @@ fun EpisodeRatingsSection(
                             Column(
                                 modifier = Modifier
                                     .size(width = 72.dp, height = RatingCellHeight)
-                                    .padding(horizontal = NuvioTheme.spacing.sm, vertical = 6.dp),
+                                    .padding(horizontal = MoviesTheme.spacing.sm, vertical = 6.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {

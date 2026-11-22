@@ -56,8 +56,8 @@ import androidx.compose.ui.zIndex
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -70,8 +70,8 @@ private const val MOVE_REPEAT_INTERVAL_MS = 140L
 private const val RETAINED_ROW_SLOTS = 24
 
 private val ReorderTravelSpec = tween<Float>(
-    durationMillis = NuvioMotion.tokens.durations.medium,
-    easing = NuvioMotion.tokens.easings.emphasized,
+    durationMillis = MoviesMotion.tokens.durations.medium,
+    easing = MoviesMotion.tokens.easings.emphasized,
 )
 
 @Composable
@@ -86,8 +86,8 @@ fun <T> TvReorderList(
     onCancelMove: () -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-    rowSpacing: Dp = NuvioTheme.spacing.lg,
-    contentPadding: PaddingValues = PaddingValues(bottom = NuvioTheme.spacing.xl),
+    rowSpacing: Dp = MoviesTheme.spacing.lg,
+    contentPadding: PaddingValues = PaddingValues(bottom = MoviesTheme.spacing.xl),
     header: @Composable (() -> Unit)? = null,
     footer: @Composable (() -> Unit)? = null,
     useHeaderAwareBringIntoView: Boolean = false,

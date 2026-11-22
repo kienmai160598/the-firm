@@ -36,7 +36,7 @@ import com.kien.movies.ui.screens.detail.forBuild
 import com.kien.movies.ui.screens.detail.tonalButtonColors
 import androidx.compose.ui.util.lerp
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -65,7 +65,7 @@ internal fun Modifier.expressiveIconButtonSurface(
 /** A resting control on the search screens: frosted white on the box build. */
 @Composable
 internal fun searchRestingFill(): Color =
-    if (isExpressiveBuild) ExpressiveColors.frosted else NuvioTheme.colors.BackgroundCard
+    if (isExpressiveBuild) ExpressiveColors.frosted else MoviesTheme.colors.BackgroundCard
 
 private val SearchFieldMinHeight = 64.dp
 private const val PLACEHOLDER_ALPHA = 0.5f
@@ -78,13 +78,13 @@ private const val PLACEHOLDER_ALPHA = 0.5f
 internal fun searchFieldColors(): TextFieldColors {
     if (!isExpressiveBuild) {
         return TextFieldDefaults.colors(
-            focusedContainerColor = NuvioTheme.colors.BackgroundCard,
-            unfocusedContainerColor = NuvioTheme.colors.BackgroundCard,
-            focusedIndicatorColor = NuvioTheme.colors.FocusRing,
+            focusedContainerColor = MoviesTheme.colors.BackgroundCard,
+            unfocusedContainerColor = MoviesTheme.colors.BackgroundCard,
+            focusedIndicatorColor = MoviesTheme.colors.FocusRing,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = NuvioTheme.colors.TextPrimary,
-            unfocusedTextColor = NuvioTheme.colors.TextPrimary,
-            cursorColor = NuvioTheme.colors.FocusRing
+            focusedTextColor = MoviesTheme.colors.TextPrimary,
+            unfocusedTextColor = MoviesTheme.colors.TextPrimary,
+            cursorColor = MoviesTheme.colors.FocusRing
         )
     }
     return TextFieldDefaults.colors(
@@ -103,7 +103,7 @@ internal fun searchFieldColors(): TextFieldColors {
 /** The placeholder dims with the field's text and turns black with it on focus. */
 @Composable
 internal fun searchPlaceholderColor(fieldFocused: Boolean): Color = when {
-    !isExpressiveBuild -> NuvioTheme.colors.TextTertiary
+    !isExpressiveBuild -> MoviesTheme.colors.TextTertiary
     fieldFocused -> ExpressiveColors.onFocus.copy(alpha = PLACEHOLDER_ALPHA)
     else -> ExpressiveColors.textTertiary
 }
@@ -151,26 +151,26 @@ internal fun recentSearchButtonColors(): ButtonColors {
     if (isExpressiveBuild) return tonalButtonColors(ExpressiveColors.frosted)
 
     return ButtonDefaults.colors(
-        containerColor = NuvioTheme.colors.BackgroundCard,
-        contentColor = NuvioTheme.colors.TextPrimary,
-        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-        focusedContentColor = NuvioTheme.colors.Primary
+        containerColor = MoviesTheme.colors.BackgroundCard,
+        contentColor = MoviesTheme.colors.TextPrimary,
+        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+        focusedContentColor = MoviesTheme.colors.Primary
     )
 }
 
 internal fun recentRowShape(): Shape =
-    RoundedCornerShape(forBuild(NuvioTheme.radii.md, NuvioTheme.radii.lg))
+    RoundedCornerShape(forBuild(MoviesTheme.radii.md, MoviesTheme.radii.lg))
 
 internal fun recentClearShape(): Shape =
-    forBuild(RoundedCornerShape(NuvioTheme.radii.md), CircleShape)
+    forBuild(RoundedCornerShape(MoviesTheme.radii.md), CircleShape)
 
 @Composable
 internal fun recentRemoveFocusedContainer(): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.Secondary else NuvioTheme.colors.FocusBackground
+    if (isExpressiveBuild) MoviesTheme.colors.Secondary else MoviesTheme.colors.FocusBackground
 
 @Composable
 internal fun recentRemoveTint(focused: Boolean): Color {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     return if (isExpressiveBuild && focused) colors.OnSecondary else colors.TextPrimary
 }
 
@@ -178,15 +178,15 @@ private val UpstreamFieldCorner = 14.dp
 
 /** Discover's filter fields and their menus: the M3E large corner on the box build. */
 internal val DiscoverFieldShape: Shape =
-    RoundedCornerShape(forBuild(UpstreamFieldCorner, NuvioTheme.radii.lg))
+    RoundedCornerShape(forBuild(UpstreamFieldCorner, MoviesTheme.radii.lg))
 
 /** A filled M3 field on the box build: no hairline, the accent on focus. */
 @Composable
 internal fun discoverFieldColors(focused: Boolean): CardColors {
     if (!isExpressiveBuild) {
         return CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         )
     }
     val container = ExpressiveFocus.containerColor(focused, resting = searchRestingFill())
@@ -200,11 +200,11 @@ internal fun discoverFieldBorder(): CardBorder {
     val shape = RoundedCornerShape(UpstreamFieldCorner)
     return CardDefaults.border(
         border = Border(
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
             shape = shape
         ),
         focusedBorder = Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
             shape = shape
         )
     )
@@ -218,12 +218,12 @@ internal fun discoverFieldContent(focused: Boolean, resting: Color): Color =
 internal fun discoverFieldIconTint(focused: Boolean): Color {
     if (isExpressiveBuild) return ExpressiveFocus.contentColor(focused)
 
-    return if (focused) NuvioTheme.colors.FocusRing else NuvioTheme.colors.TextSecondary
+    return if (focused) MoviesTheme.colors.FocusRing else MoviesTheme.colors.TextSecondary
 }
 
 @Composable
 internal fun discoverMenuBorder(): BorderStroke? = if (isExpressiveBuild) {
     null
 } else {
-    BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border)
+    BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border)
 }

@@ -18,7 +18,7 @@ internal enum class AudioSamplingMode {
 
 /**
  * Settings of the audio subtitle sync fallback (see AutoSync). Persistence is injected by the
- * platform, so Nuvio's own player settings are left untouched.
+ * platform, so Movies's own player settings are left untouched.
  */
 internal object AudioSyncSettings {
     // Declared first: object properties initialize in order.

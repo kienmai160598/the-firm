@@ -21,7 +21,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.MemberTier
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun DebugMemberTierCard(
@@ -35,27 +35,27 @@ internal fun DebugMemberTierCard(
     )
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+        Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
             Text(
                 text = stringResource(R.string.debug_member_tier_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
             Text(
                 text = stringResource(R.string.debug_member_tier_subtitle),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             options.forEach { (tier, label) ->
                 val selected = tier == selectedTier
-                val shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                val shape = RoundedCornerShape(MoviesTheme.radii.sm)
                 Card(
                     onClick = { onTierSelected(tier) },
                     modifier = Modifier
@@ -66,23 +66,23 @@ internal fun DebugMemberTierCard(
                         },
                     colors = CardDefaults.colors(
                         containerColor = if (selected) {
-                            NuvioTheme.colors.Secondary.copy(alpha = 0.2f)
+                            MoviesTheme.colors.Secondary.copy(alpha = 0.2f)
                         } else {
-                            NuvioTheme.colors.BackgroundCard
+                            MoviesTheme.colors.BackgroundCard
                         },
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ),
                     border = CardDefaults.border(
                         border = if (selected) {
                             Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.hairline),
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
                                 shape = shape
                             )
                         } else {
                             Border.None
                         },
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                             shape = shape
                         )
                     ).expressiveSelection(selected),
@@ -92,10 +92,10 @@ internal fun DebugMemberTierCard(
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelLarge,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.lg),
+                            .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.lg),
                         textAlign = TextAlign.Center
                     )
                 }

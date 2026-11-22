@@ -19,10 +19,10 @@ import org.junit.runner.RunWith
  *
  * This is a setup-only measurement: no journey is walked inside the measured block, so the
  * number describes the cold launch of the home screen and nothing else. The frame timing of
- * the journeys lives in [NuvioFrameMetricsBenchmark].
+ * the journeys lives in [MoviesFrameMetricsBenchmark].
  */
 @RunWith(AndroidJUnit4::class)
-class NuvioStartupBenchmark {
+class MoviesStartupBenchmark {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()

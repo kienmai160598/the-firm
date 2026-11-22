@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -51,33 +51,33 @@ fun AuthSignInScreen(
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .background(
-                    color = NuvioTheme.colors.BackgroundElevated,
+                    color = MoviesTheme.colors.BackgroundElevated,
                     shape = expressivePanelShape(RoundedCornerShape(20.dp))
                 )
-                .padding(NuvioTheme.spacing.xxl),
+                .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = stringResource(R.string.auth_signin_title),
                 style = MaterialTheme.typography.headlineSmall,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = stringResource(R.string.auth_signin_tv_disabled),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(22.dp))
             Button(
                 onClick = onNavigateToQrSignIn,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ).expressiveControl(primary = true),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                 border = ButtonDefaults.border().expressiveRingless(),
@@ -86,7 +86,7 @@ fun AuthSignInScreen(
             ) {
                 Text(
                     text = stringResource(R.string.auth_signin_qr_btn),
-                    modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
+                    modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
                     fontWeight = FontWeight.Medium
                 )
             }

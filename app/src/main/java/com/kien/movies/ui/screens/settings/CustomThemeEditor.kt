@@ -50,10 +50,10 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.formatHexColor
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.LocalNuvioFocusRingStyle
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.LocalMoviesFocusRingStyle
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.theme.createFocusRingStyle
@@ -69,8 +69,8 @@ internal fun CustomThemeDialog(
 ) {
     var gradientEnabled by remember(allowGradient) { mutableStateOf(allowGradient && !initialColors.isSolid) }
     val editorFocusRing = remember { createFocusRingStyle(ThemeColors.White) }
-    CompositionLocalProvider(LocalNuvioFocusRingStyle provides editorFocusRing) {
-        NuvioDialog(
+    CompositionLocalProvider(LocalMoviesFocusRingStyle provides editorFocusRing) {
+        MoviesDialog(
             onDismiss = onDismiss,
             title = stringResource(
                 if (gradientEnabled) R.string.custom_theme_title else R.string.custom_theme_solid_title
@@ -133,7 +133,7 @@ internal fun CustomThemeEditor(
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
         if (onGradientChanged != null) {
             Row(
                 modifier = Modifier.selectableGroup().settingsOptionRow(modeFocusRequester),
@@ -195,9 +195,9 @@ internal fun CustomThemeEditor(
                     onClick = { restoreHexFocus = true; showHexEditor = true },
                     modifier = Modifier.fillMaxWidth().focusRequester(hexFocusRequester),
                     colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.Background,
+                        containerColor = MoviesTheme.colors.Background,
                         focusedContainerColor = expressiveCardFocusFill(
-                            NuvioTheme.colors.Background
+                            MoviesTheme.colors.Background
                         )
                     ),
                     shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
@@ -237,7 +237,7 @@ internal fun CustomThemeEditor(
             Text(
                 stringResource(R.string.custom_theme_remote_hint),
                 style = MaterialTheme.typography.labelSmall,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 modifier = Modifier.weight(1f)
             )
             Button(
@@ -302,8 +302,8 @@ private fun ThemeColorSlot(
         },
         shape = CardDefaults.shape(shape).expressiveCard(),
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (selected) Border(BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)), shape = shape) else Border.None,
@@ -321,7 +321,7 @@ private fun ThemeColorSlot(
             Text(
                 label,
                 style = MaterialTheme.typography.labelMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
         }
     }
@@ -341,7 +341,7 @@ private fun CustomThemeSample(colors: CustomThemeColors, modifier: Modifier = Mo
         Text(
             stringResource(R.string.custom_theme_preview),
             style = MaterialTheme.typography.labelMedium,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         Box(
             modifier = Modifier

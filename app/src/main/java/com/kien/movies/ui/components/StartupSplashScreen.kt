@@ -24,8 +24,8 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 @Composable
@@ -40,7 +40,7 @@ fun StartupSplashScreen(
     val avatarColor = remember(profileColorHex) {
         profileColorHex?.let {
             runCatching { Color(android.graphics.Color.parseColor(it)) }.getOrNull()
-        } ?: NuvioPrimitives.blue500
+        } ?: MoviesPrimitives.blue500
     }
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
@@ -68,7 +68,7 @@ fun StartupSplashScreen(
             MoviesSplashBackground()
         } else if (!skipGradient) {
             val baseBg = Color(0xFF121212)
-            val baseBgElevated = NuvioPrimitives.neutral875
+            val baseBgElevated = MoviesPrimitives.neutral875
             val gradientTop = lerp(baseBgElevated, avatarColor, 0.3f)
             val gradientMid = lerp(baseBg, avatarColor, 0.14f)
             val halfFadeStrong = avatarColor.copy(alpha = 0.26f)
@@ -110,8 +110,8 @@ fun StartupSplashScreen(
                 contentDescription = stringResource(R.string.cd_nuvio_logo),
                 drawableOverride = brandWordmarkRes
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxl))
-            LoadingIndicator(modifier = Modifier.size(NuvioTheme.spacing.xxxl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxl))
+            LoadingIndicator(modifier = Modifier.size(MoviesTheme.spacing.xxxl))
         }
     }
 }

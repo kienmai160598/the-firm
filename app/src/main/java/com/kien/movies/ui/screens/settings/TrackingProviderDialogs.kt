@@ -62,10 +62,10 @@ import com.kien.movies.data.repository.TraktProgressService
 import com.kien.movies.data.simkl.SIMKL_AUTOMATIC_REFRESH_INTERVAL_MINUTES
 import com.kien.movies.data.simkl.SimklConnectionMode
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.rememberRawSvgPainter
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
@@ -111,7 +111,7 @@ internal fun TraktAccountDialog(
             )
         }
     } else {
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = onDismiss,
             title = "",
             width = 720.dp,
@@ -173,7 +173,7 @@ internal fun SimklAccountDialog(
         ) {
             Crossfade(
                 targetState = showSyncInfo,
-                animationSpec = settingsDetailFade(NuvioMotion.tokens.durations.fast),
+                animationSpec = settingsDetailFade(MoviesMotion.tokens.durations.fast),
                 label = "SimklSyncInfo"
             ) { infoVisible ->
                 Column(
@@ -237,7 +237,7 @@ internal fun SimklAccountDialog(
             }
         }
     } else {
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = onDismiss,
             title = "",
             width = 720.dp,
@@ -296,7 +296,7 @@ internal fun TrackingDeviceAuthContent(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(
-                    NuvioTheme.spacing.md,
+                    MoviesTheme.spacing.md,
                     Alignment.CenterHorizontally
                 ),
                 verticalAlignment = Alignment.CenterVertically
@@ -305,7 +305,7 @@ internal fun TrackingDeviceAuthContent(
                 Text(
                     text = stringResource(R.string.tracking_connecting_provider, providerName),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -325,7 +325,7 @@ internal fun TrackingDeviceAuthContent(
             Text(
                 text = instruction,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -345,12 +345,12 @@ internal fun TrackingDeviceAuthContent(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 Text(
                     text = userCode,
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -358,7 +358,7 @@ internal fun TrackingDeviceAuthContent(
                     Text(
                         text = displayUrl,
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextTertiary,
+                        color = MoviesTheme.colors.TextTertiary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -370,7 +370,7 @@ internal fun TrackingDeviceAuthContent(
                             formatTrackingDuration((expiresAt - nowMillis).coerceAtLeast(0L))
                         ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -386,9 +386,9 @@ internal fun TrackingDeviceAuthContent(
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (errorMessage != null || !credentialsConfigured) {
-                    NuvioTheme.colors.Error
+                    MoviesTheme.colors.Error
                 } else {
-                    NuvioTheme.colors.TextSecondary
+                    MoviesTheme.colors.TextSecondary
                 },
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -401,7 +401,7 @@ internal fun TrackingDeviceAuthContent(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(
-                NuvioTheme.spacing.sm,
+                MoviesTheme.spacing.sm,
                 Alignment.CenterHorizontally
             ),
             verticalAlignment = Alignment.CenterVertically
@@ -413,9 +413,9 @@ internal fun TrackingDeviceAuthContent(
                 text = visibleStatus,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (errorMessage == null) {
-                    NuvioTheme.colors.TextSecondary
+                    MoviesTheme.colors.TextSecondary
                 } else {
-                    NuvioTheme.colors.Error
+                    MoviesTheme.colors.Error
                 },
                 textAlign = TextAlign.Center
             )
@@ -451,7 +451,7 @@ internal fun ConnectedTrackingAccountDialog(
     onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = "",
         width = 720.dp,
@@ -701,7 +701,7 @@ private fun TrackingBrandPrimaryButton(
             disabledContentColor = Color.White.copy(alpha = 0.7f)
         ),
         scale = ButtonDefaults.scale(focusedScale = 1.02f),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)),
         contentPadding = PaddingValues(0.dp)
     ) {
         Row(
@@ -811,7 +811,7 @@ private fun TrackingProviderWordmark(
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
         ) {
             Image(painter = logo, contentDescription = null, modifier = Modifier.size(40.dp))
-            Text(label, color = NuvioTheme.colors.TextPrimary, style = MaterialTheme.typography.headlineSmall)
+            Text(label, color = MoviesTheme.colors.TextPrimary, style = MaterialTheme.typography.headlineSmall)
         }
         return
     }
@@ -836,7 +836,7 @@ private fun TrackingDialogBrand.cardBrush(): Brush = when (this) {
         colors = listOf(Color(0xFF7D279B), Color(0xFFD61F56), Color(0xFFF22125))
     )
     TrackingDialogBrand.SIMKL -> Brush.linearGradient(
-        colors = listOf(Color(0xFF050505), Color(0xFF292929), NuvioPrimitives.neutral925)
+        colors = listOf(Color(0xFF050505), Color(0xFF292929), MoviesPrimitives.neutral925)
     )
     TrackingDialogBrand.MDBLIST -> Brush.linearGradient(
         colors = listOf(Color(0xFF173D69), Color(0xFF225C97), Color(0xFF16385D))
@@ -871,7 +871,7 @@ private fun TraktConnectedStatsStrip(
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.08f))
             .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = stringResource(R.string.trakt_cached_label),
@@ -881,7 +881,7 @@ private fun TraktConnectedStatsStrip(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(NuvioTheme.spacing.hairline)
+                .height(MoviesTheme.spacing.hairline)
                 .background(Color.White.copy(alpha = 0.18f))
         )
         Row(
@@ -899,7 +899,7 @@ private fun TraktConnectedStatsStrip(
                         color = Color.White,
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                     Text(
                         text = labels[index],
                         style = MaterialTheme.typography.bodySmall,
@@ -910,7 +910,7 @@ private fun TraktConnectedStatsStrip(
                 if (index != values.lastIndex) {
                     Box(
                         modifier = Modifier
-                            .width(NuvioTheme.spacing.hairline)
+                            .width(MoviesTheme.spacing.hairline)
                             .height(44.dp)
                             .background(Color.White.copy(alpha = 0.18f))
                     )

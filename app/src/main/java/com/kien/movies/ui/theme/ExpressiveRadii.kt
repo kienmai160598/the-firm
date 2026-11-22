@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.dp
 // The box build's corners, in the Apple TV manner: 12dp on cards and rows, 20dp on panels and
 // dialogs, capsules on buttons. Other builds keep upstream's tokens untouched.
 internal object ExpressiveRadii {
-    private val expressive = NuvioRadii.tokens.copy(
+    private val expressive = MoviesRadii.tokens.copy(
         md = 12.dp,
         lg = 12.dp,
         xl = 20.dp,
@@ -14,7 +14,7 @@ internal object ExpressiveRadii {
         panel = 20.dp
     )
 
-    val forBuild: NuvioRadiusTokens = if (isExpressiveBuild) expressive else NuvioRadii.tokens
+    val forBuild: MoviesRadiusTokens = if (isExpressiveBuild) expressive else MoviesRadii.tokens
 }
 
 internal object ExpressiveShapes {
@@ -22,7 +22,7 @@ internal object ExpressiveShapes {
     private val card = RoundedCornerShape(ExpressiveRadii.forBuild.md)
     private val panel = RoundedCornerShape(ExpressiveRadii.forBuild.xl)
 
-    private val expressive = NuvioShapes.tokens.copy(
+    private val expressive = MoviesShapes.tokens.copy(
         posterCard = card,
         backdropCard = card,
         collectionCard = card,
@@ -34,5 +34,5 @@ internal object ExpressiveShapes {
         field = card
     )
 
-    val forBuild: NuvioShapeTokens = if (isExpressiveBuild) expressive else NuvioShapes.tokens
+    val forBuild: MoviesShapeTokens = if (isExpressiveBuild) expressive else MoviesShapes.tokens
 }

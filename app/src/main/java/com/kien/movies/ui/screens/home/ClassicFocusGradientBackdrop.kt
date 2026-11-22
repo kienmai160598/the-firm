@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.home
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -63,9 +63,9 @@ internal fun ClassicFocusGradientBackdrop(
     if (!enabled) return
 
     val context = LocalContext.current
-    val fallbackColor = NuvioTheme.colors.FocusBackground
+    val fallbackColor = MoviesTheme.colors.FocusBackground
     val colorCache = remember(fallbackColor) { classicFocusGradientColorCache() }
-    val overlayDuration = NuvioTheme.motion.durations.overlay
+    val overlayDuration = MoviesTheme.motion.durations.overlay
 
     // Two-slot crossfade: slot 0 and slot 1 alternate as "incoming" layer.
     var slotColors by remember { mutableStateOf(Color.Transparent to Color.Transparent) }

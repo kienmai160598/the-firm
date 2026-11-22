@@ -3,7 +3,7 @@ package com.kien.movies.core.torrent
 import com.nuvio.engine.NuvioEngineStats
 import com.nuvio.engine.NuvioStreamStats
 
-internal const val TorrentDiagnosticTag = "NuvioP2PDiag"
+internal const val TorrentDiagnosticTag = "MoviesP2PDiag"
 
 internal fun diagnosticId(value: String?): String =
     value?.trim()?.take(12)?.ifBlank { "none" } ?: "none"

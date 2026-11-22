@@ -40,8 +40,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -89,7 +89,7 @@ internal fun AutoSyncedChip(subtitleUrl: String, selected: Boolean) {
     Row(
         modifier = Modifier
             .background(contentColor.copy(alpha = 0.16f), RoundedCornerShape(999.dp))
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = 3.dp),
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = 3.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -114,7 +114,7 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
     val status by AutoSyncSyncedSubtitle.status.collectAsState()
     val state = status?.takeIf { subtitleUrl != null && it.url == subtitleUrl }?.state ?: return
 
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     val (icon, color, label) = when (state) {
         AutoSyncState.SYNCED -> Triple(Icons.Default.Check, colors.Success, R.string.autosync_status_synced)
         AutoSyncState.NOT_NEEDED -> Triple(
@@ -125,7 +125,7 @@ internal fun AutoSyncStatusIndicator(subtitleUrl: String?, modifier: Modifier = 
         AutoSyncState.IN_PROGRESS -> Triple(Icons.Default.Sync, colors.Warning, R.string.autosync_status_in_progress)
         AutoSyncState.NO_FIT -> Triple(
             Icons.Default.PriorityHigh,
-            NuvioPrimitives.violet300,
+            MoviesPrimitives.violet300,
             R.string.autosync_status_no_fit,
         )
         AutoSyncState.NO_REFERENCE -> Triple(

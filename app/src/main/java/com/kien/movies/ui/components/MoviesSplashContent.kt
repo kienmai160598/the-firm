@@ -32,7 +32,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.launch
 
 // Sized for a 960 x 540 dp TV screen: the lockup spans about half the width and a third of
@@ -51,8 +51,8 @@ private const val GLOW_ALPHA = 0.22f
 /** The brand surface of the box build's splash, the same glow the launcher banner carries. */
 @Composable
 internal fun MoviesSplashBackground(modifier: Modifier = Modifier) {
-    val surface = NuvioTheme.colors.Background
-    val glow = NuvioTheme.colors.Secondary.copy(alpha = GLOW_ALPHA)
+    val surface = MoviesTheme.colors.Background
+    val glow = MoviesTheme.colors.Secondary.copy(alpha = GLOW_ALPHA)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -104,7 +104,7 @@ internal fun MoviesSplashContent() {
                 lineHeight = WordmarkSize,
                 fontWeight = FontWeight.Medium
             ),
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             maxLines = 1,
             modifier = Modifier.graphicsLayer {
                 val progress = wordmarkProgress.value
@@ -120,12 +120,12 @@ private fun MoviesMark(modifier: Modifier = Modifier) {
     Box(modifier = modifier.size(MarkSize), contentAlignment = Alignment.Center) {
         LoadingIndicator(
             modifier = Modifier.fillMaxSize(),
-            color = NuvioTheme.colors.Secondary
+            color = MoviesTheme.colors.Secondary
         )
         Icon(
             imageVector = Icons.Rounded.PlayArrow,
             contentDescription = null,
-            tint = NuvioTheme.colors.OnSecondary,
+            tint = MoviesTheme.colors.OnSecondary,
             modifier = Modifier.size(PlayGlyphSize)
         )
     }

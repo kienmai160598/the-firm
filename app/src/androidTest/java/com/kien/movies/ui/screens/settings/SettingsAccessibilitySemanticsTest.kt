@@ -8,7 +8,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.assertCountEquals
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -22,7 +22,7 @@ class SettingsAccessibilitySemanticsTest {
     @Test
     fun selectedRailItemExposesNameTabRoleAndSelectedState() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 SettingsRailButton(
                     title = "Playback",
                     isSelected = true,
@@ -42,7 +42,7 @@ class SettingsAccessibilitySemanticsTest {
     @Test
     fun railItemExposesClickActionAndName() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 SettingsRailButton(
                     title = "Playback",
                     isSelected = false,
@@ -59,7 +59,7 @@ class SettingsAccessibilitySemanticsTest {
     @Test
     fun topBarTabExposesItsNameRoleAndSelectedState() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 SettingsTopBarTab(
                     title = "Playback",
                     isSelected = true,

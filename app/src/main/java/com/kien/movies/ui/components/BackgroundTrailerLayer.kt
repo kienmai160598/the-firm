@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import com.kien.movies.core.player.BackgroundTrailerController
 import com.kien.movies.core.player.BackgroundTrailerRequest
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.max
 
 private const val BOUNDS_ANIMATION_MS = 450
@@ -84,7 +84,7 @@ fun BackgroundTrailerLayer(
                 val rect = Rect(coordinates.positionInWindow(), coordinates.size.toSize())
                 if (layerRect != rect) layerRect = rect
             }
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
     ) {
         Box(
             modifier = Modifier

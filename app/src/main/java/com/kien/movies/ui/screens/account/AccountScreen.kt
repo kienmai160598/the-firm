@@ -2,8 +2,8 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.screens.settings.TenFootTypography
@@ -85,18 +85,18 @@ fun AccountScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = NuvioTheme.spacing.xxxl),
-        contentPadding = PaddingValues(vertical = NuvioTheme.spacing.xxl),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            .padding(horizontal = MoviesTheme.spacing.xxxl),
+        contentPadding = PaddingValues(vertical = MoviesTheme.spacing.xxl),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
         item {
             Text(
                 text = stringResource(R.string.account_title),
                 style = MaterialTheme.typography.headlineMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
         }
 
         when (val authState = uiState.authState) {
@@ -109,7 +109,7 @@ fun AccountScreen(
                         Text(
                             text = stringResource(R.string.account_loading),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
@@ -120,7 +120,7 @@ fun AccountScreen(
                     Text(
                         text = stringResource(R.string.account_sign_in_description),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
                 item {
@@ -133,18 +133,18 @@ fun AccountScreen(
                 }
                 if (SHOW_SYNC_CODE_FEATURES) {
                     item {
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         Text(
                             text = stringResource(R.string.account_sync_code_title),
                             style = MaterialTheme.typography.titleLarge,
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                         Text(
                             text = stringResource(R.string.account_sync_code_description),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                     item {
@@ -218,40 +218,40 @@ private fun AccountActionCard(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContentColor = NuvioTheme.colors.TextPrimary
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+            contentColor = MoviesTheme.colors.TextPrimary,
+            focusedContentColor = MoviesTheme.colors.TextPrimary
         ),
         shape = ButtonDefaults.shape(
-            expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+            expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
         ),
         border = ButtonDefaults.border().expressiveRingless()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
-                tint = NuvioTheme.colors.Secondary
+                tint = MoviesTheme.colors.Secondary
             )
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -264,22 +264,22 @@ private fun AccountInfoCard(label: String, value: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = NuvioTheme.colors.BackgroundCard,
-                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                color = MoviesTheme.colors.BackgroundCard,
+                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
             )
-            .padding(NuvioTheme.spacing.lg)
+            .padding(MoviesTheme.spacing.lg)
     ) {
         Column {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -297,22 +297,22 @@ private fun LinkedDevicesSection(
                 imageVector = Icons.Default.Devices,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = NuvioTheme.colors.TextSecondary
+                tint = MoviesTheme.colors.TextSecondary
             )
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Text(
                 text = stringResource(R.string.account_linked_devices, devices.size),
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.Medium
             )
         }
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
         if (devices.isEmpty()) {
             Text(
                 text = stringResource(R.string.account_no_linked_devices),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
         } else {
             devices.forEach { device ->
@@ -320,29 +320,29 @@ private fun LinkedDevicesSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = NuvioTheme.colors.BackgroundCard,
-                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
+                            color = MoviesTheme.colors.BackgroundCard,
+                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
                         )
-                        .padding(NuvioTheme.spacing.md),
+                        .padding(MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = device.deviceName ?: stringResource(R.string.account_unknown_device),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         modifier = Modifier.weight(1f)
                     )
                     Button(
                         onClick = { onUnlink(device.deviceUserId) },
                         modifier = Modifier.tvControlHeight(),
                         colors = accountDestructiveColors(ButtonDefaults.colors(
-                            containerColor = NuvioPrimitives.red600.copy(alpha = 0.2f),
-                            focusedContainerColor = NuvioPrimitives.red600.copy(alpha = 0.4f),
+                            containerColor = MoviesPrimitives.red600.copy(alpha = 0.2f),
+                            focusedContainerColor = MoviesPrimitives.red600.copy(alpha = 0.4f),
                             contentColor = Color(0xFFF44336),
                             focusedContentColor = Color(0xFFF44336)
                         )),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.sm))
+                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.sm))
                             .expressivePill(),
                         border = ButtonDefaults.border().expressiveRingless(),
                         scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -350,16 +350,16 @@ private fun LinkedDevicesSection(
                         Icon(
                             imageVector = Icons.Default.LinkOff,
                             contentDescription = stringResource(R.string.cd_unlink),
-                            modifier = Modifier.size(buttonIconSize(NuvioTheme.spacing.lg))
+                            modifier = Modifier.size(buttonIconSize(MoviesTheme.spacing.lg))
                         )
-                        Spacer(modifier = Modifier.width(NuvioTheme.spacing.xs))
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.xs))
                         Text(
                             stringResource(R.string.account_unlink),
                             style = MaterialTheme.typography.labelSmall.bodyFloor()
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
             }
         }
     }
@@ -371,17 +371,17 @@ private fun SignOutButton(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.tvControlHeight(),
         colors = accountDestructiveColors(ButtonDefaults.colors(
-            containerColor = NuvioPrimitives.red600.copy(alpha = 0.15f),
-            focusedContainerColor = NuvioPrimitives.red600.copy(alpha = 0.3f),
+            containerColor = MoviesPrimitives.red600.copy(alpha = 0.15f),
+            focusedContainerColor = MoviesPrimitives.red600.copy(alpha = 0.3f),
             contentColor = Color(0xFFF44336),
             focusedContentColor = Color(0xFFF44336)
         )),
-        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressivePill(),
+        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressivePill(),
         border = ButtonDefaults.border().expressiveRingless(),
         scale = ButtonDefaults.scale().expressiveControlGrow()
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.sm),
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -389,7 +389,7 @@ private fun SignOutButton(onClick: () -> Unit) {
                 contentDescription = null,
                 modifier = Modifier.size(buttonIconSize(20.dp))
             )
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Text(
                 text = stringResource(R.string.account_sign_out),
                 style = MaterialTheme.typography.bodyMedium.bodyFloor(),

@@ -5,7 +5,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Immutable
-data class NuvioLayoutTokens(
+data class MoviesLayoutTokens(
     val tvSafeHorizontal: Dp,
     val tvSafeVertical: Dp,
     val compactSafeHorizontal: Dp,
@@ -17,7 +17,7 @@ data class NuvioLayoutTokens(
 )
 
 @Immutable
-data class NuvioMediaTokens(
+data class MoviesMediaTokens(
     val posterAspectRatio: Float,
     val backdropAspectRatio: Float,
     val heroAspectRatio: Float,
@@ -28,8 +28,8 @@ data class NuvioMediaTokens(
     val playerOverlayGradientStops: List<Float>
 )
 
-object NuvioLayout {
-    val tokens = NuvioLayoutTokens(
+object MoviesLayout {
+    val tokens = MoviesLayoutTokens(
         tvSafeHorizontal = 48.dp,
         tvSafeVertical = 24.dp,
         compactSafeHorizontal = 32.dp,
@@ -41,8 +41,8 @@ object NuvioLayout {
     )
 }
 
-object NuvioMedia {
-    val tokens = NuvioMediaTokens(
+object MoviesMedia {
+    val tokens = MoviesMediaTokens(
         posterAspectRatio = 2f / 3f,
         backdropAspectRatio = 16f / 9f,
         heroAspectRatio = 16f / 9f,

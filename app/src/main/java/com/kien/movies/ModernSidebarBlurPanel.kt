@@ -52,11 +52,11 @@ import androidx.tv.material3.Text
 import com.kien.movies.ui.components.AutoResizeText
 import com.kien.movies.ui.components.BrandWordmark
 import com.kien.movies.ui.components.ProfileAvatarCircle
-import com.kien.movies.ui.theme.NuvioComponents
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioRadii
-import com.kien.movies.ui.theme.NuvioStrokes
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesComponents
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesRadii
+import com.kien.movies.ui.theme.MoviesStrokes
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.util.contentTextDirection
 import androidx.compose.ui.graphics.BlendMode
@@ -67,9 +67,9 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.hazeEffect
 
-private val SidebarLeadingVisualSize = NuvioComponents.tokens.sidebar.leadingVisual
-private val SidebarContentGap = NuvioComponents.tokens.sidebar.contentGap
-private val SidebarProfileContentGap = NuvioComponents.tokens.sidebar.contentGap + NuvioTheme.spacing.xs
+private val SidebarLeadingVisualSize = MoviesComponents.tokens.sidebar.leadingVisual
+private val SidebarContentGap = MoviesComponents.tokens.sidebar.contentGap
+private val SidebarProfileContentGap = MoviesComponents.tokens.sidebar.contentGap + MoviesTheme.spacing.xs
 
 @Composable
 internal fun ModernSidebarBlurPanel(
@@ -101,14 +101,14 @@ internal fun ModernSidebarBlurPanel(
         delayedBlurProgress > 0f
     val expandedPanelBlurModifier = if (showPanelBlur) {
         Modifier.hazeEffect(state = sidebarHazeState) {
-            blurRadius = NuvioTheme.effects.blurPanel * delayedBlurProgress
+            blurRadius = MoviesTheme.effects.blurPanel * delayedBlurProgress
             noiseFactor = 0.04f * delayedBlurProgress
             inputScale = HazeInputScale.Fixed(0.66f)
         }
     } else {
         Modifier
     }
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     val bgElevated = colors.BackgroundElevated
     val bgCard = colors.BackgroundCard
     val borderBase = colors.Border
@@ -145,18 +145,18 @@ internal fun ModernSidebarBlurPanel(
             .background(brush = panelBackgroundBrush, shape = panelShape)
             .then(
                 if (panelBorderColor != Color.Transparent) {
-                    Modifier.border(width = NuvioStrokes.tokens.hairline, color = panelBorderColor, shape = panelShape)
+                    Modifier.border(width = MoviesStrokes.tokens.hairline, color = panelBorderColor, shape = panelShape)
                 } else {
                     Modifier
                 }
             )
-            .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.lg - NuvioTheme.spacing.xxs)
+            .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs)
     ) {
         if (showProfileSelector && activeProfileName.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = NuvioTheme.spacing.md),
+                    .offset(y = MoviesTheme.spacing.md),
                 contentAlignment = Alignment.Center
             ) {
                 SidebarProfileItem(
@@ -176,7 +176,7 @@ internal fun ModernSidebarBlurPanel(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = NuvioTheme.spacing.md),
+                    .offset(y = MoviesTheme.spacing.md),
                 contentAlignment = Alignment.Center
             ) {
                 BrandWordmark(
@@ -189,7 +189,7 @@ internal fun ModernSidebarBlurPanel(
             }
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Column(
             modifier = Modifier
@@ -200,7 +200,7 @@ internal fun ModernSidebarBlurPanel(
         ) {
             Column(
                 modifier = Modifier.offset(y = (-12).dp),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm - NuvioTheme.spacing.xxs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm - MoviesTheme.spacing.xxs)
             ) {
                 drawerItems.forEachIndexed { index, item ->
                     key(item.route) {
@@ -243,9 +243,9 @@ private fun SidebarNavigationItem(
     onClick: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val colors = NuvioTheme.colors
-    val shape = RoundedCornerShape(NuvioRadii.tokens.full)
-    val palette = NuvioTheme.palette
+    val colors = MoviesTheme.colors
+    val shape = RoundedCornerShape(MoviesRadii.tokens.full)
+    val palette = MoviesTheme.palette
     val accentColor = palette.secondary
     val backgroundColorTarget = when {
         isFocused && selected -> accentColor.copy(alpha = 0.28f)
@@ -255,7 +255,7 @@ private fun SidebarNavigationItem(
     }
     val animatedBackgroundColor by animateColorAsState(
         targetValue = backgroundColorTarget,
-        animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast),
+        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
         label = "sidebarItemBackground"
     )
     val backgroundColor = if (selected && !isFocused) backgroundColorTarget else animatedBackgroundColor
@@ -267,7 +267,7 @@ private fun SidebarNavigationItem(
     }
     val animatedContentColor by animateColorAsState(
         targetValue = contentColorTarget,
-        animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast),
+        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
         label = "sidebarItemContent"
     )
     val contentColor = if (selected && !isFocused) contentColorTarget else animatedContentColor
@@ -280,13 +280,13 @@ private fun SidebarNavigationItem(
     }
     val animatedIconTint by animateColorAsState(
         targetValue = iconTintTarget,
-        animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast),
+        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast),
         label = "sidebarItemIconTint"
     )
     val iconTint = if (selected && !isFocused) iconTintTarget else animatedIconTint
     val itemScale by animateFloatAsState(
         targetValue = if (isFocused) 1.1f else 1f,
-        animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast, easing = NuvioMotion.tokens.easings.standard),
+        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast, easing = MoviesMotion.tokens.easings.standard),
         label = "sidebarItemScale"
     )
 
@@ -310,7 +310,7 @@ private fun SidebarNavigationItem(
         border = CardDefaults.border(
             border = androidx.tv.material3.Border.None,
             focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(NuvioStrokes.tokens.thin, Color.Transparent),
+                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.thin, Color.Transparent),
                 shape = shape
             )
         ),
@@ -325,7 +325,7 @@ private fun SidebarNavigationItem(
                     this.selected = selected
                 }
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.lg - NuvioTheme.spacing.xxs, vertical = NuvioTheme.spacing.sm + NuvioTheme.spacing.xxs),
+                .padding(horizontal = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs, vertical = MoviesTheme.spacing.sm + MoviesTheme.spacing.xxs),
             verticalAlignment = Alignment.CenterVertically
         ) {
         Box(
@@ -339,7 +339,7 @@ private fun SidebarNavigationItem(
         ) {
             val iconModifier = if (iconBrush != null) {
                 Modifier
-                    .size(NuvioComponents.tokens.sidebar.iconSize)
+                    .size(MoviesComponents.tokens.sidebar.iconSize)
                     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                     .drawWithCache {
                         onDrawWithContent {
@@ -348,7 +348,7 @@ private fun SidebarNavigationItem(
                         }
                     }
             } else {
-                Modifier.size(NuvioComponents.tokens.sidebar.iconSize)
+                Modifier.size(MoviesComponents.tokens.sidebar.iconSize)
             }
             when {
                 icon != null -> Icon(
@@ -390,8 +390,8 @@ private fun SidebarProfileItem(
     onClick: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val colors = NuvioTheme.colors
-    val shape = RoundedCornerShape(NuvioRadii.tokens.full)
+    val colors = MoviesTheme.colors
+    val shape = RoundedCornerShape(MoviesRadii.tokens.full)
     val backgroundColor = if (isFocused) Color.White.copy(alpha = 0.12f) else Color.Transparent
     Card(
         onClick = onClick,
@@ -408,7 +408,7 @@ private fun SidebarProfileItem(
         border = CardDefaults.border(
             border = androidx.tv.material3.Border.None,
             focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(NuvioStrokes.tokens.thin, Color.Transparent),
+                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.thin, Color.Transparent),
                 shape = shape
             )
         ),
@@ -422,7 +422,7 @@ private fun SidebarProfileItem(
                     role = Role.Button
                 }
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.lg - NuvioTheme.spacing.xxs, vertical = NuvioTheme.spacing.sm + NuvioTheme.spacing.xxs),
+                .padding(horizontal = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs, vertical = MoviesTheme.spacing.sm + MoviesTheme.spacing.xxs),
             verticalAlignment = Alignment.CenterVertically
         ) {
         Box(

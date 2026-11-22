@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * AutoSync-owned preferences.
  *
- * Kept outside PlayerSettingsDataStore on purpose: upstream NuvioTV settings architecture does not
+ * Kept outside PlayerSettingsDataStore on purpose: upstream Movies settings architecture does not
  * need new fields, migrations, or constructor wiring just for this fork feature.
  */
 internal object AutoSyncPreferences {

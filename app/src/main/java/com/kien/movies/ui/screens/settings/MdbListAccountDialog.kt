@@ -5,7 +5,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kien.movies.R
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
 @Composable
@@ -34,7 +34,7 @@ internal fun MdbListAccountDialog(
             )
         }
     } else {
-        NuvioDialog(onDismiss = onDismiss, title = "", width = 720.dp, titleTextAlign = TextAlign.Center, suppressFirstKeyUp = false) {
+        MoviesDialog(onDismiss = onDismiss, title = "", width = 720.dp, titleTextAlign = TextAlign.Center, suppressFirstKeyUp = false) {
             TrackingDeviceAuthContent(
                 providerName = stringResource(R.string.mdblist_name),
                 logo = logo,

@@ -94,8 +94,8 @@ import com.kien.movies.ui.components.PlayManualOverrideDialog
 import com.kien.movies.ui.components.SynopsisDescription
 import com.kien.movies.ui.components.SynopsisOverlay
 import com.kien.movies.ui.components.TrailerPlayer
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.formatHeroRuntime
 import com.kien.movies.ui.util.localizedGenreLabel
 import com.kien.movies.ui.util.rememberLongPressKeyTracker
@@ -152,7 +152,7 @@ fun PostPlayRecommendationOverlay(
         label = "postPlayRecommendationLogoWidth"
     )
     val actionTopSpacing by animateDpAsState(
-        targetValue = if (state.isTrailerPlaying) NuvioTheme.spacing.md else NuvioTheme.spacing.xl,
+        targetValue = if (state.isTrailerPlaying) MoviesTheme.spacing.md else MoviesTheme.spacing.xl,
         animationSpec = tween(600),
         label = "postPlayRecommendationActionSpacing"
     )
@@ -250,8 +250,8 @@ fun PostPlayRecommendationOverlay(
             AnimatedContent(
                 targetState = recommendation,
                 transitionSpec = {
-                    (fadeIn(NuvioMotion.mediumTween()) togetherWith
-                        fadeOut(NuvioMotion.mediumTween())).using(null)
+                    (fadeIn(MoviesMotion.mediumTween()) togetherWith
+                        fadeOut(MoviesMotion.mediumTween())).using(null)
                 },
                 contentKey = { it.id },
                 label = "postPlayRecommendationBackdrop",
@@ -295,8 +295,8 @@ fun PostPlayRecommendationOverlay(
                     .align(Alignment.BottomStart)
                     .fillMaxWidth(0.52f)
                     .padding(
-                        start = NuvioTheme.spacing.screen.overscanHorizontal,
-                        bottom = NuvioTheme.spacing.screen.overscanVertical
+                        start = MoviesTheme.spacing.screen.overscanHorizontal,
+                        bottom = MoviesTheme.spacing.screen.overscanVertical
                     ),
                 horizontalAlignment = Alignment.Start
             ) {
@@ -317,8 +317,8 @@ fun PostPlayRecommendationOverlay(
                 Spacer(modifier = Modifier.height(actionTopSpacing))
 
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val buttonSpacing = NuvioTheme.spacing.md
-                    val navigationButtonSize = NuvioTheme.spacing.xxxl
+                    val buttonSpacing = MoviesTheme.spacing.md
+                    val navigationButtonSize = MoviesTheme.spacing.xxxl
                     val showTrailerButton = shouldShowPostPlayTrailerAction(
                         recommendation = recommendation,
                         isTrailerPlaying = state.isTrailerPlaying,
@@ -337,7 +337,7 @@ fun PostPlayRecommendationOverlay(
                     )
                     val buttonWidth by animateDpAsState(
                         targetValue = targetButtonWidth,
-                        animationSpec = NuvioMotion.mediumTween(),
+                        animationSpec = MoviesMotion.mediumTween(),
                         label = "postPlayRecommendationButtonWidth"
                     )
                     Row(
@@ -374,12 +374,12 @@ fun PostPlayRecommendationOverlay(
 
                         AnimatedVisibility(
                             visible = showTrailerButton,
-                            enter = fadeIn(NuvioMotion.mediumTween()) + expandHorizontally(
-                                animationSpec = NuvioMotion.mediumTween(),
+                            enter = fadeIn(MoviesMotion.mediumTween()) + expandHorizontally(
+                                animationSpec = MoviesMotion.mediumTween(),
                                 expandFrom = Alignment.Start
                             ),
-                            exit = fadeOut(NuvioMotion.mediumTween()) + shrinkHorizontally(
-                                animationSpec = NuvioMotion.mediumTween(),
+                            exit = fadeOut(MoviesMotion.mediumTween()) + shrinkHorizontally(
+                                animationSpec = MoviesMotion.mediumTween(),
                                 shrinkTowards = Alignment.Start
                             )
                         ) {
@@ -513,19 +513,19 @@ private fun PostPlayRecommendationSummary(
                         stringResource(R.string.player_post_play_because, currentTitle)
                     },
                     style = MaterialTheme.typography.labelMedium,
-                    color = NuvioTheme.extendedColors.textTertiary,
+                    color = MoviesTheme.extendedColors.textTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             }
         }
 
         AnimatedContent(
             targetState = recommendation,
             transitionSpec = {
-                (fadeIn(NuvioMotion.mediumTween()) togetherWith
-                    fadeOut(NuvioMotion.mediumTween())).using(null)
+                (fadeIn(MoviesMotion.mediumTween()) togetherWith
+                    fadeOut(MoviesMotion.mediumTween())).using(null)
             },
             contentKey = { it.id },
             label = "postPlayRecommendationTitle"
@@ -561,7 +561,7 @@ private fun PostPlayRecommendationSummary(
                         } else {
                             MaterialTheme.typography.displayMedium
                         },
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -577,8 +577,8 @@ private fun PostPlayRecommendationSummary(
             AnimatedContent(
                 targetState = recommendation,
                 transitionSpec = {
-                    (fadeIn(NuvioMotion.mediumTween()) togetherWith
-                        fadeOut(NuvioMotion.mediumTween())).using(null)
+                    (fadeIn(MoviesMotion.mediumTween()) togetherWith
+                        fadeOut(MoviesMotion.mediumTween())).using(null)
                 },
                 contentKey = { it.id },
                 label = "postPlayRecommendationDetails"
@@ -591,16 +591,16 @@ private fun PostPlayRecommendationSummary(
 
                 Column {
                     if (metadata.isNotBlank() || imdbRating != null || tmdbRating != null) {
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             if (metadata.isNotBlank()) {
                                 Text(
                                     text = metadata,
                                     style = MaterialTheme.typography.labelLarge,
-                                    color = NuvioTheme.extendedColors.textSecondary,
+                                    color = MoviesTheme.extendedColors.textSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f, fill = false)
@@ -610,7 +610,7 @@ private fun PostPlayRecommendationSummary(
                                 Text(
                                     text = "•",
                                     style = MaterialTheme.typography.labelLarge,
-                                    color = NuvioTheme.extendedColors.textTertiary
+                                    color = MoviesTheme.extendedColors.textTertiary
                                 )
                             }
                             if (imdbRating != null || tmdbRating != null) {
@@ -625,12 +625,12 @@ private fun PostPlayRecommendationSummary(
                     displayedRecommendation.mdbListRatings
                         ?.takeUnless { it.isEmpty() }
                         ?.let { ratings ->
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                             MDBListRatingsRow(ratings = ratings, order = mdbListRatingOrder)
                         }
 
                     if (!displayedRecommendation.description.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                         SynopsisDescription(
                             description = displayedRecommendation.description,
                             onShowFullDescription = onShowSynopsis,
@@ -658,26 +658,26 @@ private fun StandardRatingsRow(
     tmdbRating: Float?
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         imdbRating?.let { rating ->
             ImdbRatingSourceLabel(
                 logoModifier = Modifier.size(30.dp),
                 textStyle = MaterialTheme.typography.labelLarge,
-                textColor = NuvioTheme.extendedColors.textSecondary
+                textColor = MoviesTheme.extendedColors.textSecondary
             )
             Text(
                 text = String.format(Locale.US, "%.1f", rating),
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.extendedColors.textSecondary
+                color = MoviesTheme.extendedColors.textSecondary
             )
         }
         if (imdbRating != null && tmdbRating != null) {
             Text(
                 text = "•",
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.extendedColors.textTertiary
+                color = MoviesTheme.extendedColors.textTertiary
             )
         }
         tmdbRating?.let { rating ->
@@ -685,12 +685,12 @@ private fun StandardRatingsRow(
                 model = R.raw.mdblist_tmdb,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.size(NuvioTheme.spacing.xl)
+                modifier = Modifier.size(MoviesTheme.spacing.xl)
             )
             Text(
                 text = (rating * 10).toInt().toString(),
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.extendedColors.textSecondary
+                color = MoviesTheme.extendedColors.textSecondary
             )
         }
     }
@@ -723,18 +723,18 @@ private fun PostPlayRecommendationNavigationButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
-            .size(NuvioTheme.spacing.xxxl)
+            .size(MoviesTheme.spacing.xxxl)
             .focusRequester(focusRequester)
             .onFocusChanged { isFocused = it.isFocused }
             .then(if (isExpressiveBuild) Modifier.playerFocusLift(isFocused) else Modifier),
         colors = if (isExpressiveBuild) {
-            PlayerControlStyle.iconButtonColors(NuvioTheme.colors.TextPrimary)
+            PlayerControlStyle.iconButtonColors(MoviesTheme.colors.TextPrimary)
         } else {
             IconButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.Secondary,
-                contentColor = NuvioTheme.colors.TextPrimary,
-                focusedContentColor = NuvioTheme.colors.OnSecondary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = MoviesTheme.colors.Secondary,
+                contentColor = MoviesTheme.colors.TextPrimary,
+                focusedContentColor = MoviesTheme.colors.OnSecondary
             )
         },
         border = IconButtonDefaults.border(
@@ -742,7 +742,7 @@ private fun PostPlayRecommendationNavigationButton(
                 Border.None
             } else {
                 Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = CircleShape
                 )
             }
@@ -761,7 +761,7 @@ private fun PostPlayRecommendationNavigationButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            modifier = Modifier.size(NuvioTheme.spacing.xxl)
+            modifier = Modifier.size(MoviesTheme.spacing.xxl)
         )
     }
 }
@@ -776,7 +776,7 @@ private fun PostPlayRecommendationButton(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(NuvioTheme.spacing.xxl)
+    val shape = RoundedCornerShape(MoviesTheme.spacing.xxl)
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
@@ -826,10 +826,10 @@ private fun PostPlayRecommendationButton(
             PlayerControlStyle.pillButtonColors(isFocused, primary)
         } else {
             ButtonDefaults.colors(
-                containerColor = if (primary) Color.White else NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = if (primary) Color.White else NuvioTheme.colors.Secondary,
-                contentColor = if (primary) Color.Black else NuvioTheme.colors.TextPrimary,
-                focusedContentColor = if (primary) Color.Black else NuvioTheme.colors.OnSecondary
+                containerColor = if (primary) Color.White else MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = if (primary) Color.White else MoviesTheme.colors.Secondary,
+                contentColor = if (primary) Color.Black else MoviesTheme.colors.TextPrimary,
+                focusedContentColor = if (primary) Color.Black else MoviesTheme.colors.OnSecondary
             )
         },
         shape = if (isExpressiveBuild) {
@@ -842,14 +842,14 @@ private fun PostPlayRecommendationButton(
                 Border.None
             } else {
                 Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = shape
                 )
             }
         ),
         scale = if (isExpressiveBuild) PlayerControlStyle.stillScale else ButtonDefaults.scale(),
         contentPadding = PaddingValues(
-            horizontal = NuvioTheme.spacing.lg,
+            horizontal = MoviesTheme.spacing.lg,
             vertical = 14.dp
         )
     ) {
@@ -863,7 +863,7 @@ private fun PostPlayRecommendationButton(
                 contentDescription = null,
                 modifier = Modifier.size(PlayerTenFoot.atLeast(18.dp, 24.dp))
             )
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             AnimatedContent(
                 targetState = label,
                 transitionSpec = {
@@ -885,7 +885,7 @@ private fun PostPlayRecommendationButton(
 private fun rememberPostPlayRecommendationIcon(@RawRes iconRes: Int): Painter {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val sizePx = remember(density) { with(density) { NuvioTheme.spacing.xl.roundToPx() } }
+    val sizePx = remember(density) { with(density) { MoviesTheme.spacing.xl.roundToPx() } }
     val request = remember(iconRes, context, sizePx) {
         ImageRequest.Builder(context)
             .data(iconRes)

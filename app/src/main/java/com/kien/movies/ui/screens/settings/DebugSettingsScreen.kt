@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +48,7 @@ import androidx.tv.material3.Switch
 import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.account.InputField
 
 @Composable
@@ -62,34 +62,34 @@ fun DebugSettingsContent(
         Text(
             text = stringResource(R.string.debug_title),
             style = MaterialTheme.typography.headlineMedium,
-            color = NuvioTheme.colors.Secondary
+            color = MoviesTheme.colors.Secondary
         )
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
         Text(
             text = stringResource(R.string.debug_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
         val debugListState = rememberLazyListState()
         Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = debugListState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = NuvioTheme.spacing.md, bottom = NuvioTheme.spacing.xxl),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            contentPadding = PaddingValues(top = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.xxl),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             // ── Popup / Dialog Testing ──
             item(key = "debug_popup_header") {
                 Text(
                     text = stringResource(R.string.debug_section_popup),
                     style = MaterialTheme.typography.titleSmall,
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.xs)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
                 )
             }
 
@@ -102,12 +102,12 @@ fun DebugSettingsContent(
             }
 
             item(key = "debug_progress_header") {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Text(
                     text = stringResource(R.string.debug_section_progress),
                     style = MaterialTheme.typography.titleSmall,
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.xs)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
                 )
             }
 
@@ -117,12 +117,12 @@ fun DebugSettingsContent(
 
             // ── Feature Toggles ──
             item(key = "debug_feature_toggles_header") {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Text(
                     text = stringResource(R.string.debug_section_features),
                     style = MaterialTheme.typography.titleSmall,
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.xs)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
                 )
             }
 
@@ -171,12 +171,12 @@ fun DebugSettingsContent(
 
             // ── Library Testing ──
             item(key = "debug_library_header") {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Text(
                     text = stringResource(R.string.debug_section_library),
                     style = MaterialTheme.typography.titleSmall,
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.xs)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
                 )
             }
 
@@ -192,12 +192,12 @@ fun DebugSettingsContent(
 
             // ── Manual Sign In ──
             item(key = "debug_account_header") {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Text(
                     text = stringResource(R.string.debug_section_account),
                     style = MaterialTheme.typography.titleSmall,
-                    color = NuvioTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(bottom = NuvioTheme.spacing.xs)
+                    color = MoviesTheme.colors.TextTertiary,
+                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.xs)
                 )
             }
 
@@ -216,7 +216,7 @@ fun DebugSettingsContent(
     }
 
     if (showErrorDialog) {
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = { showErrorDialog = false },
             title = stringResource(R.string.debug_error_dialog_title),
             subtitle = stringResource(R.string.debug_error_dialog_subtitle)
@@ -235,41 +235,41 @@ private fun DebugProgressIndicatorCard() {
         onClick = { },
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressiveCard(),
+        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Text(
                 text = stringResource(R.string.debug_progress_indicator_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
             Text(
                 text = stringResource(R.string.debug_progress_indicator_subtitle),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_small), 18.dp)
-                DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_default), NuvioTheme.spacing.xxxl)
+                DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_default), MoviesTheme.spacing.xxxl)
                 DebugProgressIndicatorPreview(stringResource(R.string.debug_progress_indicator_large), 56.dp)
             }
         }
@@ -283,13 +283,13 @@ private fun DebugProgressIndicatorPreview(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         LoadingIndicator(modifier = Modifier.size(size))
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -310,16 +310,16 @@ private fun DebugToggleCard(
                 toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressiveCard(),
+        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Row(
@@ -333,26 +333,26 @@ private fun DebugToggleCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
 
             Switch(
                 checked = checked,
                 onCheckedChange = null,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = NuvioTheme.colors.Secondary,
-                    checkedTrackColor = NuvioTheme.colors.Secondary.copy(alpha = 0.3f),
-                    uncheckedThumbColor = NuvioTheme.colors.TextSecondary,
-                    uncheckedTrackColor = NuvioTheme.colors.BackgroundCard
+                    checkedThumbColor = MoviesTheme.colors.Secondary,
+                    checkedTrackColor = MoviesTheme.colors.Secondary.copy(alpha = 0.3f),
+                    uncheckedThumbColor = MoviesTheme.colors.TextSecondary,
+                    uncheckedTrackColor = MoviesTheme.colors.BackgroundCard
                 )
             )
         }
@@ -373,16 +373,16 @@ private fun DebugActionCard(
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ).expressiveRingless(),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)).expressiveCard(),
+        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)).expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Column(
@@ -393,13 +393,13 @@ private fun DebugActionCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
         }
     }
@@ -418,19 +418,19 @@ private fun DebugDialogButton(
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Secondary)
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Secondary)
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.sm)).expressiveCard(),
+        shape = CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.sm)).expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1.0f).expressiveCardGrow()
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (isFocused) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary,
+            color = if (isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = NuvioTheme.spacing.md, horizontal = NuvioTheme.spacing.lg),
+                .padding(vertical = MoviesTheme.spacing.md, horizontal = MoviesTheme.spacing.lg),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }
@@ -447,18 +447,18 @@ private fun DebugGenerateLibraryCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(NuvioTheme.spacing.xs),
+            .padding(MoviesTheme.spacing.xs),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             text = stringResource(R.string.debug_generate_library_title),
             style = MaterialTheme.typography.titleMedium,
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
         Text(
             text = stringResource(R.string.debug_generate_library_subtitle),
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
 
         InputField(
@@ -472,7 +472,7 @@ private fun DebugGenerateLibraryCard(
             Text(
                 text = result,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (result.startsWith("Failed")) NuvioTheme.colors.Error else NuvioTheme.colors.Secondary
+                color = if (result.startsWith("Failed")) MoviesTheme.colors.Error else MoviesTheme.colors.Secondary
             )
         }
 
@@ -500,18 +500,18 @@ private fun DebugSignInCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(NuvioTheme.spacing.xs),
+            .padding(MoviesTheme.spacing.xs),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             text = stringResource(R.string.debug_manual_signin_title),
             style = MaterialTheme.typography.titleMedium,
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
         Text(
             text = stringResource(R.string.debug_manual_signin_subtitle),
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
 
         InputField(
@@ -532,7 +532,7 @@ private fun DebugSignInCard(
             Text(
                 text = result,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (result.startsWith("Failed")) NuvioTheme.colors.Error else NuvioTheme.colors.Secondary
+                color = if (result.startsWith("Failed")) MoviesTheme.colors.Error else MoviesTheme.colors.Secondary
             )
         }
 

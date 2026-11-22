@@ -38,7 +38,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.data.local.SubtitleStyleSettings
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.player.SUBTITLE_BASE_TEXT_SP
 import com.kien.movies.ui.screens.player.StyledSubtitleText
@@ -49,7 +49,7 @@ import com.kien.movies.ui.screens.player.selectedSubtitleBackgroundPreset
 import com.kien.movies.ui.screens.player.subtitleBackgroundColorFor
 import com.kien.movies.ui.screens.player.subtitleFontIds
 import com.kien.movies.ui.screens.player.subtitleFontLabel
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.roundToInt
 
 private val PreviewBackdrop = Brush.linearGradient(listOf(Color(0xFF182A35), Color(0xFF53646B), Color(0xFF1C2934)))
@@ -67,7 +67,7 @@ internal fun SubtitleAppearanceDialog(
         firstFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.sub_appearance),
         subtitle = stringResource(R.string.sub_appearance_hint),
@@ -79,7 +79,7 @@ internal fun SubtitleAppearanceDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = false),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
         ) {
             SubtitleAppearanceControls(
                 style = style,
@@ -125,8 +125,8 @@ private fun SubtitleAppearanceControls(
     Box(modifier = modifier) {
         LazyColumn(
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs),
-            contentPadding = PaddingValues(vertical = NuvioTheme.spacing.xs)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
+            contentPadding = PaddingValues(vertical = MoviesTheme.spacing.xs)
         ) {
             item(key = "font") {
                 SettingsActionRow(
@@ -290,7 +290,7 @@ private fun SubtitleAppearanceControls(
                 SettingsResetButton(
                     text = stringResource(R.string.sub_reset_appearance),
                     onClick = { onUpdate { resetSubtitleAppearance() } },
-                    modifier = Modifier.padding(top = NuvioTheme.spacing.sm)
+                    modifier = Modifier.padding(top = MoviesTheme.spacing.sm)
                 )
             }
         }
@@ -309,21 +309,21 @@ private fun SubtitleColorSwatchRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = NuvioTheme.spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            .padding(vertical = MoviesTheme.spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             modifier = Modifier.padding(horizontal = SettingsRowContentInset)
         )
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRestorer(firstSwatchFocusRequester),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-            contentPadding = PaddingValues(horizontal = SettingsRowContentInset, vertical = NuvioTheme.spacing.sm)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+            contentPadding = PaddingValues(horizontal = SettingsRowContentInset, vertical = MoviesTheme.spacing.sm)
         ) {
             itemsIndexed(colors, key = { _, color -> color.toArgb() }) { index, color ->
                 ColorOption(
@@ -345,7 +345,7 @@ private fun SubtitleAppearancePreview(
     val textSizePx = with(LocalDensity.current) { (SUBTITLE_BASE_TEXT_SP * style.size / 100f).sp.toPx() }
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(NuvioTheme.radii.lg))
+            .clip(RoundedCornerShape(MoviesTheme.radii.lg))
             .background(PreviewBackdrop)
     ) {
         Text(
@@ -354,7 +354,7 @@ private fun SubtitleAppearancePreview(
             color = Color.White.copy(alpha = 0.7f),
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(NuvioTheme.spacing.lg)
+                .padding(MoviesTheme.spacing.lg)
         )
         StyledSubtitleText(
             text = AnnotatedString(stringResource(R.string.sub_preview_text)),
@@ -363,7 +363,7 @@ private fun SubtitleAppearancePreview(
             fontFamily = rememberSubtitleFontFamily(style.fontId),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.xl)
+                .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.xl)
         )
     }
 }

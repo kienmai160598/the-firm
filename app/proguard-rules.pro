@@ -55,7 +55,7 @@
 # Keep server classes and their inner data classes (serialized with Gson)
 -keep class com.kien.movies.core.server.** { *; }
 
-# ── Torrent streaming (Nuvio Engine) ───────────────────────────────────────────
+# ── Torrent streaming (Movies Engine) ───────────────────────────────────────────
 -keep class com.kien.movies.core.torrent.** { *; }
 -keep class com.nuvio.engine.** { *; }
 -keep interface com.nuvio.engine.** { *; }
@@ -80,7 +80,7 @@
 -keep interface com.google.android.exoplayer2.** { *; }
 -keep class com.google.android.exoplayer2.ext.** { *; }
 
-# Keep native interfaces and handles for Nuvio Engine JNI
+# Keep native interfaces and handles for Movies Engine JNI
 -keep class androidx.media3.exoplayer.upstream.DefaultAllocatorNative {
     native <methods>;
 }

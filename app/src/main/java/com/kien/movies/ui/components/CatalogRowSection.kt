@@ -2,7 +2,7 @@ package com.kien.movies.ui.components
 
 import androidx.compose.ui.semantics.clearAndSetSemantics
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.boxRowTitle
 
 import androidx.compose.foundation.BorderStroke
@@ -292,17 +292,17 @@ fun CatalogRowSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.md),
+                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.md),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
                 Text(
                     text = catalogTitle.ifBlank { " " },
                     style = MaterialTheme.typography.headlineMedium.boxRowTitle().copy(
                         textDirection = catalogTitle.contentTextDirection()
                     ),
-                    color = if (catalogTitle.isBlank()) Color.Transparent else NuvioTheme.colors.TextPrimary,
+                    color = if (catalogTitle.isBlank()) Color.Transparent else MoviesTheme.colors.TextPrimary,
                     maxLines = 3,
                     overflow = TextOverflow.Clip
                 )
@@ -313,7 +313,7 @@ fun CatalogRowSection(
                         style = MaterialTheme.typography.labelMedium.rememberMetaFloor().copy(
                             textDirection = addonText.contentTextDirection()
                         ),
-                        color = if (catalogTitle.isBlank()) Color.Transparent else NuvioTheme.colors.TextTertiary
+                        color = if (catalogTitle.isBlank()) Color.Transparent else MoviesTheme.colors.TextTertiary
                     )
                 }
             }
@@ -324,7 +324,7 @@ fun CatalogRowSection(
         val layoutDirection = LocalLayoutDirection.current
         val isRtl = layoutDirection == LayoutDirection.Rtl
         val horizontalBringIntoViewSpec = remember(density, defaultBringIntoViewSpec, isRtl) {
-            val startPx = with(density) { NuvioTheme.spacing.xxxl.roundToPx() }
+            val startPx = with(density) { MoviesTheme.spacing.xxxl.roundToPx() }
             @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
             object : BringIntoViewSpec {
                 override val scrollAnimationSpec: AnimationSpec<Float> =
@@ -389,8 +389,8 @@ fun CatalogRowSection(
                     }
                 }
                 .focusGroup(),
-            contentPadding = PaddingValues(start = NuvioTheme.spacing.xxxl, end = 200.dp),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            contentPadding = PaddingValues(start = MoviesTheme.spacing.xxxl, end = 200.dp),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             itemsIndexed(
                 items = catalogRow.items,
@@ -475,8 +475,8 @@ fun CatalogRowSection(
                               .focusProperties { canFocus = false },
                         shape = CardDefaults.shape(shape = seeAllCardShape),
                         colors = CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            focusedContainerColor = MoviesTheme.colors.BackgroundCard
                         )
                     ) {
                         Box(
@@ -510,12 +510,12 @@ fun CatalogRowSection(
                             .then(directionalFocusModifier),
                         shape = CardDefaults.shape(shape = seeAllCardShape),
                         colors = CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            focusedContainerColor = MoviesTheme.colors.BackgroundCard
                         ),
                         border = posterFocusBorder(CardDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                                border = MoviesTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                                 shape = seeAllCardShape
                             )
                         )),
@@ -541,15 +541,15 @@ fun CatalogRowSection(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                     contentDescription = null,
-                                    modifier = Modifier.size(NuvioTheme.spacing.xxl),
-                                    tint = NuvioTheme.colors.TextSecondary
+                                    modifier = Modifier.size(MoviesTheme.spacing.xxl),
+                                    tint = MoviesTheme.colors.TextSecondary
                                 )
-                                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                                 Text(
                                     text = seeAllLabel ?: stringResource(R.string.action_see_all),
                                     style = MaterialTheme.typography.titleSmall
                                         .rememberBodyFloor(),
-                                    color = NuvioTheme.colors.TextSecondary
+                                    color = MoviesTheme.colors.TextSecondary
                                 )
                             }
                         }

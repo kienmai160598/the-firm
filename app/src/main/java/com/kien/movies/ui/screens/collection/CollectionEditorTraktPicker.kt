@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.collection
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,12 +70,12 @@ fun TraktSourcePickerContent(
             state = traktListState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                top = NuvioTheme.spacing.xxxl,
-                start = NuvioTheme.spacing.xxxl,
-                end = NuvioTheme.spacing.xxxl,
-                bottom = NuvioTheme.spacing.xxxl
+                top = MoviesTheme.spacing.xxxl,
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl,
+                bottom = MoviesTheme.spacing.xxxl
             ),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             item(key = "trakt_header") {
                 Column {
@@ -91,14 +91,14 @@ fun TraktSourcePickerContent(
                             style = MaterialTheme.typography.headlineMedium
                                 .screenTitleFloor()
                                 .copy(textDirection = TextDirection.Content),
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                         )
-                        NuvioButton(
+                        MoviesButton(
                             onClick = onBack,
                             modifier = Modifier.blockHorizontalFocus()
                         ) { Text(stringResource(R.string.collections_editor_back)) }
                     }
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 }
             }
 
@@ -106,7 +106,7 @@ fun TraktSourcePickerContent(
                 item(key = "trakt_error") {
                     Text(
                         error,
-                        color = NuvioTheme.colors.Error,
+                        color = MoviesTheme.colors.Error,
                         style = MaterialTheme.typography.bodySmall.metaFloor()
                     )
                 }
@@ -164,7 +164,7 @@ private fun TraktSourceForm(
     onSearch: () -> Unit,
     onAddFromInput: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
         TraktLabeledField(
             label = stringResource(R.string.collections_editor_trakt_list),
             value = uiState.traktInput,
@@ -190,7 +190,7 @@ private fun TraktSourceForm(
         )
         val searchButtonFocusRequester = remember { FocusRequester() }
         Row(
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
             modifier = Modifier.focusEntryTarget(searchButtonFocusRequester)
         ) {
             TmdbActionButton(
@@ -199,12 +199,12 @@ private fun TraktSourceForm(
                 modifier = Modifier.focusRequester(searchButtonFocusRequester)
             ) {
                 Icon(Icons.Default.Search, contentDescription = null)
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                 Text(stringResource(R.string.collections_editor_tmdb_search))
             }
             TmdbActionButton(onClick = onAddFromInput, primary = true) {
                 Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                 Text(stringResource(if (isEditing) R.string.collections_editor_save_source else R.string.collections_editor_add_source))
             }
         }
@@ -223,9 +223,9 @@ private fun TraktLabeledField(
         Text(
             label,
             style = MaterialTheme.typography.labelMedium.metaFloor(),
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
-        NuvioTextField(
+        MoviesTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier
@@ -249,7 +249,7 @@ private fun TraktMediaSortControls(
     onSortChange: (String) -> Unit,
     onSortHowChange: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
         val movieRequester = remember { FocusRequester() }
         val seriesRequester = remember { FocusRequester() }
         val bothRequester = remember { FocusRequester() }
@@ -325,7 +325,7 @@ private fun TraktMediaSortControls(
 
 @Composable
 private fun TraktSectionTitle(title: String) {
-    Text(title, style = MaterialTheme.typography.labelLarge, color = NuvioTheme.colors.TextSecondary)
+    Text(title, style = MaterialTheme.typography.labelLarge, color = MoviesTheme.colors.TextSecondary)
 }
 
 @Composable

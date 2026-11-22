@@ -5,7 +5,7 @@ import com.kien.movies.BuildConfig
 
 /** Debug-only logcat, with stream/subtitle URLs redacted before logging. */
 internal object SyncLog {
-    private const val TAG = "NuvioAudioSync"
+    private const val TAG = "MoviesAudioSync"
     private val url = Regex("""https?://[^\s]+""")
     private fun write(level: Int, message: String) {
         if (BuildConfig.DEBUG) Log.println(level, TAG, url.replace(message, "<url>"))

@@ -36,8 +36,8 @@ import com.kien.movies.data.local.WatchProgressSource
 import com.kien.movies.data.simkl.SimklAnimeIdPreference
 import com.kien.movies.data.simkl.SimklConnectionMode
 import com.kien.movies.domain.model.LibrarySourceMode
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.delay
 
 @Composable
@@ -295,7 +295,7 @@ fun TrackingSettingsContent(
     }
 
     disconnectProvider?.let { provider ->
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = {
                 disconnectProvider = null
                 activeProvider = provider
@@ -553,7 +553,7 @@ internal fun TrackingSettingsOverview(
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(TrackingSettingsTestTags.OVERVIEW_LIST),
-                contentPadding = PaddingValues(bottom = NuvioTheme.spacing.md),
+                contentPadding = PaddingValues(bottom = MoviesTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 item(key = "tracking_accounts") {
@@ -734,7 +734,7 @@ private fun traktConnectionPresentation(state: TraktUiState): TrackingConnection
         state.isLoading && state.mode != TraktConnectionMode.CONNECTED -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.tracking_connecting_provider, stringResource(R.string.trakt_name)),
             value = stringResource(R.string.tracking_status_connecting),
-            color = NuvioTheme.colors.Info
+            color = MoviesTheme.colors.Info
         )
         state.mode == TraktConnectionMode.CONNECTED -> TrackingConnectionPresentation(
             subtitle = stringResource(
@@ -742,17 +742,17 @@ private fun traktConnectionPresentation(state: TraktUiState): TrackingConnection
                 state.username ?: stringResource(R.string.trakt_user_fallback)
             ),
             value = stringResource(R.string.tracking_status_connected),
-            color = NuvioTheme.colors.Success
+            color = MoviesTheme.colors.Success
         )
         state.mode == TraktConnectionMode.AWAITING_APPROVAL -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.tracking_finish_connection),
             value = stringResource(R.string.tracking_status_waiting),
-            color = NuvioTheme.colors.Warning
+            color = MoviesTheme.colors.Warning
         )
         else -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.trakt_description),
             value = stringResource(R.string.tracking_status_disconnected),
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -763,7 +763,7 @@ private fun simklConnectionPresentation(state: SimklSettingsUiState): TrackingCo
         state.isLoading && state.mode != SimklConnectionMode.CONNECTED -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.tracking_connecting_provider, stringResource(R.string.simkl_name)),
             value = stringResource(R.string.tracking_status_connecting),
-            color = NuvioTheme.colors.Info
+            color = MoviesTheme.colors.Info
         )
         state.mode == SimklConnectionMode.CONNECTED -> TrackingConnectionPresentation(
             subtitle = stringResource(
@@ -771,17 +771,17 @@ private fun simklConnectionPresentation(state: SimklSettingsUiState): TrackingCo
                 state.username ?: stringResource(R.string.simkl_user_fallback)
             ),
             value = stringResource(R.string.tracking_status_connected),
-            color = NuvioTheme.colors.Success
+            color = MoviesTheme.colors.Success
         )
         state.mode == SimklConnectionMode.AWAITING_APPROVAL -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.tracking_finish_connection),
             value = stringResource(R.string.tracking_status_waiting),
-            color = NuvioTheme.colors.Warning
+            color = MoviesTheme.colors.Warning
         )
         else -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.simkl_description),
             value = stringResource(R.string.tracking_status_disconnected),
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -790,19 +790,19 @@ private fun simklConnectionPresentation(state: SimklSettingsUiState): TrackingCo
 private fun mdbListConnectionPresentation(state: MdbListTrackerUiState): TrackingConnectionPresentation = when {
     state.isLoading && !state.isConnected -> TrackingConnectionPresentation(
         stringResource(R.string.tracking_connecting_provider, stringResource(R.string.mdblist_name)),
-        stringResource(R.string.tracking_status_connecting), NuvioTheme.colors.Info
+        stringResource(R.string.tracking_status_connecting), MoviesTheme.colors.Info
     )
     state.isConnected -> TrackingConnectionPresentation(
         stringResource(R.string.mdblist_connected_as, state.username ?: stringResource(R.string.mdblist_account_fallback)),
-        stringResource(R.string.tracking_status_connected), NuvioTheme.colors.Success
+        stringResource(R.string.tracking_status_connected), MoviesTheme.colors.Success
     )
     state.session != null -> TrackingConnectionPresentation(
         state.errorMessage ?: stringResource(R.string.tracking_finish_connection),
-        stringResource(R.string.tracking_status_waiting), NuvioTheme.colors.Warning
+        stringResource(R.string.tracking_status_waiting), MoviesTheme.colors.Warning
     )
     else -> TrackingConnectionPresentation(
         state.errorMessage ?: stringResource(R.string.mdblist_tracking_description),
-        stringResource(R.string.tracking_status_disconnected), NuvioTheme.colors.TextSecondary
+        stringResource(R.string.tracking_status_disconnected), MoviesTheme.colors.TextSecondary
     )
 }
 

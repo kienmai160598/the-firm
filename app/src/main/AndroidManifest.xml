@@ -32,7 +32,7 @@
         android:required="false" />
 
     <application
-        android:name=".NuvioApplication"
+        android:name=".MoviesApplication"
         android:allowBackup="false"
         android:banner="@mipmap/banner"
         android:icon="@mipmap/ic_launcher"

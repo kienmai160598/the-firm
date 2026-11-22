@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 /**
  * One label of the top tab bar. It draws no container of its own: [TopTabIndicator] slides
@@ -51,9 +51,9 @@ internal fun TopTab(
 
     val content by animateColorAsState(
         targetValue = when {
-            underIndicator && barFocused -> NuvioTheme.colors.OnSecondary
-            selected || underIndicator -> NuvioTheme.colors.TextPrimary
-            else -> NuvioTheme.colors.TextSecondary
+            underIndicator && barFocused -> MoviesTheme.colors.OnSecondary
+            selected || underIndicator -> MoviesTheme.colors.TextPrimary
+            else -> MoviesTheme.colors.TextSecondary
         },
         animationSpec = ExpressiveMotion.defaultEffects(),
         label = "topTabContent"

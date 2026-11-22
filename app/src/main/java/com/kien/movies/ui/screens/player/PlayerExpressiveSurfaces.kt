@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 private const val FLOATING_CONTAINER_ALPHA = 0.92f
@@ -38,7 +38,7 @@ private val UpstreamProgressFillColor = Color.White.copy(alpha = 0.85f)
 internal object PlayerSurfaceStyle {
     @Composable
     fun floatingContainer(upstream: Color): Color = if (isExpressiveBuild) {
-        NuvioTheme.colors.Surface.copy(alpha = FLOATING_CONTAINER_ALPHA)
+        MoviesTheme.colors.Surface.copy(alpha = FLOATING_CONTAINER_ALPHA)
     } else {
         upstream
     }
@@ -57,7 +57,7 @@ internal object PlayerSurfaceStyle {
     /** A small card of a few short lines, where the extra large corner would cut into text. */
     @Composable
     fun compactShape(upstream: Shape): Shape = if (isExpressiveBuild) {
-        RoundedCornerShape(NuvioTheme.radii.lg)
+        RoundedCornerShape(MoviesTheme.radii.lg)
     } else {
         upstream
     }
@@ -65,22 +65,22 @@ internal object PlayerSurfaceStyle {
     /** A panel docked to the right edge: rounded on its open side only. */
     @Composable
     fun sidePanelShape(): Shape {
-        val corner = if (isExpressiveBuild) SIDE_PANEL_CORNER else NuvioTheme.radii.xxl
+        val corner = if (isExpressiveBuild) SIDE_PANEL_CORNER else MoviesTheme.radii.xxl
         return RoundedCornerShape(topStart = corner, bottomStart = corner)
     }
 
     /** A dark translucent panel the video still tints through, never a real blur. */
     @Composable
     fun sidePanelColor(): Color = if (isExpressiveBuild) {
-        NuvioTheme.colors.Surface.copy(alpha = SIDE_PANEL_ALPHA)
+        MoviesTheme.colors.Surface.copy(alpha = SIDE_PANEL_ALPHA)
     } else {
-        NuvioTheme.colors.BackgroundElevated
+        MoviesTheme.colors.BackgroundElevated
     }
 
     /** Inside a panel docked to the right edge, its content keeps the TV safe margins. */
     @Composable
     fun sidePanelPadding(): PaddingValues {
-        val inner = NuvioTheme.spacing.xl
+        val inner = MoviesTheme.spacing.xl
         if (!isExpressiveBuild) return PaddingValues(inner)
 
         val edge = PlayerTenFoot.atLeast(inner, PlayerTenFoot.edgeMargin)
@@ -95,20 +95,20 @@ internal object PlayerSurfaceStyle {
     /** The small badge of an icon inside an indicator: the accent's tonal container. */
     @Composable
     fun iconBadgeColor(upstream: Color): Color =
-        if (isExpressiveBuild) NuvioTheme.colors.SecondaryVariant else upstream
+        if (isExpressiveBuild) MoviesTheme.colors.SecondaryVariant else upstream
 
     @Composable
     fun iconBadgeContent(upstream: Color): Color =
-        if (isExpressiveBuild) NuvioTheme.colors.OnSecondaryVariant else upstream
+        if (isExpressiveBuild) MoviesTheme.colors.OnSecondaryVariant else upstream
 
     @Composable
     fun errorText(upstream: Color): Color =
-        if (isExpressiveBuild) NuvioTheme.colors.Error else upstream
+        if (isExpressiveBuild) MoviesTheme.colors.Error else upstream
 
     /** Netflix red marks what has played; other builds keep their accent. */
     @Composable
     fun playedColor(): Color =
-        if (isExpressiveBuild) ExpressiveColors.accentRed else NuvioTheme.colors.Secondary
+        if (isExpressiveBuild) ExpressiveColors.accentRed else MoviesTheme.colors.Secondary
 
     /** M3E linear indicators keep a track thick enough to read from the sofa. */
     fun progressThickness(upstream: Dp): Dp =
@@ -144,9 +144,9 @@ internal object PlayerMotion {
 @Composable
 internal fun Modifier.playerLinearProgress(
     progress: () -> Float,
-    upstreamCorner: Dp = NuvioTheme.radii.xxs
+    upstreamCorner: Dp = MoviesTheme.radii.xxs
 ): Modifier {
-    val activeColor = if (isExpressiveBuild) Color.White else NuvioTheme.colors.Secondary
+    val activeColor = if (isExpressiveBuild) Color.White else MoviesTheme.colors.Secondary
 
     return drawBehind {
         val fraction = progress().coerceIn(0f, 1f)

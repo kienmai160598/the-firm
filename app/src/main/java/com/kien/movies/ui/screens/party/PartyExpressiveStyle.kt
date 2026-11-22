@@ -10,12 +10,12 @@ import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.kien.movies.ui.screens.detail.forBuild
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 /** Keypad keys: tonal at rest; focus fills white upstream and with the accent on the box. */
 @Composable
 internal fun keypadButtonColors(primary: Boolean): ButtonColors {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     return ButtonDefaults.colors(
         containerColor = if (primary) colors.FocusBackground else colors.BackgroundCard,
         contentColor = colors.TextPrimary,
@@ -26,6 +26,6 @@ internal fun keypadButtonColors(primary: Boolean): ButtonColors {
 
 /** The party side sheet takes M3's extra-large corner on the box build. */
 internal fun partyPanelShape(): Shape {
-    val corner = forBuild(NuvioTheme.spacing.lg, NuvioTheme.radii.xxl)
+    val corner = forBuild(MoviesTheme.spacing.lg, MoviesTheme.radii.xxl)
     return RoundedCornerShape(topStart = corner, bottomStart = corner)
 }

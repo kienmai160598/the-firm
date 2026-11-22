@@ -297,7 +297,7 @@ internal class AsrSyncEngine(
 
     private fun ensureWorker() {
         if (worker != null) return
-        worker = Thread({ runWorker() }, "NuvioAsrSync").apply {
+        worker = Thread({ runWorker() }, "MoviesAsrSync").apply {
             isDaemon = true
             priority = Thread.MIN_PRIORITY
             start()

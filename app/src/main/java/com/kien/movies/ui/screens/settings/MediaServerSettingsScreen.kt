@@ -38,8 +38,8 @@ import com.kien.movies.R
 import com.kien.movies.data.mediaserver.ServerCapability
 import com.kien.movies.data.mediaserver.messageRes
 import com.kien.movies.data.mediaserver.supports
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun MediaServerSettingsContent(
@@ -77,7 +77,7 @@ internal fun MediaServerSettingsContent(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+                    contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     item(key = "server_enabled") {
@@ -112,15 +112,15 @@ internal fun MediaServerSettingsContent(
                         }
                     }
                     item(key = "server_libraries_label") {
-                        Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
                             ServerSectionLabel(stringResource(R.string.servers_libraries))
                             Text(
                                 text = stringResource(
                                     if (connection.libraries.isEmpty()) R.string.servers_no_libraries else R.string.servers_libraries_description
                                 ),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NuvioTheme.colors.TextSecondary,
-                                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.sm)
+                                color = MoviesTheme.colors.TextSecondary,
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.sm)
                             )
                         }
                     }
@@ -186,7 +186,7 @@ internal fun MediaServerSettingsContent(
     }
 
     if (confirmRemove) {
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = { confirmRemove = false },
             title = stringResource(R.string.servers_remove_confirm_title),
             subtitle = stringResource(R.string.servers_remove_confirm_message, connection.name)

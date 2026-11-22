@@ -5,7 +5,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Immutable
-data class NuvioIconSizes(
+data class MoviesIconSizes(
     val xs: Dp,
     val sm: Dp,
     val md: Dp,
@@ -14,7 +14,7 @@ data class NuvioIconSizes(
 )
 
 @Immutable
-data class NuvioButtonSizes(
+data class MoviesButtonSizes(
     val compactHeight: Dp,
     val defaultHeight: Dp,
     val largeHeight: Dp,
@@ -22,7 +22,7 @@ data class NuvioButtonSizes(
 )
 
 @Immutable
-data class NuvioSidebarSizes(
+data class MoviesSidebarSizes(
     val hiddenWidth: Dp,
     val compactWidth: Dp,
     val closedWidth: Dp,
@@ -33,7 +33,7 @@ data class NuvioSidebarSizes(
 )
 
 @Immutable
-data class NuvioCardSizes(
+data class MoviesCardSizes(
     val posterWidth: Dp,
     val posterHeight: Dp,
     val posterCompactWidth: Dp,
@@ -45,7 +45,7 @@ data class NuvioCardSizes(
 )
 
 @Immutable
-data class NuvioAvatarSizes(
+data class MoviesAvatarSizes(
     val sm: Dp,
     val md: Dp,
     val lg: Dp,
@@ -55,7 +55,7 @@ data class NuvioAvatarSizes(
 )
 
 @Immutable
-data class NuvioPlayerSizes(
+data class MoviesPlayerSizes(
     val control: Dp,
     val compactControl: Dp,
     val timelineHeight: Dp,
@@ -64,7 +64,7 @@ data class NuvioPlayerSizes(
 )
 
 @Immutable
-data class NuvioSettingsSizes(
+data class MoviesSettingsSizes(
     val railWidth: Dp,
     val railItemHeight: Dp,
     val workspaceMinWidth: Dp,
@@ -72,35 +72,35 @@ data class NuvioSettingsSizes(
 )
 
 @Immutable
-data class NuvioSizeTokens(
-    val icons: NuvioIconSizes,
-    val buttons: NuvioButtonSizes,
-    val sidebar: NuvioSidebarSizes,
-    val cards: NuvioCardSizes,
-    val avatars: NuvioAvatarSizes,
-    val player: NuvioPlayerSizes,
-    val settings: NuvioSettingsSizes,
+data class MoviesSizeTokens(
+    val icons: MoviesIconSizes,
+    val buttons: MoviesButtonSizes,
+    val sidebar: MoviesSidebarSizes,
+    val cards: MoviesCardSizes,
+    val avatars: MoviesAvatarSizes,
+    val player: MoviesPlayerSizes,
+    val settings: MoviesSettingsSizes,
     val logoWidth: Dp,
     val logoHeight: Dp,
     val menuItemHeight: Dp
 )
 
-object NuvioSizes {
-    val tokens = NuvioSizeTokens(
-        icons = NuvioIconSizes(
+object MoviesSizes {
+    val tokens = MoviesSizeTokens(
+        icons = MoviesIconSizes(
             xs = 14.dp,
             sm = 18.dp,
             md = 22.dp,
             lg = 28.dp,
             xl = 36.dp
         ),
-        buttons = NuvioButtonSizes(
+        buttons = MoviesButtonSizes(
             compactHeight = 40.dp,
             defaultHeight = 52.dp,
             largeHeight = 64.dp,
             minWidth = 96.dp
         ),
-        sidebar = NuvioSidebarSizes(
+        sidebar = MoviesSidebarSizes(
             hiddenWidth = 0.dp,
             compactWidth = 72.dp,
             closedWidth = 184.dp,
@@ -109,7 +109,7 @@ object NuvioSizes {
             railItemHeight = 52.dp,
             leadingVisual = 34.dp
         ),
-        cards = NuvioCardSizes(
+        cards = MoviesCardSizes(
             posterWidth = 126.dp,
             posterHeight = 189.dp,
             posterCompactWidth = 112.dp,
@@ -119,7 +119,7 @@ object NuvioSizes {
             episodeWidth = 320.dp,
             episodeHeight = 207.dp
         ),
-        avatars = NuvioAvatarSizes(
+        avatars = MoviesAvatarSizes(
             sm = 34.dp,
             md = 48.dp,
             lg = 82.dp,
@@ -127,14 +127,14 @@ object NuvioSizes {
             profile = 126.dp,
             profileCompact = 104.dp
         ),
-        player = NuvioPlayerSizes(
+        player = MoviesPlayerSizes(
             control = 44.dp,
             compactControl = 40.dp,
             timelineHeight = 4.dp,
             sidePanelWidth = 360.dp,
             railWidth = 280.dp
         ),
-        settings = NuvioSettingsSizes(
+        settings = MoviesSettingsSizes(
             railWidth = 260.dp,
             railItemHeight = 56.dp,
             workspaceMinWidth = 720.dp,

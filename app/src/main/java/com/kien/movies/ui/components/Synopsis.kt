@@ -59,7 +59,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.contentTextDirection
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -140,7 +140,7 @@ fun SynopsisDescription(
             style = MaterialTheme.typography.bodyMedium.copy(
                 textDirection = description.contentTextDirection()
             ),
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             onTextLayout = { result ->
@@ -154,9 +154,9 @@ fun SynopsisDescription(
                 text = stringResource(R.string.hero_synopsis_read_more),
                 style = MaterialTheme.typography.labelMedium,
                 color = if (isFocused) {
-                    NuvioTheme.colors.TextPrimary
+                    MoviesTheme.colors.TextPrimary
                 } else {
-                    NuvioTheme.extendedColors.textSecondary
+                    MoviesTheme.extendedColors.textSecondary
                 },
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -229,11 +229,11 @@ fun SynopsisOverlay(
                         )
                     )
                 )
-                .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl)
+                .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 Text(
                     text = title,
@@ -310,7 +310,7 @@ fun SynopsisOverlay(
                         color = Color.White.copy(alpha = 0.92f),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = NuvioTheme.spacing.lg)
+                            .padding(end = MoviesTheme.spacing.lg)
                     )
                 }
 

@@ -14,7 +14,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.data.local.SubtitleStyleSettings
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -58,7 +58,7 @@ internal fun SubtitleBackgroundStyleCard(
     val background = Color(subtitleStyle.backgroundColor)
     val opacityPercent = (background.alpha * 100f).roundToInt()
     OverlaySectionCard(title = stringResource(R.string.sub_background), modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+        Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             ColorChipRow(
                 colors = SubtitleBackgroundColorPresets,
                 selectedColor = selectedSubtitleBackgroundPreset(subtitleStyle.backgroundColor),
@@ -90,7 +90,7 @@ internal fun SubtitleBackgroundStyleCard(
             )
             Column(
                 modifier = Modifier.alpha(if (opacityPercent > 0) 1f else 0.35f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 RailStepperLabel(stringResource(R.string.sub_bg_roundness))
                 StepperRow(
@@ -120,7 +120,7 @@ internal fun SubtitleShadowStyleCard(
 ) {
     val enableShadow = { if (!subtitleStyle.shadowEnabled) onEvent(PlayerEvent.OnSetSubtitleShadowEnabled(true)) }
     OverlaySectionCard(title = stringResource(R.string.sub_shadow), modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+        Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             ToggleChip(
                 label = stringResource(if (subtitleStyle.shadowEnabled) R.string.subtitle_style_on else R.string.subtitle_style_off),
                 isEnabled = subtitleStyle.shadowEnabled,
@@ -132,7 +132,7 @@ internal fun SubtitleShadowStyleCard(
             )
             Column(
                 modifier = Modifier.alpha(if (subtitleStyle.shadowEnabled) 1f else 0.35f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 RailStepperLabel(stringResource(R.string.sub_opacity))
                 StepperRow(

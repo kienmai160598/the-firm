@@ -3,7 +3,7 @@ package com.kien.movies.ui.screens.home
 import com.kien.movies.ui.components.ExpressiveErrorContainer
 import com.kien.movies.ui.components.ExpressiveOnErrorContainer
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
@@ -53,7 +53,7 @@ import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalStartupLoadingState
 import com.kien.movies.ui.components.LocalStartupSplashEnabled
 import com.kien.movies.ui.components.shouldShowHomeStartupLoader
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
 import androidx.compose.ui.res.stringResource
@@ -297,7 +297,7 @@ fun HomeScreen(
                         Text(
                             text = stringResource(R.string.home_no_addons),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
@@ -314,7 +314,7 @@ fun HomeScreen(
                         Text(
                             text = stringResource(R.string.home_no_catalog_addons),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
@@ -340,7 +340,7 @@ fun HomeScreen(
                         Text(
                             text = stringResource(R.string.web_no_catalogs),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
@@ -454,7 +454,7 @@ fun HomeScreen(
                             Color(0xFF5A1C1C)
                         },
                         shape = RoundedCornerShape(
-                            if (isExpressiveBuild) NuvioTheme.radii.lg else 10.dp
+                            if (isExpressiveBuild) MoviesTheme.radii.lg else 10.dp
                         )
                     )
                     .padding(horizontal = 18.dp, vertical = 10.dp)
@@ -468,7 +468,7 @@ fun HomeScreen(
                     color = if (isExpressiveBuild) {
                         ExpressiveOnErrorContainer
                     } else {
-                        NuvioTheme.colors.TextPrimary
+                        MoviesTheme.colors.TextPrimary
                     }
                 )
             }
@@ -764,7 +764,7 @@ private fun HomePosterOptionsDialog(
         primaryFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.home_poster_dialog_subtitle)
@@ -775,8 +775,8 @@ private fun HomePosterOptionsDialog(
                 .fillMaxWidth()
                 .focusRequester(primaryFocusRequester),
             colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                contentColor = MoviesTheme.colors.TextPrimary
             )
         ) {
             Text(stringResource(R.string.cw_action_go_to_details))
@@ -787,8 +787,8 @@ private fun HomePosterOptionsDialog(
             enabled = !isLibraryPending,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                contentColor = MoviesTheme.colors.TextPrimary
             )
         ) {
             Text(
@@ -809,8 +809,8 @@ private fun HomePosterOptionsDialog(
             enabled = !isWatchedPending,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                contentColor = NuvioTheme.colors.TextPrimary
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                contentColor = MoviesTheme.colors.TextPrimary
             )
         ) {
             Text(

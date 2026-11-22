@@ -7,44 +7,44 @@ import com.kien.movies.domain.model.CustomThemeColors
 data class ThemeColorPalette(
     val secondary: Color,
     val secondaryVariant: Color,
-    val onSecondary: Color = NuvioPrimitives.white,
-    val onSecondaryVariant: Color = NuvioPrimitives.white,
+    val onSecondary: Color = MoviesPrimitives.white,
+    val onSecondaryVariant: Color = MoviesPrimitives.white,
     val accentGradient: List<Color> = listOf(secondary),
     val focusRing: Color,
     val focusRingGradient: List<Color> = listOf(focusRing),
     val focusBackground: Color,
-    val background: Color = NuvioPrimitives.neutral950,
-    val backgroundElevated: Color = NuvioPrimitives.neutral900,
-    val backgroundCard: Color = NuvioPrimitives.neutral825,
-    val surface: Color = NuvioPrimitives.neutral875,
-    val surfaceVariant: Color = NuvioPrimitives.neutral800,
-    val panel: Color = NuvioPrimitives.neutral900,
+    val background: Color = MoviesPrimitives.neutral950,
+    val backgroundElevated: Color = MoviesPrimitives.neutral900,
+    val backgroundCard: Color = MoviesPrimitives.neutral825,
+    val surface: Color = MoviesPrimitives.neutral875,
+    val surfaceVariant: Color = MoviesPrimitives.neutral800,
+    val panel: Color = MoviesPrimitives.neutral900,
     val overlay: Color = Color(0xD9000000),
-    val field: Color = NuvioPrimitives.neutral850,
-    val menu: Color = NuvioPrimitives.neutral875,
-    val modal: Color = NuvioPrimitives.neutral900,
-    val primary: Color = NuvioPrimitives.neutral500,
-    val onPrimary: Color = NuvioPrimitives.white,
-    val outline: Color = NuvioPrimitives.neutral600,
-    val outlineVariant: Color = NuvioPrimitives.neutral750,
+    val field: Color = MoviesPrimitives.neutral850,
+    val menu: Color = MoviesPrimitives.neutral875,
+    val modal: Color = MoviesPrimitives.neutral900,
+    val primary: Color = MoviesPrimitives.neutral500,
+    val onPrimary: Color = MoviesPrimitives.white,
+    val outline: Color = MoviesPrimitives.neutral600,
+    val outlineVariant: Color = MoviesPrimitives.neutral750,
     val playerOverlay: Color = Color(0xCC000000),
-    val textSecondary: Color = NuvioPrimitives.neutral400,
-    val textTertiary: Color = NuvioPrimitives.neutral600
+    val textSecondary: Color = MoviesPrimitives.neutral400,
+    val textTertiary: Color = MoviesPrimitives.neutral600
 )
 
 object ThemeColors {
     val Crimson = ThemeColorPalette(
-        secondary = NuvioPrimitives.red500,
-        secondaryVariant = NuvioPrimitives.red600,
-        focusRing = NuvioPrimitives.red300,
+        secondary = MoviesPrimitives.red500,
+        secondaryVariant = MoviesPrimitives.red600,
+        focusRing = MoviesPrimitives.red300,
         focusBackground = Color(0xFF3D1A1A),
         backgroundCard = Color(0xFF241A1A)
     )
 
     val Ocean = ThemeColorPalette(
-        secondary = NuvioPrimitives.blue500,
-        secondaryVariant = NuvioPrimitives.blue700,
-        focusRing = NuvioPrimitives.blue300,
+        secondary = MoviesPrimitives.blue500,
+        secondaryVariant = MoviesPrimitives.blue700,
+        focusRing = MoviesPrimitives.blue300,
         focusBackground = Color(0xFF1A2D3D),
         background = Color(0xFF0D0D0F),
         backgroundElevated = Color(0xFF1A1A1E),
@@ -52,9 +52,9 @@ object ThemeColors {
     )
 
     val Violet = ThemeColorPalette(
-        secondary = NuvioPrimitives.violet500,
-        secondaryVariant = NuvioPrimitives.violet700,
-        focusRing = NuvioPrimitives.violet300,
+        secondary = MoviesPrimitives.violet500,
+        secondaryVariant = MoviesPrimitives.violet700,
+        focusRing = MoviesPrimitives.violet300,
         focusBackground = Color(0xFF2D1A3D),
         background = Color(0xFF0D0D0F),
         backgroundElevated = Color(0xFF1A1A1E),
@@ -62,17 +62,17 @@ object ThemeColors {
     )
 
     val Emerald = ThemeColorPalette(
-        secondary = NuvioPrimitives.green500,
-        secondaryVariant = NuvioPrimitives.green700,
-        focusRing = NuvioPrimitives.green300,
+        secondary = MoviesPrimitives.green500,
+        secondaryVariant = MoviesPrimitives.green700,
+        focusRing = MoviesPrimitives.green300,
         focusBackground = Color(0xFF1A3D1E),
         backgroundCard = Color(0xFF1A241A)
     )
 
     val Amber = ThemeColorPalette(
-        secondary = NuvioPrimitives.amber500,
-        secondaryVariant = NuvioPrimitives.amber700,
-        focusRing = NuvioPrimitives.amber300,
+        secondary = MoviesPrimitives.amber500,
+        secondaryVariant = MoviesPrimitives.amber700,
+        focusRing = MoviesPrimitives.amber300,
         focusBackground = Color(0xFF3D2D1A),
         background = Color(0xFF0F0D0D),
         backgroundElevated = Color(0xFF1E1A1A),
@@ -80,21 +80,21 @@ object ThemeColors {
     )
 
     val Rose = ThemeColorPalette(
-        secondary = NuvioPrimitives.rose500,
-        secondaryVariant = NuvioPrimitives.rose700,
-        focusRing = NuvioPrimitives.rose300,
+        secondary = MoviesPrimitives.rose500,
+        secondaryVariant = MoviesPrimitives.rose700,
+        focusRing = MoviesPrimitives.rose300,
         focusBackground = Color(0xFF3D1A2D),
         backgroundCard = Color(0xFF241A1F)
     )
 
     val White = ThemeColorPalette(
-        secondary = NuvioPrimitives.neutral100,
-        secondaryVariant = NuvioPrimitives.neutral200,
-        onSecondary = NuvioPrimitives.neutral925,
-        onSecondaryVariant = NuvioPrimitives.neutral925,
-        focusRing = NuvioPrimitives.white,
+        secondary = MoviesPrimitives.neutral100,
+        secondaryVariant = MoviesPrimitives.neutral200,
+        onSecondary = MoviesPrimitives.neutral925,
+        onSecondaryVariant = MoviesPrimitives.neutral925,
+        focusRing = MoviesPrimitives.white,
         focusBackground = Color(0xFF303030),
-        backgroundCard = NuvioPrimitives.neutral850
+        backgroundCard = MoviesPrimitives.neutral850
     )
 
     fun getColorPalette(

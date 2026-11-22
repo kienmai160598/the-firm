@@ -13,7 +13,7 @@ import com.kien.movies.domain.model.AppTheme
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.SettingsUiStyle
 
-data class NuvioExtendedColors(
+data class MoviesExtendedColors(
     val backgroundElevated: Color,
     val backgroundCard: Color,
     val textSecondary: Color,
@@ -23,12 +23,12 @@ data class NuvioExtendedColors(
     val rating: Color
 )
 
-val LocalNuvioColors = staticCompositionLocalOf {
-    NuvioColorScheme(ThemeColors.Ocean)
+val LocalMoviesColors = staticCompositionLocalOf {
+    MoviesColorScheme(ThemeColors.Ocean)
 }
 
-val LocalNuvioExtendedColors = staticCompositionLocalOf {
-    NuvioExtendedColors(
+val LocalMoviesExtendedColors = staticCompositionLocalOf {
+    MoviesExtendedColors(
         backgroundElevated = Color(0xFF1A1A1A),
         backgroundCard = Color(0xFF242424),
         textSecondary = Color(0xFFB3B3B3),
@@ -39,7 +39,7 @@ val LocalNuvioExtendedColors = staticCompositionLocalOf {
     )
 }
 
-val LocalNuvioTextStyles = staticCompositionLocalOf { NuvioTextStyles }
+val LocalMoviesTextStyles = staticCompositionLocalOf { MoviesTextStyles }
 
 val LocalAppTheme = staticCompositionLocalOf { AppTheme.WHITE }
 
@@ -47,13 +47,13 @@ val LocalThemePalette = staticCompositionLocalOf { ThemeColors.White }
 
 val LocalSettingsUiStyle = staticCompositionLocalOf { SettingsUiStyle.CLASSIC }
 
-val LocalNuvioFocusRingStyle = staticCompositionLocalOf {
+val LocalMoviesFocusRingStyle = staticCompositionLocalOf {
     createFocusRingStyle(ThemeColors.Ocean)
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NuvioTheme(
+fun MoviesTheme(
     appTheme: AppTheme = AppTheme.WHITE,
     appFont: AppFont = AppFont.INTER,
     amoledMode: Boolean = false,
@@ -66,13 +66,13 @@ fun NuvioTheme(
         ThemeColors.getColorPalette(appTheme, customThemeColors)
     }
     val focusRingStyle = createFocusRingStyle(palette)
-    val colorScheme = NuvioColorScheme(
+    val colorScheme = MoviesColorScheme(
         palette = palette,
         amoledMode = amoledMode,
         amoledSurfacesMode = amoledSurfacesMode
     )
     val typography = buildAppTypography(appFont)
-    val textStyles = buildNuvioTextStyles(typography)
+    val textStyles = buildMoviesTextStyles(typography)
 
     val materialColorScheme = darkColorScheme(
         primary = colorScheme.Primary,
@@ -88,7 +88,7 @@ fun NuvioTheme(
         error = colorScheme.Error
     )
 
-    val extendedColors = NuvioExtendedColors(
+    val extendedColors = MoviesExtendedColors(
         backgroundElevated = colorScheme.BackgroundElevated,
         backgroundCard = colorScheme.BackgroundCard,
         textSecondary = colorScheme.TextSecondary,
@@ -99,13 +99,13 @@ fun NuvioTheme(
     )
 
     CompositionLocalProvider(
-        LocalNuvioColors provides colorScheme,
-        LocalNuvioExtendedColors provides extendedColors,
-        LocalNuvioTextStyles provides textStyles,
+        LocalMoviesColors provides colorScheme,
+        LocalMoviesExtendedColors provides extendedColors,
+        LocalMoviesTextStyles provides textStyles,
         LocalAppTheme provides appTheme,
         LocalThemePalette provides palette,
         LocalSettingsUiStyle provides settingsUiStyle,
-        LocalNuvioFocusRingStyle provides focusRingStyle
+        LocalMoviesFocusRingStyle provides focusRingStyle
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme.withPaletteRoles(colorScheme, palette),
@@ -115,66 +115,66 @@ fun NuvioTheme(
     }
 }
 
-object NuvioTheme {
+object MoviesTheme {
     val palette: ThemeColorPalette
         @Composable
         @ReadOnlyComposable
         get() = LocalThemePalette.current
 
-    val colors: NuvioColorScheme
+    val colors: MoviesColorScheme
         @Composable
         @ReadOnlyComposable
-        get() = LocalNuvioColors.current
+        get() = LocalMoviesColors.current
 
-    val extendedColors: NuvioExtendedColors
+    val extendedColors: MoviesExtendedColors
         @Composable
         @ReadOnlyComposable
-        get() = LocalNuvioExtendedColors.current
+        get() = LocalMoviesExtendedColors.current
 
-    val textStyles: NuvioTextStyleTokens
+    val textStyles: MoviesTextStyleTokens
         @Composable
         @ReadOnlyComposable
-        get() = LocalNuvioTextStyles.current
+        get() = LocalMoviesTextStyles.current
 
-    val spacing: NuvioSpacingTokens
-        get() = NuvioSpacing.tokens
+    val spacing: MoviesSpacingTokens
+        get() = MoviesSpacing.tokens
 
-    val radii: NuvioRadiusTokens
+    val radii: MoviesRadiusTokens
         get() = ExpressiveRadii.forBuild
 
-    val shapes: NuvioShapeTokens
+    val shapes: MoviesShapeTokens
         get() = ExpressiveShapes.forBuild
 
-    val sizes: NuvioSizeTokens
-        get() = NuvioSizes.tokens
+    val sizes: MoviesSizeTokens
+        get() = MoviesSizes.tokens
 
-    val strokes: NuvioStrokeTokens
-        get() = NuvioStrokes.tokens
+    val strokes: MoviesStrokeTokens
+        get() = MoviesStrokes.tokens
 
-    val elevations: NuvioElevationTokens
-        get() = NuvioElevations.tokens
+    val elevations: MoviesElevationTokens
+        get() = MoviesElevations.tokens
 
-    val effects: NuvioEffectTokens
-        get() = NuvioEffects.tokens
+    val effects: MoviesEffectTokens
+        get() = MoviesEffects.tokens
 
-    val motion: NuvioMotionTokens
-        get() = NuvioMotion.tokens
+    val motion: MoviesMotionTokens
+        get() = MoviesMotion.tokens
 
-    val focus: NuvioFocusTokens
-        get() = NuvioFocus.tokens
+    val focus: MoviesFocusTokens
+        get() = MoviesFocus.tokens
 
-    val focusRing: NuvioFocusRingStyle
+    val focusRing: MoviesFocusRingStyle
         @Composable
         @ReadOnlyComposable
-        get() = LocalNuvioFocusRingStyle.current
+        get() = LocalMoviesFocusRingStyle.current
 
-    val layout: NuvioLayoutTokens
-        get() = NuvioLayout.tokens
+    val layout: MoviesLayoutTokens
+        get() = MoviesLayout.tokens
 
-    val media: NuvioMediaTokens
-        get() = NuvioMedia.tokens
+    val media: MoviesMediaTokens
+        get() = MoviesMedia.tokens
 
-    val components: NuvioComponentTokens
+    val components: MoviesComponentTokens
         get() = ExpressiveComponents.forBuild
 
     val currentTheme: AppTheme

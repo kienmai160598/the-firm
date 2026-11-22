@@ -12,7 +12,7 @@ import com.kien.movies.ui.components.expressiveButtonBorder
 import com.kien.movies.ui.components.expressiveButtonColors
 import com.kien.movies.ui.components.expressiveButtonScale
 import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -78,7 +78,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.data.local.ValidationResult
 import com.kien.movies.domain.model.Collection
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
 import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.ui.screens.settings.SettingsVerticalScrollIndicators
@@ -234,15 +234,15 @@ fun CollectionManagementScreen(
                 style = MaterialTheme.typography.headlineMedium
                     .screenTitleFloor()
                     .copy(textDirection = TextDirection.Content),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
             )
             val headerActionsEnabled = uiState.movingCollectionKey == null
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.focusEntryTarget(newButtonFocusRequester)
             ) {
                 if (uiState.collections.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    NuvioButton(
+                    MoviesButton(
                         onClick = {
                             scope.launch {
                                 try {
@@ -281,7 +281,7 @@ fun CollectionManagementScreen(
                         } ?: stringResource(R.string.collections_export_file))
                     }
                 }
-                NuvioButton(
+                MoviesButton(
                     onClick = {
                         lastFocusedTarget = "import"
                         pendingFocusTarget = "import"
@@ -295,7 +295,7 @@ fun CollectionManagementScreen(
                 val firstCollectionEditRequester = uiState.collections.firstOrNull()?.id?.let { firstId ->
                     itemFocusRequesters.getOrPut(firstId) { FocusRequester() }
                 }
-                NuvioButton(
+                MoviesButton(
                     onClick = {
                         lastFocusedTarget = "new"
                         onNavigateToEditor(null)
@@ -320,10 +320,10 @@ fun CollectionManagementScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = NuvioTheme.spacing.xxxl, start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl)
+                    .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
             ) {
                 collectionsHeader()
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -332,7 +332,7 @@ fun CollectionManagementScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.collections_empty),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -353,15 +353,15 @@ fun CollectionManagementScreen(
                 ensureComposedKey = ensureComposedCollectionId,
                 rowHeightCache = collectionRowHeightCache,
                 contentPadding = PaddingValues(
-                    top = NuvioTheme.spacing.xxxl,
-                    start = NuvioTheme.spacing.xxxl,
-                    end = NuvioTheme.spacing.xxxl,
-                    bottom = NuvioTheme.spacing.xxxl
+                    top = MoviesTheme.spacing.xxxl,
+                    start = MoviesTheme.spacing.xxxl,
+                    end = MoviesTheme.spacing.xxxl,
+                    bottom = MoviesTheme.spacing.xxxl
                 ),
                 header = {
                     Column {
                         collectionsHeader()
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
                     }
                 },
             ) { collection, isMoving, onStartMove, onConfirmMove ->
@@ -394,7 +394,7 @@ fun CollectionManagementScreen(
         }
 
     collectionToDelete?.let { collection ->
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = {
                 collectionToDelete = null
                 pendingFocusTarget = "delete:${collection.id}"
@@ -405,7 +405,7 @@ fun CollectionManagementScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.End)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
             ) {
                 Button(
                     onClick = {
@@ -482,12 +482,12 @@ internal fun ImportContent(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            top = NuvioTheme.spacing.xxxl,
-            start = NuvioTheme.spacing.xxxl,
-            end = NuvioTheme.spacing.xxxl,
-            bottom = NuvioTheme.spacing.xxxl
+            top = MoviesTheme.spacing.xxxl,
+            start = MoviesTheme.spacing.xxxl,
+            end = MoviesTheme.spacing.xxxl,
+            bottom = MoviesTheme.spacing.xxxl
         ),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.none)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.none)
     ) {
         item(key = "import_header") {
             Row(
@@ -500,31 +500,31 @@ internal fun ImportContent(
                     style = MaterialTheme.typography.headlineMedium
                         .screenTitleFloor()
                         .copy(textDirection = TextDirection.Content),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
-                    NuvioButton(
+                Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
+                    MoviesButton(
                         onClick = onBack,
                         modifier = Modifier.blockHorizontalFocus()
                     ) { Text(stringResource(R.string.collections_cancel)) }
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
         }
 
         item {
             Text(
                 text = stringResource(R.string.collections_import_description),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             // Mode tabs
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.focusEntryTarget(modeFocusRequesters[importMode] ?: fileTabFocusRequester)
             ) {
                 ImportMode.entries.filter { it != ImportMode.PASTE }.forEach { mode ->
@@ -543,27 +543,27 @@ internal fun ImportContent(
                         }.tvControlHeight(),
                         colors = expressiveButtonColors(if (isSelected) {
                             ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.Primary,
-                                contentColor = NuvioTheme.colors.Background,
-                                focusedContainerColor = NuvioTheme.colors.Primary,
-                                focusedContentColor = NuvioTheme.colors.Background
+                                containerColor = MoviesTheme.colors.Primary,
+                                contentColor = MoviesTheme.colors.Background,
+                                focusedContainerColor = MoviesTheme.colors.Primary,
+                                focusedContentColor = MoviesTheme.colors.Background
                             )
                         } else {
                             ButtonDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundCard,
-                                contentColor = NuvioTheme.colors.TextPrimary,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                                focusedContentColor = NuvioTheme.colors.Primary
+                                containerColor = MoviesTheme.colors.BackgroundCard,
+                                contentColor = MoviesTheme.colors.TextPrimary,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                                focusedContentColor = MoviesTheme.colors.Primary
                             )
                         }, selected = isSelected),
                         border = expressiveButtonBorder(ButtonDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         )),
                         shape = expressiveButtonShape(
-                            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                         ),
                         scale = expressiveButtonScale(ButtonDefaults.scale())
                     ) {
@@ -572,36 +572,36 @@ internal fun ImportContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
         }
 
             item {
                 when (importMode) {
                     ImportMode.PASTE -> {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                             modifier = Modifier.trapHorizontalFocus()
                         ) {
-                            NuvioButton(onClick = onPaste) { Text(stringResource(R.string.collections_paste_clipboard)) }
+                            MoviesButton(onClick = onPaste) { Text(stringResource(R.string.collections_paste_clipboard)) }
                             if (importText.isNotBlank()) {
-                                NuvioButton(onClick = onValidate) { Text(stringResource(R.string.collections_validate)) }
+                                MoviesButton(onClick = onValidate) { Text(stringResource(R.string.collections_validate)) }
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
                         Surface(
-                            shape = RoundedCornerShape(NuvioTheme.radii.md),
-                            colors = SurfaceDefaults.colors(containerColor = NuvioTheme.colors.BackgroundElevated),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md),
+                            colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundElevated),
                             border = Border(
-                                border = BorderStroke(NuvioTheme.spacing.hairline, if (importError != null) NuvioTheme.colors.Error else NuvioTheme.colors.Border),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = BorderStroke(MoviesTheme.spacing.hairline, if (importError != null) MoviesTheme.colors.Error else MoviesTheme.colors.Border),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(200.dp)
                         ) {
-                            Box(modifier = Modifier.padding(NuvioTheme.spacing.md)) {
+                            Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
                                 BasicTextField(
                                     value = importText,
                                     onValueChange = onTextChange,
@@ -609,10 +609,10 @@ internal fun ImportContent(
                                     textStyle = MaterialTheme.typography.bodySmall
                                         .metaFloor()
                                         .copy(
-                                            color = NuvioTheme.colors.TextPrimary,
+                                            color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content
                                         ),
-                                    cursorBrush = SolidColor(NuvioTheme.colors.Primary),
+                                    cursorBrush = SolidColor(MoviesTheme.colors.Primary),
                                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                                     decorationBox = { innerTextField ->
                                         if (importText.isEmpty()) {
@@ -620,7 +620,7 @@ internal fun ImportContent(
                                                 text = stringResource(R.string.collections_paste_hint),
                                                 style = MaterialTheme.typography.bodySmall
                                                     .metaFloor(),
-                                                color = NuvioTheme.colors.TextTertiary
+                                                color = MoviesTheme.colors.TextTertiary
                                             )
                                         }
                                         innerTextField()
@@ -634,26 +634,26 @@ internal fun ImportContent(
                         Text(
                             text = stringResource(R.string.collections_file_description),
                             style = MaterialTheme.typography.bodySmall.metaFloor(),
-                            color = NuvioTheme.colors.TextTertiary
+                            color = MoviesTheme.colors.TextTertiary
                         )
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
-                        NuvioButton(
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                        MoviesButton(
                             onClick = onPickFile,
                             modifier = Modifier.blockHorizontalFocus()
                         ) { Text(stringResource(R.string.collections_load_file)) }
 
                         if (importText.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                             Text(
                                 text = stringResource(R.string.collections_file_loaded, importText.length),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
                         }
                     }
 
                     ImportMode.URL -> {
-                        NuvioTextField(
+                        MoviesTextField(
                             value = importUrl,
                             onValueChange = onUrlChange,
                             modifier = Modifier
@@ -662,9 +662,9 @@ internal fun ImportContent(
                             placeholder = stringResource(R.string.collections_import_url_placeholder)
                         )
 
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
-                        NuvioButton(
+                        MoviesButton(
                             onClick = onFetchUrl,
                             modifier = Modifier.blockHorizontalFocus()
                         ) {
@@ -672,7 +672,7 @@ internal fun ImportContent(
                         }
 
                         if (isLoadingImport) {
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                             LoadingIndicator()
                         }
                     }
@@ -682,30 +682,30 @@ internal fun ImportContent(
             // Validation result preview
             if (validationResult != null && validationResult.valid) {
                 item {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                     Surface(
-                        shape = RoundedCornerShape(NuvioTheme.radii.md),
-                        colors = SurfaceDefaults.colors(containerColor = NuvioTheme.colors.BackgroundCard),
+                        shape = RoundedCornerShape(MoviesTheme.radii.md),
+                        colors = SurfaceDefaults.colors(containerColor = MoviesTheme.colors.BackgroundCard),
                         border = Border(
-                            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Primary),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Primary),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(modifier = Modifier.padding(NuvioTheme.spacing.lg)) {
+                        Column(modifier = Modifier.padding(MoviesTheme.spacing.lg)) {
                             Text(
                                 text = stringResource(R.string.collections_valid_json),
                                 style = MaterialTheme.typography.titleMedium,
-                                color = NuvioTheme.colors.Primary
+                                color = MoviesTheme.colors.Primary
                             )
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                             Text(
                                 text = stringResource(R.string.collections_valid_summary, validationResult.collectionCount, validationResult.folderCount),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
-                            NuvioButton(
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
+                            MoviesButton(
                                 onClick = onConfirmImport,
                                 modifier = Modifier.blockHorizontalFocus()
                             ) {
@@ -718,11 +718,11 @@ internal fun ImportContent(
 
             if (importError != null) {
                 item {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     Text(
                         text = importError,
                         style = MaterialTheme.typography.bodySmall.metaFloor(),
-                        color = NuvioTheme.colors.Error
+                        color = MoviesTheme.colors.Error
                     )
                 }
             }
@@ -745,23 +745,23 @@ private fun CollectionListItem(
 ) {
     val cardColor by animateColorAsState(
         targetValue = if (isMoving) {
-            NuvioTheme.colors.FocusBackground
+            MoviesTheme.colors.FocusBackground
         } else {
-            NuvioTheme.colors.BackgroundCard
+            MoviesTheme.colors.BackgroundCard
         },
-        animationSpec = com.kien.movies.ui.theme.NuvioMotion.focusTween(),
+        animationSpec = com.kien.movies.ui.theme.MoviesMotion.focusTween(),
         label = "collectionCardColor",
     )
     val cardBorder = if (isMoving) {
         Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-            shape = RoundedCornerShape(NuvioTheme.radii.md)
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+            shape = RoundedCornerShape(MoviesTheme.radii.md)
         )
     } else {
         Border.None
     }
     Surface(
-        shape = RoundedCornerShape(NuvioTheme.radii.md),
+        shape = RoundedCornerShape(MoviesTheme.radii.md),
         colors = SurfaceDefaults.colors(containerColor = cardColor),
         border = cardBorder,
         modifier = Modifier.fillMaxWidth()
@@ -769,7 +769,7 @@ private fun CollectionListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -779,7 +779,7 @@ private fun CollectionListItem(
                     style = MaterialTheme.typography.titleMedium.copy(
                         textDirection = collection.title.contentTextDirection()
                     ),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                 )
                 val summary = buildString {
                     append(stringResource(R.string.collections_folder_count, collection.folders.size))
@@ -791,12 +791,12 @@ private fun CollectionListItem(
                 Text(
                     text = summary,
                     style = MaterialTheme.typography.bodySmall.metaFloor(),
-                    color = NuvioTheme.colors.TextTertiary
+                    color = MoviesTheme.colors.TextTertiary
                 )
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.trapHorizontalFocus()
             ) {
                 Button(
@@ -804,20 +804,20 @@ private fun CollectionListItem(
                     onClick = if (isMoving) onConfirmMove else onStartMove,
                     enabled = isMoving || (canMove && actionsEnabled),
                     colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = if (isMoving) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
-                        contentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = if (isMoving) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = if (isMoving) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.Primary
+                        containerColor = if (isMoving) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
+                        contentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = if (isMoving) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = if (isMoving) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.Primary
                     ), selected = isMoving),
                     border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                     )),
                     shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
@@ -836,20 +836,20 @@ private fun CollectionListItem(
                             editFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                         ),
                     colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = NuvioTheme.colors.Primary
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = MoviesTheme.colors.Primary
                     )),
                     border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                     )),
                     shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {
@@ -865,20 +865,20 @@ private fun CollectionListItem(
                             deleteFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                         ),
                     colors = expressiveButtonColors(ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = NuvioTheme.colors.Error
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = MoviesTheme.colors.Error
                     ), destructive = true),
                     border = expressiveButtonBorder(ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
-                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+                        focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
                     )),
                     shape = expressiveButtonShape(
-                        ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                     ),
                     scale = expressiveButtonScale(ButtonDefaults.scale())
                 ) {

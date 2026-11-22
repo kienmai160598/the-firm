@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.screens.home.HeroBackdropState
 
 import androidx.compose.foundation.background
@@ -33,7 +33,7 @@ import com.kien.movies.domain.model.DiscoverLocation
 import com.kien.movies.ui.components.EmptyScreenState
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
-import com.kien.movies.ui.theme.NuvioColors
+import com.kien.movies.ui.theme.MoviesColors
 import kotlin.math.roundToInt
 
 @Composable
@@ -83,7 +83,7 @@ fun DiscoverScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
     ) {
         if (uiState.discoverLocation == DiscoverLocation.OFF) {
             EmptyScreenState(
@@ -130,7 +130,7 @@ fun DiscoverScreen(
                 onItemLongPress = { item, addonBaseUrl ->
                     viewModel.posterOptions.show(item, addonBaseUrl)
                 },
-                modifier = Modifier.padding(top = LocalTopTabBarInset.current + NuvioTheme.spacing.lg)
+                modifier = Modifier.padding(top = LocalTopTabBarInset.current + MoviesTheme.spacing.lg)
             )
         }
 

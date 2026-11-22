@@ -110,7 +110,7 @@ class TrackingSourceController @Inject constructor(
             watchedSeriesStateHolder.update(emptySet())
             provider.refresh(TrackingRefreshIntent.USER_INITIATED)
         } else if (source == WatchProgressSource.NUVIO_SYNC) {
-            repopulateWatchedItemsFromNuvioSync(profileId)
+            repopulateWatchedItemsFromMoviesSync(profileId)
             if (profileManager.activeProfileId.value == profileId) {
                 startupSyncService.requestSyncNow()
             }
@@ -123,7 +123,7 @@ class TrackingSourceController @Inject constructor(
         mode.providerId?.let(libraryProviders::provider)?.refresh(TrackingRefreshIntent.USER_INITIATED)
     }
 
-    private suspend fun repopulateWatchedItemsFromNuvioSync(profileId: Int) {
+    private suspend fun repopulateWatchedItemsFromMoviesSync(profileId: Int) {
         runCatching {
             watchedItemsSyncService.syncSnapshotFromRemote(profileId).getOrElse { return }
         }

@@ -28,7 +28,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.tvControlHeight
@@ -76,14 +76,14 @@ internal fun SettingsExpressiveChoiceChip(
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
             ),
             color = content,
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = 10.dp)
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 10.dp)
         )
     }
 }
 
 @Composable
 private fun chipRestingFill(): Color =
-    if (isExpressiveBuild) SettingsRowRestFill else NuvioTheme.colors.Background
+    if (isExpressiveBuild) SettingsRowRestFill else MoviesTheme.colors.Background
 
 @Composable
 private fun chipShape(focused: Boolean): Shape =

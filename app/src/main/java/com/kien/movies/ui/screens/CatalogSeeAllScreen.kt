@@ -3,7 +3,7 @@
 package com.kien.movies.ui.screens
 
 import com.kien.movies.domain.model.catalogRowLegacyKey
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -203,31 +203,31 @@ fun CatalogSeeAllScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = NuvioTheme.spacing.xl)
+            .padding(vertical = MoviesTheme.spacing.xl)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = NuvioTheme.spacing.xxxl),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = MoviesTheme.spacing.xxxl),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = catalogRow?.catalogName ?: stringResource(R.string.catalog_see_all_title_fallback),
                 style = MaterialTheme.typography.headlineLarge,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
         }
 
         if (uiState.catalogAddonNameEnabled) {
             catalogRow?.addonName?.let { addonName ->
                 Text(
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl),
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl),
                     text = stringResource(R.string.catalog_see_all_from, addonName),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
         val isCatalogLoading = if (catalogRow == null) serverFailed?.value != true else catalogRow.isLoading
@@ -244,13 +244,13 @@ fun CatalogSeeAllScreen(
                     ),
                     modifier = Modifier.dpadRepeatThrottle(),
                     contentPadding = PaddingValues(
-                        start = NuvioTheme.spacing.xxxl,
-                        end = NuvioTheme.spacing.xl,
-                        top = NuvioTheme.spacing.md,
-                        bottom = NuvioTheme.spacing.xxl
+                        start = MoviesTheme.spacing.xxxl,
+                        end = MoviesTheme.spacing.xl,
+                        top = MoviesTheme.spacing.md,
+                        bottom = MoviesTheme.spacing.xxl
                     ),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                 ) {
                     itemsIndexed(
                         items = catalogRow.items,
@@ -319,8 +319,8 @@ fun CatalogSeeAllScreen(
                                         .then(Modifier.focusProperties { canFocus = false }),
                                     shape = androidx.tv.material3.CardDefaults.shape(shape = cardShape),
                                     colors = androidx.tv.material3.CardDefaults.colors(
-                                        containerColor = NuvioTheme.colors.BackgroundCard,
-                                        focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                                        containerColor = MoviesTheme.colors.BackgroundCard,
+                                        focusedContainerColor = MoviesTheme.colors.BackgroundCard
                                     )
                                 ) {
                                     Box(
@@ -342,7 +342,7 @@ fun CatalogSeeAllScreen(
                                 Spacer(
                                     modifier = Modifier
                                         .then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
-                                        .padding(top = NuvioTheme.spacing.sm)
+                                        .padding(top = MoviesTheme.spacing.sm)
                                         .height(MaterialTheme.typography.titleMedium.lineHeight.value.dp)
                                 )
                             }

@@ -47,7 +47,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.ui.screens.ambient.AmbientDialogEffect
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 
 @Composable
@@ -70,14 +70,14 @@ fun TrackingAddonConsentDialog(
         AmbientDialogEffect(onDismiss)
         Box(
             modifier = Modifier
-                .clip(expressiveDialogShape(RoundedCornerShape(NuvioTheme.radii.xl)))
-                .background(NuvioTheme.colors.BackgroundCard)
+                .clip(expressiveDialogShape(RoundedCornerShape(MoviesTheme.radii.xl)))
+                .background(MoviesTheme.colors.BackgroundCard)
         ) {
             Column(
                 modifier = Modifier
                     .width(560.dp)
                     .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.9f).dp)
-                    .padding(NuvioTheme.spacing.xl),
+                    .padding(MoviesTheme.spacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(
@@ -89,20 +89,20 @@ fun TrackingAddonConsentDialog(
                     Text(
                         text = stringResource(R.string.addon_tracking_consent_title),
                         style = MaterialTheme.typography.headlineSmall,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                     Text(
                         text = stringResource(R.string.addon_tracking_consent_body, addonName),
                         style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                     val checkboxState = stringResource(
                         if (accepted) R.string.addon_tracking_consent_checked else R.string.addon_tracking_consent_unchecked
@@ -117,71 +117,71 @@ fun TrackingAddonConsentDialog(
                                 stateDescription = checkboxState
                             },
                         colors = expressiveOptionCardColors(CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                            containerColor = MoviesTheme.colors.BackgroundElevated,
+                            focusedContainerColor = MoviesTheme.colors.BackgroundElevated
                         )),
                         border = expressiveOptionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         )),
                         shape = expressiveOptionCardShape(
-                            CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+                            CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
                         ),
                         scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.02f))
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp),
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = if (accepted) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
-                                tint = if (accepted) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                                tint = if (accepted) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                             )
                             Text(
                                 text = stringResource(R.string.addon_tracking_consent_checkbox),
                                 style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                                 modifier = Modifier.weight(1f)
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Card(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
                         colors = expressiveActionCardColors(CardDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+                            containerColor = MoviesTheme.colors.BackgroundElevated,
+                            focusedContainerColor = MoviesTheme.colors.BackgroundElevated
                         )),
                         border = expressiveActionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         )),
                         shape = expressiveActionCardShape(
-                            CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+                            CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
                         ),
                         scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.05f))
                     ) {
                         Text(
                             text = stringResource(R.string.addon_tracking_consent_cancel),
                             style = MaterialTheme.typography.titleMedium,
-                            color = actionCardContentColor(NuvioTheme.colors.TextPrimary),
+                            color = actionCardContentColor(MoviesTheme.colors.TextPrimary),
                             modifier = Modifier
-                                .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
@@ -195,19 +195,19 @@ fun TrackingAddonConsentDialog(
                             .onFocusChanged { installFocused = it.isFocused },
                         colors = expressiveActionCardColors(
                             CardDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundElevated,
-                                focusedContainerColor = if (accepted) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundElevated
+                                containerColor = MoviesTheme.colors.BackgroundElevated,
+                                focusedContainerColor = if (accepted) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundElevated
                             ),
                             enabled = accepted
                         ),
                         border = expressiveActionCardBorder(CardDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         )),
                         shape = expressiveActionCardShape(
-                            CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.md))
+                            CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.md))
                         ),
                         scale = expressiveCardScale(CardDefaults.scale(focusedScale = 1.05f))
                     ) {
@@ -216,13 +216,13 @@ fun TrackingAddonConsentDialog(
                             style = MaterialTheme.typography.titleMedium,
                             color = actionCardContentColor(
                                 when {
-                                    !accepted -> NuvioTheme.colors.TextTertiary
-                                    installFocused -> NuvioTheme.colors.OnSecondary
-                                    else -> NuvioTheme.colors.TextPrimary
+                                    !accepted -> MoviesTheme.colors.TextTertiary
+                                    installFocused -> MoviesTheme.colors.OnSecondary
+                                    else -> MoviesTheme.colors.TextPrimary
                                 }
                             ),
                             modifier = Modifier
-                                .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )

@@ -13,7 +13,7 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -33,7 +33,7 @@ fun PlayManualOverrideDialog(
         primaryFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = subtitle
@@ -47,8 +47,8 @@ fun PlayManualOverrideDialog(
                     .tvControlHeight(),
                 colors = expressiveButtonColors(
                     ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextPrimary
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextPrimary
                     )
                 ),
                 scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -69,8 +69,8 @@ fun PlayManualOverrideDialog(
                     .tvControlHeight(),
                 colors = expressiveButtonColors(
                     ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundCard,
-                        contentColor = NuvioTheme.colors.TextPrimary
+                        containerColor = MoviesTheme.colors.BackgroundCard,
+                        contentColor = MoviesTheme.colors.TextPrimary
                     )
                 ),
                 scale = expressiveButtonScale(ButtonDefaults.scale())

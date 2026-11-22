@@ -19,7 +19,7 @@ import com.kien.movies.R
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.local.PlayerPreference
 import com.kien.movies.data.local.PlayerSettings
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -126,7 +126,7 @@ class PlaybackSettingsOrganizationTest {
 
     private fun setSections(settings: PlayerSettings = PlayerSettings()) {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 Box(modifier = Modifier.requiredHeight(6000.dp)) {
                     PlaybackSettingsSections(
                         playerSettings = settings,

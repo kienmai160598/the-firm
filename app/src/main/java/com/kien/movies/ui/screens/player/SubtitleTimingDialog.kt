@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -61,8 +61,8 @@ private enum class SyncStage {
 }
 
 private const val VISIBLE_CUE_ROWS = 6
-private val CUE_ROW_HEIGHT = NuvioTheme.spacing.huge
-private val CUE_ROW_SPACING = NuvioTheme.spacing.sm
+private val CUE_ROW_HEIGHT = MoviesTheme.spacing.huge
+private val CUE_ROW_SPACING = MoviesTheme.spacing.sm
 private val ASS_OVERRIDE_TAG_REGEX = Regex("""\{\\[^{}]*\}""")
 
 @Composable
@@ -110,7 +110,7 @@ internal fun SubtitleTimingDialog(
     Box(
         modifier = modifier
             .fillMaxWidth(if (stage == SyncStage.PICK_LINE) 0.94f else 0.6f)
-            .clip(RoundedCornerShape(NuvioTheme.spacing.xl))
+            .clip(RoundedCornerShape(MoviesTheme.spacing.xl))
             .background(
                 if (stage == SyncStage.PICK_LINE) {
                     Color(0x2E090909)
@@ -203,7 +203,7 @@ private fun SyncPromptPanel(
                 } else {
                     Color.White
                 },
-                modifier = Modifier.padding(horizontal = 28.dp, vertical = NuvioTheme.spacing.md)
+                modifier = Modifier.padding(horizontal = 28.dp, vertical = MoviesTheme.spacing.md)
             )
         }
     }
@@ -240,7 +240,7 @@ private fun CueSelectionPanel(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -270,7 +270,7 @@ private fun CueSelectionPanel(
             Text(
                 text = statusMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isExpressiveBuild) NuvioTheme.colors.Success else Color(0xFF9BE2AF)
+                color = if (isExpressiveBuild) MoviesTheme.colors.Success else Color(0xFF9BE2AF)
             )
         }
 
@@ -278,7 +278,7 @@ private fun CueSelectionPanel(
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isExpressiveBuild) NuvioTheme.colors.Warning else Color(0xFFFFB37A)
+                color = if (isExpressiveBuild) MoviesTheme.colors.Warning else Color(0xFFFFB37A)
             )
             return
         }
@@ -287,7 +287,7 @@ private fun CueSelectionPanel(
             Text(
                 text = stringResource(R.string.subtitle_timing_select_addon_first),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isExpressiveBuild) NuvioTheme.colors.Warning else Color(0xFFFFB37A)
+                color = if (isExpressiveBuild) MoviesTheme.colors.Warning else Color(0xFFFFB37A)
             )
             return
         }
@@ -303,7 +303,7 @@ private fun CueSelectionPanel(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    LoadingIndicator(modifier = Modifier.size(NuvioTheme.spacing.xl))
+                    LoadingIndicator(modifier = Modifier.size(MoviesTheme.spacing.xl))
                     Text(
                         text = stringResource(R.string.subtitle_timing_loading),
                         style = MaterialTheme.typography.bodyMedium,
@@ -327,10 +327,10 @@ private fun CueSelectionPanel(
             modifier = Modifier.height(
                 (CUE_ROW_HEIGHT * VISIBLE_CUE_ROWS) +
                     (CUE_ROW_SPACING * (VISIBLE_CUE_ROWS - 1)) +
-                    NuvioTheme.spacing.sm
+                    MoviesTheme.spacing.sm
             ),
             state = cueListState,
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs),
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs),
             verticalArrangement = Arrangement.spacedBy(CUE_ROW_SPACING)
         ) {
             itemsIndexed(
@@ -382,16 +382,16 @@ private fun CueRow(
         shape = if (isExpressiveBuild) {
             PlayerListItemStyle.shape
         } else {
-            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
         },
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, Color.Transparent),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = BorderStroke(MoviesTheme.spacing.hairline, Color.Transparent),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             ),
             focusedBorder = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, Color.Transparent),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = BorderStroke(MoviesTheme.spacing.hairline, Color.Transparent),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ),
         scale = CardDefaults.scale(focusedScale = 1.015f, pressedScale = 1f)
@@ -400,8 +400,8 @@ private fun CueRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(rowHeight)
-                .padding(horizontal = NuvioTheme.spacing.lg, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.Top
         ) {
             Text(

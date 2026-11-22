@@ -14,7 +14,7 @@ import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.ui.screens.settings.MemoryBudget
 
 /**
- * Centralizes all Nuvio ExoPlayer performance enhancements behind a single toggle.
+ * Centralizes all Movies ExoPlayer performance enhancements behind a single toggle.
  *
  * When [enabled] is `true`, the helper applies:
  * - Large allocator segments (256 KB) with a 400 MB target buffer
@@ -27,9 +27,9 @@ import com.kien.movies.ui.screens.settings.MemoryBudget
  * When [enabled] is `false`, stock ExoPlayer defaults are used everywhere.
  */
 @androidx.media3.common.util.UnstableApi
-object NuvioExoPlayerPerformanceHelper {
+object MoviesExoPlayerPerformanceHelper {
 
-    /** Whether Nuvio performance enhancements are active. Set from [PlayerSettingsDataStore]. */
+    /** Whether Movies performance enhancements are active. Set from [PlayerSettingsDataStore]. */
     @Volatile
     var enabled: Boolean = false
         set(value) {
@@ -267,7 +267,7 @@ object NuvioExoPlayerPerformanceHelper {
     }
 
     /**
-     * Builds a [DefaultLoadControl] tuned for Nuvio performance when enabled,
+     * Builds a [DefaultLoadControl] tuned for Movies performance when enabled,
      * or a standard ExoPlayer [DefaultLoadControl] when disabled.
      */
     fun buildLoadControl(context: Context? = null, chunkOverheadMb: Int = 0): DefaultLoadControl {
@@ -281,7 +281,7 @@ object NuvioExoPlayerPerformanceHelper {
             // with no other symptom, so say so rather than failing playback over it.
             if (DEFAULT_NUVIO_ALLOCATOR_SEGMENT_SIZE != NATIVE_ARENA_CHUNK_SIZE) {
                 android.util.Log.w(
-                    "NuvioExoPerf",
+                    "MoviesExoPerf",
                     "Allocator segment $DEFAULT_NUVIO_ALLOCATOR_SEGMENT_SIZE does not match the " +
                         "native arena chunk $NATIVE_ARENA_CHUNK_SIZE; native pooling is disabled"
                 )

@@ -44,9 +44,9 @@ import com.kien.movies.core.tracking.TrackingMediaReference
 import com.kien.movies.core.tracking.TrackingProviderId
 import com.kien.movies.core.tracking.TrackingRatingState
 import com.kien.movies.core.tracking.TrackingRatings
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.settings.SettingsDialogActionButton
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import java.util.Locale
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -60,7 +60,7 @@ internal fun RatingDialog(
     onDismiss: () -> Unit,
     subtitle: String? = null
 ) {
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = "",
         width = 560.dp
@@ -72,7 +72,7 @@ internal fun RatingDialog(
             Text(
                 text = stringResource(R.string.rating_your_rating),
                 style = MaterialTheme.typography.labelLarge,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
@@ -80,7 +80,7 @@ internal fun RatingDialog(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -89,7 +89,7 @@ internal fun RatingDialog(
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -149,7 +149,7 @@ internal fun RatingPanel(
         Text(
             text = stringResource(R.string.rating_syncs_to, provider),
             style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -180,7 +180,7 @@ internal fun RatingPanel(
 @Composable
 private fun RatingScore(value: Int) {
     val color by animateColorAsState(
-        targetValue = if (value > 0) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary,
+        targetValue = if (value > 0) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
         animationSpec = effectsSpec(tween(durationMillis = 200)),
         label = "rating_score_color"
     )
@@ -214,7 +214,7 @@ private fun RatingScore(value: Int) {
             modifier = Modifier.padding(start = 4.dp, bottom = 12.dp),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
     }
 }

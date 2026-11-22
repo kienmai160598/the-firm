@@ -46,9 +46,9 @@ import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import com.kien.movies.R
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.updater.model.AppUpdate
 import kotlinx.coroutines.launch
 
@@ -61,14 +61,14 @@ internal fun UpdateReleaseNotesDialog(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     var isFocused by remember { mutableStateOf(false) }
-    val shape = RoundedCornerShape(NuvioTheme.radii.md)
-    val focusRingColor = NuvioTheme.colors.FocusRing
+    val shape = RoundedCornerShape(MoviesTheme.radii.md)
+    val focusRingColor = MoviesTheme.colors.FocusRing
 
     LaunchedEffect(update.tag) {
         notesFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.update_release_notes),
         subtitle = update.title,
@@ -80,7 +80,7 @@ internal fun UpdateReleaseNotesDialog(
                 .fillMaxWidth()
                 .heightIn(max = 420.dp)
                 .clip(shape)
-                .background(NuvioTheme.colors.BackgroundCard)
+                .background(MoviesTheme.colors.BackgroundCard)
                 .onFocusChanged { isFocused = it.isFocused }
                 .onPreviewKeyEvent { event ->
                     if (event.type != KeyEventType.KeyDown) {
@@ -120,20 +120,20 @@ internal fun UpdateReleaseNotesDialog(
                         )
                     }
                 }
-                .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm)
+                .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm)
                 .verticalScroll(scrollState)
         ) {
             Markdown(
                 content = update.notes.ifBlank { stringResource(R.string.update_no_release_notes) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = NuvioTheme.spacing.sm),
-                colors = markdownColor(text = NuvioTheme.colors.TextSecondary),
+                    .padding(end = MoviesTheme.spacing.sm),
+                colors = markdownColor(text = MoviesTheme.colors.TextSecondary),
                 typography = markdownTypography(
                     paragraph = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
-                    h1 = MaterialTheme.typography.titleLarge.copy(color = NuvioTheme.colors.TextPrimary),
-                    h2 = MaterialTheme.typography.titleMedium.copy(color = NuvioTheme.colors.TextPrimary),
-                    h3 = MaterialTheme.typography.bodyLarge.copy(color = NuvioTheme.colors.TextPrimary)
+                    h1 = MaterialTheme.typography.titleLarge.copy(color = MoviesTheme.colors.TextPrimary),
+                    h2 = MaterialTheme.typography.titleMedium.copy(color = MoviesTheme.colors.TextPrimary),
+                    h3 = MaterialTheme.typography.bodyLarge.copy(color = MoviesTheme.colors.TextPrimary)
                 )
             )
         }
@@ -151,7 +151,7 @@ internal fun UpdateUnknownSourcesDialog(
         settingsFocusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.update_title),
         subtitle = stringResource(R.string.update_unknown_sources),
@@ -160,16 +160,16 @@ internal fun UpdateUnknownSourcesDialog(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onOpenSettings,
                 modifier = Modifier.focusRequester(settingsFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50))
             ) {
@@ -179,10 +179,10 @@ internal fun UpdateUnknownSourcesDialog(
             Button(
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                    contentColor = NuvioTheme.colors.TextPrimary,
-                    focusedContentColor = NuvioTheme.colors.Primary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                    contentColor = MoviesTheme.colors.TextPrimary,
+                    focusedContentColor = MoviesTheme.colors.Primary
                 ),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50))
             ) {

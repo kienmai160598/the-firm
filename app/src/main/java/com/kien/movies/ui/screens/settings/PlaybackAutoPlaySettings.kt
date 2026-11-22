@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
@@ -69,7 +69,7 @@ import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.NextEpisodeThresholdMode
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import kotlin.math.roundToInt
 import java.util.Locale
 import com.kien.movies.ui.theme.tvControlHeight
@@ -598,7 +598,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
         focusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = {
             onSelectionSaved(selected)
             onDismiss()
@@ -611,7 +611,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 420.dp),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Card(
                 onClick = { selected = emptySet() },
@@ -623,8 +623,8 @@ private fun StreamAutoPlayProviderSelectionDialog(
                         this.selected = selected.isEmpty()
                     },
                 colors = CardDefaults.colors(
-                    containerColor = if (selected.isEmpty()) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    containerColor = if (selected.isEmpty()) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground
                 ),
                 shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
                     .expressiveCard(),
@@ -638,7 +638,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 ) {
                     Text(
                         text = allLabel,
-                        color = if (selected.isEmpty()) NuvioTheme.colors.Primary else NuvioTheme.colors.TextPrimary,
+                        color = if (selected.isEmpty()) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
@@ -646,7 +646,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
-                            tint = NuvioTheme.colors.Primary,
+                            tint = MoviesTheme.colors.Primary,
                             modifier = Modifier.height(20.dp)
                         )
                     }
@@ -657,13 +657,13 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 Text(
                     text = stringResource(R.string.autoplay_no_items),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             } else {
                 LazyColumn(
                     modifier = Modifier.heightIn(max = 300.dp),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = NuvioTheme.spacing.xs)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = MoviesTheme.spacing.xs)
                 ) {
                     items(
                         items = items,
@@ -686,8 +686,8 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                     toggleableState = if (isSelected) ToggleableState.On else ToggleableState.Off
                                 },
                             colors = CardDefaults.colors(
-                                containerColor = if (isSelected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                                containerColor = if (isSelected) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground
                             ),
                             shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
                                 .expressiveCard(),
@@ -701,7 +701,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                             ) {
                                 Text(
                                     text = item,
-                                    color = if (isSelected) NuvioTheme.colors.Primary else NuvioTheme.colors.TextPrimary,
+                                    color = if (isSelected) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary,
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -709,7 +709,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = null,
-                                        tint = NuvioTheme.colors.Primary,
+                                        tint = MoviesTheme.colors.Primary,
                                         modifier = Modifier.height(18.dp)
                                     )
                                 }
@@ -773,7 +773,7 @@ private fun StreamRegexDialog(
         inputFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.autoplay_regex_title),
         subtitle = stringResource(R.string.autoplay_regex_matches),
@@ -788,18 +788,18 @@ private fun StreamRegexDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 Text(
                     text = stringResource(R.string.autoplay_regex_presets),
                     style = MaterialTheme.typography.titleSmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
 
                 val firstPresetFocusRequester = remember { FocusRequester() }
                 LazyRow(
                     modifier = Modifier.settingsOptionRow(firstPresetFocusRequester),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     itemsIndexed(
                         items = presets,
@@ -821,12 +821,12 @@ private fun StreamRegexDialog(
                                     }
                                 ),
                             colors = CardDefaults.colors(
-                                containerColor = NuvioTheme.colors.BackgroundElevated,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                                containerColor = MoviesTheme.colors.BackgroundElevated,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground
                             ),
                             border = CardDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                     shape = RoundedCornerShape(20.dp)
                                 )
                             ).expressiveRingless(),
@@ -836,9 +836,9 @@ private fun StreamRegexDialog(
                         ) {
                             Text(
                                 text = label,
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.sm),
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = if (isFocused) NuvioTheme.colors.Primary else NuvioTheme.colors.TextPrimary
+                                color = if (isFocused) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary
                             )
                         }
                     }
@@ -850,18 +850,18 @@ private fun StreamRegexDialog(
                         .fillMaxWidth()
                         .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
                     colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundElevated,
+                        containerColor = MoviesTheme.colors.BackgroundElevated,
                         focusedContainerColor = expressiveCardFocusFill(
-                            NuvioTheme.colors.BackgroundElevated
+                            MoviesTheme.colors.BackgroundElevated
                         )
                     ),
                     border = CardDefaults.border(
                         border = Border(
-                            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                             shape = RoundedCornerShape(10.dp)
                         ),
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                             shape = RoundedCornerShape(10.dp)
                         )
                     ).expressiveRingless(),
@@ -869,7 +869,7 @@ private fun StreamRegexDialog(
                         .expressiveCard(),
                     scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
                 ) {
-                    Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
+                    Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                         BasicTextField(
                             value = regex,
                             onValueChange = {
@@ -891,15 +891,15 @@ private fun StreamRegexDialog(
                             keyboardActions = KeyboardActions(
                                 onDone = { keyboardController?.hide() }
                             ),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = NuvioTheme.colors.TextPrimary,
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content),
-                            cursorBrush = SolidColor(if (isInputFocused) NuvioTheme.colors.Primary else Color.Transparent),
+                            cursorBrush = SolidColor(if (isInputFocused) MoviesTheme.colors.Primary else Color.Transparent),
                             decorationBox = { innerTextField ->
                                 if (regex.isBlank()) {
                                     Text(
                                         text = "4K|2160p|Remux",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = NuvioTheme.colors.TextTertiary
+                                        color = MoviesTheme.colors.TextTertiary
                                     )
                                 }
                                 innerTextField()
@@ -911,7 +911,7 @@ private fun StreamRegexDialog(
                 if (regexError != null) {
                     Text(
                         text = regexError ?: "",
-                        color = NuvioTheme.colors.Error,
+                        color = MoviesTheme.colors.Error,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -924,10 +924,10 @@ private fun StreamRegexDialog(
                         modifier = Modifier.tvControlHeight(),
                         onClick = onDismiss,
                         colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            contentColor = NuvioTheme.colors.TextPrimary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary
+                            containerColor = MoviesTheme.colors.BackgroundElevated,
+                            contentColor = MoviesTheme.colors.TextPrimary,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Primary
                         ).expressiveControl(),
                         shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
                             .expressivePill(),
@@ -935,7 +935,7 @@ private fun StreamRegexDialog(
                     ) {
                         Text(stringResource(R.string.action_cancel))
                     }
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Button(
                         modifier = Modifier.tvControlHeight(),
                         onClick = {
@@ -943,10 +943,10 @@ private fun StreamRegexDialog(
                             regexError = null
                         },
                         colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundElevated,
-                            contentColor = NuvioTheme.colors.TextPrimary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary
+                            containerColor = MoviesTheme.colors.BackgroundElevated,
+                            contentColor = MoviesTheme.colors.TextPrimary,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Primary
                         ).expressiveControl(),
                         shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
                             .expressivePill(),
@@ -954,7 +954,7 @@ private fun StreamRegexDialog(
                     ) {
                         Text(stringResource(R.string.action_none))
                     }
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Button(
                         modifier = Modifier.tvControlHeight(),
                         onClick = {
@@ -969,10 +969,10 @@ private fun StreamRegexDialog(
                             onSave(value)
                         },
                         colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.BackgroundCard,
-                            contentColor = NuvioTheme.colors.TextPrimary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary
+                            containerColor = MoviesTheme.colors.BackgroundCard,
+                            contentColor = MoviesTheme.colors.TextPrimary,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Primary
                         ).expressiveControl(),
                         shape = ButtonDefaults.shape(RoundedCornerShape(10.dp))
                             .expressivePill(),

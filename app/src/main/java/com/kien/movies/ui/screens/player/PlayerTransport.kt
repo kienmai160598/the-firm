@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 private const val TRANSPORT_SUPPORTING_ALPHA = 0.64f
@@ -60,7 +60,7 @@ private fun PlayerScrubberTimes(elapsed: String, remaining: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = NuvioTheme.spacing.sm),
+            .padding(top = MoviesTheme.spacing.sm),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -32,8 +32,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.UserProfile
-import com.kien.movies.ui.components.NuvioDialog
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.components.MoviesDialog
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun ProfileSettingsSourceDialog(
@@ -61,7 +61,7 @@ internal fun ProfileSettingsSourceDialog(
         runCatching { focusRequester.requestFocus() }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.profile_copy_settings_setup_title),
         subtitle = stringResource(R.string.profile_copy_settings_setup_subtitle),
@@ -71,11 +71,11 @@ internal fun ProfileSettingsSourceDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(
-                    max = NuvioTheme.sizes.buttons.defaultHeight * 2 +
-                        NuvioTheme.spacing.sm
+                    max = MoviesTheme.sizes.buttons.defaultHeight * 2 +
+                        MoviesTheme.spacing.sm
                 ),
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             item(key = "start_fresh") {
                 SourceProfileButton(
@@ -120,13 +120,13 @@ internal fun ProfileSettingsSourceDialog(
         }
         Text(
             text = stringResource(R.string.profile_copy_settings_exclusions),
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(
-                NuvioTheme.components.dialog.actionSpacing
+                MoviesTheme.components.dialog.actionSpacing
             )
         ) {
             SourceProfileButton(
@@ -173,7 +173,7 @@ internal fun CopyProfileSettingsDialog(
         runCatching { focusRequester.requestFocus() }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = { if (!isCopying) onDismiss() },
         title = stringResource(R.string.profile_copy_settings_title, targetProfile.name),
         subtitle = stringResource(R.string.profile_copy_settings_subtitle),
@@ -181,17 +181,17 @@ internal fun CopyProfileSettingsDialog(
     ) {
         Text(
             text = stringResource(R.string.profile_copy_settings_from),
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             fontWeight = FontWeight.SemiBold
         )
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(
-                    max = NuvioTheme.sizes.buttons.defaultHeight * 2 +
-                        NuvioTheme.spacing.sm
+                    max = MoviesTheme.sizes.buttons.defaultHeight * 2 +
+                        MoviesTheme.spacing.sm
                 ),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             items(sourceProfiles, key = UserProfile::id) { profile ->
                 SourceProfileButton(
@@ -219,20 +219,20 @@ internal fun CopyProfileSettingsDialog(
         )
         Text(
             text = stringResource(R.string.profile_copy_settings_details),
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText)
         )
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
-                color = NuvioTheme.colors.Error,
+                color = MoviesTheme.colors.Error,
                 style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText)
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(
-                NuvioTheme.components.dialog.actionSpacing
+                MoviesTheme.components.dialog.actionSpacing
             )
         ) {
             SourceProfileButton(
@@ -275,24 +275,24 @@ private fun SourceProfileButton(
         modifier = modifier.fillMaxWidth(),
         colors = ButtonDefaults.colors(
             containerColor = if (selected) {
-                NuvioTheme.colors.Secondary
+                MoviesTheme.colors.Secondary
             } else {
-                NuvioTheme.colors.BackgroundCard
+                MoviesTheme.colors.BackgroundCard
             },
             contentColor = if (selected) {
-                NuvioTheme.colors.OnSecondary
+                MoviesTheme.colors.OnSecondary
             } else {
-                NuvioTheme.colors.TextPrimary
+                MoviesTheme.colors.TextPrimary
             },
             focusedContainerColor = if (selected) {
-                NuvioTheme.colors.SecondaryVariant
+                MoviesTheme.colors.SecondaryVariant
             } else {
-                NuvioTheme.colors.FocusBackground
+                MoviesTheme.colors.FocusBackground
             },
             focusedContentColor = if (selected) {
-                NuvioTheme.colors.OnSecondaryVariant
+                MoviesTheme.colors.OnSecondaryVariant
             } else {
-                NuvioTheme.colors.FocusContent
+                MoviesTheme.colors.FocusContent
             }
         )
     ) {

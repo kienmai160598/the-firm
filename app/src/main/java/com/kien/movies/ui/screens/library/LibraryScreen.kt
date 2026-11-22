@@ -115,9 +115,9 @@ import kotlinx.coroutines.launch
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.domain.model.localizedTitle
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.destructiveButtonColors
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.util.localizedContentType
 import com.kien.movies.ui.util.localizedGenreLabel
@@ -308,7 +308,7 @@ fun LibraryScreen(
                 Text(
                     text = stringResource(R.string.library_syncing_library),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -326,7 +326,7 @@ fun LibraryScreen(
         state = gridState,
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
             .focusRestorer {
                 val lastKey = lastFocusedPosterKey
                 (if (lastKey != null && lastKey in posterFocusRequesters) {
@@ -346,9 +346,9 @@ fun LibraryScreen(
                 }
                 false
             },
-        contentPadding = PaddingValues(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = libraryTopPadding(), bottom = NuvioTheme.spacing.xxl),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+        contentPadding = PaddingValues(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = libraryTopPadding(), bottom = MoviesTheme.spacing.xxl),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Row(
@@ -359,7 +359,7 @@ fun LibraryScreen(
                 Text(
                     text = stringResource(R.string.library_title),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = if (showBuiltInHeader) NuvioTheme.colors.TextPrimary else Color.Transparent,
+                    color = if (showBuiltInHeader) MoviesTheme.colors.TextPrimary else Color.Transparent,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.5.sp
                 )
@@ -370,11 +370,11 @@ fun LibraryScreen(
                         uiState.sourceMode == LibrarySourceMode.TRAKT -> "TRAKT"
                         uiState.sourceMode == LibrarySourceMode.SIMKL -> "SIMKL"
                         uiState.sourceMode == LibrarySourceMode.MDBLIST -> "MDBLIST"
-                        uiState.isNuvioAccount -> "NUVIO"
+                        uiState.isMoviesAccount -> "NUVIO"
                         else -> stringResource(R.string.library_source_local)
                     },
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (showBuiltInHeader) NuvioTheme.colors.TextTertiary else Color.Transparent,
+                    color = if (showBuiltInHeader) MoviesTheme.colors.TextTertiary else Color.Transparent,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 2.sp
                 )
@@ -494,7 +494,7 @@ fun LibraryScreen(
                         title = title,
                         subtitle = subtitle,
                         icon = Icons.Default.BookmarkBorder,
-                        modifier = Modifier.padding(vertical = NuvioTheme.spacing.xl),
+                        modifier = Modifier.padding(vertical = MoviesTheme.spacing.xl),
                         height = Dp.Unspecified
                     )
                 }
@@ -532,7 +532,7 @@ fun LibraryScreen(
             libraryServerContent(
                 shelves = serverShelves,
                 posterCardStyle = posterCardStyle,
-                rowInset = NuvioTheme.spacing.xxxl,
+                rowInset = MoviesTheme.spacing.xxxl,
                 focusTarget = serverFocusTarget,
                 focusedIndexes = serversViewModel.focusedIndexes,
                 onItemFocused = { shelfKey, index ->
@@ -633,7 +633,7 @@ fun LibraryScreen(
             }
         }
 
-        item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm)) }
+        item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm)) }
     }
 
     if (uiState.showManageDialog && uiState.listManagement != null) {
@@ -724,10 +724,10 @@ fun LibraryScreen(
             Text(
                 text = transientMessage,
                 style = MaterialTheme.typography.bodyMedium.atLeastOnBox(TvSizeFloors.bodyText),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier
                     .padding(top = libraryTopPadding())
-                    .background(NuvioTheme.colors.BackgroundElevated, LibraryToastShape)
+                    .background(MoviesTheme.colors.BackgroundElevated, LibraryToastShape)
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             )
         }
@@ -759,7 +759,7 @@ private fun LibraryViewModeRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
             modes.forEach { mode ->
                 val selected = mode == selectedMode
                 Button(
@@ -772,8 +772,8 @@ private fun LibraryViewModeRow(
                         },
                     colors = selectableButtonColors(
                         selected = selected,
-                        upstreamSelected = NuvioTheme.colors.FocusBackground,
-                        upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                        upstreamSelected = MoviesTheme.colors.FocusBackground,
+                        upstreamSelectedContent = MoviesTheme.colors.TextPrimary
                     ),
                     contentPadding = tvButtonPadding()
                 ) {
@@ -812,7 +812,7 @@ private fun CloudLibrarySelectorsRow(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         LibraryDropdownPicker(
             modifier = Modifier.weight(1f),
@@ -883,7 +883,7 @@ private fun CloudLibrarySearchRow(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
         Surface(
@@ -901,7 +901,7 @@ private fun CloudLibrarySearchRow(
                 onValueChange = onQueryChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                    .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                     .focusRequester(editorFocusRequester)
                     .focusProperties { canFocus = editing }
                     .onFocusChanged {
@@ -936,18 +936,18 @@ private fun CloudLibrarySearchRow(
                     }
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content
                 ),
                 cursorBrush = SolidColor(
-                    if (editing) NuvioTheme.colors.FocusRing else Color.Transparent
+                    if (editing) MoviesTheme.colors.FocusRing else Color.Transparent
                 ),
                 decorationBox = { innerTextField ->
                     if (query.isEmpty()) {
                         Text(
                             text = stringResource(R.string.cloud_library_search_label),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = NuvioTheme.colors.TextTertiary
+                            color = MoviesTheme.colors.TextTertiary
                         )
                     }
                     innerTextField()
@@ -987,7 +987,7 @@ private fun CloudLibraryLoadingState() {
         Text(
             text = stringResource(R.string.library_syncing_library),
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -1005,11 +1005,11 @@ private fun CloudLibraryCard(
         modifier = Modifier.fillMaxWidth(),
         shape = CardDefaults.shape(LibraryContainerShape),
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
-            focusedBorder = Border(border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs), shape = LibraryContainerShape)
+            focusedBorder = Border(border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs), shape = LibraryContainerShape)
         ),
         scale = CardDefaults.scale(focusedScale = 1.02f)
     ) {
@@ -1022,14 +1022,14 @@ private fun CloudLibraryCard(
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.titleSmall,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold
             )
             fileLine?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
             Row(
@@ -1041,7 +1041,7 @@ private fun CloudLibraryCard(
                     modifier = Modifier.weight(1f),
                     text = cloudLibraryMetadata(item),
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextTertiary
+                    color = MoviesTheme.colors.TextTertiary
                 )
                 Text(
                     text = if (isResolving) {
@@ -1051,7 +1051,7 @@ private fun CloudLibraryCard(
                     },
                     style = MaterialTheme.typography.labelMedium
                         .atLeastOnBox(TvSizeFloors.metaText),
-                    color = if (item.playableFiles.isEmpty()) NuvioTheme.colors.TextTertiary else NuvioTheme.colors.Primary
+                    color = if (item.playableFiles.isEmpty()) MoviesTheme.colors.TextTertiary else MoviesTheme.colors.Primary
                 )
             }
         }
@@ -1105,7 +1105,7 @@ private fun CloudFilePickerDialog(
     onPlay: (CloudLibraryFile) -> Unit,
     onDismiss: () -> Unit
 ) {
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.cloud_library_file_picker_title),
         subtitle = item.name,
@@ -1116,14 +1116,14 @@ private fun CloudFilePickerDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 420.dp),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             items(item.playableFiles, key = { it.stableKey }) { file ->
                 val resolving = resolvingFileKey == "${item.stableKey}:${file.stableKey}"
                 Card(
                     onClick = { if (!resolving) onPlay(file) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = tonalCardColors(resting = NuvioTheme.colors.BackgroundCard),
+                    colors = tonalCardColors(resting = MoviesTheme.colors.BackgroundCard),
                     border = forBuild(CardDefaults.border(), noRingCardBorder()),
                     shape = CardDefaults.shape(CloudFileShape),
                     scale = CardDefaults.scale(focusedScale = 1f)
@@ -1132,12 +1132,12 @@ private fun CloudFilePickerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                     ) {
                         Text(
                             text = file.name,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
                         formatCloudSize(file.sizeBytes)?.let { size ->
@@ -1145,14 +1145,14 @@ private fun CloudFilePickerDialog(
                                 text = size,
                                 style = MaterialTheme.typography.bodySmall
                                     .atLeastOnBox(TvSizeFloors.metaText),
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
                         }
                         Text(
                             text = stringResource(R.string.cloud_library_play_file),
                             style = MaterialTheme.typography.labelMedium
                                 .atLeastOnBox(TvSizeFloors.metaText),
-                            color = NuvioTheme.colors.Primary
+                            color = MoviesTheme.colors.Primary
                         )
                     }
                 }
@@ -1203,7 +1203,7 @@ private fun LibrarySelectorsRow(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             if (sourceMode != LibrarySourceMode.LOCAL) {
                 LibraryDropdownPicker(
@@ -1267,7 +1267,7 @@ private fun LibrarySelectorsRow(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             if (genres.isNotEmpty()) {
                 val genreAllOption = LibraryOption(allLabel, "__all__")
@@ -1396,12 +1396,12 @@ private fun LibraryDropdownPicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextTertiary)
+                    color = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextTertiary)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1411,7 +1411,7 @@ private fun LibraryDropdownPicker(
                     Text(
                         text = value,
                         style = MaterialTheme.typography.titleMedium,
-                        color = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextPrimary),
+                        color = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1434,14 +1434,14 @@ private fun LibraryDropdownPicker(
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
             shape = LibraryContainerShape,
-            containerColor = NuvioTheme.colors.Surface,
-            tonalElevation = NuvioTheme.spacing.none,
-            shadowElevation = NuvioTheme.spacing.sm
+            containerColor = MoviesTheme.colors.Surface,
+            tonalElevation = MoviesTheme.spacing.none,
+            shadowElevation = MoviesTheme.spacing.sm
         ) {
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
-                val itemTextColor = ExpressiveFocus.contentColor(isOptionFocused, isSelected, NuvioTheme.colors.TextPrimary)
+                val itemTextColor = ExpressiveFocus.contentColor(isOptionFocused, isSelected, MoviesTheme.colors.TextPrimary)
                 val itemBackgroundColor = ExpressiveFocus.containerColor(isOptionFocused, isSelected)
 
                 DropdownMenuItem(
@@ -1455,7 +1455,7 @@ private fun LibraryDropdownPicker(
                                 Modifier
                             }
                         )
-                        .padding(horizontal = 6.dp, vertical = NuvioTheme.spacing.xxs)
+                        .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(10.dp)
@@ -1485,7 +1485,7 @@ private fun LibraryDropdownPicker(
                     onClick = { onSelect(option) },
                     colors = MenuDefaults.itemColors(
                         textColor = itemTextColor,
-                        disabledTextColor = NuvioTheme.colors.TextDisabled
+                        disabledTextColor = MoviesTheme.colors.TextDisabled
                     )
                 )
             }
@@ -1509,7 +1509,7 @@ private fun LibraryActionsRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         if (showManageLists) {
             Button(
@@ -1546,7 +1546,7 @@ private fun ConfirmDeleteDialog(
     onConfirm: () -> Unit,
     onCancel: () -> Unit
 ) {
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onCancel,
         title = stringResource(R.string.library_delete_title),
         subtitle = stringResource(R.string.library_delete_subtitle),

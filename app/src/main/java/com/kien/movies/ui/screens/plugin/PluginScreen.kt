@@ -2,8 +2,8 @@
 
 package com.kien.movies.ui.screens.plugin
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
@@ -102,7 +102,7 @@ import com.kien.movies.domain.model.LocalScraperResult
 import com.kien.movies.domain.model.PluginRepository
 import com.kien.movies.domain.model.ScraperInfo
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -144,7 +144,7 @@ fun PluginScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(NuvioTheme.colors.Background)
+                .background(MoviesTheme.colors.Background)
         ) {
             PluginScreenContent(
                 uiState = uiState,
@@ -216,17 +216,17 @@ fun PluginScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl)
+                .padding(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl)
         ) {
             LazyColumn(
                 state = listState,
-                contentPadding = PaddingValues(bottom = NuvioTheme.spacing.xxl),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                contentPadding = PaddingValues(bottom = MoviesTheme.spacing.xxl),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                 modifier = Modifier
                     .fillMaxSize()
                     .focusRestorer(manageFromPhoneFocusRequester)
@@ -240,13 +240,13 @@ fun PluginScreenContent(
                                 androidx.compose.ui.graphics.Color(0xFF1A3A5C)
                             )
                         ),
-                        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                     ) {
                         androidx.tv.material3.Text(
                             text = stringResource(R.string.plugin_readonly_notice),
                             style = androidx.tv.material3.MaterialTheme.typography.bodyMedium,
-                            color = com.kien.movies.ui.theme.NuvioTheme.colors.TextSecondary,
-                            modifier = Modifier.padding(NuvioTheme.spacing.lg)
+                            color = com.kien.movies.ui.theme.MoviesTheme.colors.TextSecondary,
+                            modifier = Modifier.padding(MoviesTheme.spacing.lg)
                         )
                     }
                 }
@@ -300,7 +300,7 @@ fun PluginScreenContent(
                 Text(
                     text = stringResource(R.string.plugin_repositories_section, uiState.repositories.size),
                     style = MaterialTheme.typography.titleLarge,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
             }
 
@@ -308,7 +308,7 @@ fun PluginScreenContent(
                 item {
                     EmptyState(
                         message = stringResource(R.string.plugin_no_repos),
-                        modifier = Modifier.padding(vertical = NuvioTheme.spacing.xl)
+                        modifier = Modifier.padding(vertical = MoviesTheme.spacing.xl)
                     )
                 }
             }
@@ -332,11 +332,11 @@ fun PluginScreenContent(
             // Scrapers section
             if (uiState.scrapers.isNotEmpty()) {
                 item {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                     Text(
                         text = stringResource(R.string.plugin_providers_section, uiState.scrapers.size),
                         style = MaterialTheme.typography.titleLarge,
-                        color = NuvioTheme.colors.TextPrimary
+                        color = MoviesTheme.colors.TextPrimary
                     )
                 }
 
@@ -391,7 +391,7 @@ fun PluginScreenContent(
     }
 
     repoPendingDeletion?.let { repo ->
-        NuvioDialog(
+        MoviesDialog(
             onDismiss = {
                 repoRefocusRequester = repoDeleteFocusRequesters[repo.id]
                 repoPendingDeletion = null
@@ -402,7 +402,7 @@ fun PluginScreenContent(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.End)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
             ) {
                 Button(
                     onClick = {
@@ -456,17 +456,17 @@ private fun PluginStreamGroupingCard(
                 toggleableState = if (groupStreamsByRepository) ToggleableState.On else ToggleableState.Off
             },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ).expressiveRingless(),
         shape = ClickableSurfaceDefaults.shape(
-            RoundedCornerShape(NuvioTheme.radii.md)
+            RoundedCornerShape(MoviesTheme.radii.md)
         ).expressiveCard(),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
     ) {
@@ -481,17 +481,17 @@ private fun PluginStreamGroupingCard(
                 Text(
                     text = stringResource(R.string.plugin_group_by_repository_title),
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = stringResource(R.string.plugin_group_by_repository_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
 
             ListToggleSwitch(checked = groupStreamsByRepository, focused = false)
         }
@@ -517,17 +517,17 @@ private fun PluginsEnabledCard(
                 toggleableState = if (pluginsEnabled) ToggleableState.On else ToggleableState.Off
             },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ).expressiveRingless(),
         shape = ClickableSurfaceDefaults.shape(
-            RoundedCornerShape(NuvioTheme.radii.md)
+            RoundedCornerShape(MoviesTheme.radii.md)
         ).expressiveCard(),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f).expressiveCardGrow()
     ) {
@@ -542,17 +542,17 @@ private fun PluginsEnabledCard(
                 Text(
                     text = stringResource(R.string.plugin_enable_plugins_title),
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = stringResource(R.string.plugin_enable_plugins_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
 
             ListToggleSwitch(checked = pluginsEnabled, focused = false)
         }
@@ -581,19 +581,19 @@ private fun AddRepositoryInline(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = NuvioTheme.colors.BackgroundCard),
-        shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+        colors = CardDefaults.cardColors(containerColor = MoviesTheme.colors.BackgroundCard),
+        shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = stringResource(R.string.plugin_add_repository),
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Surface always stays in the tree for stable D-pad focus
@@ -601,27 +601,27 @@ private fun AddRepositoryInline(
                     onClick = { isEditing = true },
                     modifier = Modifier.weight(1f),
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundElevated,
+                        containerColor = MoviesTheme.colors.BackgroundElevated,
                         focusedContainerColor = expressiveCardFocusFill(
-                            NuvioTheme.colors.BackgroundElevated
+                            MoviesTheme.colors.BackgroundElevated
                         )
                     ),
                     border = ClickableSurfaceDefaults.border(
                         border = Border(
-                            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         ),
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                         )
                     ).expressiveRingless(),
                     shape = ClickableSurfaceDefaults.shape(
-                        RoundedCornerShape(NuvioTheme.radii.md)
+                        RoundedCornerShape(MoviesTheme.radii.md)
                     ).expressiveCard(),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveCardGrow()
                 ) {
-                    Box(modifier = Modifier.padding(NuvioTheme.spacing.md)) {
+                    Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
                         BasicTextField(
                             value = url,
                             onValueChange = onUrlChange,
@@ -649,16 +649,16 @@ private fun AddRepositoryInline(
                                 }
                             ),
                             textStyle = MaterialTheme.typography.bodyMedium.bodyFloor().copy(
-                                color = NuvioTheme.colors.TextPrimary,
+                                color = MoviesTheme.colors.TextPrimary,
                                 textDirection = TextDirection.Content
                             ),
-                            cursorBrush = SolidColor(if (isEditing) NuvioTheme.colors.Primary else Color.Transparent),
+                            cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
                             decorationBox = { innerTextField ->
                                 if (url.isEmpty()) {
                                     Text(
                                         text = stringResource(R.string.plugin_url_or_short_code_placeholder),
                                         style = MaterialTheme.typography.bodyMedium.bodyFloor(),
-                                        color = NuvioTheme.colors.TextTertiary
+                                        color = MoviesTheme.colors.TextTertiary
                                     )
                                 }
                                 innerTextField()
@@ -680,14 +680,14 @@ private fun AddRepositoryInline(
                         .semantics { role = Role.Button }
                         .tvControlHeight(),
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.Secondary,
-                        focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                        contentColor = NuvioTheme.colors.OnSecondary,
-                        focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                        containerColor = MoviesTheme.colors.Secondary,
+                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                        contentColor = MoviesTheme.colors.OnSecondary,
+                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                     ).expressiveControl(primary = true),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                             shape = RoundedCornerShape(50)
                         )
                     ).expressiveRingless(),
@@ -703,7 +703,7 @@ private fun AddRepositoryInline(
                             modifier = Modifier.size(buttonIconSize(18.dp))
                         )
                     }
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Text(stringResource(R.string.plugin_add_btn))
                 }
             }
@@ -726,12 +726,12 @@ private fun ManageFromPhoneCard(
             .onFocusChanged { isFocused = it.isFocused }
             .semantics { role = Role.Button },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(18.dp)
             )
         ).expressiveRingless(),
@@ -750,19 +750,19 @@ private fun ManageFromPhoneCard(
                     imageVector = Icons.Default.QrCode2,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                    tint = if (isFocused) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
                 Column {
                     Text(
                         text = stringResource(R.string.plugin_manage_from_phone_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = NuvioTheme.colors.TextPrimary
+                        color = MoviesTheme.colors.TextPrimary
                     )
                     Text(
                         text = stringResource(R.string.plugin_manage_from_phone_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -770,7 +770,7 @@ private fun ManageFromPhoneCard(
                 imageVector = Icons.Default.PhoneAndroid,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = NuvioTheme.colors.TextSecondary
+                tint = MoviesTheme.colors.TextSecondary
             )
         }
     }
@@ -805,11 +805,11 @@ private fun QrCodeOverlay(
             Text(
                 text = stringResource(R.string.plugin_qr_instruction),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             if (qrBitmap != null) {
                 Image(
@@ -820,18 +820,18 @@ private fun QrCodeOverlay(
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
             if (serverUrl != null) {
                 Text(
                     text = serverUrl,
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             Surface(
                 onClick = onClose,
@@ -839,12 +839,12 @@ private fun QrCodeOverlay(
                     .focusRequester(focusRequester)
                     .semantics { role = Role.Button }.tvControlHeight(),
                 colors = ClickableSurfaceDefaults.colors(
-                    containerColor = NuvioTheme.colors.Surface,
-                    focusedContainerColor = NuvioTheme.colors.FocusBackground
+                    containerColor = MoviesTheme.colors.Surface,
+                    focusedContainerColor = MoviesTheme.colors.FocusBackground
                 ).expressiveControl(),
                 border = ClickableSurfaceDefaults.border(
                     focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                         shape = RoundedCornerShape(50)
                     )
                 ).expressiveRingless(),
@@ -852,19 +852,19 @@ private fun QrCodeOverlay(
                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f).expressiveControlGrow()
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = null,
                         modifier = Modifier.size(buttonIconSize(18.dp)),
-                        tint = onControlColor(NuvioTheme.colors.TextPrimary)
+                        tint = onControlColor(MoviesTheme.colors.TextPrimary)
                     )
-                    Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.plugin_qr_close),
-                        color = onControlColor(NuvioTheme.colors.TextPrimary)
+                        color = onControlColor(MoviesTheme.colors.TextPrimary)
                     )
                 }
             }
@@ -899,96 +899,96 @@ private fun ConfirmRepoChangesDialog(
                 .width(560.dp)
                 .heightIn(max = 640.dp),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = NuvioTheme.colors.SurfaceVariant
+                containerColor = MoviesTheme.colors.SurfaceVariant
             ),
             shape = ClickableSurfaceDefaults.shape(
-                expressivePanelShape(RoundedCornerShape(NuvioTheme.radii.xl))
+                expressivePanelShape(RoundedCornerShape(MoviesTheme.radii.xl))
             ).expressiveCard()
         ) {
             Column(
-                modifier = Modifier.padding(NuvioTheme.spacing.xl),
+                modifier = Modifier.padding(MoviesTheme.spacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = stringResource(R.string.plugin_confirm_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Text(
                     text = stringResource(R.string.plugin_confirm_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 320.dp)
                         .background(
-                            color = NuvioTheme.colors.Surface,
-                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                            color = MoviesTheme.colors.Surface,
+                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                         )
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(NuvioTheme.spacing.md)
+                            .padding(MoviesTheme.spacing.md)
                             .verticalScroll(scrollState)
                     ) {
                         if (pendingChange.addedUrls.isNotEmpty()) {
                             Text(
                                 text = stringResource(R.string.plugin_confirm_added),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.Success,
+                                color = MoviesTheme.colors.Success,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             pendingChange.addedUrls.forEach { url ->
                                 Text(
                                     text = "+ $url",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Success,
+                                    color = MoviesTheme.colors.Success,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (pendingChange.removedUrls.isNotEmpty()) {
                             Text(
                                 text = stringResource(R.string.plugin_confirm_removed),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.Error,
+                                color = MoviesTheme.colors.Error,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = NuvioTheme.spacing.xs)
+                                    .padding(bottom = MoviesTheme.spacing.xs)
                             )
                             pendingChange.removedUrls.forEach { url ->
                                 Text(
                                     text = "- $url",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Error,
+                                    color = MoviesTheme.colors.Error,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxs)
+                                        .padding(start = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxs)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         }
 
                         if (pendingChange.addedUrls.isEmpty() && pendingChange.removedUrls.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.plugin_confirm_no_changes),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
                         }
                     }
@@ -997,28 +997,28 @@ private fun ConfirmRepoChangesDialog(
                 Text(
                     text = stringResource(R.string.plugin_confirm_total, pendingChange.proposedUrls.size),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                 if (pendingChange.isApplying) {
                     LoadingIndicator(modifier = Modifier.size(36.dp))
                 } else {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                     ) {
                         Surface(
                             onClick = onReject,
                             modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = NuvioTheme.colors.Surface,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                                containerColor = MoviesTheme.colors.Surface,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground
                             ).expressiveControl(),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                     shape = RoundedCornerShape(50)
                                 )
                             ).expressiveRingless(),
@@ -1026,19 +1026,19 @@ private fun ConfirmRepoChangesDialog(
                                 .expressivePill()
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = null,
                                     modifier = Modifier.size(buttonIconSize(18.dp)),
-                                    tint = onControlColor(NuvioTheme.colors.TextPrimary)
+                                    tint = onControlColor(MoviesTheme.colors.TextPrimary)
                                 )
-                                Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                                Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                                 Text(
                                     text = stringResource(R.string.plugin_confirm_reject),
-                                    color = onControlColor(NuvioTheme.colors.TextPrimary)
+                                    color = onControlColor(MoviesTheme.colors.TextPrimary)
                                 )
                             }
                         }
@@ -1049,12 +1049,12 @@ private fun ConfirmRepoChangesDialog(
                                 .focusRequester(focusRequester)
                                 .semantics { role = Role.Button }.tvControlHeight(),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = NuvioTheme.colors.Secondary,
-                                focusedContainerColor = NuvioTheme.colors.SecondaryVariant
+                                containerColor = MoviesTheme.colors.Secondary,
+                                focusedContainerColor = MoviesTheme.colors.SecondaryVariant
                             ).expressiveControl(primary = true),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                     shape = RoundedCornerShape(50)
                                 )
                             ).expressiveRingless(),
@@ -1063,8 +1063,8 @@ private fun ConfirmRepoChangesDialog(
                         ) {
                             Text(
                                 text = stringResource(R.string.plugin_confirm_confirm),
-                                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
-                                color = onControlColor(NuvioTheme.colors.OnSecondary)
+                                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
+                                color = onControlColor(MoviesTheme.colors.OnSecondary)
                             )
                         }
                     }
@@ -1098,44 +1098,44 @@ private fun ConfirmScraperEnableDialog(
             onClick = { },
             modifier = Modifier.width(560.dp),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = NuvioTheme.colors.SurfaceVariant
+                containerColor = MoviesTheme.colors.SurfaceVariant
             ),
             shape = ClickableSurfaceDefaults.shape(
-                expressivePanelShape(RoundedCornerShape(NuvioTheme.radii.xl))
+                expressivePanelShape(RoundedCornerShape(MoviesTheme.radii.xl))
             ).expressiveCard()
         ) {
             Column(
-                modifier = Modifier.padding(NuvioTheme.spacing.xl),
+                modifier = Modifier.padding(MoviesTheme.spacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = stringResource(R.string.plugin_risky_enable_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
                 Text(
                     text = stringResource(R.string.plugin_risky_enable_message, scraperName),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)) {
                     Surface(
                         onClick = onDismiss,
                         modifier = Modifier.semantics { role = Role.Button }.tvControlHeight(),
                         colors = ClickableSurfaceDefaults.colors(
-                            containerColor = NuvioTheme.colors.Surface,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground
+                            containerColor = MoviesTheme.colors.Surface,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground
                         ).expressiveControl(),
                         border = ClickableSurfaceDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                 shape = RoundedCornerShape(50)
                             )
                         ).expressiveRingless(),
@@ -1143,19 +1143,19 @@ private fun ConfirmScraperEnableDialog(
                             .expressivePill()
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
+                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = null,
                                 modifier = Modifier.size(buttonIconSize(18.dp)),
-                                tint = onControlColor(NuvioTheme.colors.TextPrimary)
+                                tint = onControlColor(MoviesTheme.colors.TextPrimary)
                             )
-                            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                             Text(
                                 text = stringResource(R.string.plugin_risky_enable_cancel),
-                                color = onControlColor(NuvioTheme.colors.TextPrimary)
+                                color = onControlColor(MoviesTheme.colors.TextPrimary)
                             )
                         }
                     }
@@ -1166,12 +1166,12 @@ private fun ConfirmScraperEnableDialog(
                             .focusRequester(focusRequester)
                             .semantics { role = Role.Button }.tvControlHeight(),
                         colors = ClickableSurfaceDefaults.colors(
-                            containerColor = NuvioTheme.colors.Secondary,
-                            focusedContainerColor = NuvioTheme.colors.SecondaryVariant
+                            containerColor = MoviesTheme.colors.Secondary,
+                            focusedContainerColor = MoviesTheme.colors.SecondaryVariant
                         ).expressiveControl(primary = true),
                         border = ClickableSurfaceDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                                 shape = RoundedCornerShape(50)
                             )
                         ).expressiveRingless(),
@@ -1179,19 +1179,19 @@ private fun ConfirmScraperEnableDialog(
                             .expressivePill()
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.md),
+                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.md),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
                                 modifier = Modifier.size(buttonIconSize(18.dp)),
-                                tint = onControlColor(NuvioTheme.colors.OnSecondary)
+                                tint = onControlColor(MoviesTheme.colors.OnSecondary)
                             )
-                            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                             Text(
                                 text = stringResource(R.string.plugin_risky_enable_confirm),
-                                color = onControlColor(NuvioTheme.colors.OnSecondary)
+                                color = onControlColor(MoviesTheme.colors.OnSecondary)
                             )
                         }
                     }
@@ -1220,7 +1220,7 @@ private fun RepositoryCard(
     var isRemoveFocused by remember { mutableStateOf(false) }
     val isCardFocused = isToggleFocused || isRefreshFocused || isRemoveFocused
     val cardBorderColor by animateColorAsState(
-        targetValue = if (isCardFocused) NuvioTheme.colors.FocusRing else Color.Transparent,
+        targetValue = if (isCardFocused) MoviesTheme.colors.FocusRing else Color.Transparent,
         label = "repositoryCardBorder"
     )
     val cardScale by animateFloatAsState(
@@ -1237,14 +1237,14 @@ private fun RepositoryCard(
                 scaleY = cardScale
             }
             .background(
-                color = NuvioTheme.colors.BackgroundCard,
+                color = MoviesTheme.colors.BackgroundCard,
                 shape = expressiveCardShape(RoundedCornerShape(18.dp))
             )
             .border(
                 width = if (isCardFocused && !isExpressiveBuild) {
-                    NuvioTheme.spacing.xxs
+                    MoviesTheme.spacing.xxs
                 } else {
-                    NuvioTheme.spacing.none
+                    MoviesTheme.spacing.none
                 },
                 color = cardBorderColor,
                 shape = RoundedCornerShape(18.dp)
@@ -1253,7 +1253,7 @@ private fun RepositoryCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1261,23 +1261,23 @@ private fun RepositoryCard(
                 Text(
                     text = repository.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = stringResource(R.string.plugin_providers_count, repository.scraperCount),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
                 Text(
                     text = stringResource(R.string.plugin_updated_format, formatDate(repository.lastUpdated)),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
 
             if (!isReadOnly) Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (repoScrapers.isNotEmpty()) {
@@ -1290,23 +1290,23 @@ private fun RepositoryCard(
                                 toggleableState = if (anyEnabled) ToggleableState.On else ToggleableState.Off
                             },
                         colors = ClickableSurfaceDefaults.colors(
-                            containerColor = NuvioTheme.colors.Surface,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground
+                            containerColor = MoviesTheme.colors.Surface,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground
                         ).expressiveControl(),
                         border = ClickableSurfaceDefaults.border(
                             focusedBorder = Border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                shape = RoundedCornerShape(MoviesTheme.radii.md)
                             )
                         ).expressiveRingless(),
                         shape = ClickableSurfaceDefaults.shape(
-                            RoundedCornerShape(NuvioTheme.radii.md)
+                            RoundedCornerShape(MoviesTheme.radii.md)
                         ).expressivePill(),
                         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                             .expressiveControlGrow()
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
+                            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
@@ -1314,7 +1314,7 @@ private fun RepositoryCard(
                                 text = "$enabledCount/${repoScrapers.size}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = onControlColor(
-                                    if (anyEnabled) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary
+                                    if (anyEnabled) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary
                                 )
                             )
                             ListToggleSwitch(checked = anyEnabled, focused = isToggleFocused)
@@ -1330,12 +1330,12 @@ private fun RepositoryCard(
                         .semantics { role = Role.Button }
                         .tvControlHeight(),
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.Surface,
-                        contentColor = NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = NuvioTheme.colors.Primary
+                        containerColor = MoviesTheme.colors.Surface,
+                        contentColor = MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = MoviesTheme.colors.Primary
                     ).expressiveControl(),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                         .expressivePill(),
                     border = ButtonDefaults.border().expressiveRingless(),
                     scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1355,12 +1355,12 @@ private fun RepositoryCard(
                         .semantics { role = Role.Button }
                         .tvControlHeight(),
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.Surface,
-                        contentColor = NuvioTheme.colors.TextSecondary,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                        focusedContentColor = NuvioTheme.colors.Error
+                        containerColor = MoviesTheme.colors.Surface,
+                        contentColor = MoviesTheme.colors.TextSecondary,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                        focusedContentColor = MoviesTheme.colors.Error
                     ).expressiveControl(),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                    shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                         .expressivePill(),
                     border = ButtonDefaults.border().expressiveRingless(),
                     scale = ButtonDefaults.scale().expressiveControlGrow()
@@ -1390,7 +1390,7 @@ private fun ScraperCard(
     var isToggleFocused by remember { mutableStateOf(false) }
     val isCardFocused = isTestFocused || isToggleFocused
     val cardBorderColor by animateColorAsState(
-        targetValue = if (isCardFocused) NuvioTheme.colors.FocusRing else Color.Transparent,
+        targetValue = if (isCardFocused) MoviesTheme.colors.FocusRing else Color.Transparent,
         label = "scraperCardBorder"
     )
     val cardScale by animateFloatAsState(
@@ -1412,14 +1412,14 @@ private fun ScraperCard(
                 scaleY = cardScale
             }
             .background(
-                color = NuvioTheme.colors.BackgroundCard,
+                color = MoviesTheme.colors.BackgroundCard,
                 shape = expressiveCardShape(RoundedCornerShape(18.dp))
             )
             .border(
                 width = if (isCardFocused && !isExpressiveBuild) {
-                    NuvioTheme.spacing.xxs
+                    MoviesTheme.spacing.xxs
                 } else {
-                    NuvioTheme.spacing.none
+                    MoviesTheme.spacing.none
                 },
                 color = cardBorderColor,
                 shape = RoundedCornerShape(18.dp)
@@ -1428,7 +1428,7 @@ private fun ScraperCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg)
+                .padding(MoviesTheme.spacing.lg)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1438,12 +1438,12 @@ private fun ScraperCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                     ) {
                         Text(
                             text = scraper.name,
                             style = MaterialTheme.typography.titleMedium,
-                            color = NuvioTheme.colors.TextPrimary
+                            color = MoviesTheme.colors.TextPrimary
                         )
 
                         // Type badges
@@ -1452,17 +1452,17 @@ private fun ScraperCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
                     Text(
                         text = stringResource(R.string.plugin_version, scraper.version),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Test button
@@ -1475,28 +1475,28 @@ private fun ScraperCard(
                             .semantics { role = Role.Button }
                             .tvControlHeight(),
                         colors = ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.Surface,
-                            contentColor = NuvioTheme.colors.TextPrimary,
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary
+                            containerColor = MoviesTheme.colors.Surface,
+                            contentColor = MoviesTheme.colors.TextPrimary,
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Primary
                         ).expressiveControl(),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                        shape = ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                             .expressivePill(),
                         border = ButtonDefaults.border().expressiveRingless(),
                         scale = ButtonDefaults.scale().expressiveControlGrow()
                     ) {
                         if (isTesting) {
                             LoadingIndicator(
-                                modifier = Modifier.size(buttonIconSize(NuvioTheme.spacing.lg))
+                                modifier = Modifier.size(buttonIconSize(MoviesTheme.spacing.lg))
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.PlayArrow,
                                 contentDescription = stringResource(R.string.cd_test),
-                                modifier = Modifier.size(buttonIconSize(NuvioTheme.spacing.lg))
+                                modifier = Modifier.size(buttonIconSize(MoviesTheme.spacing.lg))
                             )
                         }
-                        Spacer(modifier = Modifier.width(NuvioTheme.spacing.xs))
+                        Spacer(modifier = Modifier.width(MoviesTheme.spacing.xs))
                         Text(stringResource(R.string.plugin_test_btn))
                     }
 
@@ -1515,17 +1515,17 @@ private fun ScraperCard(
                                     toggleableState = if (scraper.enabled) ToggleableState.On else ToggleableState.Off
                                 },
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = NuvioTheme.colors.Surface,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground
+                                containerColor = MoviesTheme.colors.Surface,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground
                             ).expressiveControl(),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(MoviesTheme.radii.md)
                                 )
                             ).expressiveRingless(),
                             shape = ClickableSurfaceDefaults.shape(
-                                RoundedCornerShape(NuvioTheme.radii.md)
+                                RoundedCornerShape(MoviesTheme.radii.md)
                             ).expressivePill(),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                                 .expressiveControlGrow()
@@ -1549,7 +1549,7 @@ private fun ScraperCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = NuvioTheme.spacing.md)
+                        .padding(top = MoviesTheme.spacing.md)
                 ) {
                     // Diagnostic steps — collapsible, click to expand/collapse
                     if (testDiagnostics != null && testDiagnostics.steps.isNotEmpty()) {
@@ -1557,18 +1557,18 @@ private fun ScraperCard(
                         Surface(
                             onClick = { diagnosticsExpanded = !diagnosticsExpanded },
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = NuvioTheme.colors.Surface,
+                                containerColor = MoviesTheme.colors.Surface,
                                 focusedContainerColor = expressiveCardFocusFill(
-                                    NuvioTheme.colors.Surface
+                                    MoviesTheme.colors.Surface
                                 ),
-                                contentColor = NuvioTheme.colors.TextSecondary,
-                                focusedContentColor = NuvioTheme.colors.TextSecondary
+                                contentColor = MoviesTheme.colors.TextSecondary,
+                                focusedContentColor = MoviesTheme.colors.TextSecondary
                             ),
                             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(6.dp))
                                 .expressiveCard(),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Primary),
+                                    BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.Primary),
                                     shape = RoundedCornerShape(6.dp)
                                 )
                             ).expressiveRingless(),
@@ -1576,41 +1576,41 @@ private fun ScraperCard(
                                 .fillMaxWidth()
                                 .semantics { role = Role.Button }
                         ) {
-                            Column(modifier = Modifier.padding(NuvioTheme.spacing.sm)) {
+                            Column(modifier = Modifier.padding(MoviesTheme.spacing.sm)) {
                                 Text(
                                     text = if (diagnosticsExpanded) stringResource(R.string.plugin_diagnostics_collapse) else stringResource(R.string.plugin_diagnostics_expand),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = NuvioTheme.colors.TextTertiary
+                                    color = MoviesTheme.colors.TextTertiary
                                 )
                                 androidx.compose.animation.AnimatedVisibility(visible = diagnosticsExpanded) {
                                     Text(
                                         text = testDiagnostics.steps.joinToString("\n"),
                                         style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(top = NuvioTheme.spacing.xs)
+                                        modifier = Modifier.padding(top = MoviesTheme.spacing.xs)
                                     )
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     }
 
                     Text(
                         text = stringResource(R.string.plugin_test_results, testResults?.size ?: 0),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
                     testResults?.take(3)?.forEach { result ->
                         TestResultItem(result = result)
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                     }
 
                     if ((testResults?.size ?: 0) > 3) {
                         Text(
                             text = stringResource(R.string.plugin_and_more, testResults!!.size - 3),
                             style = MaterialTheme.typography.bodySmall,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
                     }
                 }
@@ -1622,10 +1622,10 @@ private fun ScraperCard(
 @Composable
 private fun TypeBadge(type: String) {
     val color = when (type.lowercase()) {
-        "movie" -> if (isExpressiveBuild) NuvioTheme.colors.Success else Color(0xFF4CAF50)
+        "movie" -> if (isExpressiveBuild) MoviesTheme.colors.Success else Color(0xFF4CAF50)
         "series", "show", "tv" ->
-            if (isExpressiveBuild) NuvioTheme.colors.Info else Color(0xFF2196F3)
-        else -> NuvioTheme.colors.TextSecondary
+            if (isExpressiveBuild) MoviesTheme.colors.Info else Color(0xFF2196F3)
+        else -> MoviesTheme.colors.TextSecondary
     }
 
     Box(
@@ -1634,7 +1634,7 @@ private fun TypeBadge(type: String) {
                 color = color.copy(alpha = 0.2f),
                 shape = badgeShape()
             )
-            .padding(horizontal = 6.dp, vertical = NuvioTheme.spacing.xxs)
+            .padding(horizontal = 6.dp, vertical = MoviesTheme.spacing.xxs)
     ) {
         Text(
             text = type.uppercase(),
@@ -1650,10 +1650,10 @@ private fun TestResultItem(result: LocalScraperResult) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = NuvioTheme.colors.Surface,
+                color = MoviesTheme.colors.Surface,
                 shape = expressiveCardShape(RoundedCornerShape(6.dp))
             )
-            .padding(NuvioTheme.spacing.sm)
+            .padding(MoviesTheme.spacing.sm)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1664,7 +1664,7 @@ private fun TestResultItem(result: LocalScraperResult) {
                 Text(
                     text = result.title,
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1672,7 +1672,7 @@ private fun TestResultItem(result: LocalScraperResult) {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.labelSmall,
-                        color = NuvioTheme.colors.Primary
+                        color = MoviesTheme.colors.Primary
                     )
                 }
             }
@@ -1680,8 +1680,8 @@ private fun TestResultItem(result: LocalScraperResult) {
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = NuvioPrimitives.success,
-                modifier = Modifier.size(NuvioTheme.spacing.lg)
+                tint = MoviesPrimitives.success,
+                modifier = Modifier.size(MoviesTheme.spacing.lg)
             )
         }
     }
@@ -1700,7 +1700,7 @@ private fun EmptyState(
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
     }
@@ -1714,7 +1714,7 @@ private fun MessageOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(NuvioTheme.spacing.xl),
+            .padding(MoviesTheme.spacing.xl),
         contentAlignment = Alignment.BottomCenter
     ) {
         AnimatedVisibility(
@@ -1729,18 +1729,18 @@ private fun MessageOverlay(
                 onClick = { },
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = if (isSuccess)
-                        NuvioPrimitives.green700.copy(alpha = 0.9f)
+                        MoviesPrimitives.green700.copy(alpha = 0.9f)
                     else
-                        NuvioPrimitives.red600.copy(alpha = 0.9f)
+                        MoviesPrimitives.red600.copy(alpha = 0.9f)
                 ),
                 shape = ClickableSurfaceDefaults.shape(
-                    RoundedCornerShape(NuvioTheme.radii.md)
+                    RoundedCornerShape(MoviesTheme.radii.md)
                 ).expressiveCard()
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = NuvioTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = MoviesTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     Icon(
                         imageVector = if (isSuccess) Icons.Default.Check else Icons.Default.Close,
@@ -1766,7 +1766,7 @@ private fun formatDate(timestamp: Long): String {
 private val BadgeExpressiveShape = RoundedCornerShape(percent = 50)
 
 private fun badgeShape(): Shape =
-    if (isExpressiveBuild) BadgeExpressiveShape else RoundedCornerShape(NuvioTheme.radii.xs)
+    if (isExpressiveBuild) BadgeExpressiveShape else RoundedCornerShape(MoviesTheme.radii.xs)
 
 private fun cardScaleSpec(): AnimationSpec<Float> =
     if (isExpressiveBuild) ExpressiveMotion.expressiveFastSpatial() else spring()

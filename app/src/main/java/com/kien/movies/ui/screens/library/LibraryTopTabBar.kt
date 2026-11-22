@@ -18,7 +18,7 @@ import com.kien.movies.ui.navigation.toptabbar.LocalTopTabBarInset
 import com.kien.movies.ui.navigation.toptabbar.ReportTopTabBarScroll
 import com.kien.movies.ui.navigation.toptabbar.isScrolledDown
 import com.kien.movies.ui.navigation.toptabbar.topTabBarFloatsOver
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.first
 
 /** Top padding of the library's header and messages: below the top tab bar if shown. */
 @Composable
-internal fun libraryTopPadding(): Dp = LocalTopTabBarInset.current + NuvioTheme.spacing.xl
+internal fun libraryTopPadding(): Dp = LocalTopTabBarInset.current + MoviesTheme.spacing.xl
 
 @Composable
 internal fun ReportLibraryGridScroll(gridState: LazyGridState) {

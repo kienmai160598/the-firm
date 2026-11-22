@@ -14,7 +14,7 @@ import coil3.request.crossfade
 
 /**
  * Loads a raw resource (typically an SVG) as a [Painter], rasterised at [targetSize].
- * The default of 24.dp equals `NuvioTheme.spacing.xl`.
+ * The default of 24.dp equals `MoviesTheme.spacing.xl`.
  */
 @Composable
 internal fun rememberRawSvgPainter(

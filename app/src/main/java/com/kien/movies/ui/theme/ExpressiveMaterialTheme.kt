@@ -20,8 +20,8 @@ import androidx.tv.material3.Typography as TvTypography
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun ExpressiveMaterialTheme(content: @Composable () -> Unit) {
-    val colors = NuvioTheme.colors
-    val palette = NuvioTheme.palette
+    val colors = MoviesTheme.colors
+    val palette = MoviesTheme.palette
     val tvTypography = TvMaterialTheme.typography
     val colorScheme = remember(colors, palette) { materialColorScheme(colors, palette) }
     val typography = remember(tvTypography) { tvTypography.toMaterialTypography() }
@@ -36,7 +36,7 @@ internal fun ExpressiveMaterialTheme(content: @Composable () -> Unit) {
 /** The tv scheme's container and border roles from the palette instead of tv's baseline. */
 @OptIn(ExperimentalTvMaterial3Api::class)
 internal fun TvColorScheme.withPaletteRoles(
-    colors: NuvioColorScheme,
+    colors: MoviesColorScheme,
     palette: ThemeColorPalette
 ): TvColorScheme = copy(
     primaryContainer = colors.SecondaryVariant,
@@ -48,7 +48,7 @@ internal fun TvColorScheme.withPaletteRoles(
 )
 
 private fun materialColorScheme(
-    colors: NuvioColorScheme,
+    colors: MoviesColorScheme,
     palette: ThemeColorPalette
 ): ColorScheme = darkColorScheme(
     primary = colors.Secondary,

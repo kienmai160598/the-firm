@@ -318,8 +318,8 @@ class PlayerRuntimeController(
             PlayerMediaSourceFactory.vodCachePlayheadBytesProvider = null
         }
         val ownAllocator = _loadControl?.allocator
-        if (ownAllocator != null && NuvioExoPlayerPerformanceHelper.liveAllocator === ownAllocator) {
-            NuvioExoPlayerPerformanceHelper.liveAllocator = null
+        if (ownAllocator != null && MoviesExoPlayerPerformanceHelper.liveAllocator === ownAllocator) {
+            MoviesExoPlayerPerformanceHelper.liveAllocator = null
         }
     }
 
@@ -654,7 +654,7 @@ class PlayerRuntimeController(
     internal var currentMediaSession: MediaSession? = null
     internal var mpvMediaSessionPlayer: MpvMediaSessionPlayer? = null
     internal var ffmpegAudioRenderer: FfmpegAudioRenderer? = null
-    internal var mpvView: NuvioMpvSurfaceView? = null
+    internal var mpvView: MoviesMpvSurfaceView? = null
     internal val subtitleCueTracker = SubtitleCueTracker()
     internal val styledSubtitles = StyledSubtitlePresenter()
     internal var mpvInitializationInProgress: Boolean = false

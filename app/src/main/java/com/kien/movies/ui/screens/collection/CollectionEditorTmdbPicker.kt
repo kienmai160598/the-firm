@@ -12,7 +12,7 @@ import com.kien.movies.ui.components.expressiveButtonShape
 import com.kien.movies.ui.components.expressiveOptionCardBorder
 import com.kien.movies.ui.components.expressiveOptionCardColors
 import com.kien.movies.ui.components.expressiveOptionCardShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -152,12 +152,12 @@ fun TmdbSourcePickerContent(
             state = tmdbPickerListState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                top = NuvioTheme.spacing.xxxl,
-                start = NuvioTheme.spacing.xxxl,
-                end = NuvioTheme.spacing.xxxl,
-                bottom = NuvioTheme.spacing.xxxl
+                top = MoviesTheme.spacing.xxxl,
+                start = MoviesTheme.spacing.xxxl,
+                end = MoviesTheme.spacing.xxxl,
+                bottom = MoviesTheme.spacing.xxxl
             ),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             item(key = "tmdb_header") {
                 Column {
@@ -173,14 +173,14 @@ fun TmdbSourcePickerContent(
                             style = MaterialTheme.typography.headlineMedium
                                 .screenTitleFloor()
                                 .copy(textDirection = TextDirection.Content),
-                            color = NuvioTheme.colors.TextPrimary,
+                            color = MoviesTheme.colors.TextPrimary,
                         )
-                        NuvioButton(
+                        MoviesButton(
                             onClick = onBack,
                             modifier = Modifier.blockHorizontalFocus()
                         ) { Text(stringResource(R.string.collections_editor_back)) }
                     }
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 }
             }
 
@@ -190,8 +190,8 @@ fun TmdbSourcePickerContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusEntryTarget(modeFocusRequesters[lastFocusedMode] ?: FocusRequester.Default),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                    contentPadding = PaddingValues(end = NuvioTheme.spacing.lg, top = NuvioTheme.spacing.xs, bottom = NuvioTheme.spacing.xs)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                    contentPadding = PaddingValues(end = MoviesTheme.spacing.lg, top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xs)
                 ) {
                     items(TmdbBuilderMode.values().toList()) { mode ->
                         val selected = uiState.tmdbBuilderMode == mode
@@ -207,13 +207,13 @@ fun TmdbSourcePickerContent(
                                     if (it.isFocused) lastFocusedMode = mode
                                 }.tvControlHeight(),
                             colors = expressiveButtonColors(ButtonDefaults.colors(
-                                containerColor = if (selected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
-                                contentColor = if (selected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
-                                focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                                focusedContentColor = NuvioTheme.colors.Primary
+                                containerColor = if (selected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
+                                contentColor = if (selected) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary,
+                                focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                                focusedContentColor = MoviesTheme.colors.Primary
                             ), selected = selected),
                             shape = expressiveButtonShape(
-                                ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                                ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                             ),
                             scale = expressiveButtonScale(
                                 ButtonDefaults.scale(focusedScale = 1f)
@@ -229,7 +229,7 @@ fun TmdbSourcePickerContent(
                 item(key = "tmdb_error") {
                     Text(
                         error,
-                        color = NuvioTheme.colors.Error,
+                        color = MoviesTheme.colors.Error,
                         style = MaterialTheme.typography.bodySmall.metaFloor()
                     )
                 }
@@ -404,7 +404,7 @@ private fun TmdbBasicSourceForm(
     showOriginalSort: Boolean = false,
     showPopularSort: Boolean = true
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
         TmdbLabeledField(
             label = when (uiState.tmdbBuilderMode) {
                 TmdbBuilderMode.LIST -> stringResource(R.string.collections_editor_tmdb_public_list)
@@ -478,7 +478,7 @@ private fun TmdbDiscoverForm(
     actionLabel: String
 ) {
     val filters = uiState.tmdbFilters
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
         TmdbLabeledField(
             label = stringResource(R.string.collections_editor_tmdb_display_title),
             value = uiState.tmdbTitleInput,
@@ -746,9 +746,9 @@ private fun TmdbLabeledField(
         Text(
             label,
             style = MaterialTheme.typography.labelMedium.metaFloor(),
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
-        NuvioTextField(
+        MoviesTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier
@@ -760,7 +760,7 @@ private fun TmdbLabeledField(
             Text(
                 helper,
                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
         }
     }
@@ -775,7 +775,7 @@ fun TmdbActionButtons(
 ) {
     val primaryActionFocusRequester = remember { FocusRequester() }
     Row(
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         modifier = Modifier.focusEntryTarget(primaryActionFocusRequester)
     ) {
         onSearch?.let {
@@ -785,7 +785,7 @@ fun TmdbActionButtons(
                 modifier = Modifier.focusRequester(primaryActionFocusRequester)
             ) {
                 Icon(Icons.Default.Search, contentDescription = null)
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
                 Text(stringResource(R.string.collections_editor_tmdb_search))
             }
         }
@@ -795,7 +795,7 @@ fun TmdbActionButtons(
             modifier = if (onSearch == null) Modifier.focusRequester(primaryActionFocusRequester) else Modifier
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Text(addLabel)
         }
     }
@@ -813,23 +813,23 @@ fun TmdbActionButton(
         onClick = onClick,
         modifier = modifier.tvControlHeight(),
         colors = expressiveButtonColors(ButtonDefaults.colors(
-            containerColor = if (primary) NuvioTheme.colors.Secondary else NuvioTheme.colors.BackgroundCard,
-            contentColor = if (primary) NuvioTheme.colors.OnSecondary else NuvioTheme.colors.TextSecondary,
-            focusedContainerColor = if (primary) NuvioTheme.colors.SecondaryVariant else NuvioTheme.colors.FocusBackground,
-            focusedContentColor = if (primary) NuvioTheme.colors.OnSecondaryVariant else NuvioTheme.colors.Primary
+            containerColor = if (primary) MoviesTheme.colors.Secondary else MoviesTheme.colors.BackgroundCard,
+            contentColor = if (primary) MoviesTheme.colors.OnSecondary else MoviesTheme.colors.TextSecondary,
+            focusedContainerColor = if (primary) MoviesTheme.colors.SecondaryVariant else MoviesTheme.colors.FocusBackground,
+            focusedContentColor = if (primary) MoviesTheme.colors.OnSecondaryVariant else MoviesTheme.colors.Primary
         ), selected = primary),
         border = expressiveButtonBorder(ButtonDefaults.border(
             focusedBorder = Border(
                 border = if (primary) {
-                    BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.SecondaryVariant)
+                    BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.SecondaryVariant)
                 } else {
-                    NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs)
+                    MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         )),
         shape = expressiveButtonShape(
-            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
         ),
         scale = expressiveButtonScale(ButtonDefaults.scale(focusedScale = 1f))
     ) {
@@ -854,7 +854,7 @@ private fun TmdbModeHelp(mode: TmdbBuilderMode) {
     Text(
         text,
         style = MaterialTheme.typography.bodySmall.metaFloor(),
-        color = NuvioTheme.colors.TextSecondary
+        color = MoviesTheme.colors.TextSecondary
     )
 }
 
@@ -866,18 +866,18 @@ private fun TmdbQuickChips(
     onSelect: (String) -> Unit
 ) {
     val firstChipFocusRequester = remember { FocusRequester() }
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
         Text(
             label,
             style = MaterialTheme.typography.labelMedium.metaFloor(),
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusEntryTarget(firstChipFocusRequester),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
         ) {
             itemsIndexed(chips) { index, (chipLabel, value) ->
                 TmdbChoiceButton(
@@ -950,7 +950,7 @@ fun TmdbMediaSortControls(
     showOriginalSort: Boolean = false,
     showPopularSort: Boolean = true
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
         if (showMediaControls) {
             val movieRequester = remember { FocusRequester() }
             val seriesRequester = remember { FocusRequester() }
@@ -1028,14 +1028,14 @@ fun TmdbOptionRow(
     fallbackFocusRequester: FocusRequester = FocusRequester.Default,
     content: @Composable () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.metaFloor(),
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         Row(
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
             modifier = Modifier.focusEntryTarget(fallbackFocusRequester)
         ) {
             content()
@@ -1060,13 +1060,13 @@ fun TmdbChoiceButton(
             this.selected = selected
         }.tvControlHeight(),
         colors = expressiveButtonColors(ButtonDefaults.colors(
-            containerColor = if (selected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
-            contentColor = if (selected) NuvioTheme.colors.Secondary else NuvioTheme.colors.TextSecondary,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-            focusedContentColor = NuvioTheme.colors.Primary
+            containerColor = if (selected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
+            contentColor = if (selected) MoviesTheme.colors.Secondary else MoviesTheme.colors.TextSecondary,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+            focusedContentColor = MoviesTheme.colors.Primary
         ), selected = selected),
         shape = expressiveButtonShape(
-            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
         ),
         scale = expressiveButtonScale(ButtonDefaults.scale(focusedScale = 1f))
     ) {
@@ -1083,30 +1083,30 @@ fun TmdbPickerCard(title: String, subtitle: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .blockHorizontalFocus(),
         colors = expressiveOptionCardColors(CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         )),
         border = expressiveOptionCardBorder(CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         )),
         shape = expressiveOptionCardShape(
-            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
         ),
         scale = CardDefaults.scale(focusedScale = 1f)
     ) {
-        Column(modifier = Modifier.padding(NuvioTheme.spacing.lg), verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+        Column(modifier = Modifier.padding(MoviesTheme.spacing.lg), verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
             Text(
                 title,
                 style = MaterialTheme.typography.titleSmall.bodyFloor(),
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall.metaFloor(),
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
         }
     }

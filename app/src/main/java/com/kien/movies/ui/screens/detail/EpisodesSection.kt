@@ -3,7 +3,7 @@ package com.kien.movies.ui.screens.detail
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.BorderStroke
-import com.kien.movies.ui.theme.NuvioPrimitives
+import com.kien.movies.ui.theme.MoviesPrimitives
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import androidx.compose.foundation.background
@@ -106,9 +106,9 @@ import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.components.ImdbRatingSourceLabel
 import com.kien.movies.ui.components.LightweightCard
 import com.kien.movies.ui.components.MonochromePosterPlaceholder
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.WatchedMarker
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveColors
@@ -222,7 +222,7 @@ fun SeasonTabs(
     }
 
     val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
-    val rowStartPaddingPx = with(LocalDensity.current) { NuvioTheme.spacing.xxxl.toPx() }
+    val rowStartPaddingPx = with(LocalDensity.current) { MoviesTheme.spacing.xxxl.toPx() }
     val seasonBringIntoViewSpec = remember(defaultBringIntoViewSpec, rowStartPaddingPx, isRtl) {
         @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
         object : BringIntoViewSpec {
@@ -268,8 +268,8 @@ fun SeasonTabs(
                 }
                 .focusGroup(),
             state = lazyListState,
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl),
-            horizontalArrangement = Arrangement.spacedBy(if (posterStyle != null) NuvioTheme.spacing.lg else NuvioTheme.spacing.md)
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
+            horizontalArrangement = Arrangement.spacedBy(if (posterStyle != null) MoviesTheme.spacing.lg else MoviesTheme.spacing.md)
         ) {
             items(sortedSeasons, key = { it }) { season ->
                 val isSelected = season == selectedSeason
@@ -324,22 +324,22 @@ private fun SeasonTab(
         noFocusRingCardBorder()
     } else CardDefaults.border(
         focusedBorder = Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
             shape = tabShape
         )
     )
     val selectedPosterTabBorder = if (isExpressiveBuild) noFocusRingCardBorder() else CardDefaults.border(
         border = Border(
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.TextPrimary.copy(alpha = 0.25f)),
+            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.TextPrimary.copy(alpha = 0.25f)),
             shape = tabShape
         ),
         focusedBorder = Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
             shape = tabShape
         )
     )
     val tabScale = CardDefaults.scale(focusedScale = 1.0f)
-    val textSecondary = NuvioTheme.extendedColors.textSecondary
+    val textSecondary = MoviesTheme.extendedColors.textSecondary
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
@@ -432,13 +432,13 @@ private fun SeasonTab(
                 text = label,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = if (isHighlighted) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (isHighlighted) NuvioTheme.colors.TextPrimary else textSecondary,
+                color = if (isHighlighted) MoviesTheme.colors.TextPrimary else textSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .width(SEASON_TAB_POSTER_HEIGHT * SEASON_POSTER_ASPECT)
-                    .padding(top = NuvioTheme.spacing.sm)
+                    .padding(top = MoviesTheme.spacing.sm)
             )
         }
     }
@@ -468,7 +468,7 @@ private fun SeasonPosterImage(posterUrl: String?, shape: Shape) {
         modifier = Modifier
             .size(width = width, height = height)
             .clip(shape)
-            .background(NuvioTheme.colors.BackgroundCard)
+            .background(MoviesTheme.colors.BackgroundCard)
             .nuvioCardDepth(
                 shape = shape,
                 surface = CardDepthSurface.POSTERS,
@@ -790,7 +790,7 @@ private fun EpisodeCard(
     val showCompletedBadge = isWatched
     val showNotStartedBadge = !showCompletedBadge && !showProgress
     val isUnavailable = remember(episode.available) { episode.available == false }
-    val cardBgColor = NuvioTheme.colors.BackgroundCard
+    val cardBgColor = MoviesTheme.colors.BackgroundCard
     val isFocusedState = remember { mutableStateOf(false) }
     val cardCornerRadius = remember(cardMetrics.cornerRadius, density) {
         with(density) { cardMetrics.cornerRadius.toPx() }
@@ -848,13 +848,13 @@ private fun EpisodeCard(
             )
         )
     }
-    val textSecondary = NuvioTheme.colors.TextSecondary
+    val textSecondary = MoviesTheme.colors.TextSecondary
     val metaLabelStyle = remember(typography, textSecondary) {
         typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(color = textSecondary)
     }
     val ratingStyle = remember(typography) {
         typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(
-            color = NuvioPrimitives.imdb,
+            color = MoviesPrimitives.imdb,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -931,9 +931,9 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val progressFillColor = forBuild(NuvioTheme.colors.Secondary, ExpressiveColors.accentRed)
-    val textPrimary = NuvioTheme.colors.TextPrimary
-    val focusRingBorder = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs)
+    val progressFillColor = forBuild(MoviesTheme.colors.Secondary, ExpressiveColors.accentRed)
+    val textPrimary = MoviesTheme.colors.TextPrimary
+    val focusRingBorder = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs)
 
     LightweightCard(
         onClick = {
@@ -994,7 +994,7 @@ private fun EpisodeCard(
             border = focusRingBorder,
             shape = shape
         ),
-        focusedScale = NuvioTheme.cardFocusScale
+        focusedScale = MoviesTheme.cardFocusScale
     ) {
         Box(
             modifier = Modifier
@@ -1104,12 +1104,12 @@ private fun EpisodeCard(
                 if (runtimeLabel != null || ratingLabel != null || formattedDate.isNotBlank()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         runtimeLabel?.let { runtime ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -1128,7 +1128,7 @@ private fun EpisodeCard(
 
                         ratingLabel?.let { rating ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs),
+                                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ImdbRatingSourceLabel(
@@ -1239,7 +1239,7 @@ private fun EpisodeCard(
                     drawCircle(
                         color = notStartedBadgeColor,
                         style = Stroke(
-                            width = NuvioTheme.spacing.xxs.toPx(),
+                            width = MoviesTheme.spacing.xxs.toPx(),
                             pathEffect = dashEffect
                         )
                     )
@@ -1266,7 +1266,7 @@ fun SeasonOptionsDialog(
         primaryFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
         subtitle = stringResource(R.string.episodes_season_actions)
@@ -1336,28 +1336,28 @@ private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 12): Epis
     return remember(screenWidthDp, userCornerRadius) {
         when {
             screenWidthDp >= 1300 -> EpisodeCardMetrics(
-                rowHorizontalPadding = NuvioTheme.spacing.huge,
+                rowHorizontalPadding = MoviesTheme.spacing.huge,
                 rowVerticalPadding = 18.dp,
                 itemSpacing = 20.dp,
                 cardWidth = 400.dp,
                 cardHeight = 263.dp,
                 cornerRadius = userCornerRadius,
                 contentPadding = 20.dp,
-                contentBottomPadding = NuvioTheme.spacing.xl,
+                contentBottomPadding = MoviesTheme.spacing.xl,
                 episodeBadgeHorizontalPadding = 10.dp,
                 episodeBadgeVerticalPadding = 5.dp,
-                episodeBadgeCornerRadius = NuvioTheme.spacing.sm,
+                episodeBadgeCornerRadius = MoviesTheme.spacing.sm,
                 episodeBadgeLetterSpacing = 1.0.sp,
                 titleLineHeight = 28.sp,
                 descriptionLineHeight = 22.sp,
                 descriptionMaxLines = 4,
-                metadataIconSize = NuvioTheme.spacing.lg,
+                metadataIconSize = MoviesTheme.spacing.lg,
                 imdbLogoWidth = 28.dp,
                 imdbLogoHeight = 14.dp,
-                progressBarHeight = NuvioTheme.spacing.xs,
-                statusBadgeSize = NuvioTheme.spacing.xxl,
+                progressBarHeight = MoviesTheme.spacing.xs,
+                statusBadgeSize = MoviesTheme.spacing.xxl,
                 statusIconSize = 20.dp,
-                statusBadgeInset = NuvioTheme.spacing.lg
+                statusBadgeInset = MoviesTheme.spacing.lg
             )
 
             screenWidthDp >= 1000 -> EpisodeCardMetrics(
@@ -1370,7 +1370,7 @@ private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 12): Epis
                 contentPadding = 18.dp,
                 contentBottomPadding = 22.dp,
                 episodeBadgeHorizontalPadding = 9.dp,
-                episodeBadgeVerticalPadding = NuvioTheme.spacing.xs,
+                episodeBadgeVerticalPadding = MoviesTheme.spacing.xs,
                 episodeBadgeCornerRadius = 7.dp,
                 episodeBadgeLetterSpacing = 0.9.sp,
                 titleLineHeight = 25.sp,
@@ -1379,46 +1379,46 @@ private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 12): Epis
                 metadataIconSize = 15.dp,
                 imdbLogoWidth = 26.dp,
                 imdbLogoHeight = 13.dp,
-                progressBarHeight = NuvioTheme.spacing.xs,
+                progressBarHeight = MoviesTheme.spacing.xs,
                 statusBadgeSize = 28.dp,
                 statusIconSize = 18.dp,
                 statusBadgeInset = 14.dp
             )
 
             screenWidthDp >= 760 -> EpisodeCardMetrics(
-                rowHorizontalPadding = NuvioTheme.spacing.xxxl,
-                rowVerticalPadding = NuvioTheme.spacing.lg,
-                itemSpacing = NuvioTheme.spacing.lg,
+                rowHorizontalPadding = MoviesTheme.spacing.xxxl,
+                rowVerticalPadding = MoviesTheme.spacing.lg,
+                itemSpacing = MoviesTheme.spacing.lg,
                 cardWidth = 320.dp,
                 cardHeight = 207.dp,
                 cornerRadius = userCornerRadius,
-                contentPadding = NuvioTheme.spacing.lg,
+                contentPadding = MoviesTheme.spacing.lg,
                 contentBottomPadding = 20.dp,
-                episodeBadgeHorizontalPadding = NuvioTheme.spacing.sm,
-                episodeBadgeVerticalPadding = NuvioTheme.spacing.xs,
+                episodeBadgeHorizontalPadding = MoviesTheme.spacing.sm,
+                episodeBadgeVerticalPadding = MoviesTheme.spacing.xs,
                 episodeBadgeCornerRadius = 6.dp,
                 episodeBadgeLetterSpacing = 0.9.sp,
                 titleLineHeight = 22.sp,
                 descriptionLineHeight = 18.sp,
                 descriptionMaxLines = 3,
                 metadataIconSize = 14.dp,
-                imdbLogoWidth = NuvioTheme.spacing.xl,
-                imdbLogoHeight = NuvioTheme.spacing.md,
-                progressBarHeight = NuvioTheme.spacing.xs,
-                statusBadgeSize = NuvioTheme.spacing.xl,
-                statusIconSize = NuvioTheme.spacing.lg,
-                statusBadgeInset = NuvioTheme.spacing.md
+                imdbLogoWidth = MoviesTheme.spacing.xl,
+                imdbLogoHeight = MoviesTheme.spacing.md,
+                progressBarHeight = MoviesTheme.spacing.xs,
+                statusBadgeSize = MoviesTheme.spacing.xl,
+                statusIconSize = MoviesTheme.spacing.lg,
+                statusBadgeInset = MoviesTheme.spacing.md
             )
 
             else -> EpisodeCardMetrics(
-                rowHorizontalPadding = NuvioTheme.spacing.xxl,
+                rowHorizontalPadding = MoviesTheme.spacing.xxl,
                 rowVerticalPadding = 14.dp,
                 itemSpacing = 14.dp,
                 cardWidth = 280.dp,
                 cardHeight = 179.dp,
                 cornerRadius = userCornerRadius,
                 contentPadding = 14.dp,
-                contentBottomPadding = NuvioTheme.spacing.lg,
+                contentBottomPadding = MoviesTheme.spacing.lg,
                 episodeBadgeHorizontalPadding = 7.dp,
                 episodeBadgeVerticalPadding = 3.dp,
                 episodeBadgeCornerRadius = 5.dp,
@@ -1429,7 +1429,7 @@ private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 12): Epis
                 metadataIconSize = 13.dp,
                 imdbLogoWidth = 22.dp,
                 imdbLogoHeight = 11.dp,
-                progressBarHeight = NuvioTheme.spacing.xs,
+                progressBarHeight = MoviesTheme.spacing.xs,
                 statusBadgeSize = 22.dp,
                 statusIconSize = 14.dp,
                 statusBadgeInset = 10.dp

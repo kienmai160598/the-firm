@@ -16,7 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.R
 import com.kien.movies.data.mdblist.MdbListDeviceSession
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -97,7 +97,7 @@ class MdbListAccountDialogTest {
         onDismiss: () -> Unit = {}
     ) {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 MdbListAccountDialog(state, onStart, onStart, onSync, onDisconnect, onDismiss)
             }
         }

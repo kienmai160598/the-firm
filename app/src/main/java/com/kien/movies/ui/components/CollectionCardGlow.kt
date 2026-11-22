@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
@@ -32,7 +32,7 @@ fun rememberArtworkBackedCardGlow(
     imageUrl: String?,
     fallbackSeed: String,
     enabled: Boolean,
-    fallbackColor: Color = NuvioTheme.colors.FocusBackground
+    fallbackColor: Color = MoviesTheme.colors.FocusBackground
 ): CardGlow {
     val focusedGlow = rememberArtworkBackedFocusGlow(imageUrl, fallbackSeed, enabled, fallbackColor)
     return remember(focusedGlow) { CardDefaults.glow(focusedGlow = focusedGlow) }
@@ -44,7 +44,7 @@ fun rememberArtworkBackedFocusGlow(
     imageUrl: String?,
     fallbackSeed: String,
     enabled: Boolean,
-    fallbackColor: Color = NuvioTheme.colors.FocusBackground
+    fallbackColor: Color = MoviesTheme.colors.FocusBackground
 ): Glow {
     if (!enabled) return Glow.None
 

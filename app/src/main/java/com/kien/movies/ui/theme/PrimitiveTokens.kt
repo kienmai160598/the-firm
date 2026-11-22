@@ -2,7 +2,7 @@ package com.kien.movies.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-object NuvioPrimitives {
+object MoviesPrimitives {
     val transparent = Color.Transparent
     val black = Color(0xFF000000)
     val white = Color(0xFFFFFFFF)

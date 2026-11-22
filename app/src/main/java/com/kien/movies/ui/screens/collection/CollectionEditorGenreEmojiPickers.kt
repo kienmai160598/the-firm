@@ -3,7 +3,7 @@ package com.kien.movies.ui.screens.collection
 import com.kien.movies.ui.components.expressiveOptionCardBorder
 import com.kien.movies.ui.components.expressiveOptionCardColors
 import com.kien.movies.ui.components.expressiveOptionCardShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -129,26 +129,26 @@ fun GenrePickerContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = NuvioTheme.spacing.xxxl, start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl)
+            .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)) {
                 Text(
                     text = stringResource(R.string.collections_editor_genre_filter),
                     style = MaterialTheme.typography.headlineMedium.screenTitleFloor(),
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodySmall.metaFloor(),
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
-            NuvioButton(
+            MoviesButton(
                 onClick = onBack,
                 modifier = Modifier
                     .focusRequester(backButtonFocusRequester)
@@ -157,14 +157,14 @@ fun GenrePickerContent(
             ) { Text(stringResource(R.string.collections_editor_back)) }
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = NuvioTheme.spacing.sm, end = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.xs, bottom = NuvioTheme.spacing.xxxl),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                contentPadding = PaddingValues(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xxxl),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 val optionOffset = if (allowAll) 1 else 0
                 if (allowAll) {
@@ -215,41 +215,41 @@ fun GenrePickerOptionCard(
                 this.selected = selected
             },
         colors = expressiveOptionCardColors(CardDefaults.colors(
-            containerColor = if (selected) NuvioTheme.colors.Secondary.copy(alpha = 0.15f) else NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = if (selected) MoviesTheme.colors.Secondary.copy(alpha = 0.15f) else MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ), selected = selected),
         border = expressiveOptionCardBorder(CardDefaults.border(
             border = if (selected) Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Secondary.copy(alpha = 0.5f)),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Secondary.copy(alpha = 0.5f)),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             ) else Border.None,
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         )),
         shape = expressiveOptionCardShape(
-            CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
         ),
         scale = CardDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall.bodyFloor(),
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
             if (selected) {
                 Text(
                     text = stringResource(R.string.cd_selected),
                     style = MaterialTheme.typography.labelSmall.metaFloor(),
-                    color = NuvioTheme.colors.Secondary
+                    color = MoviesTheme.colors.Secondary
                 )
             }
         }
@@ -335,7 +335,7 @@ fun EmojiPickerContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = NuvioTheme.spacing.xxxl, start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl)
+            .padding(top = MoviesTheme.spacing.xxxl, start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -345,9 +345,9 @@ fun EmojiPickerContent(
             Text(
                 text = stringResource(R.string.collections_editor_choose_emoji),
                 style = MaterialTheme.typography.headlineMedium.screenTitleFloor(),
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
-            NuvioButton(
+            MoviesButton(
                 onClick = onBack,
                 modifier = Modifier
                     .focusProperties { canFocus = columnState.firstVisibleItemIndex == 0 }
@@ -355,13 +355,13 @@ fun EmojiPickerContent(
             ) { Text(stringResource(R.string.collections_editor_back)) }
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = columnState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = NuvioTheme.spacing.xxxl),
+                contentPadding = PaddingValues(bottom = MoviesTheme.spacing.xxxl),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 categoryEntries.forEachIndexed { catIndex, (category, emojis) ->
@@ -372,14 +372,14 @@ fun EmojiPickerContent(
                         Text(
                             text = stringResource(emojiCategoryLabel(category)),
                             style = MaterialTheme.typography.titleSmall.bodyFloor(),
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         LazyRow(
                             state = rowState,
                             modifier = Modifier.trapHorizontalFocus(),
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-                            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xs)
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+                            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xs)
                         ) {
                             items(
                                 count = emojis.size,
@@ -397,24 +397,24 @@ fun EmojiPickerContent(
                                             role = Role.RadioButton
                                             selected = isSelected
                                         }
-                                        .width(NuvioTheme.spacing.huge)
-                                        .height(NuvioTheme.spacing.huge),
+                                        .width(MoviesTheme.spacing.huge)
+                                        .height(MoviesTheme.spacing.huge),
                                     colors = expressiveOptionCardColors(CardDefaults.colors(
-                                        containerColor = if (isSelected) NuvioTheme.colors.Secondary.copy(alpha = 0.3f) else NuvioTheme.colors.BackgroundCard,
-                                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                                        containerColor = if (isSelected) MoviesTheme.colors.Secondary.copy(alpha = 0.3f) else MoviesTheme.colors.BackgroundCard,
+                                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                                     ), selected = isSelected),
                                     border = expressiveOptionCardBorder(CardDefaults.border(
                                         border = if (isSelected) Border(
-                                            border = BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.Secondary),
-                                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                            border = BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.Secondary),
+                                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                                         ) else Border.None,
                                         focusedBorder = Border(
-                                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                                            shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                                            shape = RoundedCornerShape(MoviesTheme.radii.md)
                                         )
                                     )),
                                     shape = expressiveOptionCardShape(
-                                        CardDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+                                        CardDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
                                     ),
                                     scale = CardDefaults.scale(focusedScale = 1.1f)
                                 ) {

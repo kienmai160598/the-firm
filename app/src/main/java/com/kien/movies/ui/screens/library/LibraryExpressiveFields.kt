@@ -19,7 +19,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.kien.movies.ui.components.destructiveButtonColors
 import com.kien.movies.ui.screens.detail.tonalButtonColors
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -27,14 +27,14 @@ import com.kien.movies.ui.theme.isExpressiveBuild
 private const val FIELD_FOCUS_SCALE = 1.03f
 
 /** Corner of the library's fields, their menu and the cloud cards: the M3E large shape. */
-internal val LibraryContainerShape: Shape = RoundedCornerShape(NuvioTheme.radii.lg)
+internal val LibraryContainerShape: Shape = RoundedCornerShape(MoviesTheme.radii.lg)
 
 /** A filled M3 field: surface container high at rest, the accent on focus, no hairline. */
 @Composable
 internal fun libraryFieldColors(focused: Boolean): CardColors {
     val container = ExpressiveFocus.containerColor(
         focused = focused,
-        resting = NuvioTheme.colors.BackgroundCard
+        resting = MoviesTheme.colors.BackgroundCard
     )
     return CardDefaults.colors(containerColor = container, focusedContainerColor = container)
 }
@@ -49,8 +49,8 @@ private val UpstreamErrorText = Color(0xFFFFB6B6)
 /** The cloud search field: a filled M3 field on the box build, tonal on focus, no hairline. */
 @Composable
 internal fun librarySearchFieldColors(): ClickableSurfaceColors {
-    val resting = NuvioTheme.colors.BackgroundCard
-    val focused = if (isExpressiveBuild) NuvioTheme.colors.FocusBackground else resting
+    val resting = MoviesTheme.colors.BackgroundCard
+    val focused = if (isExpressiveBuild) MoviesTheme.colors.FocusBackground else resting
     return ClickableSurfaceDefaults.colors(
         containerColor = resting,
         focusedContainerColor = focused
@@ -61,21 +61,21 @@ internal fun librarySearchFieldColors(): ClickableSurfaceColors {
 internal fun librarySearchFieldBorder(): ClickableSurfaceBorder {
     if (isExpressiveBuild) return ClickableSurfaceDefaults.border(focusedBorder = Border.None)
 
-    val shape = RoundedCornerShape(NuvioTheme.radii.md)
+    val shape = RoundedCornerShape(MoviesTheme.radii.md)
     return ClickableSurfaceDefaults.border(
         border = Border(
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
             shape = shape
         ),
         focusedBorder = Border(
-            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
             shape = shape
         )
     )
 }
 
 internal fun librarySearchFieldShape(): Shape =
-    if (isExpressiveBuild) LibraryContainerShape else RoundedCornerShape(NuvioTheme.radii.md)
+    if (isExpressiveBuild) LibraryContainerShape else RoundedCornerShape(MoviesTheme.radii.md)
 
 @Composable
 internal fun libraryDeleteButtonColors(): ButtonColors =
@@ -83,4 +83,4 @@ internal fun libraryDeleteButtonColors(): ButtonColors =
 
 @Composable
 internal fun libraryErrorText(): Color =
-    if (isExpressiveBuild) NuvioTheme.colors.Error else UpstreamErrorText
+    if (isExpressiveBuild) MoviesTheme.colors.Error else UpstreamErrorText

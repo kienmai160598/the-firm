@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.app.Activity
 import android.content.Context
@@ -73,7 +73,7 @@ import com.kien.movies.domain.model.AppIconOption
 import com.kien.movies.domain.model.AppTheme
 import com.kien.movies.domain.model.CustomThemeColors
 import com.kien.movies.domain.model.SettingsUiStyle
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
@@ -157,7 +157,7 @@ fun ThemeSettingsContent(
             customThemeFocusRequester.requestFocusAfterFrames()
         }
     }
-    val appliedSettingsUiStyle = NuvioTheme.settingsUiStyle
+    val appliedSettingsUiStyle = MoviesTheme.settingsUiStyle
     LaunchedEffect(Unit) {
         if (viewModel.consumeStyleFocusRestore()) {
             styleFocusRequesters[appliedSettingsUiStyle]?.requestFocusAfterFrames()
@@ -198,7 +198,7 @@ fun ThemeSettingsContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .settingsOptionRow(firstThemeFocusRequester),
-                        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xs, vertical = NuvioTheme.spacing.xs),
+                        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xs, vertical = MoviesTheme.spacing.xs),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         itemsIndexed(
@@ -273,7 +273,7 @@ fun ThemeSettingsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min)
-                        .padding(horizontal = NuvioTheme.spacing.xs, vertical = NuvioTheme.spacing.xs)
+                        .padding(horizontal = MoviesTheme.spacing.xs, vertical = MoviesTheme.spacing.xs)
                         .settingsOptionRow(styleFocusRequesters.getValue(firstAvailableStyle)),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -447,13 +447,13 @@ private fun ThemeSwatchChip(
                 }
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = Border.None,
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = chipShape
             )
         ).expressiveRingless(),
@@ -468,7 +468,7 @@ private fun ThemeSwatchChip(
                     role = Role.RadioButton
                     this.selected = isSelected
                 }
-                .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.md),
+                .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.md),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -488,12 +488,12 @@ private fun ThemeSwatchChip(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
             Text(
                 text = theme.localizedName(),
                 style = MaterialTheme.typography.labelMedium,
-                color = if (isFocused || isSelected) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary,
+                color = if (isFocused || isSelected) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
                 maxLines = 1
             )
         }
@@ -524,16 +524,16 @@ private fun SettingsStyleOptionCard(
                 this.selected = isSelected
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (isSelected) Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.hairline),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
                 shape = cardShape
             ) else Border.None,
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = cardShape
             )
         ).expressiveSelection(isSelected),
@@ -543,13 +543,13 @@ private fun SettingsStyleOptionCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.md)
+                .padding(MoviesTheme.spacing.md)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = style.localizedName(),
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isFocused || isSelected) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary,
+                    color = if (isFocused || isSelected) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
                     maxLines = 1,
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
@@ -557,7 +557,7 @@ private fun SettingsStyleOptionCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = NuvioTheme.colors.Secondary,
+                        tint = MoviesTheme.colors.Secondary,
                         modifier = Modifier
                             .size(16.dp)
                             .align(Alignment.CenterEnd)
@@ -565,12 +565,12 @@ private fun SettingsStyleOptionCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
 
             Text(
                 text = style.localizedDescription(),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary,
                 maxLines = 2
             )
         }

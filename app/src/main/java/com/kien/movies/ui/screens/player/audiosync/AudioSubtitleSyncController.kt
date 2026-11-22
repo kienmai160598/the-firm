@@ -57,7 +57,7 @@ internal class AudioSubtitleSyncController(
         Thread({
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
             runnable.run()
-        }, "NuvioAudioSyncAlign").apply { isDaemon = true }
+        }, "MoviesAudioSyncAlign").apply { isDaemon = true }
     }
     private val alignRunning = AtomicBoolean(false)
     private val sessionRequest = AtomicInteger(0)
@@ -93,7 +93,7 @@ internal class AudioSubtitleSyncController(
         Thread({
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
             runnable.run()
-        }, "NuvioAudioSyncFetch").apply { isDaemon = true }
+        }, "MoviesAudioSyncFetch").apply { isDaemon = true }
     }
 
     // English references recognition waits for. Kept apart from [fetchPool], which can hold a dozen
@@ -103,7 +103,7 @@ internal class AudioSubtitleSyncController(
         Thread({
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
             runnable.run()
-        }, "NuvioAudioSyncReference").apply { isDaemon = true }
+        }, "MoviesAudioSyncReference").apply { isDaemon = true }
     }
 
     // Model initialization must not queue behind subtitle HTTP requests. Keep its existing
@@ -112,7 +112,7 @@ internal class AudioSubtitleSyncController(
         Thread({
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
             runnable.run()
-        }, "NuvioAsrLoad").apply { isDaemon = true }
+        }, "MoviesAsrLoad").apply { isDaemon = true }
     }
     private val recognizerLock = Any()
     @Volatile private var recognizerQueueMs = 0L
@@ -415,7 +415,7 @@ internal class AudioSubtitleSyncController(
             spotDeclined = true
             return
         }
-        Thread({ sampleSpots(source, current) }, "NuvioAudioSyncSpots").apply {
+        Thread({ sampleSpots(source, current) }, "MoviesAudioSyncSpots").apply {
             isDaemon = true
             start()
         }

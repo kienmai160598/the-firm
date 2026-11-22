@@ -37,7 +37,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 internal val SettingsRowContentInset = 18.dp
@@ -58,7 +58,7 @@ internal fun SettingsCollapsibleSection(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         SettingsActionRow(
             title = title,
@@ -72,7 +72,7 @@ internal fun SettingsCollapsibleSection(
         )
 
         if (expanded) {
-            SettingsGroupCard(modifier = Modifier.padding(start = NuvioTheme.spacing.lg)) {
+            SettingsGroupCard(modifier = Modifier.padding(start = MoviesTheme.spacing.lg)) {
                 content()
             }
         }
@@ -91,22 +91,22 @@ internal fun SettingsSectionLabel(
             .padding(
                 start = SettingsRowContentInset,
                 end = SettingsRowContentInset,
-                top = NuvioTheme.spacing.md,
-                bottom = NuvioTheme.spacing.xxs
+                top = MoviesTheme.spacing.md,
+                bottom = MoviesTheme.spacing.xxs
             ),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
     ) {
         Text(
             text = text.uppercase(),
             style = MaterialTheme.typography.labelMedium,
             letterSpacing = 1.2.sp,
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
         if (!description.isNullOrBlank()) {
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextTertiary
+                color = MoviesTheme.colors.TextTertiary
             )
         }
     }
@@ -122,17 +122,17 @@ internal fun SettingsNote(
         text = text,
         style = MaterialTheme.typography.bodySmall,
         color = when (tone) {
-            SettingsNoteTone.Info -> NuvioTheme.colors.TextSecondary
-            SettingsNoteTone.Warning -> NuvioTheme.colors.Warning
-            SettingsNoteTone.Danger -> NuvioTheme.colors.Error
+            SettingsNoteTone.Info -> MoviesTheme.colors.TextSecondary
+            SettingsNoteTone.Warning -> MoviesTheme.colors.Warning
+            SettingsNoteTone.Danger -> MoviesTheme.colors.Error
         },
         modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = SettingsRowContentInset,
                 end = SettingsRowContentInset,
-                top = NuvioTheme.spacing.xxs,
-                bottom = NuvioTheme.spacing.xs
+                top = MoviesTheme.spacing.xxs,
+                bottom = MoviesTheme.spacing.xs
             )
     )
 }
@@ -143,8 +143,8 @@ internal fun SettingsRailDivider() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = SettingsRowContentInset, end = SettingsRowContentInset, bottom = 10.dp)
-            .height(NuvioTheme.spacing.hairline)
-            .background(NuvioTheme.colors.Border)
+            .height(MoviesTheme.spacing.hairline)
+            .background(MoviesTheme.colors.Border)
     )
 }
 
@@ -152,10 +152,10 @@ internal fun SettingsRailDivider() {
 internal fun SettingsTopBarDivider() {
     Box(
         modifier = Modifier
-            .padding(end = NuvioTheme.spacing.sm)
-            .width(NuvioTheme.spacing.hairline)
+            .padding(end = MoviesTheme.spacing.sm)
+            .width(MoviesTheme.spacing.hairline)
             .height(20.dp)
-            .background(NuvioTheme.colors.Border)
+            .background(MoviesTheme.colors.Border)
     )
 }
 
@@ -173,9 +173,9 @@ internal fun SettingsResetButton(
         modifier = modifier.tvControlHeight().onFocusChanged { if (it.isFocused) onFocused() },
         shape = ButtonDefaults.shape(shape = shape).let { if (flat) it else it.expressivePill() },
         colors = ButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
+            containerColor = MoviesTheme.colors.Background,
             focusedContainerColor =
-                if (flat) settingsFocusFillColor() else NuvioTheme.colors.FocusBackground
+                if (flat) settingsFocusFillColor() else MoviesTheme.colors.FocusBackground
         ).let { if (flat) it else it.expressiveControl() },
         border = ButtonDefaults.border(border = Border.None, focusedBorder = Border.None),
         scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
@@ -185,14 +185,14 @@ internal fun SettingsResetButton(
             Icon(
                 imageVector = Icons.Default.RestartAlt,
                 contentDescription = null,
-                tint = onControlColor(NuvioTheme.colors.TextSecondary),
+                tint = onControlColor(MoviesTheme.colors.TextSecondary),
                 modifier = Modifier.size(buttonIconSize(18.dp))
             )
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelLarge,
-                color = onControlColor(NuvioTheme.colors.TextPrimary)
+                color = onControlColor(MoviesTheme.colors.TextPrimary)
             )
         }
     }

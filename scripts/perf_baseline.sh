@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Performance gate for the NuvioTV TV app.
+# Performance gate for the Movies TV app.
 #
 # The benchmark code lives in the :baselineprofile module (package com.kien.movies.baselineprofile):
 #   * BaselineProfileGenerator  -> collects the baseline profile
-#   * NuvioFrameMetricsBenchmark -> frame timing guard rails (frameDurationCpuMs / frameOverrunMs)
-#   * NuvioStartupBenchmark      -> startup guard rail (timeToInitialDisplayMs)
+#   * MoviesFrameMetricsBenchmark -> frame timing guard rails (frameDurationCpuMs / frameOverrunMs)
+#   * MoviesStartupBenchmark      -> startup guard rail (timeToInitialDisplayMs)
 #
 # The script is bash and is run either from Git Bash or from a POSIX shell on Windows.
 # On Windows the .bat wrapper is used, everywhere else the shell wrapper.
@@ -13,8 +13,8 @@ set -uo pipefail
 
 MODULE=":baselineprofile"
 GENERATOR_CLASS="com.kien.movies.baselineprofile.BaselineProfileGenerator"
-BENCHMARK_CLASS="com.kien.movies.baselineprofile.NuvioFrameMetricsBenchmark"
-STARTUP_CLASS="com.kien.movies.baselineprofile.NuvioStartupBenchmark"
+BENCHMARK_CLASS="com.kien.movies.baselineprofile.MoviesFrameMetricsBenchmark"
+STARTUP_CLASS="com.kien.movies.baselineprofile.MoviesStartupBenchmark"
 # The androidx.baselineprofile plugin adds a "benchmark" flavor dimension to the module, so the
 # connected test tasks are <flavor><BuildType>AndroidTest:
 #   * benchmarkRelease    -> the app under test is the minified release build (macrobenchmark)

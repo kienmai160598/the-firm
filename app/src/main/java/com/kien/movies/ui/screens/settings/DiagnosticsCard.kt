@@ -2,8 +2,8 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 
 import androidx.compose.foundation.BorderStroke
@@ -60,13 +60,13 @@ internal fun LazyListScope.diagnosticsCardItems(
                 Text(
                     text = stringResource(R.string.diag_last_playback_title),
                     style = MaterialTheme.typography.labelMedium,
-                    color = NuvioTheme.colors.Primary
+                    color = MoviesTheme.colors.Primary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = stringResource(R.string.diag_no_data),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -218,8 +218,8 @@ internal fun LazyListScope.diagnosticsCardItems(
                 valueColor = when {
                     diagnostics.result.startsWith("Error", ignoreCase = true) ->
                         expressiveErrorOr(Color(0xFFF44336))
-                    diagnostics.result == "Played" -> NuvioPrimitives.success
-                    else -> NuvioTheme.colors.TextPrimary
+                    diagnostics.result == "Played" -> MoviesPrimitives.success
+                    else -> MoviesTheme.colors.TextPrimary
                 }
             )
         }
@@ -244,7 +244,7 @@ private fun DiagnosticsSectionCard(
             .then(
                 if (isFocused) {
                     Modifier.border(
-                        NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs, alpha = 0.5f),
+                        MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs, alpha = 0.5f),
                         shape
                     )
                 } else {
@@ -253,15 +253,15 @@ private fun DiagnosticsSectionCard(
             ),
         shape = shape,
         colors = SurfaceDefaults.colors(
-            containerColor = if (isFocused) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-            contentColor = NuvioTheme.colors.TextPrimary
+            containerColor = if (isFocused) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
+            contentColor = MoviesTheme.colors.TextPrimary
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.sm),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xxs)
+                .padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xxs)
         ) {
             content()
         }
@@ -273,24 +273,24 @@ private fun SectionHeader(label: String, subtitle: String? = null) {
     Text(
         text = label.uppercase(),
         style = MaterialTheme.typography.labelSmall,
-        color = NuvioTheme.colors.Primary
+        color = MoviesTheme.colors.Primary
     )
     if (subtitle != null) {
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             fontSize = metaFontSize(11.sp)
         )
     }
-    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 }
 
 @Composable
 private fun DiagnosticRow(
     label: String,
     value: String,
-    valueColor: Color = NuvioTheme.colors.TextPrimary
+    valueColor: Color = MoviesTheme.colors.TextPrimary
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -299,7 +299,7 @@ private fun DiagnosticRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             modifier = Modifier.width(170.dp)
         )
         Spacer(modifier = Modifier.width(10.dp))

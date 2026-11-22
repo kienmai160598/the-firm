@@ -15,7 +15,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 private const val SPIN_MILLIS = 900
 private const val ARC_SWEEP_DEGREES = 100f
@@ -40,7 +40,7 @@ internal fun ExpressiveLoadingIndicator(modifier: Modifier, color: Color) {
     // fill wins, so the splash mark and small inline spinners draw at the size they lay out.
     Spacer(
         modifier = modifier
-            .size(NuvioTheme.spacing.xxxl)
+            .size(MoviesTheme.spacing.xxxl)
             .drawWithCache {
                 val strokeWidth = size.minDimension * STROKE_FRACTION
                 val inset = strokeWidth / 2f

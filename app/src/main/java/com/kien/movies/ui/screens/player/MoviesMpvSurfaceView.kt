@@ -22,10 +22,10 @@ private val MPV_STYLED_SUBTITLE_CODECS = setOf(
     "subrip", "srt", "webvtt", "text", "mov_text", "microdvd", "mpl2", "subviewer", "subviewer1", "sami", "realtext"
 )
 
-class NuvioMpvSurfaceView @JvmOverloads constructor(
+class MoviesMpvSurfaceView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
-) : NuvioBaseMpvView(context, attrs) {
+) : MoviesBaseMpvView(context, attrs) {
 
     private var initialized = false
     private var hasQueuedInitialMedia = false
@@ -958,7 +958,7 @@ class NuvioMpvSurfaceView @JvmOverloads constructor(
     }
 
     companion object {
-        private const val TAG = "NuvioMpvSurfaceView"
+        private const val TAG = "MoviesMpvSurfaceView"
         private const val MPV_SUBTITLE_REFERENCE_HEIGHT = 720f
         private const val MPV_SUBTITLE_DEFAULT_MARGIN_X = 25
         private const val MPV_SUBTITLE_INNER_PADDING_RATIO = 0.125f

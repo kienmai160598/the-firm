@@ -1,7 +1,7 @@
 package com.kien.movies.ui.components
 
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -46,9 +46,9 @@ fun StreamsSkeletonList(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(NuvioTheme.spacing.lg),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-        contentPadding = PaddingValues(vertical = NuvioTheme.spacing.sm)
+            .padding(MoviesTheme.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+        contentPadding = PaddingValues(vertical = MoviesTheme.spacing.sm)
     ) {
         items(itemCount) {
             StreamCardSkeleton(showAddonLogo = showAddonLogo, shimmerBrush = rememberShimmerBrush())
@@ -65,24 +65,24 @@ fun StreamCardSkeleton(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(NuvioTheme.radii.xl))
-            .background(NuvioTheme.colors.BackgroundElevated)
-            .padding(NuvioTheme.spacing.lg)
+            .clip(RoundedCornerShape(MoviesTheme.radii.xl))
+            .background(MoviesTheme.colors.BackgroundElevated)
+            .padding(MoviesTheme.spacing.lg)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
-                SkeletonBar(width = 180.dp, height = NuvioTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 140.dp, height = NuvioTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
-                Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
-                    SkeletonBar(width = 64.dp, height = NuvioTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
-                    SkeletonBar(width = 52.dp, height = NuvioTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(width = 180.dp, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(width = 140.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
+                    SkeletonBar(width = 64.dp, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 52.dp, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
                 }
             }
 
@@ -92,12 +92,12 @@ fun StreamCardSkeleton(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(NuvioTheme.spacing.xxl)
-                            .clip(RoundedCornerShape(NuvioTheme.radii.sm))
+                            .size(MoviesTheme.spacing.xxl)
+                            .clip(RoundedCornerShape(MoviesTheme.radii.sm))
                             .background(shimmerBrush)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    SkeletonBar(width = 64.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = NuvioTheme.spacing.sm)
+                    SkeletonBar(width = 64.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = MoviesTheme.spacing.sm)
                 }
             }
         }
@@ -108,15 +108,15 @@ fun StreamCardSkeleton(
 fun MetaDetailsSkeleton(backdropAware: Boolean = false) {
     val shimmerBrush = rememberShimmerBrush(backdropAware = backdropAware)
     val episodeCardColor = if (backdropAware) {
-        NuvioTheme.colors.BackgroundCard.copy(alpha = 0.40f)
+        MoviesTheme.colors.BackgroundCard.copy(alpha = 0.40f)
     } else {
-        NuvioTheme.colors.BackgroundCard
+        MoviesTheme.colors.BackgroundCard
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (backdropAware) Color.Transparent else NuvioTheme.colors.Background)
+            .background(if (backdropAware) Color.Transparent else MoviesTheme.colors.Background)
     ) {
         if (backdropAware) {
             BackdropLoadingScrim()
@@ -157,7 +157,7 @@ fun MetaDetailsSkeleton(backdropAware: Boolean = false) {
 
 @Composable
 private fun BackdropLoadingScrim() {
-    val backgroundColor = NuvioTheme.colors.Background
+    val backgroundColor = MoviesTheme.colors.Background
 
     Box(
         modifier = Modifier
@@ -221,53 +221,53 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.lg),
+                .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.lg),
             verticalArrangement = Arrangement.Bottom
         ) {
             SkeletonBar(
                 width = 0.4f,
                 height = 100.dp,
                 brush = shimmerBrush,
-                cornerRadius = NuvioTheme.spacing.md
+                cornerRadius = MoviesTheme.spacing.md
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SkeletonPill(width = 100.dp, height = NuvioTheme.spacing.xxxl, brush = shimmerBrush)
+                SkeletonPill(width = 100.dp, height = MoviesTheme.spacing.xxxl, brush = shimmerBrush)
                 Box(
                     modifier = Modifier
-                        .size(NuvioTheme.spacing.xxxl)
+                        .size(MoviesTheme.spacing.xxxl)
                         .clip(CircleShape)
                         .background(shimmerBrush)
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             SkeletonBar(width = 0.5f, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
             Spacer(modifier = Modifier.height(10.dp))
-            SkeletonBar(width = 0.6f, height = NuvioTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = 0.6f, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
             Spacer(modifier = Modifier.height(6.dp))
-            SkeletonBar(width = 0.55f, height = NuvioTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = 0.55f, height = MoviesTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
                 SkeletonBar(width = 96.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
                 SkeletonBar(width = 72.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
                 SkeletonBar(width = 84.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
                 SkeletonBar(width = 64.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)) {
-                SkeletonBar(width = 72.dp, height = NuvioTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = NuvioTheme.spacing.huge, height = NuvioTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+            Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)) {
+                SkeletonBar(width = 72.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(width = MoviesTheme.spacing.huge, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
             }
         }
     }
@@ -277,8 +277,8 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
 private fun SeasonTabsSkeleton(shimmerBrush: Brush) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xl),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xl),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         items(5) {
             SkeletonPill(width = 96.dp, height = 36.dp, brush = shimmerBrush)
@@ -293,27 +293,27 @@ private fun EpisodesRowSkeleton(
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.lg),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
     ) {
         items(5) {
             Column(
                 modifier = Modifier
                     .width(280.dp)
-                    .clip(RoundedCornerShape(NuvioTheme.radii.md))
+                    .clip(RoundedCornerShape(MoviesTheme.radii.md))
                     .background(cardColor)
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(158.dp)
-                        .clip(RoundedCornerShape(topStart = NuvioTheme.spacing.md, topEnd = NuvioTheme.spacing.md))
+                        .clip(RoundedCornerShape(topStart = MoviesTheme.spacing.md, topEnd = MoviesTheme.spacing.md))
                         .background(shimmerBrush)
                 )
-                Column(modifier = Modifier.padding(NuvioTheme.spacing.md)) {
+                Column(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
                     SkeletonBar(width = 160.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
-                    SkeletonBar(width = 120.dp, height = NuvioTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
+                    SkeletonBar(width = 120.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
                 }
             }
         }
@@ -325,18 +325,18 @@ private fun CastSectionSkeleton(shimmerBrush: Brush) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, bottom = NuvioTheme.spacing.sm)
+            .padding(top = 20.dp, bottom = MoviesTheme.spacing.sm)
     ) {
-        Box(modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)) {
+        Box(modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)) {
             SkeletonBar(width = 120.dp, height = 20.dp, brush = shimmerBrush, cornerRadius = 10.dp)
         }
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             items(7) {
                 Column(
@@ -350,7 +350,7 @@ private fun CastSectionSkeleton(shimmerBrush: Brush) {
                             .background(shimmerBrush)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    SkeletonBar(width = 90.dp, height = NuvioTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 90.dp, height = MoviesTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
                     Spacer(modifier = Modifier.height(6.dp))
                     SkeletonBar(width = 70.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = 10.dp)
                 }
@@ -367,23 +367,23 @@ private fun CompanyLogosSkeleton(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, bottom = NuvioTheme.spacing.sm)
+            .padding(top = 20.dp, bottom = MoviesTheme.spacing.sm)
     ) {
-        Box(modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)) {
+        Box(modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)) {
             SkeletonBar(width = titleWidth, height = 20.dp, brush = shimmerBrush, cornerRadius = 10.dp)
         }
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             items(6) {
                 Box(
                     modifier = Modifier
                         .width(140.dp)
-                        .height(NuvioTheme.spacing.huge)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.md))
+                        .height(MoviesTheme.spacing.huge)
+                        .clip(RoundedCornerShape(MoviesTheme.radii.md))
                         .background(shimmerBrush)
                 )
             }
@@ -396,7 +396,7 @@ fun SkeletonBar(
     width: Dp,
     height: Dp,
     brush: Brush,
-    cornerRadius: Dp = NuvioTheme.spacing.sm
+    cornerRadius: Dp = MoviesTheme.spacing.sm
 ) {
     Box(
         modifier = Modifier
@@ -412,7 +412,7 @@ fun SkeletonBar(
     width: Float,
     height: Dp,
     brush: Brush,
-    cornerRadius: Dp = NuvioTheme.spacing.sm
+    cornerRadius: Dp = MoviesTheme.spacing.sm
 ) {
     Box(
         modifier = Modifier
@@ -433,7 +433,7 @@ fun SkeletonPill(
         modifier = Modifier
             .width(width)
             .height(height)
-            .clip(RoundedCornerShape(NuvioTheme.spacing.xxl))
+            .clip(RoundedCornerShape(MoviesTheme.spacing.xxl))
             .background(brush)
     )
 }
@@ -442,15 +442,15 @@ fun SkeletonPill(
 fun rememberShimmerBrush(backdropAware: Boolean = false): Brush {
     val shimmerColors = if (backdropAware) {
         listOf(
-            NuvioTheme.colors.TextPrimary.copy(alpha = 0.08f),
-            NuvioTheme.colors.TextPrimary.copy(alpha = 0.20f),
-            NuvioTheme.colors.TextPrimary.copy(alpha = 0.08f)
+            MoviesTheme.colors.TextPrimary.copy(alpha = 0.08f),
+            MoviesTheme.colors.TextPrimary.copy(alpha = 0.20f),
+            MoviesTheme.colors.TextPrimary.copy(alpha = 0.08f)
         )
     } else {
         listOf(
-            NuvioTheme.colors.SurfaceVariant.copy(alpha = 0.30f),
-            NuvioTheme.colors.SurfaceVariant.copy(alpha = 0.60f),
-            NuvioTheme.colors.SurfaceVariant.copy(alpha = 0.30f)
+            MoviesTheme.colors.SurfaceVariant.copy(alpha = 0.30f),
+            MoviesTheme.colors.SurfaceVariant.copy(alpha = 0.60f),
+            MoviesTheme.colors.SurfaceVariant.copy(alpha = 0.30f)
         )
     }
     val transition = rememberInfiniteTransition(label = "shimmer")

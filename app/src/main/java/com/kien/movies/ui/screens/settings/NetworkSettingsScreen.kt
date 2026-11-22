@@ -6,7 +6,7 @@ package com.kien.movies.ui.screens.settings
 import com.kien.movies.core.network.NetworkConnectionKind
 import com.kien.movies.core.network.NetworkTransport
 import com.kien.movies.core.network.networkConnectionKind
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 
 import android.net.ConnectivityManager
@@ -127,22 +127,22 @@ private fun NetworkCapabilities.toTransportSet(): Set<NetworkTransport> {
 @Composable
 private fun ConnectionStatusBadge(type: NetworkConnectionKind) {
     val (icon, label, color) = when (type) {
-        NetworkConnectionKind.Wifi -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_wifi), NuvioTheme.colors.Success)
-        NetworkConnectionKind.Ethernet -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_ethernet), NuvioTheme.colors.Success)
-        NetworkConnectionKind.Offline -> Triple(Icons.Default.SignalWifiOff, stringResource(R.string.network_connection_offline), NuvioTheme.colors.Error)
+        NetworkConnectionKind.Wifi -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_wifi), MoviesTheme.colors.Success)
+        NetworkConnectionKind.Ethernet -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_ethernet), MoviesTheme.colors.Success)
+        NetworkConnectionKind.Offline -> Triple(Icons.Default.SignalWifiOff, stringResource(R.string.network_connection_offline), MoviesTheme.colors.Error)
     }
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(999.dp))
             .background(color.copy(alpha = 0.12f))
-            .padding(horizontal = NuvioTheme.spacing.md, vertical = 6.dp),
+            .padding(horizontal = MoviesTheme.spacing.md, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(NuvioTheme.spacing.lg),
+            modifier = Modifier.size(MoviesTheme.spacing.lg),
             tint = color
         )
         Text(
@@ -647,18 +647,18 @@ fun AdvancedSettingsContent(
             item(key = "speed_results") {
                 SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
                     Column(
-                        modifier = Modifier.padding(NuvioTheme.spacing.xs),
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                        modifier = Modifier.padding(MoviesTheme.spacing.xs),
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                     ) {
                         Text(
                             text = stringResource(R.string.network_results_title),
                             style = MaterialTheme.typography.titleSmall,
-                            color = NuvioTheme.colors.TextSecondary
+                            color = MoviesTheme.colors.TextSecondary
                         )
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
                         ) {
                             NetworkMetricCard(
                                 modifier = Modifier.weight(1f),
@@ -680,14 +680,14 @@ fun AdvancedSettingsContent(
                             Text(
                                 text = stringResource(R.string.network_error_prefix, errorMessage!!),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NuvioTheme.colors.Error
+                                color = MoviesTheme.colors.Error
                             )
                         }
 
                         Text(
                             text = stringResource(R.string.network_powered_by_fast),
                             style = MaterialTheme.typography.labelSmall,
-                            color = NuvioTheme.colors.TextSecondary.copy(alpha = 0.45f)
+                            color = MoviesTheme.colors.TextSecondary.copy(alpha = 0.45f)
                         )
                     }
                 }
@@ -698,8 +698,8 @@ fun AdvancedSettingsContent(
             item(key = "stream_speed_results") {
                 SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
                     Column(
-                        modifier = Modifier.padding(NuvioTheme.spacing.xs),
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                        modifier = Modifier.padding(MoviesTheme.spacing.xs),
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -709,7 +709,7 @@ fun AdvancedSettingsContent(
                             Text(
                                 text = stringResource(R.string.stream_test_section_header),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = NuvioTheme.colors.TextSecondary
+                                color = MoviesTheme.colors.TextSecondary
                             )
 
                             val bitrateMbps = estimatedBitrate?.takeIf { it > 0 }?.let { it.toDouble() / 1_000_000.0 }
@@ -717,13 +717,13 @@ fun AdvancedSettingsContent(
                                 Text(
                                     text = stringResource(R.string.stream_test_video_bitrate, "%.1f Mbps".format(bitrateMbps)),
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = NuvioTheme.colors.TextPrimary
+                                    color = MoviesTheme.colors.TextPrimary
                                 )
                             }
                         }
 
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
                         ) {
                             StreamTestResultRow(
                                 label = stringResource(R.string.stream_test_label_baseline),
@@ -755,7 +755,7 @@ fun AdvancedSettingsContent(
                                 Text(
                                     text = stringResource(R.string.stream_test_error_prefix, streamErrorMessage!!),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = NuvioTheme.colors.Error
+                                    color = MoviesTheme.colors.Error
                                 )
                             }
                         }
@@ -893,9 +893,9 @@ private fun NetworkMetricCard(
     )
 
     Column(
-        modifier = modifier.padding(NuvioTheme.spacing.sm),
+        modifier = modifier.padding(MoviesTheme.spacing.sm),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Icon(
             imageVector = if (loading) Icons.Default.Refresh else icon,
@@ -903,12 +903,12 @@ private fun NetworkMetricCard(
             modifier = Modifier
                 .size(28.dp)
                 .then(if (loading) Modifier.rotate(rotation) else Modifier),
-            tint = if (loading) NuvioTheme.colors.Secondary else NuvioTheme.colors.Primary
+            tint = if (loading) MoviesTheme.colors.Secondary else MoviesTheme.colors.Primary
         )
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         Text(
             text = when {
@@ -917,7 +917,7 @@ private fun NetworkMetricCard(
                 else -> "–"
             },
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            color = if (value != null && !loading) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary
+            color = if (value != null && !loading) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary
         )
     }
 }
@@ -936,7 +936,7 @@ private fun StreamTestResultRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
         Text(
             text = when {
@@ -945,7 +945,7 @@ private fun StreamTestResultRow(
                 else -> "---"
             },
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = if (speed != null && !isRunning) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary
+            color = if (speed != null && !isRunning) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary
         )
     }
 }

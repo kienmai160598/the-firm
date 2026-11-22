@@ -7,7 +7,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import `is`.xyz.mpv.MPV
 
-abstract class NuvioBaseMpvView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
+abstract class MoviesBaseMpvView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback {
 
     private var mpvInstance: MPV? = null

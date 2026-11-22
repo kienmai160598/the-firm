@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.search
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.screens.home.HeroBackdropState
 
 import android.Manifest
@@ -571,7 +571,7 @@ fun SearchScreen(
                 }
                 false
             }
-            .background(NuvioTheme.colors.Background),
+            .background(MoviesTheme.colors.Background),
         contentAlignment = Alignment.TopCenter
     ) {
         val listState = rememberLazyListState()
@@ -629,10 +629,10 @@ fun SearchScreen(
                 .dpadRepeatThrottle(),
             state = listState,
             contentPadding = PaddingValues(
-                top = LocalTopTabBarInset.current + if (isDiscoverMode) 10.dp else NuvioTheme.spacing.lg,
-                bottom = NuvioTheme.spacing.lg
+                top = LocalTopTabBarInset.current + if (isDiscoverMode) 10.dp else MoviesTheme.spacing.lg,
+                bottom = MoviesTheme.spacing.lg
             ),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             item(key = "search_input") {
                 SearchInputField(
@@ -1017,7 +1017,7 @@ private fun RecentSearchesSection(
             Text(
                 text = stringResource(R.string.search_recent_title),
                 style = androidx.tv.material3.MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
             Button(
                 onClick = onClearHistory,
@@ -1055,7 +1055,7 @@ private fun RecentSearchesSection(
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     var isSearchFocused by remember(recentQuery) { mutableStateOf(false) }
@@ -1134,9 +1134,9 @@ private fun RecentSearchesSection(
                             .then(
                                 if (isRemoveFocused && !isExpressiveBuild) {
                                     Modifier.border(
-                                        width = NuvioTheme.spacing.xxs,
-                                        color = NuvioTheme.colors.FocusRing,
-                                        shape = RoundedCornerShape(NuvioTheme.radii.md)
+                                        width = MoviesTheme.spacing.xxs,
+                                        color = MoviesTheme.colors.FocusRing,
+                                        shape = RoundedCornerShape(MoviesTheme.radii.md)
                                     )
                                 } else {
                                     Modifier
@@ -1145,8 +1145,8 @@ private fun RecentSearchesSection(
                         colors = TvIconButtonDefaults.colors(
                             containerColor = Color.Transparent,
                             focusedContainerColor = recentRemoveFocusedContainer(),
-                            contentColor = NuvioTheme.colors.TextPrimary,
-                            focusedContentColor = NuvioTheme.colors.TextPrimary
+                            contentColor = MoviesTheme.colors.TextPrimary,
+                            focusedContentColor = MoviesTheme.colors.TextPrimary
                         ),
                         scale = TvIconButtonDefaults.scale(focusedScale = 1f),
                         shape = TvIconButtonDefaults.shape(shape = recentClearShape())
@@ -1200,7 +1200,7 @@ private fun SearchInputField(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = NuvioTheme.spacing.xxxl)
+            .padding(horizontal = MoviesTheme.spacing.xxxl)
             .focusGroup(),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1212,21 +1212,21 @@ private fun SearchInputField(
                         discoverFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier
                     )
                     .onFocusChanged { isDiscoverButtonFocused = it.isFocused }
-                    .size(NuvioTheme.spacing.huge)
+                    .size(MoviesTheme.spacing.huge)
                     .expressiveIconButtonSurface(isDiscoverButtonFocused)
             ) {
                 Icon(
                     imageVector = Icons.Default.Explore,
                     contentDescription = stringResource(R.string.cd_open_discover),
-                    tint = ExpressiveFocus.contentColor(isDiscoverButtonFocused, resting = NuvioTheme.colors.TextPrimary)
+                    tint = ExpressiveFocus.contentColor(isDiscoverButtonFocused, resting = MoviesTheme.colors.TextPrimary)
                 )
             }
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
         }
 
         if (showVoiceSearch) {
-            val themeAccent = NuvioTheme.colors.Secondary
+            val themeAccent = MoviesTheme.colors.Secondary
 
             // RMS-based ring — smoothly follows mic input level
             val animatedRms by animateFloatAsState(
@@ -1273,7 +1273,7 @@ private fun SearchInputField(
                             isVoiceButtonFocused = it.isFocused
                             onVoiceFocusChanged(it.isFocused)
                         }
-                        .size(NuvioTheme.spacing.huge)
+                        .size(MoviesTheme.spacing.huge)
                         .expressiveIconButtonSurface(isVoiceButtonFocused, selected = isVoiceListening)
                 ) {
                     Icon(
@@ -1281,13 +1281,13 @@ private fun SearchInputField(
                         contentDescription = stringResource(R.string.cd_voice_search),
                         tint = ExpressiveFocus.contentColor(
                             isVoiceButtonFocused,
-                            resting = if (isVoiceListening) themeAccent else NuvioTheme.colors.TextPrimary
+                            resting = if (isVoiceListening) themeAccent else MoviesTheme.colors.TextPrimary
                         )
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
         }
 
         OutlinedTextField(
@@ -1366,7 +1366,7 @@ private fun SearchInputField(
         // icon so it is reachable with the D-pad, matching the voice button's treatment.
         if (query.isNotEmpty()) {
             var isClearButtonFocused by remember { mutableStateOf(false) }
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
             IconButton(
                 onClick = {
                     // Clearing drops this button from the row, so hand focus back first.
@@ -1375,13 +1375,13 @@ private fun SearchInputField(
                 },
                 modifier = Modifier
                     .onFocusChanged { isClearButtonFocused = it.isFocused }
-                    .size(NuvioTheme.spacing.huge)
+                    .size(MoviesTheme.spacing.huge)
                     .expressiveIconButtonSurface(isClearButtonFocused)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.cd_clear_search),
-                    tint = ExpressiveFocus.contentColor(isClearButtonFocused, resting = NuvioTheme.colors.TextPrimary)
+                    tint = ExpressiveFocus.contentColor(isClearButtonFocused, resting = MoviesTheme.colors.TextPrimary)
                 )
             }
         }

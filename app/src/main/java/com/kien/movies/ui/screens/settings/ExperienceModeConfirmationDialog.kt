@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -18,7 +18,7 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.ExperienceMode
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -34,7 +34,7 @@ internal fun ExperienceModeConfirmationDialog(
         confirmFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(
             if (isEssential) {
@@ -52,14 +52,14 @@ internal fun ExperienceModeConfirmationDialog(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.tvControlHeight().weight(1f),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
@@ -76,8 +76,8 @@ internal fun ExperienceModeConfirmationDialog(
                     .weight(1f)
                     .focusRequester(confirmFocusRequester),
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()

@@ -9,7 +9,7 @@ import com.kien.movies.ui.screens.detail.tvButtonPadding
 import com.kien.movies.ui.screens.detail.buttonLabelStyle
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.TvSizeFloors
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -114,7 +114,7 @@ import com.kien.movies.R
 import kotlinx.coroutines.launch
 
 
-private val CountBadgeShape = forBuild(RoundedCornerShape(NuvioTheme.radii.xs), CircleShape)
+private val CountBadgeShape = forBuild(RoundedCornerShape(MoviesTheme.radii.xs), CircleShape)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -139,7 +139,7 @@ fun CastDetailScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
     ) {
         Crossfade(
             targetState = uiState,
@@ -194,8 +194,8 @@ private fun CastDetailContent(
     posterCardCornerRadiusDp: Int = 12,
     isItemWatched: (MetaPreview) -> Boolean = { false }
 ) {
-    val backgroundColor = NuvioTheme.colors.Background
-    val accentColor = forBuild(NuvioTheme.colors.Secondary, Color.Transparent)
+    val backgroundColor = MoviesTheme.colors.Background
+    val accentColor = forBuild(MoviesTheme.colors.Secondary, Color.Transparent)
 
     val allCredits = remember(person.movieCredits, person.tvCredits) {
         (person.movieCredits + person.tvCredits)
@@ -388,7 +388,7 @@ private fun HeroSection(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.xxl, bottom = NuvioTheme.spacing.sm),
+            .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.xxl, bottom = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.Top
     ) {
         // Avatar / Profile Photo
@@ -397,7 +397,7 @@ private fun HeroSection(
             modifier = Modifier
                 .width(160.dp)
                 .height(240.dp)
-                .posterFocusLift(RoundedCornerShape(NuvioTheme.radii.xl))
+                .posterFocusLift(RoundedCornerShape(MoviesTheme.radii.xl))
                 .focusRequester(portraitFocusRequester)
                 .focusProperties {
                     canFocus = isBiographyExpanded || isBiographyTruncated
@@ -428,7 +428,7 @@ private fun HeroSection(
                     }
                 },
             shape = CardDefaults.shape(
-                shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                shape = RoundedCornerShape(MoviesTheme.radii.xl)
             ),
             colors = CardDefaults.colors(
                 containerColor = Color.Transparent,
@@ -437,24 +437,24 @@ private fun HeroSection(
             border = posterFocusBorder(
                 CardDefaults.border(
                     border = Border(
-                        border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                        shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                        border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
+                        shape = RoundedCornerShape(MoviesTheme.radii.xl)
                     ),
                     focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                        shape = RoundedCornerShape(NuvioTheme.radii.xl)
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                        shape = RoundedCornerShape(MoviesTheme.radii.xl)
                     )
                 )
             ),
             scale = posterFocusScale(CardDefaults.scale())
         ) {
-            val bgCardColor = NuvioTheme.colors.SurfaceVariant
+            val bgCardColor = MoviesTheme.colors.SurfaceVariant
             val bgPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
             val photo = person.profilePhoto
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(NuvioTheme.radii.xl))
+                    .clip(RoundedCornerShape(MoviesTheme.radii.xl))
                     .then(if (photo.isNullOrBlank()) Modifier.background(bgCardColor) else Modifier),
                 contentAlignment = Alignment.Center
             ) {
@@ -479,20 +479,20 @@ private fun HeroSection(
                     Text(
                         text = person.name.firstOrNull()?.uppercase() ?: "?",
                         style = MaterialTheme.typography.displayLarge,
-                        color = NuvioTheme.colors.TextTertiary
+                        color = MoviesTheme.colors.TextTertiary
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.width(NuvioTheme.spacing.xl))
+        Spacer(modifier = Modifier.width(MoviesTheme.spacing.xl))
 
         // Bio Column
         Column(
             modifier = Modifier
                 .weight(1f)
                 .then(if (isBiographyExpanded) Modifier.fillMaxHeight() else Modifier)
-                .padding(top = NuvioTheme.spacing.xs)
+                .padding(top = MoviesTheme.spacing.xs)
         ) {
             // Name
             Text(
@@ -502,12 +502,12 @@ private fun HeroSection(
                     letterSpacing = (-0.5).sp,
                     textDirection = person.name.contentTextDirection()
                 ),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -535,13 +535,13 @@ private fun HeroSection(
                     Text(
                         text = info,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
             }
 
             // Biography
@@ -559,16 +559,16 @@ private fun HeroSection(
                                 lineHeight = 20.sp,
                                 textDirection = bio.contentTextDirection()
                             ),
-                            color = NuvioTheme.colors.TextSecondary,
-                            modifier = Modifier.padding(end = NuvioTheme.spacing.md)
+                            color = MoviesTheme.colors.TextSecondary,
+                            modifier = Modifier.padding(end = MoviesTheme.spacing.md)
                         )
                     }
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     Text(
                         text = stringResource(R.string.hero_synopsis_dismiss_hint),
                         style = MaterialTheme.typography.bodySmall
                             .atLeastOnBox(TvSizeFloors.metaText),
-                        color = NuvioTheme.colors.TextTertiary
+                        color = MoviesTheme.colors.TextTertiary
                     )
                 } else {
                     Text(
@@ -577,7 +577,7 @@ private fun HeroSection(
                             lineHeight = 20.sp,
                             textDirection = bio.contentTextDirection()
                         ),
-                        color = NuvioTheme.colors.TextSecondary,
+                        color = MoviesTheme.colors.TextSecondary,
                         maxLines = 5,
                         overflow = TextOverflow.Ellipsis,
                         onTextLayout = { result ->
@@ -602,7 +602,7 @@ private fun SectionHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.md, bottom = NuvioTheme.spacing.sm),
+            .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -610,21 +610,21 @@ private fun SectionHeader(
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.SemiBold
             ),
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
-        Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
         Text(
             text = "$count",
             style = MaterialTheme.typography.labelMedium.atLeastOnBox(TvSizeFloors.metaText),
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             modifier = Modifier
                 .background(
-                    color = NuvioTheme.colors.SurfaceVariant,
+                    color = MoviesTheme.colors.SurfaceVariant,
                     shape = CountBadgeShape
                 )
-                .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xxs)
+                .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xxs)
         )
-        Spacer(modifier = Modifier.width(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.width(MoviesTheme.spacing.lg))
         trailingContent()
     }
 }
@@ -658,8 +658,8 @@ private fun FilmographyFilterTabs(
                     },
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.padding(
-                        horizontal = NuvioTheme.spacing.lg,
-                        vertical = NuvioTheme.spacing.xs
+                        horizontal = MoviesTheme.spacing.lg,
+                        vertical = MoviesTheme.spacing.xs
                     )
                 )
             }
@@ -705,8 +705,8 @@ private fun FilmographyRow(
             .fillMaxWidth()
             .focusRestorer { if (restorePending) restoreFocusRequester else firstItemFocusRequester },
         state = lazyListState,
-        contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = NuvioTheme.spacing.xs),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = MoviesTheme.spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         itemsIndexed(
             items = credits,
@@ -758,8 +758,8 @@ private fun FilmographyRow(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun CastDetailSkeleton(personName: String) {
-    val backgroundColor = NuvioTheme.colors.Background
-    val accentColor = forBuild(NuvioTheme.colors.Secondary, Color.Transparent)
+    val backgroundColor = MoviesTheme.colors.Background
+    val accentColor = forBuild(MoviesTheme.colors.Secondary, Color.Transparent)
     val shimmerBrush = rememberShimmerBrush()
 
     Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
@@ -782,28 +782,28 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.xxl, bottom = NuvioTheme.spacing.sm),
+                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.xxl, bottom = MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.Top
             ) {
                 Box(
                     modifier = Modifier
                         .width(160.dp)
                         .height(240.dp)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.xl))
+                        .clip(RoundedCornerShape(MoviesTheme.radii.xl))
                         .background(shimmerBrush)
                 )
 
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.xl))
 
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(top = NuvioTheme.spacing.xs)
+                        .padding(top = MoviesTheme.spacing.xs)
                 ) {
                     Text(
                         text = personName,
                         style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -815,7 +815,7 @@ private fun CastDetailSkeleton(personName: String) {
                             modifier = Modifier
                                 .fillMaxWidth(if (it == 0) 0.60f else if (it == 1) 0.48f else 0.72f)
                                 .height(14.dp)
-                                .clip(RoundedCornerShape(NuvioTheme.radii.xs))
+                                .clip(RoundedCornerShape(MoviesTheme.radii.xs))
                                 .background(shimmerBrush)
                         )
                         Spacer(modifier = Modifier.height(10.dp))
@@ -825,7 +825,7 @@ private fun CastDetailSkeleton(personName: String) {
                         modifier = Modifier
                             .fillMaxWidth(0.86f)
                             .height(14.dp)
-                            .clip(RoundedCornerShape(NuvioTheme.radii.xs))
+                            .clip(RoundedCornerShape(MoviesTheme.radii.xs))
                             .background(shimmerBrush)
                     )
                 }
@@ -835,22 +835,22 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.md, bottom = NuvioTheme.spacing.sm),
+                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.md, bottom = MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
                         .width(140.dp)
                         .height(20.dp)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.xs))
+                        .clip(RoundedCornerShape(MoviesTheme.radii.xs))
                         .background(shimmerBrush)
                 )
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                 Box(
                     modifier = Modifier
                         .width(36.dp)
                         .height(18.dp)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.xs))
+                        .clip(RoundedCornerShape(MoviesTheme.radii.xs))
                         .background(shimmerBrush)
                 )
             }
@@ -859,8 +859,8 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, top = NuvioTheme.spacing.xs),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    .padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, top = MoviesTheme.spacing.xs),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 repeat(7) {
                     Column(modifier = Modifier.width(112.dp)) {
@@ -871,12 +871,12 @@ private fun CastDetailSkeleton(personName: String) {
                                 .clip(RoundedCornerShape(PosterCardDefaults.Style.cornerRadius))
                                 .background(shimmerBrush)
                         )
-                        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(NuvioTheme.spacing.lg)
-                                .clip(RoundedCornerShape(NuvioTheme.radii.xs))
+                                .height(MoviesTheme.spacing.lg)
+                                .clip(RoundedCornerShape(MoviesTheme.radii.xs))
                                 .background(shimmerBrush)
                         )
                     }
@@ -895,29 +895,29 @@ private fun CastDetailError(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background),
+            .background(MoviesTheme.colors.Background),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.cast_detail_error),
                 style = MaterialTheme.typography.titleLarge,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
             Button(
                 onClick = onRetry,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.Secondary,
-                    contentColor = NuvioTheme.colors.OnSecondary,
-                    focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                    focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                    containerColor = MoviesTheme.colors.Secondary,
+                    contentColor = MoviesTheme.colors.OnSecondary,
+                    focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                    focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                 ),
                 contentPadding = tvButtonPadding()
             ) {

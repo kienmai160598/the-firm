@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -63,7 +63,7 @@ import com.kien.movies.data.local.AVAILABLE_TMDB_LANGUAGES
 import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.displayName
 import com.kien.movies.domain.model.formatHexColor
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -135,7 +135,7 @@ internal fun ColorSelectionDialog(
     var currentChipColor by remember { mutableStateOf(initialChip) }
     var alphaPercent by remember { mutableIntStateOf((selectedColor.alpha * 100f).roundToInt().coerceIn(0, 100)) }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         suppressFirstKeyUp = false
@@ -148,8 +148,8 @@ internal fun ColorSelectionDialog(
             val firstColorFocusRequester = remember { FocusRequester() }
             LazyRow(
                 state = colorListState,
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-                contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+                contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.sm),
                 modifier = Modifier
                     .fillMaxWidth()
                     .settingsOptionRow(firstColorFocusRequester)
@@ -184,17 +184,17 @@ internal fun ColorSelectionDialog(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(R.string.sub_opacity),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     modifier = Modifier.width(70.dp)
                 )
                 Card(
@@ -205,27 +205,27 @@ internal fun ColorSelectionDialog(
                         role = Role.Button
                     },
                     colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = MoviesTheme.colors.BackgroundElevated,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ).expressiveControl(),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
                         )
                     ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
                         .expressivePill()
                 ) {
                     Text(
                         text = "−",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier.padding(
-                            horizontal = NuvioTheme.spacing.lg,
+                            horizontal = MoviesTheme.spacing.lg,
                             vertical = TvSizeFloors.atLeast(
-                                NuvioTheme.spacing.sm,
-                                NuvioTheme.spacing.md
+                                MoviesTheme.spacing.sm,
+                                MoviesTheme.spacing.md
                             )
                         )
                     )
@@ -233,22 +233,22 @@ internal fun ColorSelectionDialog(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(NuvioTheme.spacing.sm)
-                        .clip(RoundedCornerShape(NuvioTheme.radii.xs))
-                        .background(NuvioTheme.colors.BackgroundElevated)
+                        .height(MoviesTheme.spacing.sm)
+                        .clip(RoundedCornerShape(MoviesTheme.radii.xs))
+                        .background(MoviesTheme.colors.BackgroundElevated)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(alphaPercent / 100f)
-                            .height(NuvioTheme.spacing.sm)
-                            .clip(RoundedCornerShape(NuvioTheme.radii.xs))
-                            .background(NuvioTheme.colors.Primary)
+                            .height(MoviesTheme.spacing.sm)
+                            .clip(RoundedCornerShape(MoviesTheme.radii.xs))
+                            .background(MoviesTheme.colors.Primary)
                     )
                 }
                 Text(
                     text = "$alphaPercent%",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
                 Card(
                     onClick = { alphaPercent = (alphaPercent + 10).coerceAtMost(100) },
@@ -258,61 +258,61 @@ internal fun ColorSelectionDialog(
                         role = Role.Button
                     },
                     colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = MoviesTheme.colors.BackgroundElevated,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ).expressiveControl(),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
                         )
                     ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
                         .expressivePill()
                 ) {
                     Text(
                         text = "+",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier.padding(
-                            horizontal = NuvioTheme.spacing.lg,
+                            horizontal = MoviesTheme.spacing.lg,
                             vertical = TvSizeFloors.atLeast(
-                                NuvioTheme.spacing.sm,
-                                NuvioTheme.spacing.md
+                                MoviesTheme.spacing.sm,
+                                MoviesTheme.spacing.md
                             )
                         )
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Card(
                     onClick = onDismiss,
                     colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = MoviesTheme.colors.BackgroundElevated,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ).expressiveControl(),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
                         )
                     ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
                         .expressivePill(),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = stringResource(R.string.action_cancel),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier
-                            .padding(NuvioTheme.spacing.md)
+                            .padding(MoviesTheme.spacing.md)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -320,25 +320,25 @@ internal fun ColorSelectionDialog(
                 Card(
                     onClick = { onColorSelected(currentChipColor.copy(alpha = alphaPercent / 100f)) },
                     colors = CardDefaults.colors(
-                        containerColor = NuvioTheme.colors.BackgroundElevated,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        containerColor = MoviesTheme.colors.BackgroundElevated,
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ).expressiveControl(primary = true),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                            shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                            shape = RoundedCornerShape(MoviesTheme.radii.sm)
                         )
                     ).expressiveRingless(),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+                    shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
                         .expressivePill(),
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = stringResource(R.string.action_apply),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onControlColor(NuvioTheme.colors.TextPrimary),
+                        color = onControlColor(MoviesTheme.colors.TextPrimary),
                         modifier = Modifier
-                            .padding(NuvioTheme.spacing.md)
+                            .padding(MoviesTheme.spacing.md)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -374,7 +374,7 @@ internal fun ColorOption(
     Card(
         onClick = onClick,
         modifier = Modifier
-            .size(NuvioTheme.spacing.xxxl)
+            .size(MoviesTheme.spacing.xxxl)
             .then(modifier)
             .onFocusChanged { isFocused = it.isFocused }
             .semantics {
@@ -387,11 +387,11 @@ internal fun ColorOption(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(3.dp),
+                border = MoviesTheme.focusRing.border(3.dp),
                 shape = CircleShape
             ),
             border = if (isSelected) Border(
-                border = BorderStroke(3.dp, NuvioTheme.colors.Primary),
+                border = BorderStroke(3.dp, MoviesTheme.colors.Primary),
                 shape = CircleShape
             ) else Border.None
         ),
@@ -408,7 +408,7 @@ internal fun ColorOption(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(Color.Gray)
-                        .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, CircleShape)
+                        .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape)
                 )
             } else {
                 Box(
@@ -416,7 +416,7 @@ internal fun ColorOption(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .border(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border, CircleShape)
+                        .border(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border, CircleShape)
                 )
             }
 

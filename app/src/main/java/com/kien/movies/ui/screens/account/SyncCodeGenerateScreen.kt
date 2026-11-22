@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -67,44 +67,44 @@ fun SyncCodeGenerateScreen(
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .background(
-                    color = NuvioTheme.colors.BackgroundElevated,
+                    color = MoviesTheme.colors.BackgroundElevated,
                     shape = expressivePanelShape(RoundedCornerShape(20.dp))
                 )
-                .padding(NuvioTheme.spacing.xxl),
+                .padding(MoviesTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = stringResource(R.string.sync_generate_title),
                 style = MaterialTheme.typography.headlineSmall,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
 
             Text(
                 text = stringResource(R.string.sync_generate_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
             if (uiState.generatedSyncCode != null) {
                 // Show the generated code
                 Text(
                     text = stringResource(R.string.sync_generate_code_label),
                     style = MaterialTheme.typography.labelMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = NuvioTheme.colors.Secondary.copy(alpha = 0.1f),
-                            shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.md))
+                            color = MoviesTheme.colors.Secondary.copy(alpha = 0.1f),
+                            shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.md))
                         )
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
@@ -115,46 +115,46 @@ fun SyncCodeGenerateScreen(
                             letterSpacing = 1.sp,
                             fontWeight = FontWeight.Bold
                         ),
-                        color = NuvioTheme.colors.Secondary,
+                        color = MoviesTheme.colors.Secondary,
                         textAlign = TextAlign.Center,
                         maxLines = 1
                     )
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                 Text(
                     text = stringResource(R.string.sync_generate_instruction),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
                 Button(
                     onClick = {
                         viewModel.clearGeneratedSyncCode()
                         onBackPress()
                     },
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.Secondary,
-                        focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                        contentColor = NuvioTheme.colors.OnSecondary,
-                        focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                        containerColor = MoviesTheme.colors.Secondary,
+                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                        contentColor = MoviesTheme.colors.OnSecondary,
+                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                     ).expressiveControl(primary = true),
                     shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                     border = ButtonDefaults.border().expressiveRingless(),
                     scale = ButtonDefaults.scale().expressiveControlGrow(),
                     modifier = Modifier.fillMaxWidth().tvControlHeight()
                 ) {
-                    Text(stringResource(R.string.sync_generate_done), modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs))
+                    Text(stringResource(R.string.sync_generate_done), modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs))
                 }
             } else {
                 // PIN input form
                 Text(
                     text = stringResource(R.string.sync_generate_pin_label),
                     style = MaterialTheme.typography.labelMedium,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 InputField(
                     value = pin,
                     onValueChange = { if (it.length <= 8) pin = it },
@@ -169,7 +169,7 @@ fun SyncCodeGenerateScreen(
                 )
 
                 if (uiState.error != null) {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                     Text(
                         text = uiState.error ?: "",
                         style = MaterialTheme.typography.bodySmall,
@@ -177,16 +177,16 @@ fun SyncCodeGenerateScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                 Button(
                     onClick = { viewModel.generateSyncCode(pin) },
                     enabled = !uiState.isLoading && pin.length >= 4,
                     colors = ButtonDefaults.colors(
-                        containerColor = NuvioTheme.colors.Secondary,
-                        focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                        contentColor = NuvioTheme.colors.OnSecondary,
-                        focusedContentColor = NuvioTheme.colors.OnSecondaryVariant
+                        containerColor = MoviesTheme.colors.Secondary,
+                        focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                        contentColor = MoviesTheme.colors.OnSecondary,
+                        focusedContentColor = MoviesTheme.colors.OnSecondaryVariant
                     ).expressiveControl(primary = true),
                     shape = ButtonDefaults.shape(RoundedCornerShape(50)).expressivePill(),
                     border = ButtonDefaults.border().expressiveRingless(),
@@ -195,7 +195,7 @@ fun SyncCodeGenerateScreen(
                 ) {
                     Text(
                         text = if (uiState.isLoading) stringResource(R.string.sync_generate_generating) else stringResource(R.string.sync_generate_code_btn),
-                        modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
+                        modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
                         fontWeight = FontWeight.Medium
                     )
                 }

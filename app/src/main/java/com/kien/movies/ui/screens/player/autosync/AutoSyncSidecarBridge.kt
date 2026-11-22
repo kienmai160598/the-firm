@@ -15,7 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
-private const val TAG = "NuvioAutoSyncSidecar"
+private const val TAG = "MoviesAutoSyncSidecar"
 private const val SIDECAR_WAIT_MS = 15_000L
 private const val SIDECAR_WAIT_POLL_MS = 25L
 private const val DIRECT_INDEX_TOLERANCE_MS = 50L

@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
 
 import androidx.compose.animation.core.Animatable
@@ -42,7 +42,7 @@ import kotlinx.coroutines.delay
 
 private val ROW_HEIGHT = PlayerTenFoot.atLeast(18.dp, 22.dp)
 private val OVERLAY_TEXT_SIZE = PlayerTenFoot.atLeast(11.sp, PlayerTenFoot.metaText)
-private val ROW_GAP = NuvioTheme.spacing.xxs
+private val ROW_GAP = MoviesTheme.spacing.xxs
 
 @Composable
 fun DisplayModeOverlay(
@@ -110,10 +110,10 @@ fun DisplayModeOverlay(
         modifier = modifier
             .graphicsLayer { alpha = containerAlpha.value }
             .padding(
-                end = PlayerTenFoot.atLeast(NuvioTheme.spacing.xxl, PlayerTenFoot.sideMargin),
-                top = PlayerTenFoot.atLeast(NuvioTheme.spacing.xl, PlayerTenFoot.edgeMargin)
+                end = PlayerTenFoot.atLeast(MoviesTheme.spacing.xxl, PlayerTenFoot.sideMargin),
+                top = PlayerTenFoot.atLeast(MoviesTheme.spacing.xl, PlayerTenFoot.edgeMargin)
             ),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
         horizontalAlignment = Alignment.End
     ) {
         val statusMessage = info.statusMessage?.takeIf { it.isNotBlank() }
@@ -121,7 +121,7 @@ fun DisplayModeOverlay(
             Text(
                 text = statusMessage,
                 fontSize = OVERLAY_TEXT_SIZE,
-                color = NuvioTheme.colors.Secondary,
+                color = MoviesTheme.colors.Secondary,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier
@@ -172,8 +172,8 @@ fun DisplayModeOverlay(
                 modifier = Modifier
                     .width(3.dp)
                     .growingHeight(totalLineHeight.dp) { lineHeightFraction.value }
-                    .clip(RoundedCornerShape(NuvioTheme.spacing.hairline))
-                    .background(NuvioTheme.colors.Secondary)
+                    .clip(RoundedCornerShape(MoviesTheme.spacing.hairline))
+                    .background(MoviesTheme.colors.Secondary)
             )
         }
     }

@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.view.KeyEvent
 import android.widget.Toast
@@ -73,10 +73,10 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.TvReorderList
 import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 import com.kien.movies.ui.theme.tvControlHeight
 
 private data class RatingOrderItem(
@@ -173,10 +173,10 @@ internal fun MDBListSettingsBody(
                     scrollState = mdbScrollState,
                     rowSpacing = 10.dp,
                     contentPadding = PaddingValues(
-                        top = NuvioTheme.spacing.xxs,
-                        start = NuvioTheme.spacing.xxs,
-                        end = NuvioTheme.spacing.xxs,
-                        bottom = NuvioTheme.spacing.sm
+                        top = MoviesTheme.spacing.xxs,
+                        start = MoviesTheme.spacing.xxs,
+                        end = MoviesTheme.spacing.xxs,
+                        bottom = MoviesTheme.spacing.sm
                     ),
                     header = {
                         Column(
@@ -238,10 +238,10 @@ internal fun MDBListSettingsBody(
                             Text(
                                 text = stringResource(R.string.mdblist_rating_order_subtitle),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NuvioTheme.colors.TextSecondary,
+                                color = MoviesTheme.colors.TextSecondary,
                                 modifier = Modifier.padding(
-                                    top = NuvioTheme.spacing.sm,
-                                    bottom = NuvioTheme.spacing.md
+                                    top = MoviesTheme.spacing.sm,
+                                    bottom = MoviesTheme.spacing.md
                                 )
                             )
                         }
@@ -298,7 +298,7 @@ private fun MDBListApiKeyDialog(
         }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.mdblist_dialog_title),
         subtitle = stringResource(R.string.mdblist_ratings_key_override_subtitle),
@@ -310,18 +310,18 @@ private fun MDBListApiKeyDialog(
                 .fillMaxWidth()
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundElevated,
+                containerColor = MoviesTheme.colors.BackgroundElevated,
                 focusedContainerColor = expressiveCardFocusFill(
-                    NuvioTheme.colors.BackgroundElevated
+                    MoviesTheme.colors.BackgroundElevated
                 )
             ),
             border = CardDefaults.border(
                 border = Border(
-                    border = androidx.compose.foundation.BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                    border = androidx.compose.foundation.BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                 ),
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                 )
             ).expressiveRingless(),
@@ -329,7 +329,7 @@ private fun MDBListApiKeyDialog(
                 .expressiveCard(),
             scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
+            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },
@@ -345,10 +345,10 @@ private fun MDBListApiKeyDialog(
                     keyboardActions = KeyboardActions(
                         onDone = { keyboardController?.hide() }
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = NuvioTheme.colors.TextPrimary,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content),
                     cursorBrush = SolidColor(
-                        if (isInputFocused) NuvioTheme.colors.Primary
+                        if (isInputFocused) MoviesTheme.colors.Primary
                         else androidx.compose.ui.graphics.Color.Transparent
                     ),
                     decorationBox = { innerTextField ->
@@ -356,7 +356,7 @@ private fun MDBListApiKeyDialog(
                             Text(
                                 text = stringResource(R.string.mdblist_dialog_placeholder),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextTertiary
+                                color = MoviesTheme.colors.TextTertiary
                             )
                         }
                         innerTextField()
@@ -373,34 +373,34 @@ private fun MDBListApiKeyDialog(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onDismiss,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundElevated,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundElevated,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Button(
                 modifier = Modifier.tvControlHeight(),
                 onClick = onClear,
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundElevated,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundElevated,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
             ) {
                 Text(stringResource(R.string.action_clear))
             }
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
             Button(
                 modifier = Modifier.tvControlHeight(),
                 onClick = { if (!validating) viewModel.validateAndSaveApiKey(value, onSaved) },
                 colors = ButtonDefaults.colors(
-                    containerColor = NuvioTheme.colors.BackgroundCard,
-                    contentColor = NuvioTheme.colors.TextPrimary
+                    containerColor = MoviesTheme.colors.BackgroundCard,
+                    contentColor = MoviesTheme.colors.TextPrimary
                 ).expressiveControl(),
                 scale = ButtonDefaults.scale().expressiveControlGrow(),
                 shape = ButtonDefaults.shape().expressivePill()
@@ -439,22 +439,22 @@ private fun RatingOrderRow(
     val flat = isFlatSettingsStyle()
     val contentAlpha = if (enabled) 1f else 0.4f
     val rowShape = settingsRowShape()
-    val toggleShape = RoundedCornerShape(NuvioTheme.radii.md)
-    val moveButtonShape = RoundedCornerShape(NuvioTheme.radii.md)
+    val toggleShape = RoundedCornerShape(MoviesTheme.radii.md)
+    val moveButtonShape = RoundedCornerShape(MoviesTheme.radii.md)
     val canToggle = enabled && actionsEnabled && !isMoving
     val moveButtonEnabled = isMoving || (canMove && actionsEnabled)
 
     val containerColor by animateColorAsState(
         targetValue = when {
-            isMoving -> NuvioTheme.colors.FocusBackground
+            isMoving -> MoviesTheme.colors.FocusBackground
             flat -> Color.Transparent
-            else -> NuvioTheme.colors.Background
+            else -> MoviesTheme.colors.Background
         },
-        animationSpec = NuvioMotion.focusTween(),
+        animationSpec = MoviesMotion.focusTween(),
         label = "ratingOrderRowColor"
     )
     val containerBorder = if (isMoving) {
-        BorderStroke(NuvioTheme.spacing.xxs, NuvioTheme.colors.FocusRing)
+        BorderStroke(MoviesTheme.spacing.xxs, MoviesTheme.colors.FocusRing)
     } else {
         null
     }
@@ -477,16 +477,16 @@ private fun RatingOrderRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.colors.TextPrimary.copy(alpha = contentAlpha),
+                color = MoviesTheme.colors.TextPrimary.copy(alpha = contentAlpha),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
@@ -503,11 +503,11 @@ private fun RatingOrderRow(
                         },
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = Color.Transparent,
-                        focusedContainerColor = NuvioTheme.colors.FocusBackground
+                        focusedContainerColor = MoviesTheme.colors.FocusBackground
                     ),
                     border = ClickableSurfaceDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                             shape = toggleShape
                         )
                     ).expressiveRingless(),
@@ -535,32 +535,32 @@ private fun RatingOrderRow(
                         .semantics { role = Role.Button },
                     colors = if (isMoving) {
                         ButtonDefaults.colors(
-                            containerColor = NuvioTheme.colors.Secondary,
-                            contentColor = NuvioTheme.colors.OnSecondary,
-                            focusedContainerColor = NuvioTheme.colors.SecondaryVariant,
-                            focusedContentColor = NuvioTheme.colors.OnSecondary
+                            containerColor = MoviesTheme.colors.Secondary,
+                            contentColor = MoviesTheme.colors.OnSecondary,
+                            focusedContainerColor = MoviesTheme.colors.SecondaryVariant,
+                            focusedContentColor = MoviesTheme.colors.OnSecondary
                         )
                     } else {
                         ButtonDefaults.colors(
                             containerColor = if (flat) {
-                                NuvioTheme.colors.BackgroundElevated.copy(alpha = 0.7f)
+                                MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.7f)
                             } else {
-                                NuvioTheme.colors.BackgroundCard
+                                MoviesTheme.colors.BackgroundCard
                             },
-                            contentColor = NuvioTheme.colors.TextSecondary.copy(alpha = contentAlpha),
-                            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-                            focusedContentColor = NuvioTheme.colors.Primary,
+                            contentColor = MoviesTheme.colors.TextSecondary.copy(alpha = contentAlpha),
+                            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+                            focusedContentColor = MoviesTheme.colors.Primary,
                             disabledContainerColor = if (flat) {
-                                NuvioTheme.colors.BackgroundElevated.copy(alpha = 0.25f)
+                                MoviesTheme.colors.BackgroundElevated.copy(alpha = 0.25f)
                             } else {
-                                NuvioTheme.colors.BackgroundCard.copy(alpha = 0.4f)
+                                MoviesTheme.colors.BackgroundCard.copy(alpha = 0.4f)
                             },
-                            disabledContentColor = NuvioTheme.colors.TextTertiary.copy(alpha = 0.4f)
+                            disabledContentColor = MoviesTheme.colors.TextTertiary.copy(alpha = 0.4f)
                         )
                     },
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                            border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                             shape = moveButtonShape
                         ),
                         focusedDisabledBorder = tvReorderDisabledFocusBorder(moveButtonShape)

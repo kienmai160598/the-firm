@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -71,7 +71,7 @@ import com.kien.movies.domain.model.DEFAULT_CARD_DEPTH_SHEEN_STRENGTH
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.ui.components.CardCwStylePreview
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.PosterCwStylePreview
 import com.kien.movies.ui.components.WideCwStylePreview
 import com.kien.movies.ui.components.cardDepthVisual
@@ -98,7 +98,7 @@ internal fun LayoutContinueWatchingSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .settingsOptionRow(firstStyleFocusRequester),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             listOf(
                 ContinueWatchingCardStyle.CARD,
@@ -379,13 +379,13 @@ internal fun LayoutCustomPosterSection(
         Text(
             text = pattern,
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(NuvioTheme.colors.BackgroundElevated, RoundedCornerShape(10.dp))
-                .padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)
+                .background(MoviesTheme.colors.BackgroundElevated, RoundedCornerShape(10.dp))
+                .padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)
         )
     }
     SettingsActionRow(
@@ -444,16 +444,16 @@ private fun CwStyleCard(
                 this.selected = isSelected
             },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = expressiveCardFocusFill(NuvioTheme.colors.Background)
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = expressiveCardFocusFill(MoviesTheme.colors.Background)
         ),
         border = CardDefaults.border(
             border = if (isSelected) Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.hairline),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.hairline),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             ) else Border.None,
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
         ).expressiveSelection(isSelected),
@@ -489,9 +489,9 @@ private fun CwStyleCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = NuvioTheme.colors.FocusRing,
+                        tint = MoviesTheme.colors.FocusRing,
                         modifier = Modifier
-                            .size(NuvioTheme.spacing.lg)
+                            .size(MoviesTheme.spacing.lg)
                             .padding(end = 6.dp)
                     )
                 }
@@ -502,7 +502,7 @@ private fun CwStyleCard(
                         ContinueWatchingCardStyle.POSTER -> stringResource(R.string.layout_cw_card_style_poster)
                     },
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected || isFocused) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary
+                    color = if (isSelected || isFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -587,18 +587,18 @@ private fun ModernTrailerPlaybackTargetRow(
     Text(
         text = stringResource(R.string.layout_trailer_location),
         style = MaterialTheme.typography.labelLarge,
-        color = NuvioTheme.colors.TextSecondary
+        color = MoviesTheme.colors.TextSecondary
     )
     Text(
         text = stringResource(R.string.layout_trailer_location_sub),
         style = MaterialTheme.typography.bodySmall,
-        color = NuvioTheme.colors.TextTertiary
+        color = MoviesTheme.colors.TextTertiary
     )
     val firstTrailerTargetFocusRequester = remember { FocusRequester() }
     LazyRow(
         modifier = Modifier.settingsOptionRow(firstTrailerTargetFocusRequester),
-        contentPadding = PaddingValues(end = NuvioTheme.spacing.sm),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        contentPadding = PaddingValues(end = MoviesTheme.spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         item(key = "trailer_target_expanded_card") {
             SettingsChoiceChip(
@@ -667,7 +667,7 @@ private fun CardDepthStyleControls(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         SettingsToggleRow(
             title = stringResource(R.string.settings_card_depth_enabled),
@@ -736,7 +736,7 @@ private fun CardDepthFineTuneDialog(
         initialFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.settings_card_depth_fine_tune_title),
         subtitle = stringResource(R.string.settings_card_depth_fine_tune_hint_tv),
@@ -746,7 +746,7 @@ private fun CardDepthFineTuneDialog(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             CardDepthPreview(
                 style = style,
@@ -757,7 +757,7 @@ private fun CardDepthFineTuneDialog(
             Column(
                 modifier = Modifier
                     .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 SliderSettingsItem(
                     title = stringResource(R.string.settings_card_depth_edge_value),
@@ -807,16 +807,16 @@ private fun CardDepthResetButton(
         modifier = modifier.tvControlHeight(),
         shape = ButtonDefaults.shape(shape = shape).expressivePill(),
         colors = ButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.Background,
-            focusedContainerColor = NuvioTheme.colors.Background
+            containerColor = MoviesTheme.colors.Background,
+            focusedContainerColor = MoviesTheme.colors.Background
         ).expressiveControl(),
         border = ButtonDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                 shape = shape
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = shape
             )
         ).expressiveRingless(),
@@ -825,7 +825,7 @@ private fun CardDepthResetButton(
         Text(
             text = stringResource(R.string.layout_reset_default),
             style = MaterialTheme.typography.titleMedium,
-            color = onControlColor(NuvioTheme.colors.TextPrimary)
+            color = onControlColor(MoviesTheme.colors.TextPrimary)
         )
     }
 }
@@ -835,7 +835,7 @@ private fun CardDepthPreview(
     style: CardDepthStyle,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(NuvioTheme.radii.lg)
+    val shape = RoundedCornerShape(MoviesTheme.radii.lg)
     Box(
         modifier = modifier
             .clip(shape)
@@ -869,14 +869,14 @@ private fun OptionRow(
     Text(
         text = "$title ($selectedLabel)",
         style = MaterialTheme.typography.labelLarge,
-        color = NuvioTheme.colors.TextSecondary
+        color = MoviesTheme.colors.TextSecondary
     )
 
     val firstOptionFocusRequester = remember { FocusRequester() }
     LazyRow(
         modifier = Modifier.settingsOptionRow(firstOptionFocusRequester),
-        contentPadding = PaddingValues(end = NuvioTheme.spacing.sm),
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        contentPadding = PaddingValues(end = MoviesTheme.spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         itemsIndexed(
             items = options,

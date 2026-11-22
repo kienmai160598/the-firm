@@ -2,10 +2,10 @@
 
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.focus.onFocusChanged
@@ -133,13 +133,13 @@ fun PostPlayOverlay(
                 CardDefaults.border(
                     border = Border(
                         border = BorderStroke(
-                            NuvioTheme.spacing.hairline,
+                            MoviesTheme.spacing.hairline,
                             Color.White.copy(alpha = 0.16f)
                         ),
                         shape = RoundedCornerShape(14.dp),
                     ),
                     focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                         shape = RoundedCornerShape(14.dp),
                     ),
                 )
@@ -168,7 +168,7 @@ fun PostPlayOverlay(
         ) {
             transition.AnimatedContent(
                 transitionSpec = {
-                    fadeIn(PlayerMotion.effects(NuvioMotion.tokens.durations.fast)) togetherWith
+                    fadeIn(PlayerMotion.effects(MoviesMotion.tokens.durations.fast)) togetherWith
                         fadeOut(PlayerMotion.effects(120))
                 },
                 contentKey = { it?.let { current -> current::class } },
@@ -217,7 +217,7 @@ private fun AutoPlayBody(
                 fontSize = PostPlayMetaSize,
                 fontWeight = FontWeight.Medium,
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
                 color = postPlayInk(),
@@ -234,17 +234,17 @@ private fun AutoPlayBody(
                 else -> null
             }
             if (statusText != null) {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                 NextEpisodeStatusLine(text = statusText)
             }
         }
 
         Row(
             modifier = Modifier
-                .padding(start = NuvioTheme.spacing.sm)
+                .padding(start = MoviesTheme.spacing.sm)
                 .clip(CircleShape)
                 .border(
-                    BorderStroke(NuvioTheme.spacing.hairline, postPlayInk().copy(alpha = 0.2f)),
+                    BorderStroke(MoviesTheme.spacing.hairline, postPlayInk().copy(alpha = 0.2f)),
                     CircleShape,
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -304,7 +304,7 @@ private fun StillWatchingBody(
                 fontSize = PostPlayMetaSize,
                 fontWeight = FontWeight.Medium,
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
                 color = postPlayInk(),
@@ -314,7 +314,7 @@ private fun StillWatchingBody(
                 fontWeight = FontWeight.SemiBold,
             )
             if (mode.countdownSec != null) {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                 NextEpisodeStatusLine(
                     text = stringResource(R.string.still_watching_countdown, mode.countdownSec),
                 )
@@ -322,7 +322,7 @@ private fun StillWatchingBody(
         }
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Row(
-            modifier = Modifier.padding(start = NuvioTheme.spacing.sm),
+            modifier = Modifier.padding(start = MoviesTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -384,11 +384,11 @@ private fun PostPlayPillButton(
         ),
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
+                border = BorderStroke(MoviesTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
                 shape = CircleShape,
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                 shape = CircleShape,
             ),
         ),
@@ -432,12 +432,12 @@ private fun ExpressivePostPlayPillButton(
     modifier: Modifier,
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val content = ExpressiveFocus.contentColor(isFocused, resting = NuvioTheme.colors.TextPrimary)
+    val content = ExpressiveFocus.contentColor(isFocused, resting = MoviesTheme.colors.TextPrimary)
 
     Card(
         onClick = onClick,
         shape = PlayerPillStyle.shape(isFocused),
-        colors = PlayerPillStyle.colors(isFocused, resting = NuvioTheme.colors.BackgroundCard),
+        colors = PlayerPillStyle.colors(isFocused, resting = MoviesTheme.colors.BackgroundCard),
         border = PlayerListItemStyle.noBorder(),
         scale = PlayerListItemStyle.stillScale,
         modifier = modifier
@@ -448,7 +448,7 @@ private fun ExpressivePostPlayPillButton(
         Row(
             modifier = Modifier
                 .heightIn(min = PillButtonMinHeight)
-                .padding(horizontal = NuvioTheme.spacing.lg),
+                .padding(horizontal = MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -461,7 +461,7 @@ private fun ExpressivePostPlayPillButton(
                 text = label,
                 color = content,
                 fontSize = PostPlayLabelSize,
-                modifier = Modifier.padding(start = NuvioTheme.spacing.xs),
+                modifier = Modifier.padding(start = MoviesTheme.spacing.xs),
             )
         }
     }

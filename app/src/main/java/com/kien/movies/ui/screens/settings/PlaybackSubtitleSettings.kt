@@ -14,7 +14,7 @@ import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.SubtitleLanguageOption
 import com.kien.movies.data.local.SubtitleStyleSettings
 import com.kien.movies.data.local.displayName
-import com.kien.movies.ui.theme.NuvioPrimitives
+import com.kien.movies.ui.theme.MoviesPrimitives
 
 internal val SubtitleSettingsTextColors = listOf(
     Color.White,
@@ -30,8 +30,8 @@ internal val SubtitleSettingsTextColors = listOf(
 
 internal val SubtitleSettingsOutlineColors = listOf(
     Color.Black,
-    NuvioPrimitives.neutral900,
-    NuvioPrimitives.neutral750,
+    MoviesPrimitives.neutral900,
+    MoviesPrimitives.neutral750,
     Color.White
 )
 

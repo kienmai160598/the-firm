@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.tmdb
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ExpressiveMotion
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.screens.settings.TenFootTypography
@@ -114,7 +114,7 @@ fun TmdbEntityBrowseScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
     ) {
         Crossfade(
             targetState = screenMode,
@@ -246,7 +246,7 @@ private fun TmdbEntityBrowseContent(
         } else {
             // Give the list extra trailing scroll room so the last rail can settle cleanly.
             val railsTailPadding = maxHeight * 0.55f
-            val railHeaderFocusInset = NuvioTheme.spacing.xxl
+            val railHeaderFocusInset = MoviesTheme.spacing.xxl
             val railsBringIntoViewSpec = remember(localDensity, defaultBringIntoViewSpec) {
                 val topInsetPx = with(localDensity) { railHeaderFocusInset.toPx() }
                 @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
@@ -265,13 +265,13 @@ private fun TmdbEntityBrowseContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = NuvioTheme.spacing.xl)
+                    .padding(top = MoviesTheme.spacing.xl)
             ) {
                 TmdbEntityHero(
                     data = data,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = NuvioTheme.spacing.md)
+                        .padding(bottom = MoviesTheme.spacing.md)
                 )
 
                 CompositionLocalProvider(LocalBringIntoViewSpec provides railsBringIntoViewSpec) {
@@ -280,8 +280,8 @@ private fun TmdbEntityBrowseContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        contentPadding = PaddingValues(top = NuvioTheme.spacing.sm, bottom = railsTailPadding),
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xl)
+                        contentPadding = PaddingValues(top = MoviesTheme.spacing.sm, bottom = railsTailPadding),
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xl)
                     ) {
                         itemsIndexed(
                             items = data.rails,
@@ -364,7 +364,7 @@ private fun TmdbEntityHero(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = NuvioTheme.spacing.xxxl),
+            .padding(horizontal = MoviesTheme.spacing.xxxl),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -373,7 +373,7 @@ private fun TmdbEntityHero(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = if (hasLogo) NuvioTheme.spacing.xxl else NuvioTheme.spacing.none)
+                .padding(end = if (hasLogo) MoviesTheme.spacing.xxl else MoviesTheme.spacing.none)
         ) {
             Text(
                 text = entityKindLabel(data.header.kind),
@@ -381,7 +381,7 @@ private fun TmdbEntityHero(
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.4.sp
                 ),
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -392,7 +392,7 @@ private fun TmdbEntityHero(
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = (-1).sp
                 ),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -401,21 +401,21 @@ private fun TmdbEntityHero(
                 data.header.secondaryLabel?.takeIf { it.isNotBlank() }
             ).joinToString(" • ")
             if (metaLine.isNotBlank()) {
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
                 Text(
                     text = metaLine,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
             data.header.description?.takeIf { it.isNotBlank() }?.let { description ->
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         lineHeight = 24.sp
                     ),
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth(0.88f)
@@ -547,15 +547,15 @@ private fun EntityRailRow(
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.SemiBold
             ),
-            color = NuvioTheme.colors.TextPrimary,
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)
+            color = MoviesTheme.colors.TextPrimary,
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)
         )
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
         val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
         val localDensity = LocalDensity.current
         @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
         val rowBringIntoViewSpec = remember(localDensity, defaultBringIntoViewSpec) {
-            val startPx = with(localDensity) { NuvioTheme.spacing.xxxl.roundToPx() }
+            val startPx = with(localDensity) { MoviesTheme.spacing.xxxl.roundToPx() }
             object : BringIntoViewSpec {
                 override val scrollAnimationSpec: AnimationSpec<Float> =
                     defaultBringIntoViewSpec.scrollAnimationSpec
@@ -588,8 +588,8 @@ private fun EntityRailRow(
                     }
                     .focusGroup(),
                 state = rowListState,
-                contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
             ) {
                 itemsIndexed(
                     items = rail.items,

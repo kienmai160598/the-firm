@@ -137,7 +137,7 @@ class AuthManager @Inject constructor(
                                 finishStartupAuthDiagnostics("signed_out", "authenticated_session_invalid")
                             } else {
                                 _authState.value = AuthState.FullAccount(userId = user.id, email = user.email!!)
-                                authSessionNoticeDataStore.markNuvioAuthenticated()
+                                authSessionNoticeDataStore.markMoviesAuthenticated()
                                 finishStartupAuthDiagnostics("success", "authenticated_session_validated")
                             }
                         } else {
@@ -378,9 +378,9 @@ class AuthManager @Inject constructor(
     suspend fun signOut(explicit: Boolean = true) {
         sessionValidator.reset()
         if (explicit) {
-            authSessionNoticeDataStore.markNuvioExplicitLogout()
+            authSessionNoticeDataStore.markMoviesExplicitLogout()
         } else {
-            authSessionNoticeDataStore.markUnexpectedNuvioLogoutIfNeeded()
+            authSessionNoticeDataStore.markUnexpectedMoviesLogoutIfNeeded()
         }
         try {
             auth.signOut()
@@ -401,7 +401,7 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
-        authSessionNoticeDataStore.markNuvioExplicitLogout()
+        authSessionNoticeDataStore.markMoviesExplicitLogout()
         if (hadSession) accountLocalDataResetService.clearAfterSignOut()
         return Result.success(Unit)
     }
@@ -416,7 +416,7 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
-        if (authSessionNoticeDataStore.markUnexpectedNuvioLogoutIfNeeded()) {
+        if (authSessionNoticeDataStore.markUnexpectedMoviesLogoutIfNeeded()) {
             accountLocalDataResetService.clearAfterSignOut()
         }
     }

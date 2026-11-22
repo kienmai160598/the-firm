@@ -69,7 +69,7 @@ data class SiloProfile(
 
 /**
  * What a Silo connection keeps as its token: the token pair and the chosen profile. [signInId] names the sign-in, so
- * devices sharing it through the Nuvio account can tell it from a newer one; [syncedAtMs] is when it was last uploaded.
+ * devices sharing it through the Movies account can tell it from a newer one; [syncedAtMs] is when it was last uploaded.
  */
 @Serializable
 internal data class SiloCredential(

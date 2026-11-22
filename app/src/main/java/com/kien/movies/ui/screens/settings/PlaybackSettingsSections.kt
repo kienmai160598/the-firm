@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,8 +45,8 @@ internal fun PlaybackSettingsSections(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = NuvioTheme.spacing.xs, bottom = NuvioTheme.spacing.xxl),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            contentPadding = PaddingValues(top = MoviesTheme.spacing.xs, bottom = MoviesTheme.spacing.xxl),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             items(items = sections, key = { it.name }) { section ->
                 val expanded = section.name in expandedSections

@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * when the user selects Download in Settings; playback never fetches it.
  * Progress and errors are published to [SubtitleSyncStatus.speechModel].
  *
- * A pre-optimized ORT conversion, which loads faster, comes from Nuvio's mirror at [ORT_DOWNLOAD].
+ * A pre-optimized ORT conversion, which loads faster, comes from Movies's mirror at [ORT_DOWNLOAD].
  * When it cannot be fetched, the original ONNX files come from the upstream k2-fsa repository,
  * pinned to a commit. Every file of either format is pinned by size and SHA-256 in
  * [AsrModelFiles], so the host does not have to be trusted.
@@ -59,7 +59,7 @@ internal object AsrModel {
         SubtitleSyncStatus.modelActions = object : SpeechModelActions {
             override fun download() {
                 val ctx = appContext ?: return
-                Thread({ download(ctx) }, "NuvioAsrModelDownload").apply { isDaemon = true }.start()
+                Thread({ download(ctx) }, "MoviesAsrModelDownload").apply { isDaemon = true }.start()
             }
 
             override fun delete() {

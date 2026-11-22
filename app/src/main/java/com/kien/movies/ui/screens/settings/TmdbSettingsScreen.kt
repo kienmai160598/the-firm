@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -74,7 +74,7 @@ fun TmdbSettingsContent(
             LazyColumn(
                 state = tmdbListState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+                contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 item(key = "tmdb_enabled") {
@@ -84,7 +84,7 @@ fun TmdbSettingsContent(
                         checked = uiState.enabled,
                         onToggle = { viewModel.onEvent(TmdbSettingsEvent.ToggleEnabled(!uiState.enabled)) },
                         modifier = Modifier
-                            .padding(top = NuvioTheme.spacing.xxs)
+                            .padding(top = MoviesTheme.spacing.xxs)
                             .then(
                                 if (initialFocusRequester != null) {
                                     Modifier.focusRequester(initialFocusRequester)

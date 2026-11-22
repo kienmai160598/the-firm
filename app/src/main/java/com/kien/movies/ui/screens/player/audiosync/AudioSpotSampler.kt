@@ -171,7 +171,7 @@ internal class AudioSpotSampler(
             val thread = Thread({
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
                 work(extractorsFactory, extra = true)
-            }, "NuvioAudioSyncSpots").apply { isDaemon = true }
+            }, "MoviesAudioSyncSpots").apply { isDaemon = true }
             synchronized(helpers) { helpers += thread }
             thread.start()
         }

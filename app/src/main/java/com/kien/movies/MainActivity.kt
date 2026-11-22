@@ -178,14 +178,14 @@ import com.kien.movies.domain.model.resolveAppTheme
 import com.kien.movies.domain.model.resolveCustomThemeColors
 import com.kien.movies.domain.deeplink.AppDeepLink
 import com.kien.movies.domain.repository.AddonRepository
-import com.kien.movies.ui.components.NuvioScrollDefaults
+import com.kien.movies.ui.components.MoviesScrollDefaults
 import com.kien.movies.ui.components.BrandWordmark
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.LocalLandscapePosterMode
 import com.kien.movies.ui.components.LocalAlwaysBackdropWithLogo
 import com.kien.movies.ui.components.ProfileAvatarCircle
 import com.kien.movies.ui.navigation.LocalNavViewModelStoreOwner
-import com.kien.movies.ui.navigation.NuvioNavHost
+import com.kien.movies.ui.navigation.MoviesNavHost
 import com.kien.movies.ui.navigation.Screen
 import com.kien.movies.ui.navigation.rememberNavSessionViewModelStoreOwner
 import com.kien.movies.ui.screens.party.PartyEffects
@@ -193,13 +193,13 @@ import com.kien.movies.ui.membership.LocalMemberAccess
 import com.kien.movies.ui.screens.account.AuthQrSignInScreen
 import com.kien.movies.ui.screens.addon.EssentialAddonSetupScreen
 import com.kien.movies.ui.screens.profile.ProfileSelectionScreen
-import com.kien.movies.ui.theme.NuvioComponents
-import com.kien.movies.ui.theme.NuvioLayout
-import com.kien.movies.ui.theme.NuvioMotion
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioRadii
-import com.kien.movies.ui.theme.NuvioStrokes
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesComponents
+import com.kien.movies.ui.theme.MoviesLayout
+import com.kien.movies.ui.theme.MoviesMotion
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesRadii
+import com.kien.movies.ui.theme.MoviesStrokes
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.theme.brandWordmarkResource
@@ -621,7 +621,7 @@ open class MainActivity : ComponentActivity() {
             }
             val discoverLocation = mainUiPrefs.discoverLocation
 
-            NuvioTheme(
+            MoviesTheme(
                 appTheme = mainUiPrefs.theme,
                 customThemeColors = mainUiPrefs.customThemeColors,
                 appFont = mainUiPrefs.font,
@@ -631,7 +631,7 @@ open class MainActivity : ComponentActivity() {
             ) {
                 val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
                 val bringIntoViewSpec = if (mainUiPrefs.smoothBringIntoViewEnabled) {
-                    NuvioScrollDefaults.smoothScrollSpec
+                    MoviesScrollDefaults.smoothScrollSpec
                 } else {
                     defaultBringIntoViewSpec
                 }
@@ -743,9 +743,9 @@ open class MainActivity : ComponentActivity() {
                         containerColor = if (transparentPlayerBackdrop) {
                             Color.Transparent
                         } else {
-                            NuvioTheme.colors.Background
+                            MoviesTheme.colors.Background
                         },
-                        contentColor = contentColorFor(NuvioTheme.colors.Background)
+                        contentColor = contentColorFor(MoviesTheme.colors.Background)
                     )
                 ) {
                     // Wrap everything in a Box. This prevents any black flash between
@@ -1526,8 +1526,8 @@ private fun LegacySidebarScaffold(
         drawerState.setValue(DrawerValue.Closed)
     }
 
-    val sidebarTokens = NuvioComponents.tokens.sidebar
-    val closedDrawerWidth = if (sidebarCollapsed) NuvioTheme.spacing.none else sidebarTokens.legacyCollapsedWidth
+    val sidebarTokens = MoviesComponents.tokens.sidebar
+    val closedDrawerWidth = if (sidebarCollapsed) MoviesTheme.spacing.none else sidebarTokens.legacyCollapsedWidth
     val openDrawerWidth = sidebarTokens.legacyExpandedWidth
     val openDrawerItemWidth = sidebarTokens.itemWidth
 
@@ -1595,8 +1595,8 @@ private fun LegacySidebarScaffold(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(drawerWidth)
-                        .background(NuvioTheme.colors.Background)
-                        .padding(NuvioTheme.spacing.card.outer)
+                        .background(MoviesTheme.colors.Background)
+                        .padding(MoviesTheme.spacing.card.outer)
                         .selectableGroup()
                         .onFocusChanged { drawerHasFocus = it.hasFocus }
                         .onPreviewKeyEvent { keyEvent ->
@@ -1615,8 +1615,8 @@ private fun LegacySidebarScaffold(
                 ) {
                     val isExpanded = drawerValue == DrawerValue.Open
                     val itemWidth by animateDpAsState(
-                        targetValue = if (isExpanded) openDrawerItemWidth else NuvioTheme.sizes.avatars.md,
-                        animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast, easing = NuvioMotion.tokens.easings.standard),
+                        targetValue = if (isExpanded) openDrawerItemWidth else MoviesTheme.sizes.avatars.md,
+                        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast, easing = MoviesMotion.tokens.easings.standard),
                         label = "legacySidebarItemWidth"
                     )
 
@@ -1629,13 +1629,13 @@ private fun LegacySidebarScaffold(
                             Spacer(modifier = Modifier.height(30.dp))
                             if (showProfileSelector && activeProfileName.isNotEmpty()) {
                                 var isProfileFocused by remember { mutableStateOf(false) }
-                                val profileItemShape = NuvioTheme.shapes.navItem
-                                val profileLeadingInset = NuvioTheme.spacing.lg + NuvioTheme.spacing.xxs
-                                val profileAvatarSize = NuvioTheme.sizes.sidebar.leadingVisual
+                                val profileItemShape = MoviesTheme.shapes.navItem
+                                val profileLeadingInset = MoviesTheme.spacing.lg + MoviesTheme.spacing.xxs
+                                val profileAvatarSize = MoviesTheme.sizes.sidebar.leadingVisual
                                 val profileLabelStart = 60.dp
                                 val profileGapAfterAvatar =
-                                    (profileLabelStart - profileLeadingInset - profileAvatarSize).coerceAtLeast(NuvioTheme.spacing.none)
-                                val profileBgColor = if (isProfileFocused) NuvioTheme.colors.FocusBackground else Color.Transparent
+                                    (profileLabelStart - profileLeadingInset - profileAvatarSize).coerceAtLeast(MoviesTheme.spacing.none)
+                                val profileBgColor = if (isProfileFocused) MoviesTheme.colors.FocusBackground else Color.Transparent
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center
@@ -1664,7 +1664,7 @@ private fun LegacySidebarScaffold(
                                         Spacer(modifier = Modifier.width(profileGapAfterAvatar))
                                         Text(
                                             text = activeProfileName,
-                                            color = if (isProfileFocused) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextSecondary,
+                                            color = if (isProfileFocused) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextSecondary,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                             textAlign = TextAlign.Start,
@@ -1714,7 +1714,7 @@ private fun LegacySidebarScaffold(
                                         drawerItemFocusRequesters.getValue(item.route)
                                     )
                                         .width(itemWidth)
-                                        .offset(x = NuvioTheme.spacing.md)
+                                        .offset(x = MoviesTheme.spacing.md)
                                 )
                         }
                     }
@@ -1727,11 +1727,11 @@ private fun LegacySidebarScaffold(
         // with the collapse setting, never during a navigation transition.
         val rootContentInset by animateDpAsState(
             targetValue = if (sidebarCollapsed) {
-                NuvioTheme.spacing.none
+                MoviesTheme.spacing.none
             } else {
-                NuvioLayout.tokens.sidebarContentOffset
+                MoviesLayout.tokens.sidebarContentOffset
             },
-            animationSpec = tween(NuvioMotion.tokens.durations.medium),
+            animationSpec = tween(MoviesMotion.tokens.durations.medium),
             label = "rootContentInset"
         )
         Box(
@@ -1787,7 +1787,7 @@ private fun LegacySidebarScaffold(
                 LocalRootContentInset provides rootContentInset,
                 LocalContentFocusRequester provides contentFocusRequester
             ) {
-                NuvioNavHost(
+                MoviesNavHost(
                     navController = navController,
                     startDestination = startDestination,
                     hideBuiltInHeaders = hideBuiltInHeaders,
@@ -1809,48 +1809,48 @@ private fun LegacySidebarButton(
     onClick: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val itemShape = NuvioTheme.shapes.navItem
+    val itemShape = MoviesTheme.shapes.navItem
     val backgroundColor by animateColorAsState(
         targetValue = when {
-            isFocused -> NuvioTheme.colors.FocusBackground
-            expanded && selected -> NuvioTheme.colors.Secondary
+            isFocused -> MoviesTheme.colors.FocusBackground
+            expanded && selected -> MoviesTheme.colors.Secondary
             else -> Color.Transparent
         },
         label = "legacySidebarItemBackground"
     )
     val contentColor by animateColorAsState(
         targetValue = when {
-            isFocused -> NuvioTheme.colors.TextPrimary
-            expanded && selected -> NuvioTheme.colors.OnSecondary
-            else -> NuvioTheme.colors.TextSecondary
+            isFocused -> MoviesTheme.colors.TextPrimary
+            expanded && selected -> MoviesTheme.colors.OnSecondary
+            else -> MoviesTheme.colors.TextSecondary
         },
         label = "legacySidebarItemContent"
     )
     val iconTint by animateColorAsState(
         targetValue = when {
-            isFocused -> NuvioTheme.colors.TextPrimary
-            expanded && selected -> NuvioTheme.colors.OnSecondary
-            selected -> NuvioTheme.colors.Secondary
-            !expanded -> NuvioTheme.colors.TextTertiary
-            else -> NuvioTheme.colors.TextSecondary
+            isFocused -> MoviesTheme.colors.TextPrimary
+            expanded && selected -> MoviesTheme.colors.OnSecondary
+            selected -> MoviesTheme.colors.Secondary
+            !expanded -> MoviesTheme.colors.TextTertiary
+            else -> MoviesTheme.colors.TextSecondary
         },
         label = "legacySidebarItemIconTint"
     )
     val selectedCollapsedIconBrush = if (selected && !expanded) {
-        NuvioTheme.palette.accentBrush()
+        MoviesTheme.palette.accentBrush()
     } else {
         null
     }
     val itemScale by animateFloatAsState(
         targetValue = if (isFocused && expanded) 1.1f else 1f,
-        animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.fast, easing = NuvioMotion.tokens.easings.standard),
+        animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.fast, easing = MoviesMotion.tokens.easings.standard),
         label = "legacySidebarItemScale"
     )
 
     Card(
         onClick = onClick,
         modifier = modifier
-            .height(NuvioComponents.tokens.sidebar.itemHeight)
+            .height(MoviesComponents.tokens.sidebar.itemHeight)
             .graphicsLayer {
                 scaleX = itemScale
                 scaleY = itemScale
@@ -1865,7 +1865,7 @@ private fun LegacySidebarButton(
         border = CardDefaults.border(
             border = androidx.tv.material3.Border.None,
             focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(NuvioStrokes.tokens.thin, Color.Transparent),
+                border = androidx.compose.foundation.BorderStroke(MoviesStrokes.tokens.thin, Color.Transparent),
                 shape = itemShape
             )
         ),
@@ -1887,7 +1887,7 @@ private fun LegacySidebarButton(
             tint = iconTint,
             brush = selectedCollapsedIconBrush,
             modifier = Modifier
-                .size(NuvioComponents.tokens.sidebar.iconSize)
+                .size(MoviesComponents.tokens.sidebar.iconSize)
                 .align(Alignment.CenterStart)
                 .offset(x = 13.dp)
         )
@@ -1927,8 +1927,8 @@ private fun ModernSidebarScaffold(
     onExitApp: () -> Unit
 ) {
     val showSidebar = currentRoute in rootRoutes
-    val sidebarTokens = NuvioComponents.tokens.sidebar
-    val collapsedSidebarWidth = if (sidebarCollapsed) NuvioTheme.spacing.none else sidebarTokens.collapsedWidth
+    val sidebarTokens = MoviesComponents.tokens.sidebar
+    val collapsedSidebarWidth = if (sidebarCollapsed) MoviesTheme.spacing.none else sidebarTokens.collapsedWidth
     val openSidebarWidth = sidebarTokens.expandedWidth
 
     val focusManager = LocalFocusManager.current
@@ -2030,7 +2030,7 @@ private fun ModernSidebarScaffold(
     val animationDuration = if (sidebarVisible) 400 else 300
     val animationEasing = if (sidebarVisible) FastOutSlowInEasing else FastOutLinearInEasing
 
-    val sidebarSlideX = NuvioTheme.spacing.none
+    val sidebarSlideX = MoviesTheme.spacing.none
     val sidebarSurfaceAlpha by animateFloatAsState(
         targetValue = if (isSidebarExpanded) 1f else 0f,
         animationSpec = tween(durationMillis = if (isSidebarExpanded) 280 else 200, easing = animationEasing),
@@ -2047,9 +2047,9 @@ private fun ModernSidebarScaffold(
     val sidebarExpandProgress by sidebarTransition.animateFloat(
         transitionSpec = {
             if (targetState) {
-                tween(durationMillis = NuvioMotion.tokens.durations.sidebarPanelIn, easing = FastOutSlowInEasing)
+                tween(durationMillis = MoviesMotion.tokens.durations.sidebarPanelIn, easing = FastOutSlowInEasing)
             } else {
-                tween(durationMillis = NuvioMotion.tokens.durations.sidebarPanelOut, easing = LinearOutSlowInEasing)
+                tween(durationMillis = MoviesMotion.tokens.durations.sidebarPanelOut, easing = LinearOutSlowInEasing)
             }
         },
         label = "sidebarExpandProgress"
@@ -2064,8 +2064,8 @@ private fun ModernSidebarScaffold(
 
     val sidebarIconScale = 1f
     val sidebarBloomScale = 1f
-    val sidebarDeflateOffsetX = NuvioTheme.spacing.none
-    val sidebarDeflateOffsetY = NuvioTheme.spacing.none
+    val sidebarDeflateOffsetX = MoviesTheme.spacing.none
+    val sidebarDeflateOffsetY = MoviesTheme.spacing.none
 
     LaunchedEffect(isSidebarExpanded, sidebarCollapsePending, pendingContentFocusTransfer, showSidebar) {
         if (!showSidebar || !pendingContentFocusTransfer || isSidebarExpanded || sidebarCollapsePending) {
@@ -2192,7 +2192,7 @@ private fun ModernSidebarScaffold(
                 LocalSidebarExpanded provides isSidebarExpanded,
                 LocalContentFocusRequester provides contentFocusRequester
             ) {
-                NuvioNavHost(
+                MoviesNavHost(
                     navController = navController,
                     startDestination = startDestination,
                     hideBuiltInHeaders = hideBuiltInHeaders
@@ -2208,7 +2208,7 @@ private fun ModernSidebarScaffold(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .width(openSidebarWidth)
-                    .padding(start = NuvioTheme.spacing.lg - NuvioTheme.spacing.xxs, top = NuvioTheme.spacing.lg, bottom = NuvioTheme.spacing.md, end = NuvioTheme.spacing.sm)
+                    .padding(start = MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs, top = MoviesTheme.spacing.lg, bottom = MoviesTheme.spacing.md, end = MoviesTheme.spacing.sm)
                     .graphicsLayer {
                         val progress = sidebarExpandProgress
                         alpha = sidebarSurfaceAlpha
@@ -2321,8 +2321,8 @@ private fun ModernSidebarScaffold(
                         .align(Alignment.TopStart)
                         .offset {
                             IntOffset(
-                                (NuvioTheme.spacing.lg - NuvioTheme.spacing.xxs).roundToPx(),
-                                (NuvioTheme.spacing.lg + sidebarDeflateOffsetY).roundToPx()
+                                (MoviesTheme.spacing.lg - MoviesTheme.spacing.xxs).roundToPx(),
+                                (MoviesTheme.spacing.lg + sidebarDeflateOffsetY).roundToPx()
                             )
                         }
                         .graphicsLayer {
@@ -2355,8 +2355,8 @@ private fun CollapsedSidebarPill(
     modifier: Modifier = Modifier,
     onExpand: () -> Unit
 ) {
-    val pillShape = RoundedCornerShape(NuvioRadii.tokens.full)
-    val colors = NuvioTheme.colors
+    val pillShape = RoundedCornerShape(MoviesRadii.tokens.full)
+    val colors = MoviesTheme.colors
     val bgElevated = colors.BackgroundElevated
     val bgCard = colors.BackgroundCard
     val borderBase = colors.Border
@@ -2377,12 +2377,12 @@ private fun CollapsedSidebarPill(
                 role = Role.Button
                 contentDescription = label
             }
-            .padding(horizontal = NuvioTheme.spacing.hairline, vertical = NuvioTheme.spacing.xxs),
+            .padding(horizontal = MoviesTheme.spacing.hairline, vertical = MoviesTheme.spacing.xxs),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .height(NuvioTheme.sizes.player.control)
+                .height(MoviesTheme.sizes.player.control)
                 .clip(pillShape)
                 .then(
                     if (blurEnabled && hazeState != null) {
@@ -2405,15 +2405,15 @@ private fun CollapsedSidebarPill(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(NuvioTheme.sizes.sidebar.leadingVisual),
+                        .size(MoviesTheme.sizes.sidebar.leadingVisual),
                     contentAlignment = Alignment.Center
                 ) {
                     DrawerItemIcon(
                         iconRes = iconRes,
                         icon = icon,
-                        tint = NuvioTheme.colors.text.onOverlay,
+                        tint = MoviesTheme.colors.text.onOverlay,
                         modifier = Modifier
-                            .size(NuvioTheme.sizes.sidebar.leadingVisual - NuvioTheme.spacing.md)
+                            .size(MoviesTheme.sizes.sidebar.leadingVisual - MoviesTheme.spacing.md)
                             .offset(y = (-0.5).dp)
                     )
                 }
@@ -2421,24 +2421,24 @@ private fun CollapsedSidebarPill(
                 AnimatedVisibility(
                     visible = !iconOnly,
                     enter = expandHorizontally(
-                            animationSpec = tween(NuvioMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
+                            animationSpec = tween(MoviesMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
                             expandFrom = Alignment.Start,
                             clip = true
                         ),
                     exit = shrinkHorizontally(
-                            animationSpec = tween(NuvioMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
+                            animationSpec = tween(MoviesMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
                             shrinkTowards = Alignment.Start,
                             clip = true
                         )
                 ) {
                     Text(
                         text = label,
-                        color = NuvioTheme.colors.text.onOverlay,
+                        color = MoviesTheme.colors.text.onOverlay,
                         style = androidx.tv.material3.MaterialTheme.typography.titleLarge.copy(
                             lineHeight = 30.sp
                         ),
                         modifier = Modifier
-                            .padding(start = 9.dp, end = NuvioTheme.spacing.md - 5.dp)
+                            .padding(start = 9.dp, end = MoviesTheme.spacing.md - 5.dp)
                             .offset(y = (-0.5).dp),
                         maxLines = 1
                     )
@@ -2476,7 +2476,7 @@ internal fun navigateToDrawerRoute(
             restoreState = true
         }
     } catch (e: IllegalArgumentException) {
-        Log.w("NuvioNavigation", "Route not found in nav graph: $targetRoute", e)
+        Log.w("MoviesNavigation", "Route not found in nav graph: $targetRoute", e)
     }
 }
 

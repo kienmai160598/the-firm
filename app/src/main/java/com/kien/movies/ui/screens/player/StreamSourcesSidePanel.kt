@@ -55,7 +55,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.SourceChipStatus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import androidx.compose.ui.res.stringResource
 import com.kien.movies.R
 import com.kien.movies.ui.util.localizeEpisodeTitle
@@ -284,7 +284,7 @@ internal fun StreamSourcesSidePanel(
                 Text(
                     text = stringResource(R.string.sources_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
 
                 DialogButton(
@@ -307,7 +307,7 @@ internal fun StreamSourcesSidePanel(
                 )
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             // Current content info
             val context = LocalContext.current
@@ -331,12 +331,12 @@ internal fun StreamSourcesSidePanel(
             Text(
                 text = contentInfoText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = NuvioTheme.extendedColors.textSecondary,
+                color = MoviesTheme.extendedColors.textSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             AnimatedVisibility(
                 visible = uiState.sourceChips.isNotEmpty() || uiState.sourceAvailableAddons.isNotEmpty(),
@@ -374,7 +374,7 @@ internal fun StreamSourcesSidePanel(
                 }
             }
 
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
             when {
                 uiState.sourceStreamsError != null -> {
@@ -389,7 +389,7 @@ internal fun StreamSourcesSidePanel(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = NuvioTheme.spacing.xl),
+                            .padding(vertical = MoviesTheme.spacing.xl),
                         contentAlignment = Alignment.Center
                     ) {
                         LoadingIndicator()
@@ -420,12 +420,12 @@ internal fun StreamSourcesSidePanel(
 
                     LazyColumn(
                         state = streamListState,
-                        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                         contentPadding = PaddingValues(
-                            start = NuvioTheme.spacing.sm,
+                            start = MoviesTheme.spacing.sm,
                             top = 14.dp,
-                            end = NuvioTheme.spacing.sm,
-                            bottom = NuvioTheme.spacing.sm
+                            end = MoviesTheme.spacing.sm,
+                            bottom = MoviesTheme.spacing.sm
                         ),
                         modifier = Modifier
                             .fillMaxHeight()
@@ -524,7 +524,7 @@ internal fun StreamSourcesSidePanel(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = NuvioTheme.spacing.lg),
+                                        .padding(vertical = MoviesTheme.spacing.lg),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     LoadingIndicator()

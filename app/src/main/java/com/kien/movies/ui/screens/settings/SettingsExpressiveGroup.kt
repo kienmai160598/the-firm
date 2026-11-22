@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 private val GroupRowGap = 6.dp
 private val HeaderInset = 4.dp
@@ -38,7 +38,7 @@ internal fun SettingsExpressiveGroup(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 modifier = Modifier.padding(start = HeaderInset, top = HeaderInset)
             )
         }
@@ -46,7 +46,7 @@ internal fun SettingsExpressiveGroup(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.TextTertiary,
+                color = MoviesTheme.colors.TextTertiary,
                 modifier = Modifier.padding(start = HeaderInset)
             )
         }

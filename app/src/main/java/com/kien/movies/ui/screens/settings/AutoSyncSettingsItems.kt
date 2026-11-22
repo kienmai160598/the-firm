@@ -8,7 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kien.movies.R
 import com.kien.movies.ui.screens.player.autosync.AutoSyncPreferences
 
-/** AutoSync-owned settings rows; keeps AutoSync state out of NuvioTV PlayerSettingsDataStore. */
+/** AutoSync-owned settings rows; keeps AutoSync state out of Movies PlayerSettingsDataStore. */
 @Composable
 internal fun autoSyncSettingsItems(enabled: Boolean) {
     val context = LocalContext.current

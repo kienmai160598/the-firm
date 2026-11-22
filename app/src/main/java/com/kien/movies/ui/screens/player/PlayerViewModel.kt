@@ -275,7 +275,7 @@ class PlayerViewModel @Inject constructor(
         controller.attachHostActivity(activity)
     }
 
-    fun attachMpvView(view: NuvioMpvSurfaceView?) {
+    fun attachMpvView(view: MoviesMpvSurfaceView?) {
         controller.attachMpvView(view)
     }
 

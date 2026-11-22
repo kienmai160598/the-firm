@@ -2,7 +2,7 @@
 
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.content.Context
 import android.view.KeyEvent
@@ -82,7 +82,7 @@ import com.kien.movies.domain.model.DebridStreamSortCriterion
 import com.kien.movies.domain.model.DebridStreamSortDirection
 import com.kien.movies.domain.model.DebridStreamSortKey
 import com.kien.movies.domain.model.DebridStreamVisualTag
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.addon.QrCodeOverlay
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -140,7 +140,7 @@ fun DebridSettingsContent(
                     LazyColumn(
                         state = state,
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+                        contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         item(key = "debrid_notice") {
@@ -154,7 +154,7 @@ fun DebridSettingsContent(
                                 checked = uiState.canUseCloudLibrary,
                                 onToggle = { viewModel.setCloudLibraryEnabled(!uiState.cloudLibraryEnabled) },
                                 modifier = Modifier
-                                    .padding(top = NuvioTheme.spacing.xxs)
+                                    .padding(top = MoviesTheme.spacing.xxs)
                                     .then(
                                         if (initialFocusRequester != null && entryOnCloudLibrary) {
                                             Modifier.focusRequester(initialFocusRequester)
@@ -734,10 +734,10 @@ private fun DebridInfoText(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodySmall,
-        color = NuvioTheme.colors.TextSecondary,
+        color = MoviesTheme.colors.TextSecondary,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp, vertical = NuvioTheme.spacing.sm)
+            .padding(horizontal = 18.dp, vertical = MoviesTheme.spacing.sm)
     )
 }
 
@@ -914,7 +914,7 @@ private fun DebridTextListDialog(
         inputFocusRequester.requestFocus()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.debrid_stream_release_groups_input_subtitle),
@@ -925,9 +925,9 @@ private fun DebridTextListDialog(
             onClick = { inputFocusRequester.requestFocus() },
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundElevated,
+                containerColor = MoviesTheme.colors.BackgroundElevated,
                 focusedContainerColor = expressiveCardFocusFill(
-                    NuvioTheme.colors.BackgroundElevated
+                    MoviesTheme.colors.BackgroundElevated
                 )
             ),
             shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
@@ -954,9 +954,9 @@ private fun DebridTextListDialog(
                         },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { submit() }),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = NuvioTheme.colors.TextPrimary,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content),
-                    cursorBrush = SolidColor(NuvioTheme.colors.Primary)
+                    cursorBrush = SolidColor(MoviesTheme.colors.Primary)
                 )
             }
         }
@@ -1315,7 +1315,7 @@ private fun DebridDeviceAuthDialog(
         }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(
             if (isConnected) R.string.debrid_disconnect_provider else R.string.debrid_connect_provider,
@@ -1329,21 +1329,21 @@ private fun DebridDeviceAuthDialog(
             Text(
                 text = stringResource(R.string.debrid_device_auth_connected, provider.displayName),
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
         } else if (isStarting) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 LoadingIndicator(modifier = Modifier.size(18.dp))
                 Text(
                     text = startingMessage,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         } else {
@@ -1354,7 +1354,7 @@ private fun DebridDeviceAuthDialog(
                 Text(
                     text = stringResource(R.string.debrid_device_auth_instructions),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
+                    color = MoviesTheme.colors.TextSecondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -1377,19 +1377,19 @@ private fun DebridDeviceAuthDialog(
             statusMessage?.let { message ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm, Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (isPolling) {
-                        LoadingIndicator(modifier = Modifier.size(NuvioTheme.spacing.lg))
+                        LoadingIndicator(modifier = Modifier.size(MoviesTheme.spacing.lg))
                     }
                     Text(
                         text = message,
                         style = MaterialTheme.typography.bodySmall,
                         color = if (message == failedMessage || message == expiredMessage || message == missingConfigurationMessage) {
-                            NuvioTheme.colors.Error
+                            MoviesTheme.colors.Error
                         } else {
-                            NuvioTheme.colors.TextSecondary
+                            MoviesTheme.colors.TextSecondary
                         },
                         textAlign = TextAlign.Center
                     )
@@ -1431,19 +1431,19 @@ private fun DebridDeviceAuthCodes(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Text(
             text = userCode,
             style = MaterialTheme.typography.headlineSmall,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )
         Text(
             text = verificationUrl,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             textAlign = TextAlign.Center
         )
     }
@@ -1505,7 +1505,7 @@ private fun DebridApiKeyDialog(
         }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = subtitle,
@@ -1518,25 +1518,25 @@ private fun DebridApiKeyDialog(
                 .fillMaxWidth()
                 .onFocusChanged { isInputFocused = it.isFocused || it.hasFocus },
             colors = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundElevated,
+                containerColor = MoviesTheme.colors.BackgroundElevated,
                 focusedContainerColor = expressiveCardFocusFill(
-                    NuvioTheme.colors.BackgroundElevated
+                    MoviesTheme.colors.BackgroundElevated
                 )
             ),
             border = CardDefaults.border(
                 border = Border(
-                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                    border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
                     shape = RoundedCornerShape(10.dp)
                 ),
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = RoundedCornerShape(10.dp)
                 )
             ).expressiveRingless(),
             shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
             scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
         ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.md)) {
+            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },
@@ -1562,17 +1562,17 @@ private fun DebridApiKeyDialog(
                     keyboardActions = KeyboardActions(
                         onDone = { submit() }
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = NuvioTheme.colors.TextPrimary,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content),
                     cursorBrush = SolidColor(
-                        if (isInputFocused) NuvioTheme.colors.Primary else Color.Transparent
+                        if (isInputFocused) MoviesTheme.colors.Primary else Color.Transparent
                     ),
                     decorationBox = { innerTextField ->
                         if (value.isBlank()) {
                             Text(
                                 text = placeholder,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = NuvioTheme.colors.TextTertiary
+                                color = MoviesTheme.colors.TextTertiary
                             )
                         }
                         innerTextField()

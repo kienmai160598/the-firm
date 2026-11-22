@@ -63,7 +63,7 @@ import com.kien.movies.R
 import com.kien.movies.core.party.PARTY_CODE_ALPHABET
 import com.kien.movies.core.party.PARTY_CODE_LENGTH
 import com.kien.movies.ui.screens.settings.settingsOptionRow
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun CodeSlots(
@@ -76,7 +76,7 @@ internal fun CodeSlots(
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
         ) {
             repeat(PARTY_CODE_LENGTH) { index ->
                 CodeSlot(
@@ -101,15 +101,15 @@ private fun CodeSlot(
 ) {
     val lineColor by animateColorAsState(
         targetValue = when {
-            active -> NuvioTheme.colors.Secondary
-            char != null -> NuvioTheme.colors.TextSecondary
-            else -> NuvioTheme.colors.Border
+            active -> MoviesTheme.colors.Secondary
+            char != null -> MoviesTheme.colors.TextSecondary
+            else -> MoviesTheme.colors.Border
         },
         animationSpec = effectsSpec(tween(180)),
         label = "codeSlotLine",
     )
     val lineHeight by animateDpAsState(
-        targetValue = if (active) NuvioTheme.strokes.heavy else NuvioTheme.strokes.medium,
+        targetValue = if (active) MoviesTheme.strokes.heavy else MoviesTheme.strokes.medium,
         animationSpec = fastSpatialSpec(tween(180)),
         label = "codeSlotLineHeight"
     )
@@ -138,7 +138,7 @@ private fun CodeSlot(
                         text = value.toString(),
                         style = textStyle,
                         fontWeight = FontWeight.SemiBold,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                     )
                 } else if (active) {
                     Caret()
@@ -166,10 +166,10 @@ private fun Caret() {
     )
     Box(
         modifier = Modifier
-            .width(NuvioTheme.strokes.medium)
+            .width(MoviesTheme.strokes.medium)
             .height(26.dp)
             .alpha(alpha)
-            .background(NuvioTheme.colors.Secondary),
+            .background(MoviesTheme.colors.Secondary),
     )
 }
 
@@ -202,14 +202,14 @@ internal fun CodeKeypad(
                 else -> false
             }
         },
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
     ) {
         Column(
             modifier = Modifier.settingsOptionRow(firstKeyFocusRequester),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
         ) {
             PARTY_CODE_ALPHABET.chunked(KEYPAD_COLUMNS).forEachIndexed { rowIndex, row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                     row.forEachIndexed { columnIndex, character ->
                         KeypadButton(
                             onClick = { onKey(character) },
@@ -231,7 +231,7 @@ internal fun CodeKeypad(
                 }
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
             KeypadButton(
                 onClick = onDelete,
                 enabled = enabled,

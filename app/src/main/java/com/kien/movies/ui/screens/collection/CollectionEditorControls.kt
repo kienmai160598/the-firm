@@ -6,7 +6,7 @@ import com.kien.movies.ui.components.expressiveButtonBorder
 import com.kien.movies.ui.components.expressiveButtonColors
 import com.kien.movies.ui.components.expressiveButtonScale
 import com.kien.movies.ui.components.expressiveButtonShape
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -90,7 +90,7 @@ import com.kien.movies.domain.model.TmdbCollectionSource
 import com.kien.movies.domain.model.TmdbCollectionSourceType
 import com.kien.movies.domain.model.TraktCollectionSource
 import com.kien.movies.ui.components.LoadingIndicator
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.tvReorderDisabledFocusBorder
 import com.kien.movies.R
 import androidx.compose.runtime.withFrameNanos
@@ -155,7 +155,7 @@ internal fun Modifier.focusEntryTarget(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NuvioTextField(
+fun MoviesTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -183,23 +183,23 @@ fun NuvioTextField(
         onClick = { isEditing = true },
         modifier = modifier.focusRequester(surfaceFocusRequester),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundElevated,
-            focusedContainerColor = NuvioTheme.colors.BackgroundElevated
+            containerColor = MoviesTheme.colors.BackgroundElevated,
+            focusedContainerColor = MoviesTheme.colors.BackgroundElevated
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Border),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             ),
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
-        Box(modifier = Modifier.padding(NuvioTheme.spacing.md)) {
+        Box(modifier = Modifier.padding(MoviesTheme.spacing.md)) {
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
@@ -223,16 +223,16 @@ fun NuvioTextField(
                     }
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content
                 ),
-                cursorBrush = SolidColor(if (isEditing) NuvioTheme.colors.Primary else Color.Transparent),
+                cursorBrush = SolidColor(if (isEditing) MoviesTheme.colors.Primary else Color.Transparent),
                 decorationBox = { innerTextField ->
                     if (value.isEmpty() && placeholder.isNotEmpty()) {
                         Text(
                             text = placeholder,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = NuvioTheme.colors.TextTertiary
+                            color = MoviesTheme.colors.TextTertiary
                         )
                     }
                     innerTextField()
@@ -244,7 +244,7 @@ fun NuvioTextField(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun NuvioButton(
+fun MoviesButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -256,20 +256,20 @@ fun NuvioButton(
             .tvControlHeight(),
         enabled = enabled,
         colors = expressiveButtonColors(ButtonDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            contentColor = NuvioTheme.colors.TextPrimary,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground,
-            focusedContentColor = NuvioTheme.colors.Primary
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            contentColor = MoviesTheme.colors.TextPrimary,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground,
+            focusedContentColor = MoviesTheme.colors.Primary
         )),
         border = expressiveButtonBorder(ButtonDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.md)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.md)
             ),
-            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(NuvioTheme.radii.md))
+            focusedDisabledBorder = tvReorderDisabledFocusBorder(RoundedCornerShape(MoviesTheme.radii.md))
         )),
         shape = expressiveButtonShape(
-            ButtonDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md))
+            ButtonDefaults.shape(RoundedCornerShape(MoviesTheme.radii.md))
         ),
         content = { content() },
         scale = expressiveButtonScale(ButtonDefaults.scale())
@@ -293,7 +293,7 @@ internal fun UnsavedChangesDialog(
         requestFocusWhenReady(primaryFocusRequester, maxFrames = 10)
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = { if (!isSaving) onDismiss() },
         title = title,
         subtitle = subtitle,
@@ -303,7 +303,7 @@ internal fun UnsavedChangesDialog(
         BackHandler(enabled = !isSaving) { onDismiss() }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md, Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md, Alignment.End)
         ) {
             Button(
                 onClick = onDiscard,

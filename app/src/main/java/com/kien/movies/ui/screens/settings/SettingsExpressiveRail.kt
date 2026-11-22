@@ -42,7 +42,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.expressiveFocusScale
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.util.rememberRawSvgPainter
@@ -77,7 +77,7 @@ internal fun SettingsExpressiveRailButton(
     Card(
         onClick = onClick,
         modifier = appliedModifier
-            .padding(top = NuvioTheme.spacing.xxs, bottom = NuvioTheme.spacing.xxs)
+            .padding(top = MoviesTheme.spacing.xxs, bottom = MoviesTheme.spacing.xxs)
             .fillMaxWidth()
             .heightIn(min = SettingsRailItemHeight)
             .expressiveFocusScale(isFocused, RAIL_FOCUS_SCALE)

@@ -2,8 +2,8 @@
 
 package com.kien.movies.ui.screens.account
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.bodyFloor
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.rowTitleFloor
@@ -88,7 +88,7 @@ fun AccountSettingsContent(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = NuvioTheme.spacing.sm),
+        contentPadding = PaddingValues(bottom = MoviesTheme.spacing.sm),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         when (val authState = uiState.authState) {
@@ -97,7 +97,7 @@ fun AccountSettingsContent(
                     Text(
                         text = stringResource(R.string.account_loading),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
             }
@@ -107,7 +107,7 @@ fun AccountSettingsContent(
                     Text(
                         text = stringResource(R.string.account_sync_description),
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                 }
                 item(key = "account_sync_note_signed_out") {
@@ -156,7 +156,7 @@ private fun SignedInAccountSettingsContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            contentPadding = PaddingValues(bottom = NuvioTheme.spacing.xs),
+            contentPadding = PaddingValues(bottom = MoviesTheme.spacing.xs),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             val authState = uiState.authState as AuthState.FullAccount
@@ -201,10 +201,10 @@ private fun AccountInlineNote(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodySmall,
-        color = NuvioTheme.colors.TextTertiary,
+        color = MoviesTheme.colors.TextTertiary,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = NuvioTheme.spacing.md)
+            .padding(horizontal = MoviesTheme.spacing.md)
     )
 }
 
@@ -214,8 +214,8 @@ private fun SyncOverviewCard(overview: SyncOverview) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = NuvioTheme.colors.BackgroundCard,
-                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
+                color = MoviesTheme.colors.BackgroundCard,
+                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
             )
             .padding(10.dp)
     ) {
@@ -225,16 +225,16 @@ private fun SyncOverviewCard(overview: SyncOverview) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = NuvioTheme.colors.BackgroundElevated,
+                        color = MoviesTheme.colors.BackgroundElevated,
                         shape = expressiveRowShape(RoundedCornerShape(6.dp))
                     )
-                    .padding(horizontal = NuvioTheme.spacing.sm, vertical = 6.dp),
+                    .padding(horizontal = MoviesTheme.spacing.sm, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.account_total_label),
                     style = MaterialTheme.typography.bodySmall,
-                    color = NuvioTheme.colors.Secondary,
+                    color = MoviesTheme.colors.Secondary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.width(100.dp)
                 )
@@ -266,13 +266,13 @@ private fun SyncStatChip(label: String, value: String) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.Secondary,
+            color = MoviesTheme.colors.Secondary,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = label,
             fontSize = metaFontSize(9.sp),
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
     }
 }
@@ -280,7 +280,7 @@ private fun SyncStatChip(label: String, value: String) {
 @Composable
 private fun ProfileSyncRow(profile: ProfileSyncStats) {
     val color = runCatching { Color(android.graphics.Color.parseColor(profile.avatarColorHex)) }
-        .getOrDefault(NuvioPrimitives.blue500)
+        .getOrDefault(MoviesPrimitives.blue500)
     val rowShape = expressiveRowShape(RoundedCornerShape(6.dp))
     var isFocused by remember { mutableStateOf(false) }
 
@@ -291,19 +291,19 @@ private fun ProfileSyncRow(profile: ProfileSyncStats) {
             .onFocusChanged { isFocused = it.isFocused }
             .focusable()
             .background(
-                color = if (isFocused) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundElevated,
+                color = if (isFocused) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundElevated,
                 shape = rowShape
             )
             .border(
-                width = NuvioTheme.spacing.xxs,
+                width = MoviesTheme.spacing.xxs,
                 color = if (isFocused && !isExpressiveBuild) {
-                    NuvioTheme.colors.FocusRing
+                    MoviesTheme.colors.FocusRing
                 } else {
                     Color.Transparent
                 },
                 shape = rowShape
             )
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = 6.dp),
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -321,14 +321,14 @@ private fun ProfileSyncRow(profile: ProfileSyncStats) {
             )
         }
 
-        Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
 
         Text(
             text = profile.profileName,
             style = MaterialTheme.typography.bodySmall.copy(
                 textDirection = profile.profileName.contentTextDirection()
             ),
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -354,13 +354,13 @@ private fun ProfileStatValue(count: Int, label: String) {
         Text(
             text = count.toString(),
             fontSize = metaFontSize(12.sp),
-            color = if (count > 0) NuvioTheme.colors.TextPrimary else NuvioTheme.colors.TextTertiary,
+            color = if (count > 0) MoviesTheme.colors.TextPrimary else MoviesTheme.colors.TextTertiary,
             fontWeight = FontWeight.Medium
         )
         Text(
             text = label,
             fontSize = metaFontSize(8.sp),
-            color = NuvioTheme.colors.TextTertiary,
+            color = MoviesTheme.colors.TextTertiary,
             maxLines = tvSingleLineMax,
             overflow = TextOverflow.Ellipsis
         )
@@ -373,8 +373,8 @@ private fun SyncOverviewLoadingCard() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = NuvioTheme.colors.BackgroundCard,
-                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
+                color = MoviesTheme.colors.BackgroundCard,
+                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
             )
             .padding(10.dp),
         contentAlignment = Alignment.Center
@@ -382,7 +382,7 @@ private fun SyncOverviewLoadingCard() {
         Text(
             text = stringResource(R.string.account_loading_sync),
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextSecondary
+            color = MoviesTheme.colors.TextSecondary
         )
     }
 }
@@ -404,16 +404,16 @@ private fun SettingsActionButton(
             .tvControlHeight()
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
-                shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
+                shape = RoundedCornerShape(MoviesTheme.radii.sm)
             )
         ).expressiveRingless(),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+        shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
             .expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
@@ -427,20 +427,20 @@ private fun SettingsActionButton(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(22.dp),
-                tint = if (isFocused) NuvioTheme.colors.Primary else NuvioTheme.colors.TextSecondary
+                tint = if (isFocused) MoviesTheme.colors.Primary else MoviesTheme.colors.TextSecondary
             )
-            Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium.rowTitleFloor(),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = subtitle,
                     fontSize = metaFontSize(11.sp),
-                    color = NuvioTheme.colors.TextSecondary
+                    color = MoviesTheme.colors.TextSecondary
                 )
             }
         }
@@ -453,28 +453,28 @@ private fun StatusCard(label: String, value: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = NuvioTheme.colors.Secondary.copy(alpha = 0.1f),
-                shape = expressiveCardShape(RoundedCornerShape(NuvioTheme.radii.sm))
+                color = MoviesTheme.colors.Secondary.copy(alpha = 0.1f),
+                shape = expressiveCardShape(RoundedCornerShape(MoviesTheme.radii.sm))
             )
-            .padding(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.sm),
+            .padding(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null,
-            modifier = Modifier.size(NuvioTheme.spacing.lg),
-            tint = NuvioTheme.colors.Secondary
+            modifier = Modifier.size(MoviesTheme.spacing.lg),
+            tint = MoviesTheme.colors.Secondary
         )
-        Spacer(modifier = Modifier.width(NuvioTheme.spacing.sm))
+        Spacer(modifier = Modifier.width(MoviesTheme.spacing.sm))
         Text(
             text = "$label  ",
             style = MaterialTheme.typography.labelSmall,
-            color = NuvioTheme.colors.TextTertiary
+            color = MoviesTheme.colors.TextTertiary
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodySmall,
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             fontWeight = FontWeight.Medium
         )
     }
@@ -489,23 +489,23 @@ private fun SignOutSettingsButton(
         onClick = onClick,
         modifier = modifier.fillMaxWidth().tvControlHeight(),
         colors = CardDefaults.colors(
-            containerColor = accountErrorContainer(NuvioPrimitives.red600.copy(alpha = 0.12f)),
+            containerColor = accountErrorContainer(MoviesPrimitives.red600.copy(alpha = 0.12f)),
             focusedContainerColor = accountFocusedErrorContainer(
-                NuvioPrimitives.red600.copy(alpha = 0.25f)
+                MoviesPrimitives.red600.copy(alpha = 0.25f)
             )
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(NuvioTheme.spacing.xxs, Color(0xFFF44336).copy(alpha = 0.5f)),
-                shape = RoundedCornerShape(NuvioTheme.radii.sm)
+                border = BorderStroke(MoviesTheme.spacing.xxs, Color(0xFFF44336).copy(alpha = 0.5f)),
+                shape = RoundedCornerShape(MoviesTheme.radii.sm)
             )
         ).expressiveRingless(),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(NuvioTheme.radii.sm))
+        shape = CardDefaults.shape(shape = RoundedCornerShape(MoviesTheme.radii.sm))
             .expressivePill(),
         scale = CardDefaults.scale(focusedScale = 1.02f).expressiveCardGrow()
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = NuvioTheme.spacing.sm),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = MoviesTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

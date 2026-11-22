@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.theme.isExpressiveBuild
 
@@ -33,7 +33,7 @@ fun LoadingIndicator(
     color: Color = Color.Unspecified
 ) {
     if (isExpressiveBuild) return ExpressiveLoadingIndicator(modifier, color)
-    val brush = if (color == Color.Unspecified) NuvioTheme.palette.accentBrush() else SolidColor(color)
+    val brush = if (color == Color.Unspecified) MoviesTheme.palette.accentBrush() else SolidColor(color)
     val frame = rememberInfiniteTransition(label = "loading_indicator").animateFloat(
         initialValue = 0f,
         targetValue = 60f,
@@ -46,7 +46,7 @@ fun LoadingIndicator(
     ) {
         Spacer(
             modifier = Modifier
-                .size(NuvioTheme.spacing.xxxl)
+                .size(MoviesTheme.spacing.xxxl)
                 .drawWithCache {
                     val scale = size.minDimension * 0.75f / 350f
                     val center = Offset(size.width / 2f, size.height / 2f)

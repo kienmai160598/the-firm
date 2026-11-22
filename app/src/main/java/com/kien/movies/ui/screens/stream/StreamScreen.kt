@@ -104,7 +104,7 @@ import com.kien.movies.ui.screens.player.LoadingOverlay
 import com.kien.movies.ui.screens.player.AddonFilterChips
 import com.kien.movies.ui.screens.player.focusChip
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.screens.detail.TvSizeFloors
 import com.kien.movies.ui.screens.detail.atLeastOnBox
 import com.kien.movies.ui.screens.detail.forBuild
@@ -591,7 +591,7 @@ internal fun StreamBackdrop(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val backgroundColor = NuvioTheme.colors.Background
+    val backgroundColor = MoviesTheme.colors.Background
     val backdropModel = remember(context, backdrop) {
         backdrop?.let { image ->
             ImageRequest.Builder(context)
@@ -680,7 +680,7 @@ private fun LeftContentSection(
         listOfNotNull(genres, year).joinToString(" • ")
     }
     Box(
-        modifier = modifier.padding(start = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xl),
+        modifier = modifier.padding(start = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xl),
         contentAlignment = Alignment.CenterStart
     ) {
         Column(
@@ -703,7 +703,7 @@ private fun LeftContentSection(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.displaySmall,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = StreamTitleColumnStyle.textAlign
@@ -713,26 +713,26 @@ private fun LeftContentSection(
             // Show episode info or movie info
             if (isEpisode && season != null && episode != null) {
                 // Episode info
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 Text(
                     text = stringResource(R.string.stream_episode_label, season, episode),
                     style = MaterialTheme.typography.titleLarge,
-                    color = NuvioTheme.extendedColors.textSecondary,
+                    color = MoviesTheme.extendedColors.textSecondary,
                     textAlign = StreamTitleColumnStyle.textAlign
                 )
                 if (episodeName != null) {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                     Text(
                         text = episodeName.localizeEpisodeTitle(LocalContext.current),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.colors.TextPrimary,
+                        color = MoviesTheme.colors.TextPrimary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = StreamTitleColumnStyle.textAlign
                     )
                 }
                 if (runtime != null) {
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                     val runtimeText = if (runtime >= 60) {
                         val hours = runtime / 60
                         val mins = runtime % 60
@@ -743,18 +743,18 @@ private fun LeftContentSection(
                     Text(
                         text = runtimeText,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = NuvioTheme.extendedColors.textSecondary,
+                        color = MoviesTheme.extendedColors.textSecondary,
                         textAlign = StreamTitleColumnStyle.textAlign
                     )
                 }
             } else {
                 // Movie info - genres and year
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
                 if (infoText.isNotEmpty()) {
                     Text(
                         text = infoText,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NuvioTheme.extendedColors.textSecondary,
+                        color = MoviesTheme.extendedColors.textSecondary,
                         textAlign = StreamTitleColumnStyle.textAlign
                     )
                 }
@@ -880,7 +880,7 @@ private fun RightStreamSection(
 
     Column(
         modifier = modifier
-            .padding(top = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.xxxl)
+            .padding(top = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.xxxl)
     ) {
         androidx.compose.animation.AnimatedVisibility(
             visible = enter,
@@ -899,7 +899,7 @@ private fun RightStreamSection(
                     .then(
                         if (hazeState != null) {
                             Modifier.hazeEffect(state = hazeState) {
-                                blurRadius = NuvioTheme.effects.blurPanel
+                                blurRadius = MoviesTheme.effects.blurPanel
                                 noiseFactor = 0.04f
                                 inputScale = HazeInputScale.Fixed(0.66f)
                             }
@@ -908,27 +908,27 @@ private fun RightStreamSection(
                         }
                     )
                     .background(StreamPanelStyle.background(blurred = hazeState != null))
-                    .padding(NuvioTheme.spacing.lg)
+                    .padding(MoviesTheme.spacing.lg)
             ) {
                 resumeText?.let { text ->
                     Box(
                         modifier = Modifier
-                            .padding(bottom = NuvioTheme.spacing.sm)
+                            .padding(bottom = MoviesTheme.spacing.sm)
                             .height(36.dp)
-                            .background(NuvioTheme.colors.FocusBackground, CircleShape)
-                            .padding(horizontal = NuvioTheme.spacing.lg),
+                            .background(MoviesTheme.colors.FocusBackground, CircleShape)
+                            .padding(horizontal = MoviesTheme.spacing.lg),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = text,
                             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                            color = NuvioTheme.colors.TextPrimary
+                            color = MoviesTheme.colors.TextPrimary
                         )
                     }
                 }
 
                 // Addon filter chips
-                Box(modifier = Modifier.height(NuvioTheme.spacing.huge)) {
+                Box(modifier = Modifier.height(MoviesTheme.spacing.huge)) {
                     androidx.compose.animation.AnimatedVisibility(
                         visible = sourceChips.isNotEmpty() || (!isLoading && availableAddons.isNotEmpty()),
                         enter = fadeIn(animationSpec = ExpressiveMotion.defaultEffects()),
@@ -1023,31 +1023,31 @@ private fun ErrorState(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(NuvioTheme.spacing.xxl)
+        modifier = Modifier.padding(MoviesTheme.spacing.xxl)
     ) {
         Icon(
             imageVector = Icons.Default.Warning,
             contentDescription = null,
-            modifier = Modifier.size(NuvioTheme.spacing.xxxl),
-            tint = NuvioTheme.colors.Error
+            modifier = Modifier.size(MoviesTheme.spacing.xxxl),
+            tint = MoviesTheme.colors.Error
         )
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
 
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.extendedColors.textSecondary,
+            color = MoviesTheme.extendedColors.textSecondary,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
         var isFocused by remember { mutableStateOf(false) }
         Card(
             onClick = onRetry,
             modifier = Modifier.streamPillFocusScale(isFocused).onFocusChanged { isFocused = it.isFocused },
-            colors = streamPillColors(isFocused, resting = NuvioTheme.colors.BackgroundCard),
+            colors = streamPillColors(isFocused, resting = MoviesTheme.colors.BackgroundCard),
             border = streamCardBorder(Border.None),
             shape = streamPillShape(isFocused),
             scale = CardScale.None
@@ -1067,21 +1067,21 @@ private fun EmptyState() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(NuvioTheme.spacing.xxl)
+        modifier = Modifier.padding(MoviesTheme.spacing.xxl)
     ) {
         Text(
             text = stringResource(R.string.stream_no_streams),
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.extendedColors.textSecondary,
+            color = MoviesTheme.extendedColors.textSecondary,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
 
         Text(
             text = stringResource(R.string.stream_no_streams_hint),
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.extendedColors.textSecondary,
+            color = MoviesTheme.extendedColors.textSecondary,
             textAlign = TextAlign.Center
         )
     }
@@ -1260,20 +1260,20 @@ private fun StreamsList(
                     else -> false
                 }
             },
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
-        contentPadding = PaddingValues(start = NuvioTheme.spacing.sm, end = NuvioTheme.spacing.sm, top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.xxl)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
+        contentPadding = PaddingValues(start = MoviesTheme.spacing.sm, end = MoviesTheme.spacing.sm, top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.xxl)
     ) {
         sharedStream?.let { shared ->
             item(key = "party_shared_stream") {
                 Column(
-                    modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     Text(
                         text = stringResource(R.string.party_shared_by, shared.hostName),
                         style = MaterialTheme.typography.labelLarge,
-                        color = NuvioTheme.colors.TextSecondary,
-                        modifier = Modifier.padding(start = NuvioTheme.spacing.xs)
+                        color = MoviesTheme.colors.TextSecondary,
+                        modifier = Modifier.padding(start = MoviesTheme.spacing.xs)
                     )
                     StreamProviderHeader(streamProviderHeader(shared.stream))
                     StreamCard(
@@ -1298,8 +1298,8 @@ private fun StreamsList(
             streamKeys[index]
         }) { index, stream ->
             Column(
-                modifier = Modifier.padding(vertical = NuvioTheme.spacing.xs),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                modifier = Modifier.padding(vertical = MoviesTheme.spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
             ) {
                 StreamProviderHeader(streamProviderHeader(stream, streams.getOrNull(index - 1)))
                 val isPartySource = partySource?.matches(stream) == true
@@ -1341,11 +1341,11 @@ private fun StreamProviderHeader(sourceName: String?) {
     sourceName?.let { sourceName ->
         Text(
             text = sourceName,
-            modifier = Modifier.padding(start = NuvioTheme.spacing.lg),
+            modifier = Modifier.padding(start = MoviesTheme.spacing.lg),
             style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText).copy(
                 textDirection = sourceName.contentTextDirection()
             ),
-            color = NuvioTheme.extendedColors.textSecondary
+            color = MoviesTheme.extendedColors.textSecondary
         )
     }
 }
@@ -1371,7 +1371,7 @@ private fun StreamCard(
     val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
-    val cardShape = RoundedCornerShape(NuvioTheme.radii.xl)
+    val cardShape = RoundedCornerShape(MoviesTheme.radii.xl)
     val hasGradientFocusRing = streamCardUsesFocusRing()
 
     var isFocused by remember { mutableStateOf(false) }
@@ -1384,7 +1384,7 @@ private fun StreamCard(
     // Pre-upscale: decode at 2× target pixels so the hardware compositor
     // has enough pixel data for smooth edges inside Card RenderNodes.
     val logoDecodeSize = remember(density) {
-        with(density) { NuvioTheme.spacing.xxl.roundToPx() } * 2
+        with(density) { MoviesTheme.spacing.xxl.roundToPx() } * 2
     }
     val addonLogoModel = remember(context, stream.addonLogo, logoDecodeSize) {
         stream.addonLogo?.let { logo ->
@@ -1418,7 +1418,7 @@ private fun StreamCard(
             CardDefaults.border(
                 border = outlineBorder(outlined, cardShape),
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = cardShape
                 )
             )
@@ -1430,13 +1430,13 @@ private fun StreamCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(NuvioTheme.spacing.lg),
+                .padding(MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 if (hasBadges && badgePlacement == StreamBadgePlacement.TOP) {
                     if (stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)) {
@@ -1450,13 +1450,13 @@ private fun StreamCard(
                     } else {
                         Spacer(modifier = Modifier.height(20.dp))
                     }
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xxs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xxs))
                 }
 
                 Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     Text(
                         text = streamName,
@@ -1492,7 +1492,7 @@ private fun StreamCard(
                             showFileSizeBadge = showFileSizeBadges,
                             animate = shouldAnimateBadges,
                             focused = isFocused,
-                            modifier = Modifier.padding(top = NuvioTheme.spacing.xxs)
+                            modifier = Modifier.padding(top = MoviesTheme.spacing.xxs)
                         )
                     } else {
                         Spacer(modifier = Modifier.height(22.dp))
@@ -1511,13 +1511,13 @@ private fun StreamCard(
                             // so naming the logo too would duplicate it in the merged card.
                             contentDescription = null,
                             modifier = Modifier
-                                .size(NuvioTheme.spacing.xxl)
-                                .clip(RoundedCornerShape(NuvioTheme.radii.xs)),
+                                .size(MoviesTheme.spacing.xxl)
+                                .clip(RoundedCornerShape(MoviesTheme.radii.xs)),
                             contentScale = ContentScale.Fit
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                    Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
 
                     Text(
                         text = stream.addonName,
@@ -1537,7 +1537,7 @@ private fun StreamCard(
 private fun outlineBorder(outlined: Boolean, shape: RoundedCornerShape): Border =
     if (outlined) {
         Border(
-            border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Primary.copy(alpha = 0.65f)),
+            border = BorderStroke(MoviesTheme.spacing.hairline, MoviesTheme.colors.Primary.copy(alpha = 0.65f)),
             shape = shape
         )
     } else {
@@ -1559,26 +1559,26 @@ internal fun PlayerChoiceDialog(
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(NuvioTheme.radii.xxl))
-                .background(NuvioTheme.colors.BackgroundCard)
+                .clip(RoundedCornerShape(MoviesTheme.radii.xxl))
+                .background(MoviesTheme.colors.BackgroundCard)
         ) {
             Column(
                 modifier = Modifier
                     .width(400.dp)
-                    .padding(NuvioTheme.spacing.xl),
+                    .padding(MoviesTheme.spacing.xl),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = stringResource(R.string.stream_player_picker_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     var internalFocused by remember { mutableStateOf(false) }
@@ -1589,7 +1589,7 @@ internal fun PlayerChoiceDialog(
                             .focusRequester(focusRequester)
                             .streamPillFocusScale(internalFocused)
                             .onFocusChanged { internalFocused = it.isFocused },
-                        colors = streamPillColors(internalFocused, resting = NuvioTheme.colors.BackgroundElevated),
+                        colors = streamPillColors(internalFocused, resting = MoviesTheme.colors.BackgroundElevated),
                         border = streamCardBorder(Border.None),
                         shape = streamPillShape(internalFocused),
                         scale = CardScale.None
@@ -1599,7 +1599,7 @@ internal fun PlayerChoiceDialog(
                             style = MaterialTheme.typography.titleMedium,
                             color = streamPillContentColor(internalFocused),
                             modifier = Modifier
-                                .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
@@ -1612,7 +1612,7 @@ internal fun PlayerChoiceDialog(
                             .weight(1f)
                             .streamPillFocusScale(externalFocused)
                             .onFocusChanged { externalFocused = it.isFocused },
-                        colors = streamPillColors(externalFocused, resting = NuvioTheme.colors.BackgroundElevated),
+                        colors = streamPillColors(externalFocused, resting = MoviesTheme.colors.BackgroundElevated),
                         border = streamCardBorder(Border.None),
                         shape = streamPillShape(externalFocused),
                         scale = CardScale.None
@@ -1622,7 +1622,7 @@ internal fun PlayerChoiceDialog(
                             style = MaterialTheme.typography.titleMedium,
                             color = streamPillContentColor(externalFocused),
                             modifier = Modifier
-                                .padding(horizontal = NuvioTheme.spacing.lg, vertical = 14.dp)
+                                .padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )

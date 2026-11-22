@@ -9,11 +9,11 @@ import com.kien.movies.domain.model.AppFont
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 internal fun buildAppTypography(appFont: AppFont): Typography {
-    val typography = buildNuvioTypography(getFontFamily(appFont)).withSmallSteps()
+    val typography = buildMoviesTypography(getFontFamily(appFont)).withSmallSteps()
     return if (appFont == AppFont.GOOGLE_SANS_FLEX) typography.expressive() else typography
 }
 
-// Nuvio's scale skips these two, so tv-material served them in the system font. Its medium
+// Movies's scale skips these two, so tv-material served them in the system font. Its medium
 // steps already sit at the sizes those fallbacks rendered (36/44, 24/32), so no screen reflows.
 @OptIn(ExperimentalTvMaterial3Api::class)
 private fun Typography.withSmallSteps(): Typography = copy(

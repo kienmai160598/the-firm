@@ -1,7 +1,7 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,10 +43,10 @@ fun ErrorState(
         CoreText(
             text = displayMessage,
             style = MaterialTheme.typography.bodyLarge,
-            color = NuvioTheme.colors.TextSecondary,
+            color = MoviesTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.lg))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.lg))
         ExpressivePillButton(text = stringResource(R.string.action_retry), onClick = onRetry)
     }
 }
@@ -76,7 +76,7 @@ private data class ErrorStatePresentation(
                 addStyle(
                     style = SpanStyle(
                         fontWeight = FontWeight.Bold,
-                        color = NuvioPrimitives.white
+                        color = MoviesPrimitives.white
                     ),
                     start = range.first,
                     end = range.last + 1

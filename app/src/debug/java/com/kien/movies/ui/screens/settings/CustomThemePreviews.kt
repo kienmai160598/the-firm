@@ -30,8 +30,8 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.AppTheme
 import com.kien.movies.domain.model.CustomThemeColors
-import com.kien.movies.ui.theme.LocalNuvioFocusRingStyle
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.LocalMoviesFocusRingStyle
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.createFocusRingStyle
 
@@ -100,26 +100,26 @@ private fun ThemeEditorPreviewFrame(
     width: Dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    NuvioTheme(appTheme = AppTheme.ROSE_GOLD) {
-        CompositionLocalProvider(LocalNuvioFocusRingStyle provides createFocusRingStyle(ThemeColors.White)) {
+    MoviesTheme(appTheme = AppTheme.ROSE_GOLD) {
+        CompositionLocalProvider(LocalMoviesFocusRingStyle provides createFocusRingStyle(ThemeColors.White)) {
             Box(
-                Modifier.fillMaxSize().background(NuvioTheme.colors.Background),
+                Modifier.fillMaxSize().background(MoviesTheme.colors.Background),
                 contentAlignment = Alignment.Center
             ) {
-                val shape = RoundedCornerShape(NuvioTheme.radii.xl)
-                val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - NuvioTheme.spacing.xxxl)
+                val shape = RoundedCornerShape(MoviesTheme.radii.xl)
+                val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - MoviesTheme.spacing.xxxl)
                     .coerceAtLeast(320.dp)
                 Column(
                     Modifier
                         .width(width)
                         .heightIn(max = maxDialogHeight)
-                        .background(NuvioTheme.colors.BackgroundElevated, shape)
-                        .border(1.dp, NuvioTheme.colors.Border, shape)
+                        .background(MoviesTheme.colors.BackgroundElevated, shape)
+                        .border(1.dp, MoviesTheme.colors.Border, shape)
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(title, style = MaterialTheme.typography.titleLarge, color = NuvioTheme.colors.TextPrimary)
-                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = NuvioTheme.colors.TextSecondary)
+                    Text(title, style = MaterialTheme.typography.titleLarge, color = MoviesTheme.colors.TextPrimary)
+                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MoviesTheme.colors.TextSecondary)
                     content()
                 }
             }

@@ -590,7 +590,7 @@ dependencies {
     implementation("androidx.media3:media3-database:1.8.0")
     implementation("androidx.annotation:annotation-experimental:1.3.1")
 
-    // Nuvio Engine local AARs (replaces lib-exoplayer, lib-common, lib-datasource, lib-datasource-okhttp, lib-exoplayer-hls, lib-extractor)
+    // Movies Engine local AARs (replaces lib-exoplayer, lib-common, lib-datasource, lib-datasource-okhttp, lib-exoplayer-hls, lib-extractor)
     implementation(files(
         "libs/lib-common-release.aar",
         "libs/lib-datasource-release.aar",
@@ -614,7 +614,7 @@ dependencies {
         implementation(files("libs/lib-decoder-ffmpeg-release.aar"))
     }
 
-    // libass - atlas-based subtitle rendering (from NuvioMedia/nuvio-libass)
+    // libass - atlas-based subtitle rendering (from MoviesMedia/nuvio-libass)
     implementation(files("libs/nuvio-libass-release.aar"))
     // Local nextlib-mediainfo fork (static FFmpeg; no libav*.so in final AAR)
     implementation(files("libs/nextlib-mediainfo-local.aar"))

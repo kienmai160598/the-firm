@@ -38,7 +38,7 @@ import com.kien.movies.domain.model.Video
 import com.kien.movies.ui.components.ContinueWatchingCard
 import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import com.kien.movies.ui.screens.home.NextUpInfo
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import java.io.File
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertEquals
@@ -352,8 +352,8 @@ class EpisodeShuffleTvTest {
 
     private fun setContent(content: @Composable () -> Unit) {
         compose.setContent {
-            NuvioTheme {
-                Box(Modifier.fillMaxSize().background(NuvioTheme.colors.Background)) { content() }
+            MoviesTheme {
+                Box(Modifier.fillMaxSize().background(MoviesTheme.colors.Background)) { content() }
             }
         }
     }

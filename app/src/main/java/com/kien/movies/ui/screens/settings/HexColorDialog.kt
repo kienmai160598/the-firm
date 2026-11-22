@@ -33,9 +33,9 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.formatHexColor
 import com.kien.movies.domain.model.parseHexColor
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 
 @Composable
@@ -44,7 +44,7 @@ internal fun HexColorDialog(
     onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.custom_theme_hex_title),
         subtitle = stringResource(R.string.custom_theme_hex_hint),
@@ -107,7 +107,7 @@ internal fun HexColorEditor(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(NuvioTheme.colors.Background, RoundedCornerShape(12.dp))
+                .background(MoviesTheme.colors.Background, RoundedCornerShape(12.dp))
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -120,7 +120,7 @@ internal fun HexColorEditor(
             Text(
                 text = "#" + digits.padEnd(6, '–'),
                 style = MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily.Monospace),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier.background(
                     if (replaceOnInput) Color.White.copy(alpha = 0.14f) else Color.Transparent,
                     RoundedCornerShape(4.dp)

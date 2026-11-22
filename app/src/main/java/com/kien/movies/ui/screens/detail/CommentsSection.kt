@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.detail
 
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -88,7 +88,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.TraktCommentReview
 import com.kien.movies.domain.model.Video
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.util.contentTextDirection
 import com.kien.movies.ui.util.localizeEpisodeTitle
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -131,7 +131,7 @@ fun CommentsSection(
     modifier: Modifier = Modifier,
     windowResetKey: String? = null
 ) {
-    val cardShape = RoundedCornerShape(NuvioTheme.radii.xl)
+    val cardShape = RoundedCornerShape(MoviesTheme.radii.xl)
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val firstItemFocusRequester = remember { FocusRequester() }
     val internalTitleModeFocusRequester = remember { FocusRequester() }
@@ -241,12 +241,12 @@ fun CommentsSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, bottom = NuvioTheme.spacing.sm)
+            .padding(top = 20.dp, bottom = MoviesTheme.spacing.sm)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl),
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.trakt_logo_wordmark),
@@ -255,28 +255,28 @@ fun CommentsSection(
                     .offset(y = (-1).dp)
                     .width(47.dp)
                     .height(20.dp),
-                colorFilter = ColorFilter.tint(NuvioTheme.colors.TextPrimary)
+                colorFilter = ColorFilter.tint(MoviesTheme.colors.TextPrimary)
             )
             Text(
                 text = stringResource(R.string.detail_comments_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = NuvioTheme.colors.TextPrimary
+                color = MoviesTheme.colors.TextPrimary
             )
         }
-        Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+        Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
         Text(
             text = subtitleText,
             style = MaterialTheme.typography.bodyMedium,
-            color = NuvioTheme.colors.TextSecondary,
-            modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)
+            color = MoviesTheme.colors.TextSecondary,
+            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)
         )
         if (canToggleEpisodeComments) {
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
             Row(
                 modifier = Modifier
-                    .padding(horizontal = NuvioTheme.spacing.xxxl)
+                    .padding(horizontal = MoviesTheme.spacing.xxxl)
                     .focusRestorer(controlsFocusRequester),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CommentModeButton(
@@ -324,8 +324,8 @@ fun CommentsSection(
                         .then(
                             commentsTargetFocusRequester?.let { Modifier.focusRestorer(it) } ?: Modifier
                         ),
-                    contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     items(3) { index ->
                         LoadingCommentCard(
@@ -354,15 +354,15 @@ fun CommentsSection(
 
             !error.isNullOrBlank() -> {
                 Column(
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl),
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     Text(
                         text = error,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             textDirection = error.contentTextDirection()
                         ),
-                        color = NuvioTheme.colors.TextSecondary
+                        color = MoviesTheme.colors.TextSecondary
                     )
                     Button(
                         onClick = onRetry,
@@ -389,8 +389,8 @@ fun CommentsSection(
                 Text(
                     text = stringResource(R.string.detail_comments_empty),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = NuvioTheme.colors.TextSecondary,
-                    modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)
+                    color = MoviesTheme.colors.TextSecondary,
+                    modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)
                 )
             }
 
@@ -417,8 +417,8 @@ fun CommentsSection(
                         }
                         .focusGroup(),
                     state = listState,
-                    contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     items(comments, key = { it.id }) { review ->
                         val commentFocusRequester = commentFocusRequesters.getOrPut(review.id) { FocusRequester() }
@@ -538,15 +538,15 @@ private fun CommentCard(
             .height(230.dp),
         colors = forBuild(
             upstream = CardDefaults.colors(
-                containerColor = NuvioTheme.colors.BackgroundCard,
-                focusedContainerColor = NuvioTheme.colors.BackgroundCard
+                containerColor = MoviesTheme.colors.BackgroundCard,
+                focusedContainerColor = MoviesTheme.colors.BackgroundCard
             ),
-            expressive = tonalCardColors(resting = NuvioTheme.colors.BackgroundCard)
+            expressive = tonalCardColors(resting = MoviesTheme.colors.BackgroundCard)
         ),
         border = forBuild(
             upstream = CardDefaults.border(
                 focusedBorder = Border(
-                    border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                    border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                     shape = shape
                 )
             ),
@@ -564,7 +564,7 @@ private fun CommentCard(
             Text(
                 text = review.authorDisplayName,
                 style = MaterialTheme.typography.titleMedium,
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -580,22 +580,22 @@ private fun CommentCard(
                     textDirection = bodyText.contentTextDirection()
                 ),
                 color = if (review.hasSpoilerContent) {
-                    NuvioTheme.colors.Warning
+                    MoviesTheme.colors.Warning
                 } else {
-                    NuvioTheme.colors.TextSecondary
+                    MoviesTheme.colors.TextSecondary
                 },
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false)
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
                 review.rating?.let { rating ->
                     Text(
                         text = stringResource(R.string.detail_comments_badge_rating, rating),
                         style = MaterialTheme.typography.labelMedium
                             .atLeastOnBox(TvSizeFloors.metaText),
-                        color = NuvioTheme.colors.TextTertiary,
+                        color = MoviesTheme.colors.TextTertiary,
                         maxLines = 1
                     )
                 }
@@ -603,7 +603,7 @@ private fun CommentCard(
                     text = stringResource(R.string.detail_comments_likes, review.likes),
                     style = MaterialTheme.typography.labelMedium
                         .atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -618,15 +618,15 @@ private fun CommentChip(text: String) {
     Box(
         modifier = Modifier
             .background(
-                color = NuvioTheme.colors.BackgroundElevated,
+                color = MoviesTheme.colors.BackgroundElevated,
                 shape = shape
             )
-            .padding(horizontal = NuvioTheme.spacing.sm, vertical = NuvioTheme.spacing.xs)
+            .padding(horizontal = MoviesTheme.spacing.sm, vertical = MoviesTheme.spacing.xs)
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall.atLeastOnBox(TvSizeFloors.metaText),
-            color = NuvioTheme.colors.TextPrimary,
+            color = MoviesTheme.colors.TextPrimary,
             maxLines = 1
         )
     }
@@ -673,7 +673,7 @@ private fun EpisodeCommentPickerDialog(
         }
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.detail_comments_episode_picker_title),
         subtitle = stringResource(R.string.detail_comments_episode_picker_subtitle),
@@ -682,14 +682,14 @@ private fun EpisodeCommentPickerDialog(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             if (seasons.isNotEmpty()) {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     state = seasonListState,
-                    contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.xs),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.xs),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     items(sortedSeasons, key = { it }) { seasonNumber ->
                         val seasonModifier = if (seasonNumber == season) {
@@ -743,8 +743,8 @@ private fun EpisodeCommentPickerDialog(
                         modifier = episodeModifier.tvControlHeight(),
                         colors = selectableButtonColors(
                             selected = episode.id == selectedEpisodeId,
-                            upstreamSelected = NuvioTheme.colors.FocusBackground,
-                            upstreamSelectedContent = NuvioTheme.colors.TextPrimary
+                            upstreamSelected = MoviesTheme.colors.FocusBackground,
+                            upstreamSelectedContent = MoviesTheme.colors.TextPrimary
                         ),
                         contentPadding = tvButtonPadding()
                     ) {
@@ -819,7 +819,7 @@ fun CommentOverlay(
                         }
                     }
                 }
-                .padding(horizontal = NuvioTheme.spacing.xl, vertical = 10.dp)
+                .padding(horizontal = MoviesTheme.spacing.xl, vertical = 10.dp)
         ) {
             AnimatedContent(
                 targetState = review,
@@ -855,7 +855,7 @@ fun CommentOverlay(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .width(168.dp)
-                    .padding(top = 6.dp, end = NuvioTheme.spacing.xs)
+                    .padding(top = 6.dp, end = MoviesTheme.spacing.xs)
                     .focusRequester(primaryFocusRequester)
                     .focusable()
                     // The node itself has no text: it is the Trakt wordmark plus the
@@ -865,7 +865,7 @@ fun CommentOverlay(
                         down = mainContentFocusRequester
                     },
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.trakt_logo_wordmark),
@@ -936,7 +936,7 @@ private fun CommentOverlayContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
@@ -1049,7 +1049,7 @@ private fun OverlayMetaRow(labels: List<String>) {
             if (index > 0) {
                 Box(
                     modifier = Modifier
-                        .size(NuvioTheme.spacing.xs)
+                        .size(MoviesTheme.spacing.xs)
                         .background(Color.White.copy(alpha = 0.42f), CircleShape)
                 )
             }
@@ -1123,7 +1123,7 @@ private fun LoadingCommentCard(
             .width(360.dp)
             .height(230.dp)
             .background(
-                color = NuvioTheme.colors.BackgroundCard,
+                color = MoviesTheme.colors.BackgroundCard,
                 shape = shape
             )
             .padding(18.dp),
@@ -1133,15 +1133,15 @@ private fun LoadingCommentCard(
             modifier = Modifier
                 .width(160.dp)
                 .height(18.dp)
-                .background(NuvioTheme.colors.BackgroundElevated, shape = shape)
+                .background(MoviesTheme.colors.BackgroundElevated, shape = shape)
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)) {
             repeat(3) {
                 Box(
                     modifier = Modifier
                         .width(72.dp)
-                        .height(NuvioTheme.spacing.xl)
-                        .background(NuvioTheme.colors.BackgroundElevated, shape = shape)
+                        .height(MoviesTheme.spacing.xl)
+                        .background(MoviesTheme.colors.BackgroundElevated, shape = shape)
                 )
             }
         }
@@ -1149,13 +1149,13 @@ private fun LoadingCommentCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp)
-                .background(NuvioTheme.colors.BackgroundElevated, shape = shape)
+                .background(MoviesTheme.colors.BackgroundElevated, shape = shape)
         )
         Box(
             modifier = Modifier
                 .width(120.dp)
-                .height(NuvioTheme.spacing.lg)
-                .background(NuvioTheme.colors.BackgroundElevated, shape = shape)
+                .height(MoviesTheme.spacing.lg)
+                .background(MoviesTheme.colors.BackgroundElevated, shape = shape)
         )
     }
 }

@@ -6,7 +6,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import android.graphics.ColorSpace
 import android.os.Build
@@ -228,7 +228,7 @@ fun HeroCarousel(
         }
 
         // Indicator dots — optimized to minimize recompositions and layout passes
-        val focusRingBrush = NuvioTheme.focusRing.brush()
+        val focusRingBrush = MoviesTheme.focusRing.brush()
         val dotColorInactive = remember { Color.White.copy(alpha = 0.3f) }
         val dotShape = remember {
             if (isExpressiveBuild) RoundedCornerShape(percent = 50) else RoundedCornerShape(3.dp)
@@ -236,8 +236,8 @@ fun HeroCarousel(
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = NuvioTheme.spacing.lg),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                .padding(bottom = MoviesTheme.spacing.lg),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             repeat(items.size) { index ->
                 val isActive = index == activeIndex
@@ -247,10 +247,10 @@ fun HeroCarousel(
                     else -> dotColorInactive
                 }
                 val dotWidth = when {
-                    isActive -> NuvioTheme.spacing.xxl
-                    else -> NuvioTheme.spacing.md
+                    isActive -> MoviesTheme.spacing.xxl
+                    else -> MoviesTheme.spacing.md
                 }
-                val dotHeight = if (isActive) 6.dp else NuvioTheme.spacing.xs
+                val dotHeight = if (isActive) 6.dp else MoviesTheme.spacing.xs
                 
                 Box(
                     modifier = Modifier
@@ -340,9 +340,9 @@ private fun HeroCarouselSlide(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = NuvioTheme.spacing.xxxl, bottom = NuvioTheme.spacing.xxxl, end = NuvioTheme.spacing.xxxl)
+                .padding(start = MoviesTheme.spacing.xxxl, bottom = MoviesTheme.spacing.xxxl, end = MoviesTheme.spacing.xxxl)
                 .fillMaxWidth(0.42f),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
         ) {
             if (showLogo) {
                 AsyncImage(
@@ -360,7 +360,7 @@ private fun HeroCarouselSlide(
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.headlineLarge,
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -369,7 +369,7 @@ private fun HeroCarouselSlide(
             if (leadingMetaText.isNotBlank() || trailingMetadata.isNotEmpty() || ratingText != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val hasTrailingMeta = trailingMetadata.isNotEmpty() || ratingText != null
@@ -377,7 +377,7 @@ private fun HeroCarouselSlide(
                         Text(
                             text = leadingMetaText,
                             style = MaterialTheme.typography.labelMedium.rememberMetaFloor(),
-                            color = NuvioTheme.colors.TextSecondary,
+                            color = MoviesTheme.colors.TextSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = if (hasTrailingMeta) {
@@ -391,7 +391,7 @@ private fun HeroCarouselSlide(
                         if (leadingMetaText.isNotBlank()) HeroCarouselMetaDivider()
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                         ) {
                             trailingMetadata.forEachIndexed { index, value ->
                                 if (index > 0) HeroCarouselMetaDivider()
@@ -399,7 +399,7 @@ private fun HeroCarouselSlide(
                                     text = value,
                                     style = MaterialTheme.typography.labelMedium
                                         .rememberMetaFloor(),
-                                    color = NuvioTheme.colors.TextSecondary,
+                                    color = MoviesTheme.colors.TextSecondary,
                                     maxLines = 1
                                 )
                             }
@@ -410,19 +410,19 @@ private fun HeroCarouselSlide(
                                     if (trailingMetadata.isNotEmpty()) HeroCarouselMetaDivider()
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.xs)
+                                        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.xs)
                                     ) {
                                         ImdbRatingSourceLabel(
-                                            logoModifier = Modifier.size(NuvioTheme.spacing.xl),
+                                            logoModifier = Modifier.size(MoviesTheme.spacing.xl),
                                             textStyle = MaterialTheme.typography.labelMedium
                                                 .rememberMetaFloor(),
-                                            textColor = NuvioTheme.colors.TextSecondary
+                                            textColor = MoviesTheme.colors.TextSecondary
                                         )
                                         Text(
                                             text = ratingText,
                                             style = MaterialTheme.typography.labelMedium
                                                 .rememberMetaFloor(),
-                                            color = NuvioTheme.colors.TextSecondary,
+                                            color = MoviesTheme.colors.TextSecondary,
                                             maxLines = 1
                                         )
                                     }
@@ -447,7 +447,7 @@ private fun HeroCarouselSlide(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         textDirection = description.contentTextDirection()
                     ),
-                    color = NuvioTheme.colors.TextPrimary,
+                    color = MoviesTheme.colors.TextPrimary,
                     maxLines = 4,
                     autoScrollEnabled = descriptionAutoScrollEnabled,
                     onScrollHoldChanged = onDescriptionScrollHoldChanged
@@ -469,22 +469,22 @@ private fun HeroDetailsHint(focused: Boolean) {
     val content = ExpressiveFocus.frostedContentColor(focused = focused)
     Row(
         modifier = Modifier
-            .padding(top = NuvioTheme.spacing.sm)
+            .padding(top = MoviesTheme.spacing.sm)
             .expressiveFocusScale(focused)
             .background(container, RoundedCornerShape(percent = 50))
-            .padding(horizontal = NuvioTheme.spacing.xl, vertical = NuvioTheme.spacing.sm),
+            .padding(horizontal = MoviesTheme.spacing.xl, vertical = MoviesTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+        horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
     ) {
         Icon(
             imageVector = Icons.Outlined.Info,
             contentDescription = null,
             tint = content,
-            modifier = Modifier.size(NuvioTheme.spacing.xl)
+            modifier = Modifier.size(MoviesTheme.spacing.xl)
         )
         Text(
             text = stringResource(R.string.cw_action_go_to_details),
-            style = NuvioTheme.textStyles.button.bodyFloor(),
+            style = MoviesTheme.textStyles.button.bodyFloor(),
             color = content,
             maxLines = 1
         )
@@ -495,9 +495,9 @@ private fun HeroDetailsHint(focused: Boolean) {
 private fun HeroCarouselMetaDivider() {
     Box(
         modifier = Modifier
-            .size(NuvioTheme.spacing.xs.coerceAtLeast(NuvioTheme.spacing.xxs))
+            .size(MoviesTheme.spacing.xs.coerceAtLeast(MoviesTheme.spacing.xxs))
             .clip(RoundedCornerShape(percent = 50))
-            .background(NuvioTheme.colors.TextTertiary.copy(alpha = 0.78f))
+            .background(MoviesTheme.colors.TextTertiary.copy(alpha = 0.78f))
     )
 }
 
@@ -530,7 +530,7 @@ internal fun HeroCarouselBackdrop(
             }
             .build()
     }
-    val bgColor = NuvioTheme.colors.Background
+    val bgColor = MoviesTheme.colors.Background
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     Box(

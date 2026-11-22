@@ -4,7 +4,7 @@ package com.kien.movies.ui.screens.settings
 
 import com.kien.movies.ui.screens.party.PartySettingsContent
 import com.kien.movies.ui.screens.party.PartyViewModel
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RawRes
@@ -188,7 +188,7 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(NuvioTheme.colors.Background)
+                .background(MoviesTheme.colors.Background)
         )
         return
     }
@@ -206,7 +206,7 @@ fun SettingsScreen(
     val visibleSections = visibleCategories.map { category -> settingsSectionSpec(category) }
 
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
-    val isHorizonStyle = NuvioTheme.settingsUiStyle == SettingsUiStyle.HORIZON
+    val isHorizonStyle = MoviesTheme.settingsUiStyle == SettingsUiStyle.HORIZON
     var selectedCategory by rememberSaveable {
         mutableStateOf(
             visibleSections.firstOrNull()?.category ?: SettingsCategory.APPEARANCE
@@ -400,12 +400,12 @@ fun SettingsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(NuvioTheme.colors.Background)
+            .background(MoviesTheme.colors.Background)
             .padding(
-                start = NuvioTheme.spacing.xxl,
-                end = NuvioTheme.spacing.xxl,
-                top = if (showBuiltInHeader) NuvioTheme.spacing.xl else 68.dp,
-                bottom = NuvioTheme.spacing.xl
+                start = MoviesTheme.spacing.xxl,
+                end = MoviesTheme.spacing.xxl,
+                top = if (showBuiltInHeader) MoviesTheme.spacing.xl else 68.dp,
+                bottom = MoviesTheme.spacing.xl
             )
     ) {
         SettingsWorkspaceSurface(
@@ -468,7 +468,7 @@ fun SettingsScreen(
 
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
                 ) {
                     Box(
                         modifier = Modifier
@@ -479,7 +479,7 @@ fun SettingsScreen(
                             SettingsGlidePill(
                                 bounds = bounds,
                                 visible = railHadFocus,
-                                color = NuvioTheme.colors.Secondary,
+                                color = MoviesTheme.colors.Secondary,
                                 modifier = Modifier.matchParentSize()
                             )
                         }
@@ -526,8 +526,8 @@ fun SettingsScreen(
                                     }
                                     false
                                 },
-                            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm, Alignment.CenterHorizontally),
-                            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.md, vertical = NuvioTheme.spacing.xs)
+                            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm, Alignment.CenterHorizontally),
+                            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.md, vertical = MoviesTheme.spacing.xs)
                         ) {
                             itemsIndexed(
                                 items = visibleSections,
@@ -645,7 +645,7 @@ fun SettingsScreen(
             } else {
             Row(
                 modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.lg)
+                horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.lg)
             ) {
                 Box(
                     modifier = Modifier
@@ -969,7 +969,7 @@ private fun EssentialAdvancedSettingsContent(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.settings_advanced),
@@ -1009,7 +1009,7 @@ private fun AccountSettingsInline(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.settings_account),

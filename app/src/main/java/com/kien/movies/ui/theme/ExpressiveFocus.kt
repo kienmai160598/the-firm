@@ -56,8 +56,8 @@ internal object ExpressiveFocus {
     ): Color {
         val color by animateColorAsState(
             targetValue = when {
-                focused -> NuvioTheme.colors.Secondary
-                selected -> NuvioTheme.colors.FocusBackground
+                focused -> MoviesTheme.colors.Secondary
+                selected -> MoviesTheme.colors.FocusBackground
                 else -> resting
             },
             animationSpec = ExpressiveMotion.defaultEffects(),
@@ -70,12 +70,12 @@ internal object ExpressiveFocus {
     fun contentColor(
         focused: Boolean,
         selected: Boolean = false,
-        resting: Color = NuvioTheme.colors.TextSecondary
+        resting: Color = MoviesTheme.colors.TextSecondary
     ): Color {
         val color by animateColorAsState(
             targetValue = when {
-                focused -> NuvioTheme.colors.OnSecondary
-                selected -> NuvioTheme.colors.TextPrimary
+                focused -> MoviesTheme.colors.OnSecondary
+                selected -> MoviesTheme.colors.TextPrimary
                 else -> resting
             },
             animationSpec = ExpressiveMotion.defaultEffects(),
@@ -96,7 +96,7 @@ internal object ExpressiveFocus {
     /** White content at rest, black on a focused white fill. */
     @Composable
     fun frostedContentColor(focused: Boolean): Color =
-        contentColor(focused = focused, resting = NuvioTheme.colors.TextPrimary)
+        contentColor(focused = focused, resting = MoviesTheme.colors.TextPrimary)
 
     /** A capsule; kept as a function so callers written for the M3E corner morph still work. */
     @Composable

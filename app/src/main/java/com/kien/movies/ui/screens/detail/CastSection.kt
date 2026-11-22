@@ -3,7 +3,7 @@ package com.kien.movies.ui.screens.detail
 import com.kien.movies.ui.components.posterFocusScale
 import com.kien.movies.ui.components.posterFocusLift
 import com.kien.movies.ui.components.posterFocusBorder
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.nuvioCardDepth
@@ -218,7 +218,7 @@ fun CastSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = if (hasTitle) 20.dp else NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.sm)
+            .padding(top = if (hasTitle) 20.dp else MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm)
             .onGloballyPositioned { coords ->
                 val bounds = coords.boundsInWindow()
                 val next = bounds.top >= -1f &&
@@ -233,10 +233,10 @@ fun CastSection(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                color = NuvioTheme.colors.TextPrimary,
-                modifier = Modifier.padding(horizontal = NuvioTheme.spacing.xxxl)
+                color = MoviesTheme.colors.TextPrimary,
+                modifier = Modifier.padding(horizontal = MoviesTheme.spacing.xxxl)
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
         }
 
         LazyRow(
@@ -260,10 +260,10 @@ fun CastSection(
                 }
                 .focusGroup(),
             state = listState,
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
             horizontalArrangement = Arrangement.Start
         ) {
-            val standardGap = NuvioTheme.spacing.sm
+            val standardGap = MoviesTheme.spacing.sm
             val deadSpace = itemWidth - cardSize
 
             if (leadingCast.isNotEmpty()) {
@@ -272,7 +272,7 @@ fun CastSection(
                     key = { index, member -> leadingCastLazyKey(index, member) }
                 ) { index, member ->
                     val isLastLeading = member == leadingCast.last()
-                    val endPadding = if (isLastLeading && cast.isNotEmpty()) NuvioTheme.spacing.none else standardGap
+                    val endPadding = if (isLastLeading && cast.isNotEmpty()) MoviesTheme.spacing.none else standardGap
                     val isRestoreTarget = member.tmdbId == restorePersonId
                     val isFirstItem = index == 0
                     val focusKey = "leading:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
@@ -311,10 +311,10 @@ fun CastSection(
                     ) {
                         Box(
                             modifier = Modifier
-                                .width(NuvioTheme.spacing.hairline)
+                                .width(MoviesTheme.spacing.hairline)
                                 .height(72.dp)
                                 .offset(x = -deadSpace / 2)
-                                .background(NuvioTheme.colors.SurfaceVariant.copy(alpha = 0.9f))
+                                .background(MoviesTheme.colors.SurfaceVariant.copy(alpha = 0.9f))
                         )
                     }
                 }
@@ -465,7 +465,7 @@ private fun CastMemberItem(
     val labelAreaHeight = remember(density, nameStyle, characterStyle) {
         with(density) {
             nameStyle.lineHeight.toDp() * 2 +
-                NuvioTheme.spacing.xs +
+                MoviesTheme.spacing.xs +
                 characterStyle.lineHeight.toDp()
         }
     }
@@ -506,7 +506,7 @@ private fun CastMemberItem(
             border = posterFocusBorder(
                 CardDefaults.border(
                     focusedBorder = Border(
-                        border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                        border = MoviesTheme.focusRing.border(MoviesTheme.spacing.xxs),
                         shape = CircleShape
                     )
                 )
@@ -524,7 +524,7 @@ private fun CastMemberItem(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                val currentBgColor = if (isFocused) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.SurfaceVariant
+                val currentBgColor = if (isFocused) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.SurfaceVariant
                 val bgPainter = remember(currentBgColor) { androidx.compose.ui.graphics.painter.ColorPainter(currentBgColor) }
 
                 if (photoModel != null) {
@@ -545,7 +545,7 @@ private fun CastMemberItem(
                         Text(
                             text = member.name.firstOrNull()?.uppercase() ?: "?",
                             style = initialsStyle,
-                            color = NuvioTheme.colors.TextPrimary
+                            color = MoviesTheme.colors.TextPrimary
                         )
                     }
                 }
@@ -562,7 +562,7 @@ private fun CastMemberItem(
             Text(
                 text = member.name,
                 style = nameStyle,
-                color = NuvioTheme.colors.TextSecondary,
+                color = MoviesTheme.colors.TextSecondary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -575,13 +575,13 @@ private fun CastMemberItem(
                     character.equals("Writer", ignoreCase = true) -> stringResource(R.string.cast_role_writer)
                     else -> character
                 }
-                Spacer(modifier = Modifier.height(NuvioTheme.spacing.xs))
+                Spacer(modifier = Modifier.height(MoviesTheme.spacing.xs))
                 Text(
                     text = displayCharacter,
                     style = characterStyle.copy(
                         textDirection = displayCharacter.contentTextDirection()
                     ),
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

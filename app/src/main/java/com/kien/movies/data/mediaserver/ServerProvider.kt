@@ -16,7 +16,7 @@ interface ServerProvider {
     val capabilities: Set<ServerCapability>
     val minimumVersion: String
 
-    /** False when the sign-in stays on this device instead of syncing to the Nuvio account with the other servers. */
+    /** False when the sign-in stays on this device instead of syncing to the Movies account with the other servers. */
     val syncsSignIn: Boolean
         get() = true
 
@@ -50,7 +50,7 @@ interface ServerProvider {
      */
     suspend fun renewToken(session: ServerSession, failure: ServerException?): String? = null
 
-    /** The copy of [token] uploaded to the Nuvio account. */
+    /** The copy of [token] uploaded to the Movies account. */
     fun tokenForAccount(token: String): String = token
 
     /** True when the device's [local] token should stay although the account holds [fromAccount]. */

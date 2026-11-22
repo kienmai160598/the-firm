@@ -25,7 +25,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 private val TrackWidth = 52.dp
@@ -114,7 +114,7 @@ private data class SwitchPalette(val track: Color, val outline: Color, val thumb
 
 @Composable
 private fun materialSwitchPalette(checked: Boolean): SwitchPalette {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     return if (checked) {
         SwitchPalette(colors.Secondary, colors.Secondary, colors.OnSecondary)
     } else {

@@ -49,12 +49,12 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.core.player.SubtitleFonts
-import com.kien.movies.ui.components.NuvioDialog
+import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.screens.addon.QrCodeOverlay
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.screens.player.rememberSubtitleFontFamily
 import com.kien.movies.ui.screens.player.subtitleFontLabel
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun SubtitleFontPickerDialog(
@@ -78,7 +78,7 @@ internal fun SubtitleFontPickerDialog(
         focusRequester.requestFocusAfterFrames()
     }
 
-    NuvioDialog(
+    MoviesDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.sub_font),
         subtitle = stringResource(R.string.sub_font_import_desc),
@@ -89,7 +89,7 @@ internal fun SubtitleFontPickerDialog(
             Text(
                 text = stringResource(R.string.sub_font_missing),
                 style = MaterialTheme.typography.bodySmall,
-                color = NuvioTheme.colors.Warning
+                color = MoviesTheme.colors.Warning
             )
         }
         LazyColumn(
@@ -97,8 +97,8 @@ internal fun SubtitleFontPickerDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 340.dp),
-            verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm),
-            contentPadding = PaddingValues(vertical = NuvioTheme.spacing.xs)
+            verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm),
+            contentPadding = PaddingValues(vertical = MoviesTheme.spacing.xs)
         ) {
             items(SubtitleFonts.builtIn, key = { it }) { fontId ->
                 SubtitleFontOption(
@@ -112,7 +112,7 @@ internal fun SubtitleFontPickerDialog(
             items(fonts, key = { it.id }) { font ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.sm)
+                    horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.sm)
                 ) {
                     SubtitleFontOption(
                         fontId = font.id,
@@ -174,8 +174,8 @@ private fun SubtitleFontOption(
                 this.selected = selected
             },
         colors = CardDefaults.colors(
-            containerColor = if (selected) NuvioTheme.colors.FocusBackground else NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = if (selected) MoviesTheme.colors.FocusBackground else MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
@@ -183,30 +183,30 @@ private fun SubtitleFontOption(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.lg, vertical = NuvioTheme.spacing.md),
+                .padding(horizontal = MoviesTheme.spacing.lg, vertical = MoviesTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Aa",
                 style = MaterialTheme.typography.titleLarge,
                 fontFamily = rememberSubtitleFontFamily(fontId),
-                color = NuvioTheme.colors.TextPrimary,
+                color = MoviesTheme.colors.TextPrimary,
                 modifier = Modifier.width(52.dp)
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (selected) NuvioTheme.colors.Primary else NuvioTheme.colors.TextPrimary,
+                color = if (selected) MoviesTheme.colors.Primary else MoviesTheme.colors.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
             if (selected) {
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = NuvioTheme.colors.Primary,
+                    tint = MoviesTheme.colors.Primary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -229,30 +229,30 @@ private fun SubtitleFontActionCard(
             contentDescription = label
         },
         colors = CardDefaults.colors(
-            containerColor = NuvioTheme.colors.BackgroundCard,
-            focusedContainerColor = NuvioTheme.colors.FocusBackground
+            containerColor = MoviesTheme.colors.BackgroundCard,
+            focusedContainerColor = MoviesTheme.colors.FocusBackground
         ),
         shape = CardDefaults.shape(RoundedCornerShape(10.dp)).expressiveCard(),
         scale = CardDefaults.scale(focusedScale = 1f).expressiveCardGrow()
     ) {
         Row(
-            modifier = Modifier.padding(NuvioTheme.spacing.lg),
+            modifier = Modifier.padding(MoviesTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = NuvioTheme.colors.TextPrimary,
+                    tint = MoviesTheme.colors.TextPrimary,
                     modifier = Modifier.size(22.dp)
                 )
             }
             if (showLabel) {
-                Spacer(modifier = Modifier.width(NuvioTheme.spacing.md))
+                Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = NuvioTheme.colors.TextPrimary
+                    color = MoviesTheme.colors.TextPrimary
                 )
             }
         }

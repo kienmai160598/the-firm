@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 
-private const val LOG_TAG = "NuvioJourneys"
+private const val LOG_TAG = "MoviesJourneys"
 
 /** The user journeys that are compiled into the baseline profile and measured by the benchmark. */
 internal enum class Journey(val key: String) {

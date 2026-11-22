@@ -22,7 +22,7 @@ import java.util.zip.DataFormatException
 import java.util.zip.Inflater
 
 @OptIn(UnstableApi::class)
-internal class NuvioAssMatroskaExtractor(
+internal class MoviesAssMatroskaExtractor(
     subtitleParserFactory: SubtitleParser.Factory,
     private val assHandler: AssHandler,
     flags: Int = 0,
@@ -86,10 +86,10 @@ internal class NuvioAssMatroskaExtractor(
         // Always wrap the extractor output for overlay rendering (the new libass
         // module always uses the SurfaceView overlay pipeline).
         val currentExtractor = extractorOutput.get(this) as ExtractorOutput
-        if (currentExtractor !is NuvioAssSubtitleExtractorOutput) {
+        if (currentExtractor !is MoviesAssSubtitleExtractorOutput) {
             extractorOutput.set(
                 this,
-                NuvioAssSubtitleExtractorOutput(currentExtractor, assHandler, this)
+                MoviesAssSubtitleExtractorOutput(currentExtractor, assHandler, this)
             )
         }
         super.startMasterElement(ID_EBML, contentPosition, contentSize)
@@ -152,14 +152,14 @@ internal class NuvioAssMatroskaExtractor(
 }
 
 @OptIn(UnstableApi::class)
-private class NuvioAssSubtitleExtractorOutput(
+private class MoviesAssSubtitleExtractorOutput(
     private val delegate: ExtractorOutput,
     private val assHandler: AssHandler,
-    private val extractor: NuvioAssMatroskaExtractor
+    private val extractor: MoviesAssMatroskaExtractor
 ) : ExtractorOutput by delegate {
     override fun track(id: Int, type: Int): TrackOutput {
         return if (type == C.TRACK_TYPE_TEXT) {
-            NuvioAssTrackOutput(delegate.track(id, type), assHandler, extractor)
+            MoviesAssTrackOutput(delegate.track(id, type), assHandler, extractor)
         } else {
             delegate.track(id, type)
         }
@@ -167,10 +167,10 @@ private class NuvioAssSubtitleExtractorOutput(
 }
 
 @OptIn(UnstableApi::class)
-private class NuvioAssTrackOutput(
+private class MoviesAssTrackOutput(
     private val delegate: TrackOutput,
     private val assHandler: AssHandler,
-    private val extractor: NuvioAssMatroskaExtractor
+    private val extractor: MoviesAssMatroskaExtractor
 ) : TrackOutput by delegate {
 
     private var isAss = false

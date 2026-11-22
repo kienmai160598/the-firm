@@ -35,9 +35,9 @@ import com.kien.movies.ui.screens.detail.forBuild
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.NuvioFocusRingStyle
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesFocusRingStyle
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.ThemeColorPalette
 import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.isExpressiveBuild
@@ -63,7 +63,7 @@ internal fun FocusMorphingProfileAvatar(
     focusProgress: Float,
     avatarSize: Dp,
     haloSize: Dp,
-    halo: NuvioFocusRingStyle
+    halo: MoviesFocusRingStyle
 ) {
     val shape = profileAvatarShape(focused)
     if (isExpressiveBuild) {
@@ -124,7 +124,7 @@ private fun ShapedAvatar(
 
 private fun avatarColorOf(colorHex: String): Color =
     runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
-        .getOrDefault(NuvioPrimitives.blue500)
+        .getOrDefault(MoviesPrimitives.blue500)
 
 private const val PIN_ERROR_FILL_ALPHA = 0.16f
 private const val DISABLED_FILL_ALPHA = 0.5f
@@ -137,23 +137,23 @@ internal fun Modifier.borderOffOnBox(width: Dp, color: Color, shape: Shape): Mod
     borderOffOnBox(BorderStroke(width, color), shape)
 
 internal fun profilePanelShape(): Shape =
-    RoundedCornerShape(forBuild(PanelCornerUpstream, NuvioTheme.radii.xxl))
+    RoundedCornerShape(forBuild(PanelCornerUpstream, MoviesTheme.radii.xxl))
 
 internal fun profileTileShape(): Shape =
-    RoundedCornerShape(forBuild(TileCornerUpstream, NuvioTheme.radii.xl))
+    RoundedCornerShape(forBuild(TileCornerUpstream, MoviesTheme.radii.xl))
 
 internal fun profileButtonShape(): Shape =
-    forBuild(RoundedCornerShape(NuvioTheme.radii.md), CircleShape)
+    forBuild(RoundedCornerShape(MoviesTheme.radii.md), CircleShape)
 
 internal fun pinBoxShape(): Shape =
-    RoundedCornerShape(forBuild(NuvioTheme.radii.xxs, NuvioTheme.radii.lg))
+    RoundedCornerShape(forBuild(MoviesTheme.radii.xxs, MoviesTheme.radii.lg))
 
 @Composable
-internal fun profileTextColor(): Color = forBuild(Color.White, NuvioTheme.colors.TextPrimary)
+internal fun profileTextColor(): Color = forBuild(Color.White, MoviesTheme.colors.TextPrimary)
 
 @Composable
 internal fun profileToastFill(): Color =
-    forBuild(Color.Black.copy(alpha = 0.78f), NuvioTheme.colors.BackgroundCard)
+    forBuild(Color.Black.copy(alpha = 0.78f), MoviesTheme.colors.BackgroundCard)
 
 /**
  * The name field keeps its focus ring on the box build: its focused fill matches the resting
@@ -161,11 +161,11 @@ internal fun profileToastFill(): Color =
  */
 @Composable
 internal fun profileFieldRestingBorder(): Color =
-    forBuild(NuvioTheme.colors.Border, Color.Transparent)
+    forBuild(MoviesTheme.colors.Border, Color.Transparent)
 
 @Composable
 internal fun profileFieldRestingFill(): Color =
-    forBuild(Color.White.copy(alpha = 0.05f), NuvioTheme.colors.BackgroundCard)
+    forBuild(Color.White.copy(alpha = 0.05f), MoviesTheme.colors.BackgroundCard)
 
 /**
  * Upstream fills the primary button with the accent at rest. On the box build only the focused
@@ -174,7 +174,7 @@ internal fun profileFieldRestingFill(): Color =
  */
 @Composable
 internal fun overlayButtonFill(enabled: Boolean, primary: Boolean, focused: Boolean): Color {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     if (!isExpressiveBuild) {
         return when {
             !enabled -> Color.White.copy(alpha = 0.04f)
@@ -194,7 +194,7 @@ internal fun overlayButtonFill(enabled: Boolean, primary: Boolean, focused: Bool
 
 @Composable
 internal fun overlayButtonContent(enabled: Boolean, primary: Boolean, focused: Boolean): Color {
-    val colors = NuvioTheme.colors
+    val colors = MoviesTheme.colors
     if (!isExpressiveBuild) {
         return when {
             !enabled -> colors.TextSecondary
@@ -212,16 +212,16 @@ internal fun overlayButtonContent(enabled: Boolean, primary: Boolean, focused: B
 }
 
 @Composable
-internal fun pinErrorBorder(): Color = forBuild(Color(0xFFE35D5D), NuvioTheme.colors.Error)
+internal fun pinErrorBorder(): Color = forBuild(Color(0xFFE35D5D), MoviesTheme.colors.Error)
 
 @Composable
 internal fun pinErrorFill(): Color = forBuild(
     Color(0xFF311818).copy(alpha = 0.76f),
-    NuvioTheme.colors.Error.copy(alpha = PIN_ERROR_FILL_ALPHA)
+    MoviesTheme.colors.Error.copy(alpha = PIN_ERROR_FILL_ALPHA)
 )
 
 @Composable
-internal fun pinErrorText(): Color = forBuild(Color(0xFFFF8E8E), NuvioTheme.colors.Error)
+internal fun pinErrorText(): Color = forBuild(Color(0xFFFF8E8E), MoviesTheme.colors.Error)
 
 private val PanelCornerUpstream = 20.dp
 private val TileCornerUpstream = 18.dp
@@ -258,6 +258,6 @@ internal fun Modifier.profileLift(focusProgress: State<Float>): Modifier = graph
 /** The add-profile tile at rest: frosted white on the box build. */
 @Composable
 internal fun addProfileRestingFill(): Color =
-    if (isExpressiveBuild) ExpressiveColors.frosted else NuvioTheme.colors.BackgroundCard
+    if (isExpressiveBuild) ExpressiveColors.frosted else MoviesTheme.colors.BackgroundCard
 
 private const val LIFT_DAMPING = 0.8f

@@ -120,7 +120,7 @@ private fun ExtractorsFactory.withAssMkvSupportCompat(
             // embedded subtitle observer keep seeing the stream.
             if (underlying is StockMatroskaExtractor) {
                 extractors[index] = extractor.replaceInnermostExtractor(
-                    NuvioAssMatroskaExtractor(subtitleParserFactory, assHandler)
+                    MoviesAssMatroskaExtractor(subtitleParserFactory, assHandler)
                 )
             }
             // The DV7 factory swaps in a vendored DvMatroskaExtractor for DV conversion.
@@ -128,7 +128,7 @@ private fun ExtractorsFactory.withAssMkvSupportCompat(
             // decompression from the same vendored Matroska extractor base class.
             if (underlying is DvMatroskaExtractor) {
                 extractors[index] = extractor.replaceInnermostExtractor(
-                    NuvioAssMatroskaExtractor(
+                    MoviesAssMatroskaExtractor(
                         subtitleParserFactory = subtitleParserFactory,
                         assHandler = assHandler,
                         dolbyVisionSampleTransformer = underlying.dolbyVisionSampleTransformer

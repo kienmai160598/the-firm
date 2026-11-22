@@ -45,9 +45,9 @@ import com.kien.movies.domain.model.AddonCatalogCollectionSource
 import com.kien.movies.domain.model.CollectionSource
 import com.kien.movies.domain.model.TmdbCollectionMediaType
 import com.kien.movies.domain.model.TmdbCollectionSort
-import com.kien.movies.ui.components.NuvioScrollDefaults
+import com.kien.movies.ui.components.MoviesScrollDefaults
 import com.kien.movies.ui.components.TvReorderList
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -70,7 +70,7 @@ class CollectionFocusAndScrollTest {
         val items = (0 until 15).map { "item_$it" }
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 val scrollState = rememberScrollState()
                 capturedScrollState = scrollState
                 val requesters = remember { items.associateWith { FocusRequester() } }
@@ -192,7 +192,7 @@ class CollectionFocusAndScrollTest {
         var added by mutableStateOf<List<CollectionSource>>(emptyList())
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 CatalogPickerContent(
                     catalogs = catalogs,
                     alreadyAdded = added,
@@ -232,7 +232,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun catalogPicker_emptyListFocusesDoneButton() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 CatalogPickerContent(
                     catalogs = emptyList(),
                     alreadyAdded = emptyList(),
@@ -251,7 +251,7 @@ class CollectionFocusAndScrollTest {
         val genres = (0 until 30).map { "Genre $it" }
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 GenrePickerContent(
                     title = "Movies",
                     selectedGenre = "Genre 22",
@@ -273,7 +273,7 @@ class CollectionFocusAndScrollTest {
         val description = context.getString(R.string.cd_emoji_option, targetEmoji)
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 EmojiPickerContent(
                     selectedEmoji = targetEmoji,
                     onSelect = {},
@@ -296,7 +296,7 @@ class CollectionFocusAndScrollTest {
         )
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TmdbSourcePickerContent(
                     uiState = uiState,
                     presets = emptyList(),
@@ -341,7 +341,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun traktPicker_focusesInputFieldSurfaceOnOpen() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TraktSourcePickerContent(
                     uiState = CollectionEditorUiState(isLoading = false),
                     isEditing = false,
@@ -361,7 +361,7 @@ class CollectionFocusAndScrollTest {
 
         composeRule.waitForIdle()
         val placeholder = context.getString(R.string.collection_editor_trakt_search_placeholder)
-        // Outer NuvioTextField Surface is focused (not opening soft keyboard until OK is pressed)
+        // Outer MoviesTextField Surface is focused (not opening soft keyboard until OK is pressed)
         composeRule.onNode(
             isFocused() and hasAnyDescendant(hasText(placeholder))
         ).assertExists()
@@ -370,7 +370,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun unsavedChangesDialog_focusesSaveWithoutYankingFocusBackAfterUserNavigates() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 UnsavedChangesDialog(
                     title = "Unsaved changes",
                     subtitle = "Save before leaving?",
@@ -400,7 +400,7 @@ class CollectionFocusAndScrollTest {
         var mode by mutableStateOf(ImportMode.FILE)
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 ImportContent(
                     importText = "",
                     importError = null,
@@ -449,9 +449,9 @@ class CollectionFocusAndScrollTest {
         val items = (0 until 20).map { "src_$it" }
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 CompositionLocalProvider(
-                    LocalBringIntoViewSpec provides NuvioScrollDefaults.smoothScrollSpec
+                    LocalBringIntoViewSpec provides MoviesScrollDefaults.smoothScrollSpec
                 ) {
                     val scrollState = rememberScrollState()
                     val rowHeightCache = remember { mutableMapOf<String, Float>() }
@@ -563,18 +563,18 @@ class CollectionFocusAndScrollTest {
     @Test
     fun nuvioTextField_dpadDownAndUpMoveDirectlyBetweenFieldsWithoutGhostStops() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 val firstFieldFocus = remember { FocusRequester() }
                 LaunchedEffect(Unit) { requestFocusWhenReady(firstFieldFocus) }
                 Column(modifier = Modifier.fillMaxSize()) {
-                    NuvioTextField(
+                    MoviesTextField(
                         value = "",
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth().testTag("field_1"),
                         placeholder = "First field",
                         focusRequester = firstFieldFocus
                     )
-                    NuvioTextField(
+                    MoviesTextField(
                         value = "",
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth().testTag("field_2"),
@@ -619,7 +619,7 @@ class CollectionFocusAndScrollTest {
         val genres = (0 until 30).map { "Genre $it" }
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 GenrePickerContent(
                     title = "Movies",
                     selectedGenre = "Genre 22",
@@ -650,7 +650,7 @@ class CollectionFocusAndScrollTest {
         val description = context.getString(R.string.cd_emoji_option, targetEmoji)
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 EmojiPickerContent(
                     selectedEmoji = targetEmoji,
                     onSelect = {},
@@ -674,7 +674,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun traktPicker_dpadDownSelectsActiveOptionButtonsNotRightmostButtons() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TraktSourcePickerContent(
                     uiState = CollectionEditorUiState(
                         isLoading = false,
@@ -739,7 +739,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun tmdbPicker_discoverModeDpadDownLandsOnSelectedTypeAndSortNotRightmostButtons() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TmdbSourcePickerContent(
                     uiState = CollectionEditorUiState(
                         isLoading = false,
@@ -796,7 +796,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun traktPicker_horizontalDpadDoesNotEscapeOptionRowsOrFields() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TraktSourcePickerContent(
                     uiState = CollectionEditorUiState(
                         isLoading = false,
@@ -869,7 +869,7 @@ class CollectionFocusAndScrollTest {
     @Test
     fun tmdbPicker_horizontalDpadAtLastModeTabDoesNotEscapeToBack() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 TmdbSourcePickerContent(
                     uiState = CollectionEditorUiState(
                         isLoading = false,
@@ -925,7 +925,7 @@ class CollectionFocusAndScrollTest {
         val prevDescription = context.getString(R.string.cd_emoji_option, prevEmoji)
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 EmojiPickerContent(
                     selectedEmoji = targetEmoji,
                     onSelect = {},
@@ -952,7 +952,7 @@ class CollectionFocusAndScrollTest {
         val backLabel = context.getString(R.string.collections_editor_back)
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 EmojiPickerContent(
                     selectedEmoji = firstEmoji,
                     onSelect = {},
@@ -979,7 +979,7 @@ class CollectionFocusAndScrollTest {
         val backLabel = context.getString(R.string.collections_editor_back)
 
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 GenrePickerContent(
                     title = "Addon Catalog",
                     selectedGenre = "Genre 1",

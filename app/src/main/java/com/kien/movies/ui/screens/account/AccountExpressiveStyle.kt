@@ -15,7 +15,7 @@ import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.kien.movies.ui.components.destructiveButtonColors
 import com.kien.movies.ui.theme.ExpressiveRadii
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.isExpressiveBuild
 
 // The account screens draw their own chrome in fixed colours upstream. On the expressive build
@@ -39,64 +39,64 @@ private fun themed(expressive: Color, upstream: Color): Color =
 @Composable
 @ReadOnlyComposable
 internal fun accountTextPrimary(upstream: Color): Color =
-    themed(NuvioTheme.colors.TextPrimary, upstream)
+    themed(MoviesTheme.colors.TextPrimary, upstream)
 
 @Composable
 @ReadOnlyComposable
 internal fun accountTextSecondary(upstream: Color): Color =
-    themed(NuvioTheme.colors.TextSecondary, upstream)
+    themed(MoviesTheme.colors.TextSecondary, upstream)
 
 /** The login pane beside the brand panel: M3's low surface container. */
 @Composable
 @ReadOnlyComposable
-internal fun accountPaneColor(upstream: Color): Color = themed(NuvioTheme.colors.Panel, upstream)
+internal fun accountPaneColor(upstream: Color): Color = themed(MoviesTheme.colors.Panel, upstream)
 
 /** Dividers and resting outlines: M3's outline variant. */
 @Composable
 @ReadOnlyComposable
 internal fun accountOutlineColor(upstream: Color): Color =
-    themed(NuvioTheme.colors.Border, upstream)
+    themed(MoviesTheme.colors.Border, upstream)
 
 /** A resting control or placeholder block: M3's high surface container. */
 @Composable
 @ReadOnlyComposable
 internal fun accountControlColor(upstream: Color): Color =
-    themed(NuvioTheme.colors.BackgroundCard, upstream)
+    themed(MoviesTheme.colors.BackgroundCard, upstream)
 
 /** The screen's base under the gradient. */
 @Composable
 @ReadOnlyComposable
 internal fun accountScreenBase(upstream: Color): Color =
-    themed(NuvioTheme.colors.Background, upstream)
+    themed(MoviesTheme.colors.Background, upstream)
 
 /** The gradient's lit corner: the accent's container, faded into the base. */
 @Composable
 @ReadOnlyComposable
 internal fun accountGradientAccent(upstream: Color): Color = themed(
-    NuvioTheme.colors.SecondaryVariant.copy(alpha = GRADIENT_ACCENT_ALPHA),
+    MoviesTheme.colors.SecondaryVariant.copy(alpha = GRADIENT_ACCENT_ALPHA),
     upstream
 )
 
 @Composable
 @ReadOnlyComposable
 internal fun accountSuccessColor(upstream: Color): Color =
-    themed(NuvioTheme.colors.Success, upstream)
+    themed(MoviesTheme.colors.Success, upstream)
 
 @Composable
 @ReadOnlyComposable
-internal fun accountErrorContent(upstream: Color): Color = themed(NuvioTheme.colors.Error, upstream)
+internal fun accountErrorContent(upstream: Color): Color = themed(MoviesTheme.colors.Error, upstream)
 
 @Composable
 @ReadOnlyComposable
 internal fun accountErrorContainer(upstream: Color): Color = themed(
-    NuvioTheme.colors.Error.copy(alpha = ERROR_CONTAINER_ALPHA),
+    MoviesTheme.colors.Error.copy(alpha = ERROR_CONTAINER_ALPHA),
     upstream
 )
 
 @Composable
 @ReadOnlyComposable
 internal fun accountFocusedErrorContainer(upstream: Color): Color = themed(
-    NuvioTheme.colors.Error.copy(alpha = FOCUSED_ERROR_CONTAINER_ALPHA),
+    MoviesTheme.colors.Error.copy(alpha = FOCUSED_ERROR_CONTAINER_ALPHA),
     upstream
 )
 
@@ -107,7 +107,7 @@ internal fun expressiveRowShape(upstream: Shape): Shape =
 @Composable
 @ReadOnlyComposable
 internal fun accountWarningContainer(upstream: Color): Color = themed(
-    NuvioTheme.colors.Warning.copy(alpha = ERROR_CONTAINER_ALPHA),
+    MoviesTheme.colors.Warning.copy(alpha = ERROR_CONTAINER_ALPHA),
     upstream
 )
 
@@ -119,7 +119,7 @@ internal fun accountMessageOutline(upstream: Color): Color = themed(Color.Transp
 @Composable
 @ReadOnlyComposable
 internal fun accountWarningContent(upstream: Color): Color =
-    themed(NuvioTheme.colors.Warning, upstream)
+    themed(MoviesTheme.colors.Warning, upstream)
 
 /** Sign out and other destructive actions: M3's error container, the error colour on focus. */
 @Composable

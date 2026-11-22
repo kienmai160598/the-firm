@@ -14,7 +14,7 @@ import com.kien.movies.BuildConfig
 import com.kien.movies.R
 
 /**
- * Foreground service that prevents the system from killing Nuvio while an
+ * Foreground service that prevents the system from killing Movies while an
  * external video player is active.
  *
  *

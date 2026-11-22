@@ -1,6 +1,6 @@
 package com.kien.movies.ui.components
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -44,25 +44,25 @@ fun EmptyScreenState(
                 contentDescription = null,
                 modifier = Modifier
                     .size(80.dp)
-                    .background(NuvioTheme.colors.FocusBackground, CircleShape)
-                    .padding(NuvioTheme.spacing.lg),
-                tint = NuvioTheme.colors.FocusContent
+                    .background(MoviesTheme.colors.FocusBackground, CircleShape)
+                    .padding(MoviesTheme.spacing.lg),
+                tint = MoviesTheme.colors.FocusContent
             )
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.xl))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.xl))
         }
 
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
-            color = NuvioTheme.colors.TextPrimary
+            color = MoviesTheme.colors.TextPrimary
         )
 
         if (subtitle != null) {
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.sm))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = NuvioTheme.colors.TextSecondary
+                color = MoviesTheme.colors.TextSecondary
             )
         }
     }

@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -43,7 +43,7 @@ fun MoreLikeThisSection(
     items: List<MetaPreview>,
     listState: LazyListState,
     sourceLabel: String? = null,
-    posterCardCornerRadius: Dp = NuvioTheme.spacing.md,
+    posterCardCornerRadius: Dp = MoviesTheme.spacing.md,
     upFocusRequester: FocusRequester? = null,
     downFocusRequester: FocusRequester? = null,
     sectionFocusRequester: FocusRequester? = null,
@@ -111,7 +111,7 @@ fun MoreLikeThisSection(
             width = 260.dp,
             height = 146.dp,
             cornerRadius = posterCardCornerRadius,
-            focusedBorderWidth = NuvioTheme.spacing.xxs,
+            focusedBorderWidth = MoviesTheme.spacing.xxs,
             focusedScale = 1.02f
         )
     }
@@ -119,7 +119,7 @@ fun MoreLikeThisSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = NuvioTheme.spacing.sm, bottom = NuvioTheme.spacing.sm)
+            .padding(top = MoviesTheme.spacing.sm, bottom = MoviesTheme.spacing.sm)
     ) {
         LazyRow(
             state = listState,
@@ -134,8 +134,8 @@ fun MoreLikeThisSection(
                     }
                 }
                 .focusGroup(),
-            contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xxxl, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+            contentPadding = PaddingValues(horizontal = MoviesTheme.spacing.xxxl, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
         ) {
             itemsIndexed(
                 items = items,
@@ -188,12 +188,12 @@ fun MoreLikeThisSection(
                             text = year,
                             style = MaterialTheme.typography.bodySmall
                                 .atLeastOnBox(TvSizeFloors.metaText),
-                            color = NuvioTheme.colors.TextTertiary,
+                            color = MoviesTheme.colors.TextTertiary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .width(landscapeStyle.width)
-                                .padding(start = NuvioTheme.spacing.xxs, end = NuvioTheme.spacing.xxs, top = NuvioTheme.spacing.xxs)
+                                .padding(start = MoviesTheme.spacing.xxs, end = MoviesTheme.spacing.xxs, top = MoviesTheme.spacing.xxs)
                         )
                     }
                 }
@@ -206,12 +206,12 @@ fun MoreLikeThisSection(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodySmall.atLeastOnBox(TvSizeFloors.metaText),
-                    color = NuvioTheme.colors.TextTertiary,
+                    color = MoviesTheme.colors.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .align(androidx.compose.ui.Alignment.End)
-                        .padding(end = 10.dp, top = NuvioTheme.spacing.xxs, bottom = NuvioTheme.spacing.xxs)
+                        .padding(end = 10.dp, top = MoviesTheme.spacing.xxs, bottom = MoviesTheme.spacing.xxs)
                 )
             }
     }

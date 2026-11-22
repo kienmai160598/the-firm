@@ -10,9 +10,9 @@ class Http1OnlyTest {
 
     @Test
     fun `playback clients speak http 1_1 only`() {
-        val client = NuvioExoPlayerPerformanceHelper.applyNetworkOptimizations(OkHttpClient.Builder()).build()
+        val client = MoviesExoPlayerPerformanceHelper.applyNetworkOptimizations(OkHttpClient.Builder()).build()
         assertEquals(listOf(Protocol.HTTP_1_1), client.protocols)
-        assertSame(NuvioExoPlayerPerformanceHelper.sharedConnectionPool, client.connectionPool)
+        assertSame(MoviesExoPlayerPerformanceHelper.sharedConnectionPool, client.connectionPool)
     }
 
     @Test

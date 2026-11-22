@@ -26,9 +26,9 @@ enum class StartupAuthNotice {
 class AuthSessionNoticeDataStore @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val hadNuvioAuthKey = booleanPreferencesKey("had_nuvio_auth")
+    private val hadMoviesAuthKey = booleanPreferencesKey("had_nuvio_auth")
     private val nuvioExplicitLogoutKey = booleanPreferencesKey("nuvio_explicit_logout")
-    private val pendingNuvioNoticeKey = booleanPreferencesKey("pending_nuvio_notice")
+    private val pendingMoviesNoticeKey = booleanPreferencesKey("pending_nuvio_notice")
 
     private val hadTraktAuthKey = booleanPreferencesKey("had_trakt_auth")
     private val traktExplicitLogoutKey = booleanPreferencesKey("trakt_explicit_logout")
@@ -36,38 +36,38 @@ class AuthSessionNoticeDataStore @Inject constructor(
 
     val pendingNotice: Flow<StartupAuthNotice?> = context.authSessionNoticeDataStore.data.map { preferences ->
         when {
-            preferences[pendingNuvioNoticeKey] == true -> StartupAuthNotice.NUVIO
+            preferences[pendingMoviesNoticeKey] == true -> StartupAuthNotice.NUVIO
             preferences[pendingTraktNoticeKey] == true -> StartupAuthNotice.TRAKT
             else -> null
         }
     }
 
-    suspend fun markNuvioAuthenticated() {
+    suspend fun markMoviesAuthenticated() {
         context.authSessionNoticeDataStore.edit { preferences ->
-            preferences[hadNuvioAuthKey] = true
+            preferences[hadMoviesAuthKey] = true
             preferences[nuvioExplicitLogoutKey] = false
-            preferences[pendingNuvioNoticeKey] = false
+            preferences[pendingMoviesNoticeKey] = false
         }
     }
 
-    suspend fun markNuvioExplicitLogout() {
+    suspend fun markMoviesExplicitLogout() {
         context.authSessionNoticeDataStore.edit { preferences ->
-            preferences[hadNuvioAuthKey] = false
+            preferences[hadMoviesAuthKey] = false
             preferences[nuvioExplicitLogoutKey] = true
-            preferences[pendingNuvioNoticeKey] = false
+            preferences[pendingMoviesNoticeKey] = false
         }
     }
 
-    suspend fun markUnexpectedNuvioLogoutIfNeeded(): Boolean {
+    suspend fun markUnexpectedMoviesLogoutIfNeeded(): Boolean {
         var marked = false
         context.authSessionNoticeDataStore.edit { preferences ->
-            val hadAuth = preferences[hadNuvioAuthKey] == true
+            val hadAuth = preferences[hadMoviesAuthKey] == true
             val explicitLogout = preferences[nuvioExplicitLogoutKey] == true
             if (hadAuth && !explicitLogout) {
-                preferences[pendingNuvioNoticeKey] = true
+                preferences[pendingMoviesNoticeKey] = true
                 marked = true
             }
-            preferences[hadNuvioAuthKey] = false
+            preferences[hadMoviesAuthKey] = false
             preferences[nuvioExplicitLogoutKey] = false
         }
         return marked
@@ -115,7 +115,7 @@ class AuthSessionNoticeDataStore @Inject constructor(
     suspend fun consumeNotice(notice: StartupAuthNotice) {
         context.authSessionNoticeDataStore.edit { preferences ->
             when (notice) {
-                StartupAuthNotice.NUVIO -> preferences[pendingNuvioNoticeKey] = false
+                StartupAuthNotice.NUVIO -> preferences[pendingMoviesNoticeKey] = false
                 StartupAuthNotice.TRAKT -> preferences[pendingTraktNoticeKey] = false
             }
         }

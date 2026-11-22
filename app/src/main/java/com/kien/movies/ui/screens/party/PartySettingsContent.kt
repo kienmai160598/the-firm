@@ -18,7 +18,7 @@ import com.kien.movies.core.party.formatPartyCode
 import com.kien.movies.ui.screens.settings.SettingsActionRow
 import com.kien.movies.ui.screens.settings.SettingsDetailHeader
 import com.kien.movies.ui.screens.settings.SettingsGroupCard
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 fun PartySettingsContent(
@@ -33,7 +33,7 @@ fun PartySettingsContent(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md),
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.party_title),

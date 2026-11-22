@@ -25,7 +25,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.R
 import com.kien.movies.data.remote.supabase.AvatarCatalogItem
 import com.kien.movies.domain.model.UserProfile
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.Assert.assertNotEquals
@@ -47,7 +47,7 @@ class ProfileEditorFocusTest {
     fun createEditorMovesDirectlyBetweenControlsAndAvatarsAndRestoresFocus() {
         var showEditor by mutableStateOf(false)
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 Box(Modifier.fillMaxSize()) {
                     ProfileGrid(
                         profiles = listOf(profile),
@@ -98,7 +98,7 @@ class ProfileEditorFocusTest {
     @Test
     fun editEditorMovesDirectlyBetweenNameCancelAndAvatars() {
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 EditProfileOverlay(
                     profile = profile,
                     avatarCatalog = avatars,
@@ -130,7 +130,7 @@ class ProfileEditorFocusTest {
             AvatarCatalogItem("$index", "Avatar $index", "", "anime", index)
         } + AvatarCatalogItem("movie", "Movie avatar", "", "movie", 16)
         composeRule.setContent {
-            NuvioTheme {
+            MoviesTheme {
                 CreateProfileOverlay(
                     profiles = listOf(profile),
                     avatarCatalog = catalog,

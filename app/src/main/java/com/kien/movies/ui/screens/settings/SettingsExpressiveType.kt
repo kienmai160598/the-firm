@@ -12,10 +12,10 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Typography
 import com.kien.movies.ui.theme.ExpressiveMaterialTheme
-import com.kien.movies.ui.theme.LocalNuvioTextStyles
+import com.kien.movies.ui.theme.LocalMoviesTextStyles
 import com.kien.movies.ui.theme.TvSizeFloors
 import com.kien.movies.ui.theme.bodyFloor
-import com.kien.movies.ui.theme.buildNuvioTextStyles
+import com.kien.movies.ui.theme.buildMoviesTextStyles
 import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.metaFloor
 import com.kien.movies.ui.theme.rowTitleFloor
@@ -34,9 +34,9 @@ internal fun TenFootTypography(content: @Composable () -> Unit) {
     }
     val base = MaterialTheme.typography
     val floored = remember(base) { base.withTenFootFloors() }
-    val textStyles = remember(floored) { buildNuvioTextStyles(floored) }
+    val textStyles = remember(floored) { buildMoviesTextStyles(floored) }
 
-    CompositionLocalProvider(LocalNuvioTextStyles provides textStyles) {
+    CompositionLocalProvider(LocalMoviesTextStyles provides textStyles) {
         MaterialTheme(
             colorScheme = MaterialTheme.colorScheme,
             shapes = MaterialTheme.shapes,

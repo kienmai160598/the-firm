@@ -1,8 +1,8 @@
 package com.kien.movies.ui.screens.player
 
-import com.kien.movies.ui.theme.NuvioMotion
+import com.kien.movies.ui.theme.MoviesMotion
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -207,7 +207,7 @@ fun LoadingOverlay(
                             textAlign = TextAlign.Center,
                             maxLines = 2,
                             modifier = Modifier
-                                .padding(horizontal = NuvioTheme.spacing.xl)
+                                .padding(horizontal = MoviesTheme.spacing.xl)
                                 .graphicsLayer {
                                     alpha = logoAlpha
                                     scaleX = logoScale
@@ -235,7 +235,7 @@ fun LoadingOverlay(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .offset(y = messageOffset)
-                            .padding(horizontal = NuvioTheme.spacing.xl)
+                            .padding(horizontal = MoviesTheme.spacing.xl)
                     ) {
                         Crossfade(
                             targetState = message?.takeIf { it.isNotBlank() },
@@ -265,14 +265,14 @@ fun LoadingOverlay(
                             Spacer(modifier = Modifier.height(10.dp))
                             val animatedProgress = animateFloatAsState(
                                 targetValue = progress.coerceIn(0f, 1f),
-                                animationSpec = tween(durationMillis = NuvioMotion.tokens.durations.overlay),
+                                animationSpec = tween(durationMillis = MoviesMotion.tokens.durations.overlay),
                                 label = "loadingProgress"
                             )
                             Spacer(
                                 modifier = Modifier
                                     .width(240.dp)
                                     .height(
-                                        PlayerSurfaceStyle.progressThickness(NuvioTheme.spacing.xs)
+                                        PlayerSurfaceStyle.progressThickness(MoviesTheme.spacing.xs)
                                     )
                                     .playerLinearProgress(progress = { animatedProgress.value })
                             )

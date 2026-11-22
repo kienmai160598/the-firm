@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.accentBrush
 
 @Composable
@@ -25,7 +25,7 @@ fun WatchedMarker(
     size: Dp = 21.dp,
     iconSize: Dp = 20.dp
 ) {
-    val palette = NuvioTheme.palette
+    val palette = MoviesTheme.palette
 
     Box(
         modifier = modifier

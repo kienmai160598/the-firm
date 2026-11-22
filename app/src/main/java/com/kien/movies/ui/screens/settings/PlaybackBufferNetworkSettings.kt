@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.settings
 
-import com.kien.movies.ui.theme.NuvioPrimitives
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesPrimitives
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +25,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.VodCacheSizeMode
-import com.kien.movies.ui.screens.player.NuvioExoPlayerPerformanceHelper
+import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
 import kotlin.math.min
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -49,7 +49,7 @@ internal fun PlaybackBufferNetworkSection(
         checked = isSupported && settings.nuvioPerformanceModeEnabled,
         onToggle = {
             if (isSupported) {
-                updateMemory { setNuvioPerformanceModeEnabled(!settings.nuvioPerformanceModeEnabled) }
+                updateMemory { setMoviesPerformanceModeEnabled(!settings.nuvioPerformanceModeEnabled) }
             } else {
                 showPerformanceModeWarning = true
             }
@@ -64,8 +64,8 @@ internal fun PlaybackBufferNetworkSection(
         SettingsNote(
             text = stringResource(
                 R.string.playback_net_device_memory_info,
-                NuvioExoPlayerPerformanceHelper.getFriendlyRamLabel(context),
-                NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                MoviesExoPlayerPerformanceHelper.getFriendlyRamLabel(context),
+                MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
             )
         )
     }
@@ -203,12 +203,12 @@ private fun CustomBufferControls(
         0
     }
     val safeMaxMb = if (settings.nuvioPerformanceModeEnabled) {
-        NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+        MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
     } else {
         MemoryBudget.maxBufferMb(parallelOverheadMb)
     }
     val warningMaxMb = if (settings.nuvioPerformanceModeEnabled) {
-        NuvioExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
+        MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
     } else {
         (((MemoryBudget.budgetMb * 1.25f).toInt() - parallelOverheadMb) / MemoryBudget.BUFFER_STEP_MB * MemoryBudget.BUFFER_STEP_MB)
             .coerceIn(MemoryBudget.MIN_BUFFER_MB, MemoryBudget.MAX_BUFFER_MB)
@@ -298,7 +298,7 @@ private fun DiskCacheControls(
         onToggle = {
             onUpdate { setVodCacheSizeMode(if (autoMode) VodCacheSizeMode.MANUAL else VodCacheSizeMode.AUTO) }
         },
-        modifier = Modifier.padding(start = NuvioTheme.spacing.xxl)
+        modifier = Modifier.padding(start = MoviesTheme.spacing.xxl)
     )
 
     val freeDiskBytes = context.cacheDir.usableSpace.coerceAtLeast(0L)
@@ -404,7 +404,7 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
             if (settings.bufferEngineEnabled && !settings.bufferBudgetManaged) {
                 MemoryBudget.effectiveBufferMb(settings.bufferSettings.targetBufferSizeMb)
             } else {
-                NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
             }
         }
         settings.bufferEngineEnabled -> {
@@ -426,19 +426,19 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
         MemoryBudget.totalUsageMb(effectiveBufferMb, settings.parallelConnectionCount, chunkMb, parallelActive)
     }
     val safeLimitMb = if (settings.nuvioPerformanceModeEnabled) {
-        NuvioExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+        MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
     } else {
         MemoryBudget.budgetMb
     }
     val warningLimitMb = if (settings.nuvioPerformanceModeEnabled) {
-        NuvioExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
+        MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
     } else {
         (MemoryBudget.budgetMb * 1.25f).toInt()
     }
     val usageColor = when (MemoryBudget.getUsageStatus(totalUsageMb, safeLimitMb, warningLimitMb)) {
         MemoryUsageStatus.DANGER -> expressiveErrorOr(Color(0xFFF44336))
         MemoryUsageStatus.WARNING -> expressiveWarningOr(Color(0xFFFF9800))
-        MemoryUsageStatus.SAFE -> NuvioPrimitives.success
+        MemoryUsageStatus.SAFE -> MoviesPrimitives.success
     }
     val effectiveExoMb = (effectiveBufferMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
     val baseText = stringResource(R.string.playback_estimated_memory_usage, totalUsageMb, warningLimitMb)
@@ -453,8 +453,8 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = NuvioTheme.colors.BackgroundCard, shape = RoundedCornerShape(10.dp))
-            .border(NuvioTheme.spacing.hairline, usageColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+            .background(color = MoviesTheme.colors.BackgroundCard, shape = RoundedCornerShape(10.dp))
+            .border(MoviesTheme.spacing.hairline, usageColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Text(

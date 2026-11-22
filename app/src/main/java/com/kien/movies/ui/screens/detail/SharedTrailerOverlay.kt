@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.detail
 
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -210,7 +210,7 @@ fun SharedTrailerOverlay(
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(horizontal = NuvioTheme.spacing.xxl, vertical = NuvioTheme.spacing.xl),
+                    .padding(horizontal = MoviesTheme.spacing.xxl, vertical = MoviesTheme.spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
@@ -239,9 +239,9 @@ fun SharedTrailerOverlay(
                 Column(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(horizontal = NuvioTheme.spacing.xxl),
+                        .padding(horizontal = MoviesTheme.spacing.xxl),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+                    verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
                 ) {
                     Text(
                         text = errorMessage,
@@ -304,7 +304,7 @@ fun TrailerSeekOverlay(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = NuvioTheme.spacing.xxl, vertical = NuvioTheme.spacing.xl)
+                .padding(horizontal = MoviesTheme.spacing.xxl, vertical = MoviesTheme.spacing.xl)
         ) {
             Box(
                 modifier = Modifier
@@ -318,11 +318,11 @@ fun TrailerSeekOverlay(
                         .fillMaxHeight()
                         .fillMaxWidth(animatedProgress)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(NuvioTheme.colors.Secondary)
+                        .background(MoviesTheme.colors.Secondary)
                 )
             }
     
-            Spacer(modifier = Modifier.height(NuvioTheme.spacing.md))
+            Spacer(modifier = Modifier.height(MoviesTheme.spacing.md))
     
             Row(
                 modifier = Modifier.fillMaxWidth(),

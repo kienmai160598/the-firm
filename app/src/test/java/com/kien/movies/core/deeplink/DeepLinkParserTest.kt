@@ -10,22 +10,22 @@ class DeepLinkParserTest {
     fun parsesMetaQueryDeepLink() {
         assertEquals(
             AppDeepLink.Meta(type = "series", id = "tt0944947"),
-            DeepLinkParser.parse("nuvio://meta?type=series&id=tt0944947")
+            DeepLinkParser.parse("movies://meta?type=series&id=tt0944947")
         )
     }
 
     @Test
     fun parsesPartyInviteDeepLink() {
-        assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("nuvio://party/abc234"))
-        assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("nuvio://party?code=ABC-234"))
-        assertNull(DeepLinkParser.parse("nuvio://party/ABC10"))
+        assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("movies://party/abc234"))
+        assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("movies://party?code=ABC-234"))
+        assertNull(DeepLinkParser.parse("movies://party/ABC10"))
     }
 
     @Test
     fun parsesAddonInstallDeepLink() {
         assertEquals(
             AppDeepLink.AddonInstall("https://free.nebulapro.xyz/sports/i/free/manifest.json"),
-            DeepLinkParser.parse("nuvio://free.nebulapro.xyz/sports/i/free/manifest.json")
+            DeepLinkParser.parse("movies://free.nebulapro.xyz/sports/i/free/manifest.json")
         )
     }
 
@@ -41,7 +41,7 @@ class DeepLinkParserTest {
     fun parsesDirectImdbDetailDeepLink() {
         assertEquals(
             AppDeepLink.Meta(type = "series", id = "tt0944947"),
-            DeepLinkParser.parse("nuvio://series/tt0944947")
+            DeepLinkParser.parse("movies://series/tt0944947")
         )
     }
 
@@ -49,7 +49,7 @@ class DeepLinkParserTest {
     fun parsesProviderImdbDetailDeepLink() {
         assertEquals(
             AppDeepLink.Meta(type = "series", id = "tt0944947"),
-            DeepLinkParser.parse("nuvio://imdb/series/tt0944947")
+            DeepLinkParser.parse("movies://imdb/series/tt0944947")
         )
     }
 
@@ -57,13 +57,13 @@ class DeepLinkParserTest {
     fun parsesProviderTmdbDetailDeepLink() {
         assertEquals(
             AppDeepLink.Meta(type = "series", id = "tmdb:1399"),
-            DeepLinkParser.parse("nuvio://tmdb/tv/1399")
+            DeepLinkParser.parse("movies://tmdb/tv/1399")
         )
     }
 
     @Test
     fun doesNotTreatAuthLinkAsAddonInstall() {
-        assertNull(DeepLinkParser.parse("nuvio://auth/trakt?code=abc"))
+        assertNull(DeepLinkParser.parse("movies://auth/trakt?code=abc"))
     }
 
     @Test

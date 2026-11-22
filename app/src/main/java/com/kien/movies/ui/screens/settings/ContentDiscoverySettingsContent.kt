@@ -24,7 +24,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.kien.movies.R
-import com.kien.movies.ui.theme.NuvioTheme
+import com.kien.movies.ui.theme.MoviesTheme
 
 @Composable
 internal fun ContentDiscoverySettingsContent(
@@ -96,7 +96,7 @@ private fun ContentDiscoveryHub(
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(NuvioTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(MoviesTheme.spacing.md)
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.settings_content_discovery),
