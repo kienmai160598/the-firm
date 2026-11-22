@@ -19,7 +19,7 @@ final class MpvPlaybackController: ObservableObject {
     @Published private(set) var durationSeconds = 0
     @Published private(set) var isPaused = true
     @Published private(set) var isBuffering = true
-    @Published private(set) var trackMessage: String?
+    @Published private(set) var bufferedSeconds = 0
 
     let videoLayer: CAMetalLayer = MpvMetalLayer()
     private let request: PlaybackRequest
@@ -28,7 +28,6 @@ final class MpvPlaybackController: ObservableObject {
     private var mpv: MpvHandle?
     private var tickTask: Task<Void, Never>?
     private var startupTask: Task<Void, Never>?
-    private var trackTask: Task<Void, Never>?
     private var lifecycleObservers: [NSObjectProtocol] = []
     private var currentMs: Int64 = 0
     private var durationMs: Int64 = 0
@@ -73,7 +72,7 @@ final class MpvPlaybackController: ObservableObject {
         save(syncRemote: true, reason: "dismiss")
         isFinished = true
         UIApplication.shared.isIdleTimerDisabled = false
-        [tickTask, startupTask, trackTask].forEach { $0?.cancel() }
+        [tickTask, startupTask].forEach { $0?.cancel() }
         lifecycleObservers.forEach(NotificationCenter.default.removeObserver)
         lifecycleObservers = []
         mpv?.close()
@@ -90,31 +89,29 @@ final class MpvPlaybackController: ObservableObject {
         mpv?.command("seek", String(steps * Self.seekStepSeconds), "relative")
     }
 
-    func cycleAudio() {
-        cycleTrack(MpvTrack.audio)
+    func liftSubtitles(_ isLifted: Bool) {
+        mpv?.setString(MpvProperty.subtitlePosition, isLifted ? "78" : "100")
     }
 
-    func cycleSubtitles() {
-        cycleTrack(MpvTrack.subtitles)
+    func trackOptions(_ kind: MpvTrackKind) -> [MpvTrackOption] {
+        guard hasStarted, let mpv else { return [] }
+        return kind.options(using: mpv)
     }
 
-    private func cycleTrack(_ track: MpvTrack) {
-        guard hasStarted, let mpv else { return }
-        mpv.command("cycle", track.selector)
-        trackTask?.cancel()
-        trackTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(300))
-            guard !Task.isCancelled, let self, let mpv = self.mpv else { return }
-            self.trackMessage = track.describe(using: mpv)
-            try? await Task.sleep(for: .seconds(3))
-            guard !Task.isCancelled else { return }
-            self.trackMessage = nil
-        }
+    func select(_ option: MpvTrackOption, of kind: MpvTrackKind) {
+        guard hasStarted else { return }
+        mpv?.setString(kind.selector, option.id)
+    }
+
+    func mediaInfo() -> [MpvInfoRow] {
+        guard hasStarted, let mpv else { return [] }
+        return MpvMediaInfo.rows(using: mpv)
     }
 
     private func observeProperties(_ mpv: MpvHandle) {
         mpv.observeNumber(MpvProperty.timePosition)
         mpv.observeNumber(MpvProperty.duration)
+        mpv.observeNumber(MpvProperty.cacheTime)
         mpv.observeFlag(MpvProperty.pause)
         mpv.observeFlag(MpvProperty.pausedForCache)
         mpv.observeFlag(MpvProperty.endReached)
@@ -170,6 +167,8 @@ final class MpvPlaybackController: ObservableObject {
         case MpvProperty.duration:
             durationMs = Self.milliseconds(value)
             durationSeconds = Int(durationMs / 1000)
+        case MpvProperty.cacheTime:
+            bufferedSeconds = Int(value.isFinite ? max(value, 0) : 0)
         default:
             break
         }

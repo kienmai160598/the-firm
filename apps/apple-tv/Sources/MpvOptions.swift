@@ -7,6 +7,8 @@ enum MpvProperty {
     static let pausedForCache = "paused-for-cache"
     static let video = "vid"
     static let endReached = "eof-reached"
+    static let cacheTime = "demuxer-cache-time"
+    static let subtitlePosition = "sub-pos"
 }
 
 enum MpvOptions {
