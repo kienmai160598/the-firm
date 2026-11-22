@@ -1,84 +1,140 @@
-import SwiftUI
 import NuvioTvShared
+import SwiftUI
 
-struct StreamRow: View {
-    let stream: TvosStream
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 32) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(stream.name)
-                    .font(.system(size: 31, weight: .semibold))
-                    .lineLimit(1)
-                StreamSummaryLine(stream: stream)
-            }
-            Spacer(minLength: 0)
-            StreamBadges(stream: stream)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 2)
-    }
-}
-
-private struct StreamSummaryLine: View {
-    let stream: TvosStream
-
-    var body: some View {
-        Text("\(Image(systemName: sourceSymbol)) \(summary)")
-            .font(.system(size: 25))
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
+extension TvosStream {
+    var features: StreamFeatures {
+        StreamFeatures(
+            texts: [name, title, detail, filename].compactMap { $0 },
+            providedBadges: badges,
+            providedSize: sizeLabel
+        )
     }
 
-    private var summary: String {
-        [stream.kind, oneLineDescription].compactMap { $0 }.joined(separator: "  ·  ")
-    }
-
-    private var oneLineDescription: String? {
-        guard let description = stream.detail ?? stream.title else { return nil }
-        let lines = description
-            .split(whereSeparator: \.isNewline)
+    var oneLineName: String {
+        name.split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
-        return lines.isEmpty ? nil : lines.joined(separator: "  ·  ")
+            .joined(separator: "  ·  ")
     }
 
-    private var sourceSymbol: String {
-        stream.infoHash != nil ? "arrow.down.circle" : "link"
+    var fileLine: String? {
+        if let filename, !filename.isEmpty { return filename }
+        let lines = [title, detail].compactMap { $0 }
+            .flatMap { $0.split(whereSeparator: \.isNewline) }
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty && $0 != name }
+        return lines.first
+    }
+
+    var isTorrent: Bool {
+        infoHash != nil
     }
 }
 
-private struct StreamBadges: View {
+struct StreamRow: View {
+    private static let headlineWidth: CGFloat = 190
+    private static let maxCapabilities = 6
+
     let stream: TvosStream
 
     var body: some View {
-        HStack(spacing: 12) {
-            ForEach(stream.badges, id: \.self) { badge in
-                StreamBadge(text: badge)
+        let features = stream.features
+        HStack(alignment: .center, spacing: 36) {
+            StreamHeadline(resolution: features.resolution, size: features.size)
+                .frame(width: Self.headlineWidth, alignment: .leading)
+            VStack(alignment: .leading, spacing: 10) {
+                if !features.capabilities.isEmpty {
+                    StreamCapabilities(
+                        labels: Array(features.capabilities.prefix(Self.maxCapabilities))
+                    )
+                }
+                Text(stream.oneLineName)
+                    .font(.system(size: 27, weight: .semibold))
+                    .lineLimit(1)
+                if let fileLine = stream.fileLine {
+                    Text(fileLine)
+                        .font(.system(size: 22))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
             }
-            if let sizeLabel = stream.sizeLabel {
-                Text(sizeLabel)
-                    .font(.system(size: 25, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-            }
+            Spacer(minLength: 0)
+            StreamDelivery(isTorrent: stream.isTorrent, seeders: features.seeders)
         }
-        .fixedSize()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 8)
     }
 }
 
-private struct StreamBadge: View {
+private struct StreamHeadline: View {
+    let resolution: String?
+    let size: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(resolution ?? "Video")
+                .font(.system(size: 44, weight: .heavy))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(size ?? "Size unknown")
+                .font(.system(size: size == nil ? 21 : 27, weight: .semibold))
+                .foregroundStyle(size == nil ? .tertiary : .secondary)
+                .monospacedDigit()
+                .lineLimit(1)
+        }
+    }
+}
+
+private struct StreamCapabilities: View {
+    let labels: [String]
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(labels, id: \.self) { label in
+                StreamCapabilityBadge(text: label)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+private struct StreamCapabilityBadge: View {
     let text: String
 
     var body: some View {
         Text(text)
             .font(.system(size: 20, weight: .bold))
+            .lineLimit(1)
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
-            .foregroundStyle(.secondary)
             .overlay(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .stroke(.secondary, lineWidth: 1.5)
+                    .stroke(lineWidth: 1.5)
             )
+            .foregroundStyle(.secondary)
+    }
+}
+
+private struct StreamDelivery: View {
+    let isTorrent: Bool
+    let seeders: Int?
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            Label(isTorrent ? "Torrent" : "Direct", systemImage: symbol)
+                .font(.system(size: 22, weight: .medium))
+            if let seeders {
+                Text("\(seeders) seeds")
+                    .font(.system(size: 21))
+                    .monospacedDigit()
+            }
+        }
+        .foregroundStyle(.secondary)
+        .fixedSize()
+    }
+
+    private var symbol: String {
+        isTorrent ? "arrow.down.circle" : "link"
     }
 }

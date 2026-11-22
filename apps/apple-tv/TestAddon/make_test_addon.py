@@ -121,6 +121,7 @@ MANIFEST = {
     "resources": [
         {"name": "stream", "types": ["movie", "series"], "idPrefixes": ["tt", "tvostest"]},
         {"name": "meta", "types": ["movie", "series"], "idPrefixes": ["tvostest"]},
+        {"name": "subtitles", "types": ["movie"], "idPrefixes": ["tt"]},
     ],
     "types": ["movie", "series"],
     "idPrefixes": ["tt", "tvostest"],
@@ -266,6 +267,24 @@ def write_mkv_sample(media_dir):
         raise SystemExit(f"ffmpeg failed for {MKV_SAMPLE}: {result.stderr.strip()}")
 
 
+ONLINE_SUBTITLE_MOVIE = "tt2285752"
+ONLINE_SUBTITLES = {
+    "vie": "Phụ đề tải về (online subtitle)",
+    "eng": "Downloaded subtitle (online)",
+}
+
+
+def write_online_subtitles(out_dir):
+    entries = []
+    for language, line in ONLINE_SUBTITLES.items():
+        name = f"online-{language}.srt"
+        (out_dir / "media" / name).write_text(f"1\n00:00:00,000 --> 00:02:00,000\n{line}\n")
+        entries.append({"id": f"online-{language}", "url": f"{LOCAL_MEDIA}/{name}",
+                        "lang": language})
+    write_json(out_dir / "subtitles" / "movie" / f"{ONLINE_SUBTITLE_MOVIE}.json",
+               {"subtitles": entries})
+
+
 def write_json(path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n")
@@ -292,6 +311,7 @@ def main():
     write_broken_media(out_dir)
     write_test_movies(out_dir)
     write_mkv_sample(out_dir / "media")
+    write_online_subtitles(out_dir)
     print(f"Wrote test addon to {out_dir}")
 
 

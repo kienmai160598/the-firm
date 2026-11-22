@@ -20,6 +20,7 @@ final class MpvPlaybackController: ObservableObject {
     @Published private(set) var positionSeconds = 0
     @Published private(set) var durationSeconds = 0
     @Published private(set) var isPaused = true
+    @Published private(set) var isPausedByViewer = false
     @Published private(set) var isBuffering = true
     @Published private(set) var bufferedSeconds = 0
 
@@ -31,12 +32,15 @@ final class MpvPlaybackController: ObservableObject {
     private var tickTask: Task<Void, Never>?
     private var startupTask: Task<Void, Never>?
     private var startTask: Task<Void, Never>?
+    private var subtitleSearch: TvosCancellable?
+    private var subtitleDownloads: [MpvSubtitleDownload] = []
     private let displayMatcher = MpvDisplayMatcher()
     private var lifecycleObservers: [NSObjectProtocol] = []
     private var currentMs: Int64 = 0
     private var durationMs: Int64 = 0
     private var hasStarted = false
     private var hasPlayed = false
+    private var hasRequestedPlay = false
     private var hasEnded = false
     private var isFinished = false
     private var lastTickSaveMs: Int64 = -1
@@ -64,6 +68,7 @@ final class MpvPlaybackController: ObservableObject {
         }
         observeProperties(mpv)
         observeLifecycle()
+        searchOnlineSubtitles()
         UIApplication.shared.isIdleTimerDisabled = true
         startupTask = Self.after(Self.startupLimit) { [weak self] in self?.giveUpStarting() }
         tickTask = Self.every(Self.tickInterval) { [weak self] in self?.saveTick() }
@@ -77,6 +82,7 @@ final class MpvPlaybackController: ObservableObject {
         isFinished = true
         UIApplication.shared.isIdleTimerDisabled = false
         [tickTask, startupTask, startTask].forEach { $0?.cancel() }
+        subtitleSearch?.cancel()
         displayMatcher.reset()
         lifecycleObservers.forEach(NotificationCenter.default.removeObserver)
         lifecycleObservers = []
@@ -100,12 +106,36 @@ final class MpvPlaybackController: ObservableObject {
 
     func trackOptions(_ kind: MpvTrackKind) -> [MpvTrackOption] {
         guard hasStarted, let mpv else { return [] }
-        return kind.options(using: mpv)
+        return kind.options(using: mpv, downloads: subtitleDownloads)
     }
 
     func select(_ option: MpvTrackOption, of kind: MpvTrackKind) {
         guard hasStarted else { return }
-        mpv?.setString(kind.selector, option.id)
+        if let download = option.download {
+            load(download)
+        } else {
+            mpv?.setString(kind.selector, option.id)
+        }
+    }
+
+    private func load(_ download: MpvSubtitleDownload) {
+        Self.log.notice("Adding online subtitle \(download.trackTitle, privacy: .public)")
+        mpv?.commandInBackground(
+            "sub-add",
+            download.url,
+            "select",
+            download.trackTitle,
+            download.language
+        )
+    }
+
+    private func searchOnlineSubtitles() {
+        subtitleSearch = TvosSubtitles.shared.load(
+            target: request.target,
+            stream: request.stream
+        ) { [weak self] subtitles in
+            self?.subtitleDownloads = MpvSubtitleDownload.ranked(subtitles)
+        }
     }
 
     func mediaInfo() -> [MpvInfoRow] {
@@ -177,6 +207,7 @@ final class MpvPlaybackController: ObservableObject {
 
     private func play() {
         guard !isFinished else { return }
+        hasRequestedPlay = true
         mpv?.setFlag(MpvProperty.pause, false)
     }
 
@@ -213,6 +244,7 @@ final class MpvPlaybackController: ObservableObject {
         switch name {
         case MpvProperty.pause:
             isPaused = value
+            isPausedByViewer = value && hasRequestedPlay
             if value { save(syncRemote: true, reason: "pause") }
         case MpvProperty.pausedForCache:
             isBuffering = value

@@ -61,11 +61,25 @@ final class MpvHandle {
     }
 
     func command(_ arguments: String...) {
+        run(arguments) { handle, cArguments in mpv_command(handle, cArguments) }
+    }
+
+    func commandInBackground(_ arguments: String...) {
+        run(arguments) { handle, cArguments in mpv_command_async(handle, 0, cArguments) }
+    }
+
+    private func run(
+        _ arguments: [String],
+        _ send: (OpaquePointer, UnsafeMutablePointer<UnsafePointer<CChar>?>) -> Int32
+    ) {
         guard !isClosed else { return }
         var cArguments: [UnsafePointer<CChar>?] = arguments.map { UnsafePointer(strdup($0)) }
         cArguments.append(nil)
         defer { cArguments.compactMap { $0 }.forEach { free(UnsafeMutablePointer(mutating: $0)) } }
-        check(mpv_command(handle, &cArguments), arguments.first ?? "command")
+        let status = cArguments.withUnsafeMutableBufferPointer { buffer in
+            send(handle, buffer.baseAddress!)
+        }
+        check(status, arguments.first ?? "command")
     }
 
     func setFlag(_ name: String, _ value: Bool) {

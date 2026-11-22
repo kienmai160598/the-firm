@@ -1,15 +1,18 @@
 import SwiftUI
 
 struct MpvTransportBar: View {
-    private static let restHeight: CGFloat = 10
+    private static let restHeight: CGFloat = 12
     private static let scrubHeight: CGFloat = 18
     private static let trackSlot: CGFloat = 18
     private static let labelSlot: CGFloat = 180
     private static let labelRowHeight: CGFloat = 44
     private static let playheadRise: CGFloat = 10
 
+    private static let skipRise: CGFloat = 40
+
     @ObservedObject var controller: MpvPlaybackController
     let isScrubbing: Bool
+    let skip: MpvSkip?
 
     var body: some View {
         GeometryReader { geometry in
@@ -20,22 +23,34 @@ struct MpvTransportBar: View {
                     .overlay {
                         if isScrubbing { playhead(at: playheadX) }
                     }
+                    .overlay {
+                        if let skip { skipBadge(skip, at: playheadX, width: width) }
+                    }
                 labels(width: width, playheadX: playheadX)
             }
         }
         .frame(height: Self.trackSlot + 12 + Self.labelRowHeight)
         .animation(.easeOut(duration: 0.2), value: isScrubbing)
+        .animation(.smooth(duration: 0.25), value: skip)
+    }
+
+    private func skipBadge(_ skip: MpvSkip, at x: CGFloat, width: CGFloat) -> some View {
+        let margin = MpvSkipBadge.size / 2
+        return MpvSkipBadge(skip: skip)
+            .position(x: min(max(x, margin), width - margin), y: -Self.skipRise)
+            .transition(.opacity.combined(with: .scale(scale: 0.7)))
     }
 
     private func track(width: CGFloat) -> some View {
         ZStack(alignment: .leading) {
-            Capsule().fill(.white.opacity(0.22))
-            Capsule().fill(.white.opacity(0.35))
+            Capsule().fill(.thinMaterial)
+            Capsule().fill(.white.opacity(0.3))
                 .frame(width: width * fraction(controller.bufferedSeconds))
             Capsule().fill(.white.opacity(isScrubbing ? 0.55 : 0.9))
                 .frame(width: width * fraction(controller.positionSeconds))
         }
-        .overlay(Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 1))
+        .overlay(Capsule().strokeBorder(.white.opacity(0.18), lineWidth: 1))
+        .shadow(color: .black.opacity(0.3), radius: 6, y: 2)
         .frame(height: isScrubbing ? Self.scrubHeight : Self.restHeight)
         .frame(height: Self.trackSlot)
     }
@@ -66,7 +81,7 @@ struct MpvTransportBar: View {
 
     @ViewBuilder
     private var elapsed: some View {
-        if controller.isPaused {
+        if controller.isPausedByViewer {
             Image(systemName: "pause.circle")
                 .font(.system(size: 30, weight: .regular))
                 .accessibilityLabel("Paused")
@@ -87,6 +102,31 @@ struct MpvTransportBar: View {
     private func fraction(_ seconds: Int) -> Double {
         guard controller.durationSeconds > 0 else { return 0 }
         return min(max(Double(seconds) / Double(controller.durationSeconds), 0), 1)
+    }
+}
+
+struct MpvSkip: Equatable {
+    let isForward: Bool
+    let presses: Int
+
+    func adding(isForward forward: Bool) -> MpvSkip {
+        MpvSkip(isForward: forward, presses: forward == isForward ? presses + 1 : 1)
+    }
+}
+
+private struct MpvSkipBadge: View {
+    static let size: CGFloat = 64
+
+    let skip: MpvSkip
+
+    var body: some View {
+        Image(systemName: skip.isForward ? "goforward.10" : "gobackward.10")
+            .font(.system(size: 44, weight: .semibold))
+            .foregroundStyle(.white)
+            .shadow(color: .black.opacity(0.4), radius: 8)
+            .symbolEffect(.bounce, value: skip.presses)
+            .frame(width: Self.size, height: Self.size)
+            .accessibilityLabel(skip.isForward ? "Skipped forward" : "Skipped back")
     }
 }
 

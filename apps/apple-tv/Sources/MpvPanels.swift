@@ -21,7 +21,8 @@ struct MpvTrackMenu: View {
             }
             ScrollView {
                 rows
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 4)
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.size.height
                     } action: { height in
@@ -64,7 +65,7 @@ struct MpvInfoMenu: View {
             ForEach(rows) { row in
                 HStack(alignment: .firstTextBaseline, spacing: 24) {
                     Text(row.label)
-                        .foregroundStyle(.white.opacity(0.55))
+                        .foregroundStyle(.secondary)
                     Spacer(minLength: 0)
                     Text(row.value)
                         .multilineTextAlignment(.trailing)
@@ -96,7 +97,7 @@ private struct MpvMenuPanel<Content: View>: View {
         VStack(alignment: .leading, spacing: 0) {
             content
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(.primary)
         .padding(14)
         .frame(width: width, alignment: .leading)
         .darkGlassPanel(cornerRadius: MpvMenuMetrics.cornerRadius)
@@ -110,7 +111,7 @@ private struct MpvMenuHeader: View {
     var body: some View {
         Text(title)
             .font(MpvMenuFont.header)
-            .foregroundStyle(.white.opacity(0.5))
+            .foregroundStyle(.secondary)
             .padding(.horizontal, MpvMenuMetrics.rowInset)
             .padding(.top, 10)
             .padding(.bottom, 6)
@@ -120,7 +121,7 @@ private struct MpvMenuHeader: View {
 private struct MpvMenuSeparator: View {
     var body: some View {
         Rectangle()
-            .fill(.white.opacity(0.14))
+            .fill(.separator)
             .frame(height: 1)
             .padding(.horizontal, MpvMenuMetrics.rowInset)
             .padding(.vertical, 10)
@@ -139,7 +140,8 @@ private struct MpvTrackRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(option.label)
                     .font(MpvMenuFont.row)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 if let detail = option.detail {
                     Text(detail)
                         .font(MpvMenuFont.detail)
@@ -164,53 +166,21 @@ private struct MpvMenuRowBody: View {
 
     var body: some View {
         configuration.label
-            .foregroundStyle(isFocused ? Color.black : Color.white)
+            .foregroundStyle(isFocused ? AnyShapeStyle(Color.black) : AnyShapeStyle(.primary))
             .padding(.leading, 14)
             .padding(.trailing, MpvMenuMetrics.rowInset)
             .padding(.vertical, 16)
             .background(Capsule().fill(.white.opacity(isFocused ? 1 : 0)))
-            .scaleEffect(isFocused ? 1.02 : 1)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFocused)
     }
 }
 
-struct MpvCircleButtonStyle: ButtonStyle {
-    let isOpen: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        MpvCircleButtonBody(configuration: configuration, isOpen: isOpen)
-    }
-}
-
-private struct MpvCircleButtonBody: View {
-    private static let diameter: CGFloat = 68
-
-    let configuration: ButtonStyleConfiguration
-    let isOpen: Bool
-    @Environment(\.isFocused) private var isFocused
-
-    var body: some View {
-        configuration.label
+extension View {
+    func mpvCircleButtonStyle(isOpen: Bool) -> some View {
+        glassCircleButtonStyle()
+            .tint(isOpen ? Color.white.opacity(0.4) : nil)
             .font(.system(size: 28, weight: .semibold))
-            .foregroundStyle(isFocused ? Color.black : Color.white)
-            .frame(width: Self.diameter, height: Self.diameter)
-            .background { background }
-            .scaleEffect(isFocused ? 1.1 : 1)
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 12, y: 6)
-            .animation(.easeOut(duration: 0.15), value: isFocused)
-    }
-
-    @ViewBuilder
-    private var background: some View {
-        if isFocused {
-            Circle().fill(.white)
-        } else if isOpen {
-            Circle().fill(.white.opacity(0.4))
-        } else {
-            Color.clear.darkGlassPanel(cornerRadius: Self.diameter / 2)
-        }
     }
 }
 

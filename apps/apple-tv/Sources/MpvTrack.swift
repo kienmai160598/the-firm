@@ -5,6 +5,7 @@ struct MpvTrackOption: Identifiable, Equatable {
     let label: String
     let detail: String?
     let isSelected: Bool
+    var download: MpvSubtitleDownload?
 }
 
 enum MpvTrackKind {
@@ -34,13 +35,22 @@ enum MpvTrackKind {
         }
     }
 
-    func options(using mpv: MpvHandle) -> [MpvTrackOption] {
+    func options(
+        using mpv: MpvHandle,
+        downloads: [MpvSubtitleDownload] = []
+    ) -> [MpvTrackOption] {
         let count = mpv.string("track-list/count").flatMap(Int.init) ?? 0
         let tracks = (0..<count).compactMap { index in option(at: index, using: mpv) }
         guard self == .subtitles else { return tracks }
+        let loadedUrls = Set((0..<count).compactMap { index in
+            mpv.string("track-list/\(index)/external-filename")
+        })
         let isOff = !tracks.contains(where: \.isSelected)
-        return [MpvTrackOption(id: Self.offId, label: "Off", detail: nil, isSelected: isOff)]
-            + tracks
+        let off = MpvTrackOption(id: Self.offId, label: "Off", detail: nil, isSelected: isOff)
+        let online = downloads
+            .filter { !loadedUrls.contains($0.url) }
+            .map(\.option)
+        return [off] + tracks + online
     }
 
     private func option(at index: Int, using mpv: MpvHandle) -> MpvTrackOption? {

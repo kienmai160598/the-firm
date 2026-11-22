@@ -43,6 +43,7 @@ enum MpvPanel: Equatable {
 
 struct MpvPlayerScreen: View {
     private static let hideDelay: Duration = .seconds(5)
+    private static let skipShown: Duration = .seconds(1)
     private static let infoRefresh: Duration = .seconds(1)
     private static let horizontalInset: CGFloat = 84
     private static let bottomInset: CGFloat = 96
@@ -63,6 +64,8 @@ struct MpvPlayerScreen: View {
     @State private var trackOptions: [MpvTrackOption] = []
     @State private var infoRows: [MpvInfoRow] = []
     @State private var hideTask: Task<Void, Never>?
+    @State private var skip: MpvSkip?
+    @State private var skipClearTask: Task<Void, Never>?
 
     init(request: PlaybackRequest, onFailure: @escaping (StreamNotice) -> Void) {
         target = request.target
@@ -91,6 +94,7 @@ struct MpvPlayerScreen: View {
             }
         }
         .ignoresSafeArea()
+        .environment(\.colorScheme, .dark)
         .animation(Self.controlsAnimation, value: isControlsShown)
         .animation(.smooth(duration: 0.3), value: isScrubbing)
         .animation(Self.panelAnimation, value: panel)
@@ -138,7 +142,7 @@ struct MpvPlayerScreen: View {
                 infoRow
                     .transition(.opacity.combined(with: .offset(y: Self.controlsRise / 2)))
             }
-            MpvTransportBar(controller: controller, isScrubbing: isScrubbing)
+            MpvTransportBar(controller: controller, isScrubbing: isScrubbing, skip: skip)
                 .allowsHitTesting(false)
         }
         .padding(.horizontal, Self.horizontalInset)
@@ -197,13 +201,15 @@ struct MpvPlayerScreen: View {
             ForEach(MpvControl.allCases, id: \.self) { control in
                 Button { open(control) } label: {
                     Image(systemName: control.symbol)
+                        .frame(width: 40, height: 40)
                 }
-                .buttonStyle(MpvCircleButtonStyle(isOpen: panel?.control == control))
+                .mpvCircleButtonStyle(isOpen: panel?.control == control)
                 .focused($focus, equals: .control(control))
                 .disabled(isTrackMenuOpen && panel?.control != control)
                 .accessibilityLabel(control.label)
             }
         }
+        .glassGroup(spacing: 20)
         .focusSection()
     }
 
@@ -244,11 +250,23 @@ struct MpvPlayerScreen: View {
         case .left:
             isScrubbing = true
             controller.seek(bySteps: -1)
+            showSkip(isForward: false)
         case .right:
             isScrubbing = true
             controller.seek(bySteps: 1)
+            showSkip(isForward: true)
         default:
             break
+        }
+    }
+
+    private func showSkip(isForward: Bool) {
+        skip = skip?.adding(isForward: isForward) ?? MpvSkip(isForward: isForward, presses: 1)
+        skipClearTask?.cancel()
+        skipClearTask = Task { @MainActor in
+            try? await Task.sleep(for: Self.skipShown)
+            guard !Task.isCancelled else { return }
+            skip = nil
         }
     }
 

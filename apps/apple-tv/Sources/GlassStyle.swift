@@ -46,9 +46,20 @@ extension View {
     func darkGlassPanel(cornerRadius: CGFloat) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         if #available(tvOS 26, *) {
-            glassEffect(.regular.tint(.black.opacity(0.55)), in: shape)
+            glassEffect(.regular, in: shape)
+                .environment(\.colorScheme, .dark)
         } else {
-            background(.black.opacity(0.6), in: shape)
+            background(.ultraThinMaterial, in: shape)
+                .environment(\.colorScheme, .dark)
+        }
+    }
+
+    @ViewBuilder
+    func glassGroup(spacing: CGFloat) -> some View {
+        if #available(tvOS 26, *) {
+            GlassEffectContainer(spacing: spacing) { self }
+        } else {
+            self
         }
     }
 }

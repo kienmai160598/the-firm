@@ -1,27 +1,35 @@
 import SwiftUI
 import NuvioTvShared
 
-struct StreamsHeaderPane: View {
-    static let width: CGFloat = 560
-
+struct StreamsHeader: View {
     let target: TvosStreamTarget
     let resume: TvosResumePoint?
     let isChecking: Bool
     let torrentStatus: TvosTorrentStatus?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            StreamsStill(url: target.episodeThumbnailUrl ?? target.backdropUrl)
-                .padding(.bottom, 36)
-            StreamsTitleBlock(target: target)
-            if let resume {
-                StreamsResumeView(resume: resume)
-                    .padding(.top, 28)
+        HStack(alignment: .bottom, spacing: 40) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(target.title)
+                    .font(.system(size: 52, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .accessibilityIdentifier("Streams")
+                if let subtitle = target.subtitle {
+                    Text(subtitle)
+                        .font(.system(size: 29, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.75))
+                        .lineLimit(1)
+                }
+                if let resume {
+                    StreamsResumeView(resume: resume)
+                        .padding(.top, 8)
+                }
             }
+            Spacer(minLength: 0)
             status
-                .padding(.top, 36)
         }
-        .frame(width: Self.width, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
@@ -30,38 +38,6 @@ struct StreamsHeaderPane: View {
             TorrentProgressView(status: torrentStatus)
         } else if isChecking {
             CheckingStreamView()
-        }
-    }
-}
-
-private struct StreamsStill: View {
-    let url: String?
-
-    var body: some View {
-        ArtworkImage(url: url)
-            .frame(width: StreamsHeaderPane.width, height: StreamsHeaderPane.width * 9 / 16)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: .black.opacity(0.4), radius: 24, y: 12)
-    }
-}
-
-private struct StreamsTitleBlock: View {
-    let target: TvosStreamTarget
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Streams")
-                .font(.system(size: 31, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.6))
-            Text(target.title)
-                .font(.system(size: 48, weight: .bold))
-                .lineLimit(2)
-            if let subtitle = target.subtitle {
-                Text(subtitle)
-                    .font(.system(size: 31, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.75))
-                    .lineLimit(2)
-            }
         }
     }
 }

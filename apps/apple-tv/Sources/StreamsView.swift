@@ -30,8 +30,8 @@ struct StreamsView: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 80) {
-            StreamsHeaderPane(
+        VStack(alignment: .leading, spacing: 36) {
+            StreamsHeader(
                 target: model.target,
                 resume: directResume,
                 isChecking: checkingStreamKey != nil,
