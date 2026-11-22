@@ -45,6 +45,38 @@ abstract class EmbedUpdateDexMetadataTask : DefaultTask() {
     }
 }
 
+// Downloads one file and keeps it only when its SHA-256 matches.
+abstract class DownloadVerifiedFileTask : DefaultTask() {
+    @get:Input
+    abstract val url: Property<String>
+
+    @get:Input
+    abstract val sha256: Property<String>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun download() {
+        val target = outputFile.get().asFile
+        target.parentFile.mkdirs()
+        val partial = File(target.path + ".part")
+        val source = URI(url.get())
+        try {
+            source.toURL().openConnection().apply {
+                connectTimeout = 30_000
+                readTimeout = 60_000
+            }.getInputStream().use { input -> partial.outputStream().use { input.copyTo(it) } }
+            val digest = MessageDigest.getInstance("SHA-256")
+                .digest(partial.readBytes()).joinToString("") { "%02x".format(it) }
+            check(digest == sha256.get()) { "Checksum mismatch for $source" }
+            Files.move(partial.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        } finally {
+            partial.delete()
+        }
+    }
+}
+
 fun parseBooleanProperty(value: String?): Boolean {
     val normalized = value?.trim()?.lowercase() ?: return false
     return normalized == "1" || normalized == "true" || normalized == "yes" || normalized == "on"
@@ -474,28 +506,13 @@ sentry {
 val sherpaOnnxVersion = "1.13.8"
 val sherpaOnnxSha256 = "633c24321e06b1fe79feafa03ea16cbc0f8a286641e2da3559bac91bdb13bd96"
 val sherpaOnnxAar = layout.buildDirectory.file("audio-sync/sherpa-onnx-$sherpaOnnxVersion.aar")
-val downloadAudioSyncRuntime by tasks.registering {
-    inputs.property("version", sherpaOnnxVersion)
-    inputs.property("sha256", sherpaOnnxSha256)
-    outputs.file(sherpaOnnxAar)
-    doLast {
-        val aar = sherpaOnnxAar.get().asFile
-        aar.parentFile.mkdirs()
-        val partial = File(aar.path + ".part")
-        val url = URI("https://github.com/k2-fsa/sherpa-onnx/releases/download/v$sherpaOnnxVersion/sherpa-onnx-$sherpaOnnxVersion.aar")
-        try {
-            url.toURL().openConnection().apply {
-                connectTimeout = 30_000
-                readTimeout = 60_000
-            }.getInputStream().use { input -> partial.outputStream().use { input.copyTo(it) } }
-            val digest = MessageDigest.getInstance("SHA-256")
-                .digest(partial.readBytes()).joinToString("") { "%02x".format(it) }
-            check(digest == sherpaOnnxSha256) { "Checksum mismatch for $url" }
-            Files.move(partial.toPath(), aar.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        } finally {
-            partial.delete()
-        }
-    }
+val downloadAudioSyncRuntime by tasks.registering(DownloadVerifiedFileTask::class) {
+    url.set(
+        "https://github.com/k2-fsa/sherpa-onnx/releases/download/" +
+            "v$sherpaOnnxVersion/sherpa-onnx-$sherpaOnnxVersion.aar"
+    )
+    sha256.set(sherpaOnnxSha256)
+    outputFile.set(sherpaOnnxAar)
 }
 
 dependencies {
