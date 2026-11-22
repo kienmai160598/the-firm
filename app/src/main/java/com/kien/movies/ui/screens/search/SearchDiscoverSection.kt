@@ -82,7 +82,7 @@ import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.PosterCardStyle
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.util.dpadVerticalFastScroll
 import com.kien.movies.ui.util.formatAddonTypeLabel
@@ -782,7 +782,7 @@ private fun DiscoverActionCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(cardShape)
-                    .nuvioCardDepth(
+                    .moviesCardDepth(
                         shape = cardShape,
                         surface = CardDepthSurface.POSTERS,
                         style = cardDepthStyle

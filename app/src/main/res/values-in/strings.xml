@@ -1977,7 +1977,7 @@
     <string name="collections_paste_clipboard">Tempel dari Clipboard</string>
     <string name="collections_validate">Validasi</string>
     <string name="collections_paste_hint">Tempel JSON koleksi di sini…</string>
-    <string name="collections_file_description">Membaca nuvio-collections.json dari folder Unduhan.</string>
+    <string name="collections_file_description">Membaca movies-collections.json dari folder Unduhan.</string>
     <string name="collections_load_file">Muat File</string>
     <string name="collections_file_loaded">File dimuat (%1$d karakter)</string>
     <string name="collections_fetch_url">Ambil URL</string>

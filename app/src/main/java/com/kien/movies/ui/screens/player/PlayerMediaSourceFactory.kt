@@ -116,11 +116,11 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     var parallelChunkSizeKb: Int = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB
     // Gated by the parallel network toggle because its only use is the native memory argument to
     // the chunk data source, which nothing else builds.
-    var nuvioPerformanceModeEnabled: Boolean = PlayerSettings.DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED
+    var moviesPerformanceModeEnabled: Boolean = PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
 
     // The engine runs off the setting whether or not the parallel gate above passed, so the log
     // reports this rather than the gated flag.
-    var nativeEngineEnabled: Boolean = PlayerSettings.DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED
+    var nativeEngineEnabled: Boolean = PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
 
     // Reported only: both decide which target the helper hands the load control, so a log without
     // them cannot say why a run used the size it did.
@@ -144,7 +144,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         connections: Int,
         chunkBytes: Long
     ): Int {
-        if (!nuvioPerformanceModeEnabled) return connections + 1
+        if (!moviesPerformanceModeEnabled) return connections + 1
         val chunkMb = (chunkBytes / (1024L * 1024L)).toInt().coerceAtLeast(1)
         val safeNativeMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
         val reserveMb = MoviesExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
@@ -235,7 +235,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 .coerceAtMost(com.kien.movies.ui.screens.settings.MemoryBudget.tierMaxChunkMb * 1024)
                 .toLong() * 1024L
             val effectiveNative =
-                nuvioPerformanceModeEnabled || NuvioEngineConfig.get().isNativeAllocationEnabled()
+                moviesPerformanceModeEnabled || NuvioEngineConfig.get().isNativeAllocationEnabled()
             ParallelRangeDataSource.Factory(
                 okHttpFactory,
                 sessionConnections,

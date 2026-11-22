@@ -2127,7 +2127,7 @@
     <string name="collections_paste_clipboard">Vložit ze schránky</string>
     <string name="collections_validate">Ověřit</string>
     <string name="collections_paste_hint">Vložte JSON kolekcí sem…</string>
-    <string name="collections_file_description">Čte soubor nuvio-collections.json ze složky Stahování.</string>
+    <string name="collections_file_description">Čte soubor movies-collections.json ze složky Stahování.</string>
     <string name="collections_load_file">Načíst soubor</string>
     <string name="collections_file_loaded">Soubor načten (%1$d znaků)</string>
     <string name="collections_fetch_url">Načíst URL</string>

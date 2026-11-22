@@ -2696,7 +2696,7 @@
     <string name="collections_paste_clipboard">Colar da área de transferência</string>
     <string name="collections_validate">Validar</string>
     <string name="collections_paste_hint">Cola o JSON das coleções aqui…</string>
-    <string name="collections_file_description">Lê nuvio-collections.json da pasta Transferências.</string>
+    <string name="collections_file_description">Lê movies-collections.json da pasta Transferências.</string>
     <string name="collections_load_file">Carregar ficheiro</string>
     <string name="collections_file_loaded">Ficheiro carregado (%1$d carateres)</string>
     <string name="collections_fetch_url">Obter URL</string>

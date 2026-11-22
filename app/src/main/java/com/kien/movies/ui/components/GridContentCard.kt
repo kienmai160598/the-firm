@@ -199,7 +199,7 @@ fun GridContentCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(cardShape)
-                    .nuvioCardDepth(
+                    .moviesCardDepth(
                         shape = cardShape,
                         surface = depthSurface,
                         style = cardDepthStyle

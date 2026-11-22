@@ -406,7 +406,7 @@ fun ContentCard(
                     .fillMaxWidth()
                     .height(baseCardHeight)
                     .clip(cardShape)
-                    .nuvioCardDepth(
+                    .moviesCardDepth(
                         shape = cardShape,
                         surface = CardDepthSurface.POSTERS,
                         style = cardDepthStyle

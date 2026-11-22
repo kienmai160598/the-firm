@@ -1702,7 +1702,7 @@
     <string name="collections_paste_clipboard">Prilepi iz odložišča</string>
     <string name="collections_validate">Preveri veljavnost</string>
     <string name="collections_paste_hint">Sem prilepite JSON zbirk…</string>
-    <string name="collections_file_description">Prebere nuvio-collections.json iz mape Prenosi (Downloads).</string>
+    <string name="collections_file_description">Prebere movies-collections.json iz mape Prenosi (Downloads).</string>
     <string name="collections_load_file">Naloži datoteko</string>
     <string name="collections_file_loaded">Datoteka naložena (%1$d znakov)</string>
     <string name="collections_fetch_url">Pridobi URL</string>

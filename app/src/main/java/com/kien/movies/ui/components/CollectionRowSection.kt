@@ -298,7 +298,7 @@ private fun FolderCard(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(shape)
-                .nuvioCardDepth(
+                .moviesCardDepth(
                     shape = shape,
                     surface = CardDepthSurface.POSTERS,
                     style = cardDepthStyle

@@ -443,8 +443,8 @@
     <string name="licenses_attributions_section_ui">THƯ VIỆN GIAO DIỆN NGƯỜI DÙNG</string>
     <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
     <string name="licenses_attributions_haze_body">Dùng cho hiệu ứng làm mờ nền. Được tạo bởi Chris Banes. Được cấp phép theo Giấy phép Apache, Phiên bản 2.0.</string>
-    <string name="licenses_attributions_nuvio_title">Nuvio TV</string>
-    <string name="licenses_attributions_nuvio_body">Mã nguồn và các điều khoản cấp phép có sẵn trong kho lưu trữ của dự án. Phần mềm được cấp phép theo Giấy phép Công cộng GNU phiên bản 3.0.</string>
+    <string name="licenses_attributions_nuvio_title">Dựa trên Nuvio TV</string>
+    <string name="licenses_attributions_nuvio_body">Movies là bản sửa đổi của Nuvio TV do NuvioMedia phát triển (github.com/NuvioMedia/NuvioTV). Cả hai được cấp phép theo GNU General Public License v3.0.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Movies sử dụng API TMDB để lấy dữ liệu phim và TV, ảnh hiển thị, trailer, diễn viên, thông tin sản xuất, bộ sưu tập và đề xuất. Sản phẩm này sử dụng API TMDB nhưng không được TMDB xác thực hoặc chứng nhận.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -2705,7 +2705,7 @@
     <string name="collections_paste_clipboard">Dán từ bảng nhớ tạm</string>
     <string name="collections_validate">Xác minh</string>
     <string name="collections_paste_hint">Dán JSON bộ sưu tập vào đây…</string>
-    <string name="collections_file_description">Đọc tệp nuvio-collections.json từ thư mục Tải xuống.</string>
+    <string name="collections_file_description">Đọc tệp movies-collections.json từ thư mục Tải xuống.</string>
     <string name="collections_load_file">Tải tệp</string>
     <string name="collections_file_loaded">Đã tải tệp (%1$d ký tự)</string>
     <string name="collections_fetch_url">Truy xuất URL</string>

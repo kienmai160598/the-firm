@@ -2176,7 +2176,7 @@
     <string name="collections_paste_clipboard">Ngjit nga clipboard-i</string>
     <string name="collections_validate">Vërteto</string>
     <string name="collections_paste_hint">Ngjit JSON-in e koleksioneve këtu…</string>
-    <string name="collections_file_description">Lexon nuvio-collections.json nga dosja Shkarkimet.</string>
+    <string name="collections_file_description">Lexon movies-collections.json nga dosja Shkarkimet.</string>
     <string name="collections_load_file">Ngarko skedarin</string>
     <string name="collections_file_loaded">Skedari u ngarkua (%1$d karaktere)</string>
     <string name="collections_fetch_url">Merr URL-në</string>

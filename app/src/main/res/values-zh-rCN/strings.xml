@@ -2466,7 +2466,7 @@
     <string name="collections_paste_clipboard">从剪贴板粘贴</string>
     <string name="collections_validate">验证</string>
     <string name="collections_paste_hint">在此粘贴收藏 JSON…</string>
-    <string name="collections_file_description">从下载文件夹读取 nuvio-collections.json。</string>
+    <string name="collections_file_description">从下载文件夹读取 movies-collections.json。</string>
     <string name="collections_load_file">加载文件</string>
     <string name="collections_file_loaded">文件已加载 (%1$d 个字符)</string>
     <string name="collections_fetch_url">获取网址</string>

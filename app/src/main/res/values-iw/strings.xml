@@ -2685,7 +2685,7 @@
     <string name="collections_paste_clipboard">הדבקה מהמקלדת</string>
     <string name="collections_validate">אימות</string>
     <string name="collections_paste_hint">הדבקת JSON של אוספים כאן…</string>
-    <string name="collections_file_description">קריאת nuvio-collections.json מתיקיית ההורדות.</string>
+    <string name="collections_file_description">קריאת movies-collections.json מתיקיית ההורדות.</string>
     <string name="collections_load_file">טעינת קובץ</string>
     <string name="collections_file_loaded">הקובץ נטען (%1$d תווים)</string>
     <string name="collections_fetch_url">משיכת URL</string>

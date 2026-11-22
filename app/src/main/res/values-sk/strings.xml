@@ -1983,7 +1983,7 @@
     <string name="collections_paste_clipboard">Vložiť zo schránky</string>
     <string name="collections_validate">Overiť</string>
     <string name="collections_paste_hint">Sem vložte JSON kolekcií…</string>
-    <string name="collections_file_description">Načíta nuvio-collections.json z priečinka Stiahnuté.</string>
+    <string name="collections_file_description">Načíta movies-collections.json z priečinka Stiahnuté.</string>
     <string name="collections_load_file">Načítať súbor</string>
     <string name="collections_file_loaded">Súbor načítaný (%1$d znakov)</string>
     <string name="collections_fetch_url">Načítať URL</string>

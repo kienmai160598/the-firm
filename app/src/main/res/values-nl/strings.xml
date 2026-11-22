@@ -2609,7 +2609,7 @@
     <string name="collections_paste_clipboard">Plakken vanaf klembord</string>
     <string name="collections_validate">Valideren</string>
     <string name="collections_paste_hint">Plak hier de JSON met collecties…</string>
-    <string name="collections_file_description">Leest nuvio-collections.json uit de map Downloads.</string>
+    <string name="collections_file_description">Leest movies-collections.json uit de map Downloads.</string>
     <string name="collections_load_file">Bestand laden</string>
     <string name="collections_file_loaded">Bestand geladen (%1$d tekens)</string>
     <string name="collections_fetch_url">URL ophalen</string>

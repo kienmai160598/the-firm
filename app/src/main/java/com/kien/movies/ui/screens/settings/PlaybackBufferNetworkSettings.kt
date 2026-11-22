@@ -46,10 +46,10 @@ internal fun PlaybackBufferNetworkSection(
     SettingsToggleRow(
         title = stringResource(R.string.playback_net_nuvio_performance_mode),
         subtitle = stringResource(R.string.playback_net_nuvio_performance_mode_sub),
-        checked = isSupported && settings.nuvioPerformanceModeEnabled,
+        checked = isSupported && settings.moviesPerformanceModeEnabled,
         onToggle = {
             if (isSupported) {
-                updateMemory { setMoviesPerformanceModeEnabled(!settings.nuvioPerformanceModeEnabled) }
+                updateMemory { setMoviesPerformanceModeEnabled(!settings.moviesPerformanceModeEnabled) }
             } else {
                 showPerformanceModeWarning = true
             }
@@ -60,7 +60,7 @@ internal fun PlaybackBufferNetworkSection(
             text = stringResource(R.string.playback_net_nuvio_performance_mode_not_supported),
             tone = SettingsNoteTone.Danger
         )
-    } else if (isSupported && settings.nuvioPerformanceModeEnabled) {
+    } else if (isSupported && settings.moviesPerformanceModeEnabled) {
         SettingsNote(
             text = stringResource(
                 R.string.playback_net_device_memory_info,
@@ -112,7 +112,7 @@ private fun CustomBufferControls(
 ) {
     val context = LocalContext.current
     val buffer = settings.bufferSettings
-    val isNativeMemory = settings.nuvioPerformanceModeEnabled
+    val isNativeMemory = settings.moviesPerformanceModeEnabled
     val maxDuration = if (isNativeMemory) 1200 else 120
     val durationStep = if (isNativeMemory) 10 else 5
 
@@ -202,12 +202,12 @@ private fun CustomBufferControls(
     } else {
         0
     }
-    val safeMaxMb = if (settings.nuvioPerformanceModeEnabled) {
+    val safeMaxMb = if (settings.moviesPerformanceModeEnabled) {
         MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
     } else {
         MemoryBudget.maxBufferMb(parallelOverheadMb)
     }
-    val warningMaxMb = if (settings.nuvioPerformanceModeEnabled) {
+    val warningMaxMb = if (settings.moviesPerformanceModeEnabled) {
         MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
     } else {
         (((MemoryBudget.budgetMb * 1.25f).toInt() - parallelOverheadMb) / MemoryBudget.BUFFER_STEP_MB * MemoryBudget.BUFFER_STEP_MB)
@@ -219,7 +219,7 @@ private fun CustomBufferControls(
         warningMaxMb
     }
     val minBufferSizeMb = MemoryBudget.MIN_TARGET_BUFFER_MB.coerceAtMost(maxBufferSizeMb)
-    val bufferSizeMb = if (settings.nuvioPerformanceModeEnabled && budgetManaged) {
+    val bufferSizeMb = if (settings.moviesPerformanceModeEnabled && budgetManaged) {
         safeMaxMb
     } else {
         MemoryBudget
@@ -231,7 +231,7 @@ private fun CustomBufferControls(
         title = stringResource(R.string.playback_buffer_target),
         subtitle = stringResource(R.string.playback_buffer_target_sub),
         value = bufferSizeMb,
-        valueText = if (settings.nuvioPerformanceModeEnabled && parallelActive && parallelOverheadMb > 0) {
+        valueText = if (settings.moviesPerformanceModeEnabled && parallelActive && parallelOverheadMb > 0) {
             "$effectiveExoMb+$parallelOverheadMb MB"
         } else {
             "$bufferSizeMb MB"
@@ -359,12 +359,12 @@ private fun ParallelNetworkControls(
             value = settings.parallelConnectionCount,
             valueText = settings.parallelConnectionCount.toString(),
             minValue = MemoryBudget.MIN_CONNECTIONS,
-            maxValue = if (settings.nuvioPerformanceModeEnabled) 16 else MemoryBudget.MAX_CONNECTIONS,
+            maxValue = if (settings.moviesPerformanceModeEnabled) 16 else MemoryBudget.MAX_CONNECTIONS,
             step = 1,
             onValueChange = { count -> updateMemory { setParallelConnectionCount(count) } }
         )
 
-        val maxChunkSizeMb = if (settings.nuvioPerformanceModeEnabled) {
+        val maxChunkSizeMb = if (settings.moviesPerformanceModeEnabled) {
             MemoryBudget.tierMaxChunkMb
         } else {
             MemoryBudget.maxChunkMb(
@@ -400,7 +400,7 @@ private fun ParallelNetworkControls(
 internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     val context = LocalContext.current
     val effectiveBufferMb = when {
-        settings.nuvioPerformanceModeEnabled -> {
+        settings.moviesPerformanceModeEnabled -> {
             if (settings.bufferEngineEnabled && !settings.bufferBudgetManaged) {
                 MemoryBudget.effectiveBufferMb(settings.bufferSettings.targetBufferSizeMb)
             } else {
@@ -420,17 +420,17 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     } else {
         0
     }
-    val totalUsageMb = if (settings.nuvioPerformanceModeEnabled) {
+    val totalUsageMb = if (settings.moviesPerformanceModeEnabled) {
         effectiveBufferMb
     } else {
         MemoryBudget.totalUsageMb(effectiveBufferMb, settings.parallelConnectionCount, chunkMb, parallelActive)
     }
-    val safeLimitMb = if (settings.nuvioPerformanceModeEnabled) {
+    val safeLimitMb = if (settings.moviesPerformanceModeEnabled) {
         MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
     } else {
         MemoryBudget.budgetMb
     }
-    val warningLimitMb = if (settings.nuvioPerformanceModeEnabled) {
+    val warningLimitMb = if (settings.moviesPerformanceModeEnabled) {
         MoviesExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
     } else {
         (MemoryBudget.budgetMb * 1.25f).toInt()
@@ -442,7 +442,7 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     }
     val effectiveExoMb = (effectiveBufferMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
     val baseText = stringResource(R.string.playback_estimated_memory_usage, totalUsageMb, warningLimitMb)
-    val usageText = if (settings.nuvioPerformanceModeEnabled && parallelActive && parallelOverheadMb > 0) {
+    val usageText = if (settings.moviesPerformanceModeEnabled && parallelActive && parallelOverheadMb > 0) {
         baseText
             .replace("$totalUsageMb / $warningLimitMb", "$totalUsageMb($effectiveExoMb+$parallelOverheadMb)/$warningLimitMb")
             .replace("$totalUsageMb /", "$totalUsageMb($effectiveExoMb+$parallelOverheadMb)/")

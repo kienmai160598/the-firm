@@ -15,7 +15,7 @@ import com.kien.movies.domain.model.DEFAULT_CARD_DEPTH_EDGE_COVERAGE
 
 val LocalCardDepthStyle = staticCompositionLocalOf { CardDepthStyle() }
 
-fun Modifier.nuvioCardDepth(
+fun Modifier.moviesCardDepth(
     shape: Shape,
     surface: CardDepthSurface,
     style: CardDepthStyle,

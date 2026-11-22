@@ -27,7 +27,7 @@ class AuthSessionNoticeDataStore @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val hadMoviesAuthKey = booleanPreferencesKey("had_nuvio_auth")
-    private val nuvioExplicitLogoutKey = booleanPreferencesKey("nuvio_explicit_logout")
+    private val moviesExplicitLogoutKey = booleanPreferencesKey("nuvio_explicit_logout")
     private val pendingMoviesNoticeKey = booleanPreferencesKey("pending_nuvio_notice")
 
     private val hadTraktAuthKey = booleanPreferencesKey("had_trakt_auth")
@@ -45,7 +45,7 @@ class AuthSessionNoticeDataStore @Inject constructor(
     suspend fun markMoviesAuthenticated() {
         context.authSessionNoticeDataStore.edit { preferences ->
             preferences[hadMoviesAuthKey] = true
-            preferences[nuvioExplicitLogoutKey] = false
+            preferences[moviesExplicitLogoutKey] = false
             preferences[pendingMoviesNoticeKey] = false
         }
     }
@@ -53,7 +53,7 @@ class AuthSessionNoticeDataStore @Inject constructor(
     suspend fun markMoviesExplicitLogout() {
         context.authSessionNoticeDataStore.edit { preferences ->
             preferences[hadMoviesAuthKey] = false
-            preferences[nuvioExplicitLogoutKey] = true
+            preferences[moviesExplicitLogoutKey] = true
             preferences[pendingMoviesNoticeKey] = false
         }
     }
@@ -62,13 +62,13 @@ class AuthSessionNoticeDataStore @Inject constructor(
         var marked = false
         context.authSessionNoticeDataStore.edit { preferences ->
             val hadAuth = preferences[hadMoviesAuthKey] == true
-            val explicitLogout = preferences[nuvioExplicitLogoutKey] == true
+            val explicitLogout = preferences[moviesExplicitLogoutKey] == true
             if (hadAuth && !explicitLogout) {
                 preferences[pendingMoviesNoticeKey] = true
                 marked = true
             }
             preferences[hadMoviesAuthKey] = false
-            preferences[nuvioExplicitLogoutKey] = false
+            preferences[moviesExplicitLogoutKey] = false
         }
         return marked
     }

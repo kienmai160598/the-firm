@@ -1676,7 +1676,7 @@
     <string name="collections_paste_clipboard">Wklej ze schowka</string>
     <string name="collections_validate">Sprawdź</string>
     <string name="collections_paste_hint">Wklej JSON kolekcji tutaj…</string>
-    <string name="collections_file_description">Odczytuje nuvio-collections.json z folderu Pobrane.</string>
+    <string name="collections_file_description">Odczytuje movies-collections.json z folderu Pobrane.</string>
     <string name="collections_load_file">Wczytaj plik</string>
     <string name="collections_file_loaded">Plik wczytany (%1$d znaków)</string>
     <string name="collections_fetch_url">Pobierz URL</string>

@@ -2600,7 +2600,7 @@
     <string name="collections_paste_clipboard">Поставяне от клипборда</string>
     <string name="collections_validate">Валидиране</string>
     <string name="collections_paste_hint">Поставете JSON от колекции тук…</string>
-    <string name="collections_file_description">Чете nuvio-collections.json от папката „Изтегляния“.</string>
+    <string name="collections_file_description">Чете movies-collections.json от папката „Изтегляния“.</string>
     <string name="collections_load_file">Зареждане на файл</string>
     <string name="collections_file_loaded">Файлът е зареден (%1$d знака)</string>
     <string name="collections_fetch_url">Извличане на URL адрес</string>

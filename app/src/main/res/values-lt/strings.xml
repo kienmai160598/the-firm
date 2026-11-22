@@ -2616,7 +2616,7 @@
     <string name="collections_paste_clipboard">Įklijuoti iš iškarpinės</string>
     <string name="collections_validate">Tikrinti</string>
     <string name="collections_paste_hint">Įklijuokite kolekcijų JSON čia…</string>
-    <string name="collections_file_description">Skaito nuvio-collections.json iš atsisiuntimų aplanko.</string>
+    <string name="collections_file_description">Skaito movies-collections.json iš atsisiuntimų aplanko.</string>
     <string name="collections_load_file">Įkelti failą</string>
     <string name="collections_file_loaded">Failas įkeltas (simbolių: %1$d)</string>
     <string name="collections_fetch_url">Gauti iš URL</string>

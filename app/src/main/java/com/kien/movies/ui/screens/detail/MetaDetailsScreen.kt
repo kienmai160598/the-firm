@@ -1152,7 +1152,7 @@ fun MetaDetailsScreen(
         }
 
         if (uiState.showListPicker) {
-            val nuvioListTab = LibraryListTab(
+            val moviesListTab = LibraryListTab(
                 key = LOCAL_LIBRARY_LIST_KEY,
                 title = stringResource(R.string.trakt_library_source_nuvio),
                 type = LibraryListTab.Type.WATCHLIST
@@ -1161,7 +1161,7 @@ fun MetaDetailsScreen(
             val providerTabs = uiState.libraryListTabs.filter { tab ->
                 tab.supportsMembershipFor(contentType)
             }
-            val combinedTabs = listOf(nuvioListTab) + providerTabs
+            val combinedTabs = listOf(moviesListTab) + providerTabs
             PosterListPickerDialog(
                 title = uiState.meta?.name ?: stringResource(R.string.detail_lists_fallback),
                 tabs = combinedTabs,

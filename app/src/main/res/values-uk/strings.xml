@@ -2016,7 +2016,7 @@
     <string name="collections_paste_clipboard">Вставити з буфера обміну</string>
     <string name="collections_validate">Перевірити</string>
     <string name="collections_paste_hint">Вставте JSON колекцій сюди…</string>
-    <string name="collections_file_description">Читає nuvio-collections.json з папки Завантаження.</string>
+    <string name="collections_file_description">Читає movies-collections.json з папки Завантаження.</string>
     <string name="collections_load_file">Завантажити файл</string>
     <string name="collections_file_loaded">Файл завантажено (%1$d символів)</string>
     <string name="collections_fetch_url">Завантажити URL</string>

@@ -2395,7 +2395,7 @@
     <string name="collections_paste_clipboard">لصق من الحافظة</string>
     <string name="collections_validate">تحقق</string>
     <string name="collections_paste_hint">الصق نص JSON الخاص بالمجموعات هنا…</string>
-    <string name="collections_file_description">يقرأ nuvio-collections.json من مجلد التنزيلات.</string>
+    <string name="collections_file_description">يقرأ movies-collections.json من مجلد التنزيلات.</string>
     <string name="collections_load_file">تحميل الملف</string>
     <string name="collections_file_loaded">تم تحميل الملف (%1$d حرفًا)</string>
     <string name="collections_fetch_url">جلب من الرابط</string>

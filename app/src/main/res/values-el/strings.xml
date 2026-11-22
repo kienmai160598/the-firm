@@ -2414,7 +2414,7 @@
   <string name="collections_paste_clipboard">Επικόλληση από το πρόχειρο</string>
   <string name="collections_validate">Επικύρωση</string>
   <string name="collections_paste_hint">Επικολλήστε εδώ το JSON των συλλογών…</string>
-  <string name="collections_file_description">Διαβάζει το nuvio-collections.json από τον φάκελο Λήψεις.</string>
+  <string name="collections_file_description">Διαβάζει το movies-collections.json από τον φάκελο Λήψεις.</string>
   <string name="collections_load_file">Φόρτωση αρχείου</string>
   <string name="collections_file_loaded">Το αρχείο φορτώθηκε (%1$d χαρακτήρες)</string>
   <string name="collections_fetch_url">Ανάκτηση URL</string>

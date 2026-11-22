@@ -89,7 +89,7 @@ import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
 import com.kien.movies.ui.components.LocalCardDepthStyle
 import com.kien.movies.ui.components.LocalLandscapePosterMode
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.screens.home.ClassicFocusArtwork
 import com.kien.movies.ui.screens.home.ClassicFocusGradientBackdrop
@@ -592,7 +592,7 @@ private fun TabbedGridContent(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clip(cardShape)
-                                        .nuvioCardDepth(
+                                        .moviesCardDepth(
                                             shape = cardShape,
                                             surface = CardDepthSurface.POSTERS,
                                             style = cardDepthStyle

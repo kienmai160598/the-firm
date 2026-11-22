@@ -2378,7 +2378,7 @@
 <string name="collections_paste_clipboard">Incolla dagli appunti</string>
 <string name="collections_validate">Convalida</string>
 <string name="collections_paste_hint">Incolla qui il JSON delle collezioni…</string>
-<string name="collections_file_description">Legge nuvio-collections.json dalla cartella Download.</string>
+<string name="collections_file_description">Legge movies-collections.json dalla cartella Download.</string>
 <string name="collections_load_file">Carica file</string>
 <string name="collections_file_loaded">File caricato (%1$d caratteri)</string>
 <string name="collections_fetch_url">Recupera URL</string>

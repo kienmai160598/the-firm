@@ -2964,7 +2964,7 @@
     <string name="collections_paste_clipboard">Panodan Yapıştır</string>
     <string name="collections_validate">Doğrula</string>
     <string name="collections_paste_hint">JSON\'u buraya yapıştırın…</string>
-    <string name="collections_file_description">İndirilenler klasöründeki nuvio-collections.json dosyasını okur.</string>
+    <string name="collections_file_description">İndirilenler klasöründeki movies-collections.json dosyasını okur.</string>
     <string name="collections_load_file">Dosyayı Yükle</string>
     <string name="collections_file_loaded">Dosya yüklendi (%1$d karakter)</string>
     <string name="collections_fetch_url">URL\'yi Getir</string>

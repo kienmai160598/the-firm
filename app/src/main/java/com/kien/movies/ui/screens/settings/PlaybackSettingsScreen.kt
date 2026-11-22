@@ -130,7 +130,7 @@ fun PlaybackSettingsContent(
             visible = showMemoryUsage && (
                 playerSettings.bufferEngineEnabled ||
                     playerSettings.parallelNetworkEnabled ||
-                    playerSettings.nuvioPerformanceModeEnabled
+                    playerSettings.moviesPerformanceModeEnabled
                 ),
             enter = fadeIn(),
             exit = fadeOut()

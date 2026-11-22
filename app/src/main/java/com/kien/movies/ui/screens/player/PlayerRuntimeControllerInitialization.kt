@@ -487,7 +487,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             // and shrink the budget at first frame (below).
             val libdoviConversionActive = effectiveDv7Mode == Dv7HandlingMode.DV81_LIBDOVI
             MoviesExoPlayerPerformanceHelper.updateSettings(playerSettings, context)
-            MoviesExoPlayerPerformanceHelper.enabled = playerSettings.nuvioPerformanceModeEnabled
+            MoviesExoPlayerPerformanceHelper.enabled = playerSettings.moviesPerformanceModeEnabled
             val streamMime = currentStreamMimeType
             val isHls = streamMime != null && (
                 streamMime.equals(MimeTypes.APPLICATION_M3U8, ignoreCase = true) ||
@@ -523,7 +523,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             }
             currentParallelChunkOverheadMb = parallelOverheadMb
 
-            val loadControl = if (playerSettings.nuvioPerformanceModeEnabled) {
+            val loadControl = if (playerSettings.moviesPerformanceModeEnabled) {
                 effectiveBackBufferDurationMs = MoviesExoPlayerPerformanceHelper.backBufferMs
                 currentBitrateAwareLoadControl = null
                 Log.i(
@@ -563,7 +563,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                     true,
                     C.DEFAULT_BUFFER_SEGMENT_SIZE,
                     64,
-                    playerSettings.nuvioPerformanceModeEnabled
+                    playerSettings.moviesPerformanceModeEnabled
                 )
                 // Both engines report through the same sampler, so whichever built last owns it.
                 MoviesExoPlayerPerformanceHelper.liveAllocator = allocator
@@ -605,9 +605,9 @@ internal fun PlayerRuntimeController.initializePlayer(
             mediaSourceFactory.vodCacheEnabled = playerSettings.vodCacheEnabled
             mediaSourceFactory.vodCacheSizeMode = playerSettings.vodCacheSizeMode
             mediaSourceFactory.vodCacheSizeMb = playerSettings.vodCacheSizeMb
-            mediaSourceFactory.nativeEngineEnabled = playerSettings.nuvioPerformanceModeEnabled
+            mediaSourceFactory.nativeEngineEnabled = playerSettings.moviesPerformanceModeEnabled
 
-            mediaSourceFactory.nuvioPerformanceModeEnabled = playerSettings.nuvioPerformanceModeEnabled
+            mediaSourceFactory.moviesPerformanceModeEnabled = playerSettings.moviesPerformanceModeEnabled
             if (playerSettings.parallelNetworkEnabled && !isTorrentStream) {
                 mediaSourceFactory.useParallelConnections = playerSettings.useParallelConnections
                 mediaSourceFactory.parallelConnectionCount = playerSettings.parallelConnectionCount
@@ -619,13 +619,13 @@ internal fun PlayerRuntimeController.initializePlayer(
 
             // Log the effective state (post-gating), not the raw settings.
             val engineNative = androidx.media3.common.NuvioEngineConfig.get().isNativeAllocationEnabled()
-            val effectiveNative = mediaSourceFactory.nuvioPerformanceModeEnabled || engineNative
+            val effectiveNative = mediaSourceFactory.moviesPerformanceModeEnabled || engineNative
             Log.i(
                 PlayerRuntimeController.TAG,
                 "BUFFER_NETWORK: bufferEngine=${playerSettings.bufferEngineEnabled} " +
                         "parallelNetwork=${playerSettings.parallelNetworkEnabled} " +
                         "useParallel=${mediaSourceFactory.useParallelConnections} " +
-                        "nuvioPerf=${mediaSourceFactory.nuvioPerformanceModeEnabled} " +
+                        "moviesPerf=${mediaSourceFactory.moviesPerformanceModeEnabled} " +
                         "engineNative=$engineNative useNativeEffective=$effectiveNative " +
                         "vodCache=${mediaSourceFactory.vodCacheEnabled} " +
                         "host=${url.safeHost()}"

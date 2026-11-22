@@ -2696,7 +2696,7 @@
     <string name="collections_paste_clipboard">Coller depuis le presse-papiers</string>
     <string name="collections_validate">Valider</string>
     <string name="collections_paste_hint">Collez le JSON des collections ici…</string>
-    <string name="collections_file_description">Lit le fichier nuvio-collections.json dans le dossier Téléchargements.</string>
+    <string name="collections_file_description">Lit le fichier movies-collections.json dans le dossier Téléchargements.</string>
     <string name="collections_load_file">Charger le fichier</string>
     <string name="collections_file_loaded">Fichier chargé (%1$d caractères)</string>
     <string name="collections_fetch_url">Récupérer l’URL</string>

@@ -125,7 +125,7 @@ import com.kien.movies.ui.components.MonochromePosterPlaceholder
 import com.kien.movies.ui.components.TrailerPlayer
 import com.kien.movies.ui.components.WatchedMarker
 import com.kien.movies.ui.components.placeholderCardShimmer
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.ui.components.LightweightCard
 import com.kien.movies.ui.components.rememberArtworkBackedFocusGlow
 import com.kien.movies.ui.components.rememberPlaceholderShimmerOffsetState
@@ -1376,7 +1376,7 @@ private fun ModernCarouselCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(cardShape)
-                    .nuvioCardDepth(
+                    .moviesCardDepth(
                         shape = cardShape,
                         surface = CardDepthSurface.POSTERS,
                         style = cardDepthStyle

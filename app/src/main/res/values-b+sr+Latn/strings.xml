@@ -2412,7 +2412,7 @@
     <string name="collections_paste_clipboard">Nalepi iz međuspremnika (clipboard)</string>
     <string name="collections_validate">Proveri važenje</string>
     <string name="collections_paste_hint">Ovde nalepite JSON kolekcija…</string>
-    <string name="collections_file_description">Čita nuvio-collections.json iz fascikle Preuzimanja.</string>
+    <string name="collections_file_description">Čita movies-collections.json iz fascikle Preuzimanja.</string>
     <string name="collections_load_file">Učitaj datoteku</string>
     <string name="collections_file_loaded">Datoteka je učitana (%1$d karaktera)</string>
     <string name="collections_fetch_url">Preuzmi URL</string>

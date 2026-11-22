@@ -98,7 +98,7 @@ import com.kien.movies.ui.components.LocalStartupSplashEnabled
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
 import com.kien.movies.ui.components.collectionFolderCardImageUrl
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.ui.components.rememberArtworkBackedCardGlow
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
@@ -996,7 +996,7 @@ private fun SeeAllGridCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(seeAllCardShape)
-                    .nuvioCardDepth(
+                    .moviesCardDepth(
                         shape = seeAllCardShape,
                         surface = CardDepthSurface.POSTERS,
                         style = cardDepthStyle
@@ -1086,7 +1086,7 @@ private fun GridCollectionFolderCard(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(cardShape)
-                .nuvioCardDepth(
+                .moviesCardDepth(
                     shape = cardShape,
                     surface = CardDepthSurface.POSTERS,
                     style = cardDepthStyle

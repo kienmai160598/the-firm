@@ -411,7 +411,7 @@ data class PlayerSettings(
     val enableBufferLogs: Boolean = false,
     val resizeMode: Int = 0,
     // Movies ExoPlayer Performance Mode
-    val nuvioPerformanceModeEnabled: Boolean = DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED
+    val moviesPerformanceModeEnabled: Boolean = DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
 ) {
     /** Prefer FFmpeg/extension audio decoder (EXTENSION_RENDERER_MODE_PREFER). */
     val isPreferAppDecoder: Boolean
@@ -494,7 +494,7 @@ data class PlayerSettings(
         const val MIN_PARALLEL_CHUNK_SIZE_KB = 256
         const val MAX_PARALLEL_CHUNK_SIZE_KB = 128 * 1024
         const val DEFAULT_ENABLE_HTTP2 = false
-        const val DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED = false
+        const val DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED = false
     }
 }
 
@@ -795,7 +795,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val targetBufferSizeMbKey = intPreferencesKey("target_buffer_size_mb")
     private val backBufferDurationMsKey = intPreferencesKey("back_buffer_duration_ms")
     private val retainBackBufferFromKeyframeKey = booleanPreferencesKey("retain_back_buffer_from_keyframe")
-    private val nuvioPerformanceModeEnabledKey = booleanPreferencesKey("nuvio_performance_mode_enabled")
+    private val moviesPerformanceModeEnabledKey = booleanPreferencesKey("nuvio_performance_mode_enabled")
 
     private val migrationLoadControlDefaultsAlignedDoneKey = booleanPreferencesKey("migration_load_control_defaults_aligned_done")
     private val migrationLoadControlDefaultsRetunedDoneKey = booleanPreferencesKey("migration_load_control_defaults_retuned_done")
@@ -1217,7 +1217,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 enableBufferLogs = prefs[enableBufferLogsKey] ?: false,
                 resizeMode = (prefs[resizeModeKey] ?: 0).coerceIn(0, 4),
                 enableHttp2 = prefs[enableHttp2Key] ?: PlayerSettings.DEFAULT_ENABLE_HTTP2,
-                nuvioPerformanceModeEnabled = (prefs[nuvioPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED) &&
+                moviesPerformanceModeEnabled = (prefs[moviesPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED) &&
                         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O,
                 subtitleStyle = run {
                     val resolvedPreferredLanguage = resolveSubtitlePreferredLanguage(
@@ -1966,7 +1966,7 @@ class PlayerSettingsDataStore @Inject constructor(
         store().edit { prefs ->
             // Native exo installs its own buffer profile when it is turned on, so resetting to the
             // exo custom values here would leave the mode running on settings it never chose.
-            val nativeEnabled = prefs[nuvioPerformanceModeEnabledKey] ?: false
+            val nativeEnabled = prefs[moviesPerformanceModeEnabledKey] ?: false
             prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
             prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
             prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
@@ -1974,10 +1974,10 @@ class PlayerSettingsDataStore @Inject constructor(
             if (nativeEnabled) {
                 val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
                 prefs[targetBufferSizeMbKey] =
-                    MoviesExoPlayerPerformanceHelper.DEFAULT_NUVIO_TARGET_BUFFER_MB
+                    MoviesExoPlayerPerformanceHelper.DEFAULT_MOVIES_TARGET_BUFFER_MB
                         .coerceAtMost(safeLimitMb)
                 prefs[backBufferDurationMsKey] =
-                    MoviesExoPlayerPerformanceHelper.DEFAULT_NUVIO_BACK_BUFFER_MS
+                    MoviesExoPlayerPerformanceHelper.DEFAULT_MOVIES_BACK_BUFFER_MS
                 prefs[allowLargeTargetBufferKey] = false
                 prefs[bufferBudgetManagedKey] = false
             } else {
@@ -2088,9 +2088,9 @@ class PlayerSettingsDataStore @Inject constructor(
 
     // Movies ExoPlayer Performance Mode
 
-    val nuvioPerformanceModeEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val moviesPerformanceModeEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
-            (prefs[nuvioPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED) &&
+            (prefs[moviesPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED) &&
                     android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
         }
     }
@@ -2098,7 +2098,7 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setMoviesPerformanceModeEnabled(enabled: Boolean) {
         val actualEnabled = enabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
         store().edit { prefs ->
-            prefs[nuvioPerformanceModeEnabledKey] = actualEnabled
+            prefs[moviesPerformanceModeEnabledKey] = actualEnabled
             if (actualEnabled) {
                 val safeLimitMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
                 prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
@@ -2108,10 +2108,10 @@ class PlayerSettingsDataStore @Inject constructor(
                 // The tier limit is the ceiling, not the value to start at, so seed the native
                 // default and let it be clamped on devices whose tier sits below it.
                 prefs[targetBufferSizeMbKey] =
-                    MoviesExoPlayerPerformanceHelper.DEFAULT_NUVIO_TARGET_BUFFER_MB
+                    MoviesExoPlayerPerformanceHelper.DEFAULT_MOVIES_TARGET_BUFFER_MB
                         .coerceAtMost(safeLimitMb)
                 prefs[backBufferDurationMsKey] =
-                    MoviesExoPlayerPerformanceHelper.DEFAULT_NUVIO_BACK_BUFFER_MS
+                    MoviesExoPlayerPerformanceHelper.DEFAULT_MOVIES_BACK_BUFFER_MS
                 prefs[allowLargeTargetBufferKey] = false
                 prefs[bufferBudgetManagedKey] = false
                 prefs[useParallelConnectionsKey] = PlayerSettings.DEFAULT_USE_PARALLEL_CONNECTIONS
@@ -2136,7 +2136,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     private fun isNativeMemoryActive(prefs: androidx.datastore.preferences.core.Preferences): Boolean {
-        val isEnabled = prefs[nuvioPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_NUVIO_PERFORMANCE_MODE_ENABLED
+        val isEnabled = prefs[moviesPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_MOVIES_PERFORMANCE_MODE_ENABLED
         return isEnabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
     }
 }

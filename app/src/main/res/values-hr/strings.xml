@@ -2507,7 +2507,7 @@
     <string name="collections_paste_clipboard">Zalijepi iz međuspremnika</string>
     <string name="collections_validate">Provjeri</string>
     <string name="collections_paste_hint">Ovdje zalijepi JSON kolekcija…</string>
-    <string name="collections_file_description">Čita nuvio-collections.json iz mape Preuzimanja.</string>
+    <string name="collections_file_description">Čita movies-collections.json iz mape Preuzimanja.</string>
     <string name="collections_load_file">Učitaj datoteku</string>
     <string name="collections_file_loaded">Datoteka učitana (znakova: %1$d)</string>
     <string name="collections_fetch_url">Dohvati URL</string>

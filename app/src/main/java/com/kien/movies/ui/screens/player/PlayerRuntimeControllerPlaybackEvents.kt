@@ -805,7 +805,7 @@ private fun PlayerRuntimeController.buildPlaybackIssuePlaybackSettingsInput(): P
         parallelConnectionCount = settings.parallelConnectionCount,
         parallelChunkSizeKb = settings.parallelChunkSizeKb,
         enableHttp2 = false,
-        nuvioPerformanceModeEnabled = settings.nuvioPerformanceModeEnabled,
+        moviesPerformanceModeEnabled = settings.moviesPerformanceModeEnabled,
         streamAutoPlayMode = settings.streamAutoPlayMode.name,
         streamAutoPlaySource = settings.streamAutoPlaySource.name,
         streamAutoPlayNextEpisodeEnabled = settings.streamAutoPlayNextEpisodeEnabled,

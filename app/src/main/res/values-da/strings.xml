@@ -2022,7 +2022,7 @@
     <string name="collections_paste_clipboard">Indsæt fra udklipsholder</string>
     <string name="collections_validate">Valider</string>
     <string name="collections_paste_hint">Indsæt samlinger-JSON her…</string>
-    <string name="collections_file_description">Læser nuvio-collections.json fra mappen Downloads.</string>
+    <string name="collections_file_description">Læser movies-collections.json fra mappen Downloads.</string>
     <string name="collections_load_file">Indlæs fil</string>
     <string name="collections_file_loaded">Fil indlæst (%1$d tegn)</string>
     <string name="collections_fetch_url">Hent URL</string>

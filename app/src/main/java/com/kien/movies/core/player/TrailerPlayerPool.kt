@@ -115,7 +115,7 @@ class TrailerPlayerPool @Inject constructor(
         }
         settingsScope.launch {
             runCatching {
-                playerSettingsDataStore.nuvioPerformanceModeEnabled.collect { cachedForceNative = it }
+                playerSettingsDataStore.moviesPerformanceModeEnabled.collect { cachedForceNative = it }
             }
         }
         settingsScope.launch {

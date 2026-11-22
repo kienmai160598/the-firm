@@ -1574,7 +1574,7 @@
     <string name="collections_paste_clipboard">Klistra in från urklipp</string>
     <string name="collections_validate">Validera</string>
     <string name="collections_paste_hint">Klistra in JSON för samlingar här…</string>
-    <string name="collections_file_description">Läser nuvio-collections.json från Nedladdningar-mappen.</string>
+    <string name="collections_file_description">Läser movies-collections.json från Nedladdningar-mappen.</string>
     <string name="collections_load_file">Ladda fil</string>
     <string name="collections_file_loaded">Fil laddad (%1$d tecken)</string>
     <string name="collections_fetch_url">Hämta URL</string>

@@ -1789,7 +1789,7 @@
     <string name="collections_paste_clipboard">கிளிப்போர்டிலிருந்து ஒட்டு</string>
     <string name="collections_validate">சரிபார்</string>
     <string name="collections_paste_hint">தொகுப்பு ஜேசனை இங்கே ஒட்டுங்கள்…</string>
-    <string name="collections_file_description">பதிவிறக்க கோப்பகத்திலிருந்து nuvio-collections.json படிக்கப்படுகிறது.</string>
+    <string name="collections_file_description">பதிவிறக்க கோப்பகத்திலிருந்து movies-collections.json படிக்கப்படுகிறது.</string>
     <string name="collections_load_file">கோப்பை ஏற்று</string>
     <string name="collections_file_loaded">கோப்பு ஏற்றப்பட்டது (%1$d எழுத்துகள்)</string>
     <string name="collections_fetch_url">யுஆர்எல் பெறு</string>

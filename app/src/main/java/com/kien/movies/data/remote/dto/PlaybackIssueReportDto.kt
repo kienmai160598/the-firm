@@ -227,7 +227,7 @@ data class PlaybackIssuePlaybackSettingsDto(
     @Json(name = "parallelConnectionCount") val parallelConnectionCount: Int,
     @Json(name = "parallelChunkSizeKb") val parallelChunkSizeKb: Int,
     @Json(name = "enableHttp2") val enableHttp2: Boolean,
-    @Json(name = "nuvioPerformanceModeEnabled") val nuvioPerformanceModeEnabled: Boolean,
+    @Json(name = "moviesPerformanceModeEnabled") val moviesPerformanceModeEnabled: Boolean,
     @Json(name = "streamAutoPlayMode") val streamAutoPlayMode: String,
     @Json(name = "streamAutoPlaySource") val streamAutoPlaySource: String,
     @Json(name = "streamAutoPlayNextEpisodeEnabled") val streamAutoPlayNextEpisodeEnabled: Boolean,

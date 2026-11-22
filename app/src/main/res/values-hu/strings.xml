@@ -2623,7 +2623,7 @@
     <string name="collections_paste_clipboard">Beillesztés vágólapról</string>
     <string name="collections_validate">Elenőrzés</string>
     <string name="collections_paste_hint">Ide illeszd be a gyűjtemények JSON-t…</string>
-    <string name="collections_file_description">A nuvio-collections.json beolvasása a Letöltések mappából.</string>
+    <string name="collections_file_description">A movies-collections.json beolvasása a Letöltések mappából.</string>
     <string name="collections_load_file">Fájl betöltése</string>
     <string name="collections_file_loaded">Fájl betöltve (%1$d karakter)</string>
     <string name="collections_fetch_url">URL lekérése</string>

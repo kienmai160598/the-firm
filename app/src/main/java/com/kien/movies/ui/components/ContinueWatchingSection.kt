@@ -727,7 +727,7 @@ fun ContinueWatchingCard(
             modifier = if (textBelowArtwork) {
                 Modifier
             } else {
-                Modifier.nuvioCardDepth(
+                Modifier.moviesCardDepth(
                     shape = cwCardShape,
                     surface = CardDepthSurface.CONTINUE_WATCHING,
                     style = cardDepthStyle
@@ -741,7 +741,7 @@ fun ContinueWatchingCard(
                     .height(imageHeight)
                     .then(
                         if (textBelowArtwork) {
-                            Modifier.nuvioCardDepth(
+                            Modifier.moviesCardDepth(
                                 shape = cwClipShape,
                                 surface = CardDepthSurface.CONTINUE_WATCHING,
                                 style = cardDepthStyle
@@ -966,7 +966,7 @@ private fun WideCardContent(
         modifier = Modifier
             .fillMaxWidth()
             .height(stripHeight)
-            .nuvioCardDepth(
+            .moviesCardDepth(
                 shape = cardShape,
                 surface = CardDepthSurface.CONTINUE_WATCHING,
                 style = cardDepthStyle

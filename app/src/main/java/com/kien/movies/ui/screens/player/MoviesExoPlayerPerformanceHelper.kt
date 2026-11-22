@@ -42,35 +42,35 @@ object MoviesExoPlayerPerformanceHelper {
     // Rebuilding this on a settings change handed already built data sources a pool that nothing
     // else uses, so warmed connections were never reused. One instance for the process avoids that.
     val sharedConnectionPool: okhttp3.ConnectionPool = okhttp3.ConnectionPool(
-        NUVIO_SHARED_POOL_MAX_IDLE,
+        MOVIES_SHARED_POOL_MAX_IDLE,
         3,
         java.util.concurrent.TimeUnit.MINUTES
     )
 
     // ─── Constants ────────────────────────────────────────────────────────────
-    const val DEFAULT_NUVIO_ALLOCATOR_SEGMENT_SIZE = 64 * 1024        // 64 KB
+    const val DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE = 64 * 1024        // 64 KB
 
     // Mirrors ARENA_CHUNK_SIZE in the forked DefaultAllocatorNative, whose pool covers 512 of them.
     const val NATIVE_ARENA_CHUNK_SIZE = 64 * 1024
     const val NATIVE_ARENA_POOL_BYTES = 512 * NATIVE_ARENA_CHUNK_SIZE
-    const val DEFAULT_NUVIO_TARGET_BUFFER_MB = 175
-    const val DEFAULT_NUVIO_TARGET_BUFFER_BYTES = DEFAULT_NUVIO_TARGET_BUFFER_MB * 1024 * 1024
-    const val DEFAULT_NUVIO_MIN_BUFFER_MS = 15_000
-    const val DEFAULT_NUVIO_MAX_BUFFER_MS = 45_000
+    const val DEFAULT_MOVIES_TARGET_BUFFER_MB = 175
+    const val DEFAULT_MOVIES_TARGET_BUFFER_BYTES = DEFAULT_MOVIES_TARGET_BUFFER_MB * 1024 * 1024
+    const val DEFAULT_MOVIES_MIN_BUFFER_MS = 15_000
+    const val DEFAULT_MOVIES_MAX_BUFFER_MS = 45_000
     // Native holds its buffers in the arena rather than the java heap, so it can afford a back
     // buffer that keeps a short seek back off the network.
-    const val DEFAULT_NUVIO_BACK_BUFFER_MS = 15_000
-    const val DEFAULT_NUVIO_INITIAL_BITRATE_ESTIMATE = 50_000_000L     // 50 Mbps
+    const val DEFAULT_MOVIES_BACK_BUFFER_MS = 15_000
+    const val DEFAULT_MOVIES_INITIAL_BITRATE_ESTIMATE = 50_000_000L     // 50 Mbps
     // Parallel chunk fetching keeps more sockets alive than the old cap of 8, which was evicting
     // live chunk connections mid playback and forcing cold reopens.
-    const val NUVIO_SHARED_POOL_MAX_IDLE = 32
+    const val MOVIES_SHARED_POOL_MAX_IDLE = 32
 
     // ─── Customization Variables ──────────────────────────────────────────────
     @Volatile
-    var minBufferMs: Int = DEFAULT_NUVIO_MIN_BUFFER_MS
+    var minBufferMs: Int = DEFAULT_MOVIES_MIN_BUFFER_MS
 
     @Volatile
-    var maxBufferMs: Int = DEFAULT_NUVIO_MAX_BUFFER_MS
+    var maxBufferMs: Int = DEFAULT_MOVIES_MAX_BUFFER_MS
 
     @Volatile
     var bufferForPlaybackMs: Int = 3_000
@@ -79,7 +79,7 @@ object MoviesExoPlayerPerformanceHelper {
     var bufferForPlaybackAfterRebufferMs: Int = 3_000
 
     @Volatile
-    var backBufferMs: Int = DEFAULT_NUVIO_BACK_BUFFER_MS
+    var backBufferMs: Int = DEFAULT_MOVIES_BACK_BUFFER_MS
 
     @Volatile
     var targetBufferSizeMb: Int = 250
@@ -98,11 +98,11 @@ object MoviesExoPlayerPerformanceHelper {
         val customBuffers = settings.bufferEngineEnabled
         val bufferSettings = settings.bufferSettings
         
-        minBufferMs = if (customBuffers) bufferSettings.minBufferMs else DEFAULT_NUVIO_MIN_BUFFER_MS
-        maxBufferMs = if (customBuffers) bufferSettings.maxBufferMs else DEFAULT_NUVIO_MAX_BUFFER_MS
+        minBufferMs = if (customBuffers) bufferSettings.minBufferMs else DEFAULT_MOVIES_MIN_BUFFER_MS
+        maxBufferMs = if (customBuffers) bufferSettings.maxBufferMs else DEFAULT_MOVIES_MAX_BUFFER_MS
         bufferForPlaybackMs = if (customBuffers) bufferSettings.bufferForPlaybackMs else 3_000
         bufferForPlaybackAfterRebufferMs = if (customBuffers) bufferSettings.bufferForPlaybackAfterRebufferMs else 3_000
-        backBufferMs = if (customBuffers) bufferSettings.backBufferDurationMs else DEFAULT_NUVIO_BACK_BUFFER_MS
+        backBufferMs = if (customBuffers) bufferSettings.backBufferDurationMs else DEFAULT_MOVIES_BACK_BUFFER_MS
 
         val safeLimitMb = getSafeNativeMemoryLimitMb(context)
         targetBufferSizeMb = if (customBuffers && !settings.bufferBudgetManaged) {
@@ -117,7 +117,7 @@ object MoviesExoPlayerPerformanceHelper {
         }
 
         val effectiveBufferMb = when {
-            settings.nuvioPerformanceModeEnabled -> {
+            settings.moviesPerformanceModeEnabled -> {
                 if (customBuffers && !settings.bufferBudgetManaged) {
                     MemoryBudget.effectiveBufferMb(bufferSettings.targetBufferSizeMb)
                 } else {
@@ -279,14 +279,14 @@ object MoviesExoPlayerPerformanceHelper {
                 .toInt()
             // A segment size other than the arena chunk size drops every allocation to a JNI path
             // with no other symptom, so say so rather than failing playback over it.
-            if (DEFAULT_NUVIO_ALLOCATOR_SEGMENT_SIZE != NATIVE_ARENA_CHUNK_SIZE) {
+            if (DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE != NATIVE_ARENA_CHUNK_SIZE) {
                 android.util.Log.w(
                     "MoviesExoPerf",
-                    "Allocator segment $DEFAULT_NUVIO_ALLOCATOR_SEGMENT_SIZE does not match the " +
+                    "Allocator segment $DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE does not match the " +
                         "native arena chunk $NATIVE_ARENA_CHUNK_SIZE; native pooling is disabled"
                 )
             }
-            val allocator = DefaultAllocator(true, DEFAULT_NUVIO_ALLOCATOR_SEGMENT_SIZE, 0, enabled)
+            val allocator = DefaultAllocator(true, DEFAULT_MOVIES_ALLOCATOR_SEGMENT_SIZE, 0, enabled)
             liveAllocator = allocator
             val resolvedBackBufferMs = backBufferMs.coerceAtLeast(0)
             android.util.Log.i(
@@ -329,7 +329,7 @@ object MoviesExoPlayerPerformanceHelper {
     fun buildBandwidthMeter(context: Context): DefaultBandwidthMeter {
         return if (enabled) {
             DefaultBandwidthMeter.Builder(context)
-                .setInitialBitrateEstimate(DEFAULT_NUVIO_INITIAL_BITRATE_ESTIMATE)
+                .setInitialBitrateEstimate(DEFAULT_MOVIES_INITIAL_BITRATE_ESTIMATE)
                 .build()
         } else {
             DefaultBandwidthMeter.Builder(context).build()

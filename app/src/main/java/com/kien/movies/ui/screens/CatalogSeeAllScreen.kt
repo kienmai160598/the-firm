@@ -55,7 +55,7 @@ import com.kien.movies.ui.components.EmptyScreenState
 import com.kien.movies.ui.components.GridContentCard
 import com.kien.movies.ui.components.LoadingIndicator
 import com.kien.movies.ui.components.LocalCardDepthStyle
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.ui.components.PosterCardDefaults
 import com.kien.movies.ui.components.PosterCardStyle
 import com.kien.movies.ui.screens.home.HomeEvent
@@ -328,7 +328,7 @@ fun CatalogSeeAllScreen(
                                             .fillMaxSize()
                                             .clip(cardShape)
                                             .then(
-                                                Modifier.nuvioCardDepth(
+                                                Modifier.moviesCardDepth(
                                                     shape = cardShape,
                                                     surface = com.kien.movies.domain.model.CardDepthSurface.POSTERS,
                                                     style = cardDepthStyle

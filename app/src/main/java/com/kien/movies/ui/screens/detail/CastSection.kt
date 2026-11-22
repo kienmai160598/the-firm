@@ -6,7 +6,7 @@ import com.kien.movies.ui.components.posterFocusBorder
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.components.LocalCardDepthStyle
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import com.kien.movies.ui.util.contentTextDirection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -517,7 +517,7 @@ private fun CastMemberItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .nuvioCardDepth(
+                    .moviesCardDepth(
                         shape = CircleShape,
                         surface = CardDepthSurface.CAST,
                         style = cardDepthStyle

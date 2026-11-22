@@ -114,7 +114,7 @@ import com.kien.movies.ui.theme.isExpressiveBuild
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.domain.model.CardDepthSurface
 import com.kien.movies.ui.components.LocalCardDepthStyle
-import com.kien.movies.ui.components.nuvioCardDepth
+import com.kien.movies.ui.components.moviesCardDepth
 import android.text.format.DateFormat
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
@@ -469,7 +469,7 @@ private fun SeasonPosterImage(posterUrl: String?, shape: Shape) {
             .size(width = width, height = height)
             .clip(shape)
             .background(MoviesTheme.colors.BackgroundCard)
-            .nuvioCardDepth(
+            .moviesCardDepth(
                 shape = shape,
                 surface = CardDepthSurface.POSTERS,
                 style = cardDepthStyle
@@ -1001,7 +1001,7 @@ private fun EpisodeCard(
                 .width(cardMetrics.cardWidth)
                 .height(cardMetrics.cardHeight)
                 .clip(shape)
-                .nuvioCardDepth(
+                .moviesCardDepth(
                     shape = shape,
                     surface = CardDepthSurface.EPISODE_CARDS,
                     style = cardDepthStyle,

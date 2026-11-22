@@ -2629,7 +2629,7 @@
     <string name="collections_paste_clipboard">クリップボードから貼り付け</string>
     <string name="collections_validate">検証</string>
     <string name="collections_paste_hint">コレクションJSONをここに貼り付け…</string>
-    <string name="collections_file_description">ダウンロードフォルダの nuvio-collections.json を読み取ります。</string>
+    <string name="collections_file_description">ダウンロードフォルダの movies-collections.json を読み取ります。</string>
     <string name="collections_load_file">ファイルを読み込む</string>
     <string name="collections_file_loaded">ファイルを読み込みました (%1$d文字)</string>
     <string name="collections_fetch_url">URLを取得</string>

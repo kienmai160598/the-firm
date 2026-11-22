@@ -483,7 +483,7 @@ fun CatalogRowSection(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(seeAllCardShape)
-                                .nuvioCardDepth(
+                                .moviesCardDepth(
                                     shape = seeAllCardShape,
                                     surface = CardDepthSurface.POSTERS,
                                     style = cardDepthStyle
@@ -527,7 +527,7 @@ fun CatalogRowSection(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(seeAllCardShape)
-                                .nuvioCardDepth(
+                                .moviesCardDepth(
                                     shape = seeAllCardShape,
                                     surface = CardDepthSurface.POSTERS,
                                     style = cardDepthStyle

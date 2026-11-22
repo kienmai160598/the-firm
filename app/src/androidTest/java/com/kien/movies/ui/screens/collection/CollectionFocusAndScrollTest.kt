@@ -561,7 +561,7 @@ class CollectionFocusAndScrollTest {
     }
 
     @Test
-    fun nuvioTextField_dpadDownAndUpMoveDirectlyBetweenFieldsWithoutGhostStops() {
+    fun moviesTextField_dpadDownAndUpMoveDirectlyBetweenFieldsWithoutGhostStops() {
         composeRule.setContent {
             MoviesTheme {
                 val firstFieldFocus = remember { FocusRequester() }

@@ -1688,7 +1688,7 @@
     <string name="collections_paste_clipboard">Вставить из буфера обмена</string>
     <string name="collections_validate">Проверить</string>
     <string name="collections_paste_hint">Вставьте JSON коллекций сюда…</string>
-    <string name="collections_file_description">Читает nuvio-collections.json из папки Загрузки.</string>
+    <string name="collections_file_description">Читает movies-collections.json из папки Загрузки.</string>
     <string name="collections_load_file">Загрузить файл</string>
     <string name="collections_file_loaded">Файл загружен (%1$d символов)</string>
     <string name="collections_fetch_url">Загрузить URL</string>
