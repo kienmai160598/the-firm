@@ -20,7 +20,7 @@ internal fun tvosHomeState(
         errorMessage = home.errorMessage ?: addons.addons.firstEnabledManifestError(),
     )
 
-private fun HomeCatalogSection.toTvosRow(): TvosRow =
+internal fun HomeCatalogSection.toTvosRow(): TvosRow =
     TvosRow(
         key = key,
         title = title,
