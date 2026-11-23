@@ -20,8 +20,10 @@ final class MpvPlaybackController: ObservableObject {
     @Published private(set) var isPaused = true
     @Published private(set) var isPausedByViewer = false
     @Published private(set) var isBuffering = true
+    @Published private(set) var hasPlayed = false
 
-    let clock = MpvPlaybackClock()
+    let clock: MpvPlaybackClock
+    let scrubber: MpvTouchScrubber
     let videoLayer: CAMetalLayer = MpvMetalLayer()
     private let request: PlaybackRequest
     private let onFailure: (StreamNotice) -> Void
@@ -37,7 +39,6 @@ final class MpvPlaybackController: ObservableObject {
     private var currentMs: Int64 = 0
     private var durationMs: Int64 = 0
     private var hasStarted = false
-    private var hasPlayed = false
     private var hasRequestedPlay = false
     private var hasEnded = false
     private var isFinished = false
@@ -46,6 +47,9 @@ final class MpvPlaybackController: ObservableObject {
     init(request: PlaybackRequest, onFailure: @escaping (StreamNotice) -> Void) {
         self.request = request
         self.onFailure = onFailure
+        let clock = MpvPlaybackClock()
+        self.clock = clock
+        scrubber = MpvTouchScrubber(clock: clock)
         session = TvosPlayback.shared.startSession(target: request.target, stream: request.stream)
         videoLayer.contentsScale = UIScreen.main.nativeScale
         videoLayer.framebufferOnly = true
@@ -82,6 +86,7 @@ final class MpvPlaybackController: ObservableObject {
         [tickTask, startupTask, startTask].forEach { $0?.cancel() }
         subtitleSearch?.cancel()
         displayMatcher.reset()
+        scrubber.stop()
         lifecycleObservers.forEach(NotificationCenter.default.removeObserver)
         lifecycleObservers = []
         mpv?.close()
@@ -89,13 +94,23 @@ final class MpvPlaybackController: ObservableObject {
     }
 
     func togglePause() {
+        setPaused(!isPaused)
+    }
+
+    func setPaused(_ isPausing: Bool) {
         guard hasStarted else { return }
-        mpv?.setFlag(MpvProperty.pause, !isPaused)
+        mpv?.setFlag(MpvProperty.pause, isPausing)
     }
 
     func seek(bySteps steps: Int) {
         guard hasStarted else { return }
         mpv?.command("seek", String(steps * Self.seekStepSeconds), "relative")
+    }
+
+    func seek(toSeconds seconds: Int) {
+        guard hasStarted else { return }
+        mpv?.command("seek", String(seconds), "absolute")
+        clock.setPosition(seconds)
     }
 
     func liftSubtitles(_ isLifted: Bool) {
@@ -132,7 +147,7 @@ final class MpvPlaybackController: ObservableObject {
             target: request.target,
             stream: request.stream
         ) { [weak self] subtitles in
-            self?.subtitleDownloads = MpvSubtitleDownload.ranked(subtitles)
+            self?.subtitleDownloads = MpvSubtitleDownload.inSourceOrder(subtitles)
         }
     }
 
