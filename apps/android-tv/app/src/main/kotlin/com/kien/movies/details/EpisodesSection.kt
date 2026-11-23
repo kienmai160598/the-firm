@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -140,7 +140,8 @@ private fun EpisodeShelf(episodes: List<TvosEpisode>, onOpen: (TvosStreamTarget)
         contentPadding = PaddingValues(horizontal = Spacing.screenHorizontal, vertical = SHELF_PADDING_24PT),
         horizontalArrangement = Arrangement.spacedBy(Spacing.shelfItem)
     ) {
-        items(episodes, key = TvosEpisode::videoId, contentType = { EPISODE_CONTENT_TYPE }) { episode ->
+        // Addon data does not promise unique video ids, and a repeated lazy key throws.
+        itemsIndexed(episodes, key = { index, episode -> "$index:${episode.videoId}" }, contentType = { _, _ -> EPISODE_CONTENT_TYPE }) { _, episode ->
             EpisodeCard(episode = episode, onOpen = onOpen)
         }
     }

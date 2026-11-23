@@ -84,9 +84,11 @@ fun DetailsScreen(route: AppRoute.Details, router: Router) {
     Box(modifier = Modifier.fillMaxSize()) {
         details?.backdropUrl?.let { url -> Backdrop(url = url, isReceded = !isPlayFocused) }
         when (val current = state) {
-            DetailsScreenState.Loading -> DetailsLoading(onFocused = { placeholderHadFocus = true })
-
-            is DetailsScreenState.Error -> DetailsError(message = current.message, onFocused = { placeholderHadFocus = true })
+            // One call site for both, so the one focusable node survives Loading to Error and back.
+            DetailsScreenState.Loading, is DetailsScreenState.Error -> DetailsStatus(
+                errorMessage = (current as? DetailsScreenState.Error)?.message,
+                onFocused = { placeholderHadFocus = true }
+            )
 
             is DetailsScreenState.Loaded -> DetailsContent(
                 state = current,
@@ -168,17 +170,34 @@ private fun DetailsContent(
 
 private fun LazyListState.isAtTop(): Boolean = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
-/** tvOS shows a ProgressView; here it is focusable so the remote is never stranded (AC D5). */
+/**
+ * Loading (tvOS ProgressView) or error (tvOS DetailsErrorView) as one focusable element, so the
+ * remote is never stranded and focus stays put when loading turns into an error (AC D5).
+ */
 @Composable
-private fun DetailsLoading(onFocused: () -> Unit) {
+private fun DetailsStatus(errorMessage: String?, onFocused: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        LoadingSpinner(
+        Column(
             modifier = Modifier
                 .onFocusChanged { state -> if (state.isFocused) onFocused() }
                 .focusable()
-                .semantics { contentDescription = LOADING_DESCRIPTION }
-                .testTag(DETAILS_LOADING_TAG)
-        )
+                .semantics { if (errorMessage == null) contentDescription = LOADING_DESCRIPTION }
+                .testTag(if (errorMessage == null) DETAILS_LOADING_TAG else DETAILS_ERROR_TAG),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(ERROR_GAP_24PT)
+        ) {
+            if (errorMessage == null) {
+                LoadingSpinner()
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.ic_details_error),
+                    contentDescription = null,
+                    tint = Palette.textSecondary,
+                    modifier = Modifier.size(ERROR_ICON_80PT)
+                )
+                Text(text = errorMessage, style = ERROR_STYLE, color = Palette.textSecondary, textAlign = TextAlign.Center)
+            }
+        }
     }
 }
 
@@ -200,29 +219,6 @@ private fun LoadingSpinner(modifier: Modifier = Modifier) {
             useCenter = false,
             style = Stroke(width = stroke, cap = StrokeCap.Round)
         )
-    }
-}
-
-/** tvOS DetailsErrorView, made focusable as one element (AC D5). */
-@Composable
-private fun DetailsError(message: String, onFocused: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier
-                .onFocusChanged { state -> if (state.isFocused) onFocused() }
-                .focusable()
-                .testTag(DETAILS_ERROR_TAG),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(ERROR_GAP_24PT)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_details_error),
-                contentDescription = null,
-                tint = Palette.textSecondary,
-                modifier = Modifier.size(ERROR_ICON_80PT)
-            )
-            Text(text = message, style = ERROR_STYLE, color = Palette.textSecondary, textAlign = TextAlign.Center)
-        }
     }
 }
 
