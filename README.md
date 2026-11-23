@@ -42,7 +42,13 @@ make engine                                  # torrent engine for Apple TV, once
 make apple-tv-sim                            # Apple TV app for the simulator
 make apple-tv-install APPLE_TEAM=<team id> APPLE_TV_DEVICE=<devicectl id>
 make android-tv-test shared-test
+make check                                   # toolchain check, ktlint and Android TV unit tests
+make format                                  # ktlint --format on the Android TV sources
 ```
+
+Kotlin style is ktlint 1.8.0 (`scripts/ktlint` fetches it and checks its hash) with the rules in
+`apps/android-tv/.editorconfig`. `max-line-length` and the naming rules are off until the dead code
+is gone; the formatter still wraps at 100 columns.
 
 Without `make engine` the Apple TV app still builds, with torrents turned off.
 

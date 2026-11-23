@@ -10,13 +10,17 @@ BOX_APK := $(ANDROID_TV)/app/build/outputs/apk/full/box/app-full-armeabi-v7a-box
 APPLE_TV_DERIVED := /tmp/the-firm-apple-tv
 APPLE_TV_APP := $(APPLE_TV_DERIVED)/Build/Products/Release-appletvos/NuvioTv.app
 APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
+KOTLIN_SOURCES := "app/src/**/*.kt" "baselineprofile/src/**/*.kt" "*.kts" "app/*.kts" \
+	"baselineprofile/*.kts"
 
-.PHONY: help check toolchain-check android-tv android-tv-test box-install apple-tv-project \
-	apple-tv apple-tv-sim apple-tv-install shared-test engine
+.PHONY: help check toolchain-check lint format android-tv android-tv-test box-install \
+	apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test engine
 
 help:
-	@echo "check             toolchain check and Android TV unit tests"
+	@echo "check             toolchain check, lint and Android TV unit tests"
 	@echo "toolchain-check   fail when the two Gradle builds use different toolchain versions"
+	@echo "lint              ktlint on the Android TV Kotlin sources"
+	@echo "format            ktlint --format on the Android TV Kotlin sources"
 	@echo "android-tv        box APK ($(BOX_APK))"
 	@echo "android-tv-test   Android TV unit tests"
 	@echo "box-install       install the box APK with its profile (ANDROID_SERIAL=<ip>:5555)"
@@ -26,10 +30,16 @@ help:
 	@echo "shared-test       Apple TV bridge tests on the tvOS simulator"
 	@echo "engine            build the torrent engine xcframework (about 16 minutes)"
 
-check: toolchain-check android-tv-test
+check: toolchain-check lint android-tv-test
 
 toolchain-check:
 	scripts/toolchain-check
+
+lint:
+	cd $(ANDROID_TV) && ../../scripts/ktlint --relative $(KOTLIN_SOURCES)
+
+format:
+	cd $(ANDROID_TV) && ../../scripts/ktlint --format --relative $(KOTLIN_SOURCES)
 
 android-tv:
 	cd $(ANDROID_TV) && ./gradlew :app:assembleFullBox

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+version=1.8.0
+checksum=a3fd620207d5c40da6ca789b95e7f823c54e854b7fade7f613e91096a3706d75
+release=https://github.com/pinterest/ktlint/releases/download
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/the-firm/ktlint-$version"
+binary="$cache/ktlint"
+
+if [[ ! -x "$binary" ]]; then
+	mkdir -p "$cache"
+	curl -fsSL -o "$binary.part" "$release/$version/ktlint"
+	echo "$checksum  $binary.part" | shasum -a 256 -c --status || {
+		echo "ktlint $version: checksum mismatch" >&2
+		rm -f "$binary.part"
+		exit 1
+	}
+	chmod +x "$binary.part"
+	mv "$binary.part" "$binary"
+fi
+
+export JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@17}"
+export PATH="$JAVA_HOME/bin:$PATH"
+exec "$binary" "$@"
