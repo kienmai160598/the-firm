@@ -984,8 +984,7 @@ internal fun PlayerRuntimeController.handleNaturalPlaybackEnded() {
 internal fun PlayerRuntimeController.cancelNextEpisodeAutoPlayOnFatalError() {
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null
-    stillWatchingPromptJob?.cancel()
-    stillWatchingPromptJob = null
+    stillWatching.cancel()
 }
 
 internal fun PlayerRuntimeController.currentWatchProgress(
@@ -2242,9 +2241,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent, showPlaybackControls: Bo
             }
         }
 
-        PlayerEvent.OnStillWatchingContinue -> onStillWatchingContinue()
+        PlayerEvent.OnStillWatchingContinue -> stillWatching.continueWatching()
 
-        PlayerEvent.OnDismissStillWatchingPrompt -> onDismissStillWatchingPrompt()
+        PlayerEvent.OnDismissStillWatchingPrompt -> stillWatching.dismiss()
 
         is PlayerEvent.OnSetSubtitleSize -> {
             scope.launch { playerSettingsDataStore.setSubtitleSize(event.size) }

@@ -1355,10 +1355,7 @@ private fun PlayerRuntimeController.switchToTorrentEpisodeStream(
         }
         return
     }
-    consecutiveAutoPlayCount = nextConsecutiveAutoPlayCount(
-        currentCount = consecutiveAutoPlayCount,
-        isAutoPlay = isAutoPlay
-    )
+    stillWatching.recordEpisodeSwitch(isAutoPlay)
     stopTorrentStream()
     switchToEpisodeStreamCommon(stream, forcedTargetVideo, showSourceIndicator = !isAutoPlay)
     // A torrent source never falls back, so the episode starts with nothing to fall back from.
@@ -1905,18 +1902,14 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
         return
     }
 
-    consecutiveAutoPlayCount = nextConsecutiveAutoPlayCount(
-        currentCount = consecutiveAutoPlayCount,
-        isAutoPlay = isAutoPlay
-    )
+    stillWatching.recordEpisodeSwitch(isAutoPlay)
 
     // Stop any active torrent before switching to HTTP stream
     stopTorrentStream()
 
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null
-    stillWatchingPromptJob?.cancel()
-    stillWatchingPromptJob = null
+    stillWatching.cancel()
 
     flushPlaybackSnapshotForSwitchOrExit()
 
@@ -2064,8 +2057,7 @@ private fun PlayerRuntimeController.switchToEpisodeStreamCommon(
     episodeStreamsJob = null
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null
-    stillWatchingPromptJob?.cancel()
-    stillWatchingPromptJob = null
+    stillWatching.cancel()
     streamRepository.setLocalPluginSearchPaused(true)
     flushPlaybackSnapshotForSwitchOrExit()
 

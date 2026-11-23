@@ -357,8 +357,7 @@ private fun PlayerRuntimeController.applyRecomputedNextEpisode(
 internal fun PlayerRuntimeController.resetPostPlayOverlayState(clearEpisode: Boolean = false) {
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null
-    stillWatchingPromptJob?.cancel()
-    stillWatchingPromptJob = null
+    stillWatching.cancel()
     _uiState.update { state ->
         state.copy(
             nextEpisode = if (clearEpisode) null else state.nextEpisode,
@@ -443,16 +442,13 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(
 
     if (_uiState.value.postPlayDismissedForCurrentEpisode) return
 
-    val shouldEnterStillWatching = shouldEnterStillWatchingPrompt(
-        stillWatchingEnabled = stillWatchingEnabledSetting,
+    val shouldEnterStillWatching = stillWatching.isDue(
         autoPlayNextEpisodeEnabled = streamAutoPlayNextEpisodeEnabledSetting,
-        nextEpisodeHasAired = state.nextEpisode.hasAired,
-        consecutiveAutoPlayCount = consecutiveAutoPlayCount,
-        threshold = stillWatchingEpisodeThresholdSetting
+        nextEpisodeHasAired = state.nextEpisode.hasAired
     )
 
     if (shouldEnterStillWatching) {
-        enterStillWatchingPromptMode()
+        stillWatching.show()
     } else {
         val ne = state.nextEpisode
         val isUnplayable = !ne.hasAired ||
