@@ -63,22 +63,29 @@ final class NavigationTests: XCTestCase {
 
     func testTypingATitleInSearchShowsItsPoster() {
         tv.launch(withTestAddon: false)
-        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
-        tv.focusHero()
-        tv.remote.press(.menu)
-        XCTAssertTrue(waitForTab("Home"))
-        tv.remote.press(.down)
-        XCTAssertTrue(waitForTab("Search"), "Focused \(tv.focusedTabTitle)")
-        tv.remote.press(.select)
-        let field = tv.app.searchFields.firstMatch
-        XCTAssertTrue(field.waitForExistence(timeout: 10))
-        let keyboard = NSPredicate(format: "label == %@", "Keyboard")
-        XCTAssertTrue(tv.waitUntil(tv.focused, keyboard, timeout: 5), "Focused \(tv.focusedLabel)")
+        let field = openSearchTab()
 
         field.typeText("Breaking Bad")
 
         XCTAssertTrue(tv.button(containing: "Breaking Bad").waitForExistence(timeout: 30))
         tv.screenshot("search-results")
+    }
+
+    func testOpeningASearchResultKeepsTheQueryInRecentSearches() {
+        tv.launch(withTestAddon: false)
+        openSearchTab().typeText("Breaking Bad")
+        XCTAssertTrue(tv.button(containing: "Breaking Bad").waitForExistence(timeout: 30))
+        tv.remote.press(.down)
+        XCTAssertTrue(tv.waitUntil(tv.focused, NSPredicate(format: "elementType == %d",
+            XCUIElement.ElementType.button.rawValue), timeout: 3))
+        tv.remote.press(.select)
+        XCTAssertTrue(playButton.waitForExistence(timeout: 30))
+
+        tv.launch(keepingState: true, withTestAddon: false)
+        _ = openSearchTab()
+
+        XCTAssertTrue(tv.app.buttons["Breaking Bad"].waitForExistence(timeout: 10))
+        tv.screenshot("search-start")
     }
 
     func testPosterOpensDetailsThenStreamsAndMenuReturnsToTheSameCard() {
@@ -162,6 +169,21 @@ final class NavigationTests: XCTestCase {
 
     private func waitForHeroTitle(_ format: String, _ title: String) -> Bool {
         tv.waitUntil(focusedHero, NSPredicate(format: format, title), timeout: 3)
+    }
+
+    private func openSearchTab() -> XCUIElement {
+        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
+        tv.focusHero()
+        tv.remote.press(.menu)
+        XCTAssertTrue(waitForTab("Home"))
+        tv.remote.press(.down)
+        XCTAssertTrue(waitForTab("Search"), "Focused \(tv.focusedTabTitle)")
+        tv.remote.press(.select)
+        let field = tv.app.searchFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        let keyboard = NSPredicate(format: "label == %@", "Keyboard")
+        XCTAssertTrue(tv.waitUntil(tv.focused, keyboard, timeout: 5), "Focused \(tv.focusedLabel)")
+        return field
     }
 
     private func pressMenuUntilTabBar() {
