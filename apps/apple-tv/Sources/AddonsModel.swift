@@ -1,13 +1,31 @@
 import Foundation
 import NuvioTvShared
 
+enum AddonInstallStatus: Equatable {
+    case installing
+    case installed(name: String)
+    case failed(message: String)
+}
+
+enum AddonMove {
+    case up
+    case down
+
+    var offset: Int {
+        self == .up ? -1 : 1
+    }
+}
+
 @MainActor
 final class AddonsModel: ObservableObject {
-    @Published private(set) var addons: [TvosAddon] = []
-    @Published private(set) var isInstalling = false
-    @Published private(set) var statusMessage: String?
+    @Published private(set) var addons: [TvosAddon] = TvosAddons.shared.current()
+    @Published private(set) var installStatus: AddonInstallStatus?
 
     private var subscription: TvosCancellable?
+
+    var isInstalling: Bool {
+        installStatus == .installing
+    }
 
     func observe() {
         guard subscription == nil else { return }
@@ -24,8 +42,7 @@ final class AddonsModel: ObservableObject {
     func install(_ rawUrl: String) {
         let url = rawUrl.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !url.isEmpty, !isInstalling else { return }
-        isInstalling = true
-        statusMessage = nil
+        installStatus = .installing
         TvosAddons.shared.install(rawUrl: url) { [weak self] result in
             self?.finishInstall(result)
         }
@@ -39,15 +56,33 @@ final class AddonsModel: ObservableObject {
         TvosAddons.shared.setEnabled(manifestUrl: addon.manifestUrl, enabled: !addon.enabled)
     }
 
+    func canMove(_ addon: TvosAddon, _ move: AddonMove) -> Bool {
+        destination(of: addon, move) != nil
+    }
+
+    func move(_ addon: TvosAddon, _ move: AddonMove) {
+        guard let from = index(of: addon), let to = destination(of: addon, move) else { return }
+        TvosAddons.shared.move(fromIndex: Int32(from), toIndex: Int32(to))
+    }
+
+    private func index(of addon: TvosAddon) -> Int? {
+        addons.firstIndex { $0.manifestUrl == addon.manifestUrl }
+    }
+
+    private func destination(of addon: TvosAddon, _ move: AddonMove) -> Int? {
+        guard let from = index(of: addon) else { return nil }
+        let to = from + move.offset
+        return addons.indices.contains(to) ? to : nil
+    }
+
     private func finishInstall(_ result: TvosAddonInstallResult) {
-        isInstalling = false
         switch result {
         case let installed as TvosAddonInstallResultInstalled:
-            statusMessage = "Installed \(installed.name)"
+            installStatus = .installed(name: installed.name)
         case let failed as TvosAddonInstallResultFailed:
-            statusMessage = failed.message
+            installStatus = .failed(message: failed.message)
         default:
-            statusMessage = nil
+            installStatus = nil
         }
     }
 }
