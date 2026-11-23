@@ -3,92 +3,91 @@ import NuvioTvShared
 
 struct AddonsView: View {
     @StateObject private var model = AddonsModel()
-    @State private var manifestUrl = ""
+    @State private var chosenAddon: TvosAddon?
+    @State private var addonToRemove: TvosAddon?
+    @FocusState private var focusedAddonUrl: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 40) {
-                installSection
-                addonList
-            }
-            .padding(.horizontal, 80)
-            .padding(.vertical, 40)
+        HStack(alignment: .top, spacing: 80) {
+            AddonInstallPanel(model: model)
+                .frame(width: 560)
+                .focusSection()
+            installedList
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .focusSection()
         }
+        .defaultFocus($focusedAddonUrl, model.addons.first?.manifestUrl, priority: .userInitiated)
+        .padding(.top, 60)
         .onAppear(perform: model.observe)
         .onDisappear(perform: model.stop)
+        .confirmationDialog(
+            chosenAddon?.name ?? "",
+            isPresented: isPresenting($chosenAddon),
+            titleVisibility: .visible,
+            presenting: chosenAddon,
+            actions: addonActions,
+            message: { addon in Text(addon.enabled ? "On" : "Off") }
+        )
+        .alert(
+            "Remove \(addonToRemove?.name ?? "")?",
+            isPresented: isPresenting($addonToRemove),
+            presenting: addonToRemove,
+            actions: removalActions,
+            message: { _ in Text(Self.removalMessage) }
+        )
     }
 
-    private var installSection: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Add an addon")
-                .font(.title3.bold())
-            HStack(spacing: 24) {
-                TextField("Manifest URL (https://.../manifest.json)", text: $manifestUrl)
-                    .textContentType(.URL)
-                    .autocorrectionDisabled()
-                    .onSubmit(install)
-                Button(installTitle, systemImage: "plus", action: install)
-                    .disabled(model.isInstalling || manifestUrl.isEmpty)
-            }
-            if let statusMessage = model.statusMessage {
-                Text(statusMessage)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
+    private static let removalMessage = "Its catalogs, streams and subtitles leave the app."
 
-    private var addonList: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Installed")
-                .font(.title3.bold())
-            ForEach(model.addons, id: \.manifestUrl) { addon in
-                AddonRow(
-                    addon: addon,
-                    onToggle: { model.toggle(addon) },
-                    onRemove: { model.remove(addon) }
-                )
-            }
-        }
-    }
-
-    private var installTitle: String {
-        model.isInstalling ? "Installing" : "Install"
-    }
-
-    private func install() {
-        model.install(manifestUrl)
-        manifestUrl = ""
-    }
-}
-
-private struct AddonRow: View {
-    let addon: TvosAddon
-    let onToggle: () -> Void
-    let onRemove: () -> Void
-
-    var body: some View {
-        HStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(addon.name)
-                    .font(.headline)
-                Text(summary)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            Button(
-                addon.enabled ? "On" : "Off",
-                systemImage: addon.enabled ? "checkmark.circle" : "circle",
-                action: onToggle
+    @ViewBuilder
+    private var installedList: some View {
+        if model.addons.isEmpty {
+            ContentUnavailableView(
+                "No addons",
+                systemImage: "puzzlepiece.extension",
+                description: Text("Add a manifest URL to get catalogs and streams.")
             )
-            Button("Remove", systemImage: "trash", role: .destructive, action: onRemove)
+        } else {
+            List {
+                Section {
+                    ForEach(model.addons, id: \.manifestUrl) { addon in
+                        Button { chosenAddon = addon } label: { AddonRow(addon: addon) }
+                            .accessibilityIdentifier("addon-row")
+                            .focused($focusedAddonUrl, equals: addon.manifestUrl)
+                    }
+                } header: {
+                    Text("Installed")
+                } footer: {
+                    Text("Select an addon to turn it off, move it or remove it.")
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
     }
 
-    private var summary: String {
-        if let error = addon.errorMessage { return error }
-        let streams = addon.providesStreams ? "Streams" : "No streams"
-        return addon.summary.isEmpty ? streams : "\(streams) · \(addon.summary)"
+    @ViewBuilder
+    private func addonActions(_ addon: TvosAddon) -> some View {
+        Button(addon.enabled ? "Turn Off" : "Turn On") { model.toggle(addon) }
+        if model.canMove(addon, .up) {
+            Button("Move Up") { model.move(addon, .up) }
+        }
+        if model.canMove(addon, .down) {
+            Button("Move Down") { model.move(addon, .down) }
+        }
+        Button("Remove", role: .destructive) { addonToRemove = addon }
+        Button("Cancel", role: .cancel) {}
+    }
+
+    @ViewBuilder
+    private func removalActions(_ addon: TvosAddon) -> some View {
+        Button("Remove", role: .destructive) { model.remove(addon) }
+        Button("Cancel", role: .cancel) {}
+    }
+
+    private func isPresenting(_ addon: Binding<TvosAddon?>) -> Binding<Bool> {
+        Binding(
+            get: { addon.wrappedValue != nil },
+            set: { isShown in if !isShown { addon.wrappedValue = nil } }
+        )
     }
 }
