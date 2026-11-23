@@ -10,21 +10,19 @@ internal actual object DownloadsPlatformDownloader {
         onProgress: (downloadedBytes: Long, totalBytes: Long?) -> Unit,
         onSuccess: (localFileUri: String, totalBytes: Long?) -> Unit,
         onFailure: (message: String) -> Unit,
-        onPaused: () -> Unit,
+        onPaused: () -> Unit
     ): DownloadsTaskHandle {
         onFailure(UNAVAILABLE)
         return NoTask
     }
 
-    actual fun restoreItem(item: DownloadItem): DownloadItem =
-        if (item.status == DownloadStatus.Downloading) item.copy(status = DownloadStatus.Paused) else item
+    actual fun restoreItem(item: DownloadItem): DownloadItem = if (item.status == DownloadStatus.Downloading) item.copy(status = DownloadStatus.Paused) else item
 
     actual fun removeFile(localFileUri: String?): Boolean = false
 
     actual fun removePartialFile(destinationFileName: String): Boolean = false
 
-    actual fun resolveLocalFileUri(localFileUri: String?, destinationFileName: String): String? =
-        localFileUri
+    actual fun resolveLocalFileUri(localFileUri: String?, destinationFileName: String): String? = localFileUri
 
     actual fun openDownloadsDirectory(): Boolean = false
 

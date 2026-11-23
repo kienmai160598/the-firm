@@ -60,16 +60,17 @@ sealed interface HomeScreenState {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private fun homeScreenStates(app: MoviesApp): Flow<HomeScreenState> =
-    app.runtimeState.flatMapLatest { runtime ->
-        when (runtime) {
-            RuntimeState.Starting -> emptyFlow()
-            is RuntimeState.Failed -> flowOf(
-                HomeScreenState.Error(runtime.message),
-            )
-            RuntimeState.Ready -> BridgeFlows.home().map(::homeScreenState)
-        }
+private fun homeScreenStates(app: MoviesApp): Flow<HomeScreenState> = app.runtimeState.flatMapLatest { runtime ->
+    when (runtime) {
+        RuntimeState.Starting -> emptyFlow()
+
+        is RuntimeState.Failed -> flowOf(
+            HomeScreenState.Error(runtime.message)
+        )
+
+        RuntimeState.Ready -> BridgeFlows.home().map(::homeScreenState)
     }
+}
 
 internal fun homeScreenState(home: TvosHomeState): HomeScreenState {
     val titles = listOfNotNull(home.continueWatching?.title, home.upcoming?.title) +
@@ -104,7 +105,7 @@ private fun RowTitleList(titles: List<String>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 48.dp, vertical = 27.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(titles.withIndex().toList(), key = { (index, _) -> index }) { (index, title) ->
             if (index == 0) {
@@ -117,7 +118,7 @@ private fun RowTitleList(titles: List<String>) {
                 headlineContent = { Text(title) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(if (index == 0) Modifier.focusRequester(firstItem) else Modifier),
+                    .then(if (index == 0) Modifier.focusRequester(firstItem) else Modifier)
             )
         }
     }

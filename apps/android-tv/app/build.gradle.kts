@@ -11,8 +11,7 @@ val localProperties = Properties().apply {
     if (file.exists()) file.inputStream().use(::load)
 }
 
-fun localProperty(key: String): String? =
-    localProperties.getProperty(key)?.trim()?.takeIf(String::isNotEmpty)
+fun localProperty(key: String): String? = localProperties.getProperty(key)?.trim()?.takeIf(String::isNotEmpty)
 
 val boxAbis: List<String> = localProperty("ABIS").orEmpty()
     .split(",").map(String::trim).filter(String::isNotEmpty)
@@ -61,7 +60,7 @@ android {
             ndk { abiFilters += boxAbis }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
             matchingFallbacks += "release"
         }
@@ -117,6 +116,6 @@ configurations.all {
         "media3-common",
         "media3-datasource",
         "media3-datasource-okhttp",
-        "media3-extractor",
+        "media3-extractor"
     ).forEach { module -> exclude(group = "androidx.media3", module = module) }
 }

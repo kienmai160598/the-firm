@@ -35,7 +35,7 @@ val upstreamAars = listOf(
     "lib-exoplayer-hls-release.aar",
     "lib-extractor-release.aar",
     "lib-nuvio-engine-android-0.1.6.aar",
-    "nuvio-libass-release.aar",
+    "nuvio-libass-release.aar"
 )
 
 fun excludedKeys(): Set<String> {
@@ -59,7 +59,7 @@ val upstreamSourceSets = listOf("commonMain", "androidMain", "androidPlaystore")
 val excludedKeyFiles = listOf(
     tvosBridge.resolve("excluded-by-rule.txt"),
     tvosBridge.resolve("excluded-by-compiler.txt"),
-    project.file("excluded-android.txt"),
+    project.file("excluded-android.txt")
 )
 val syncUpstreamSources = upstreamSourceSets.associateWith { set ->
     tasks.register<Sync>("syncUpstream${set.replaceFirstChar(Char::uppercase)}") {
@@ -73,8 +73,7 @@ val syncUpstreamSources = upstreamSourceSets.associateWith { set ->
     }
 }
 
-fun upstreamSources(set: String) =
-    syncUpstreamSources.getValue(set).map { task -> task.destinationDir }
+fun upstreamSources(set: String) = syncUpstreamSources.getValue(set).map { task -> task.destinationDir }
 
 abstract class GenerateEnglishResShim : DefaultTask() {
     @get:InputDirectory
@@ -98,8 +97,7 @@ abstract class GenerateEnglishResShim : DefaultTask() {
         target.writeText((listOf(header) + strings + plurals).joinToString("\n"))
     }
 
-    private fun stringProperty(name: String, text: String): String =
-        "val Res.string.$name: StringResource get() = StringResource(\"$name\", ${literal(text)})"
+    private fun stringProperty(name: String, text: String): String = "val Res.string.$name: StringResource get() = StringResource(\"$name\", ${literal(text)})"
 
     private fun pluralProperty(name: String, body: String): String {
         val items = pluralItem.findAll(body).associate { it.groupValues[1] to it.groupValues[2] }
@@ -127,7 +125,7 @@ abstract class GenerateEnglishResShim : DefaultTask() {
             "package nuvio.composeapp.generated.resources",
             "import org.jetbrains.compose.resources.PluralStringResource",
             "import org.jetbrains.compose.resources.StringResource",
-            "object Res { object string\n object plurals }",
+            "object Res { object string\n object plurals }"
         ).joinToString("\n")
     }
 }
@@ -217,11 +215,10 @@ configurations.all {
         "media3-common",
         "media3-datasource",
         "media3-datasource-okhttp",
-        "media3-extractor",
+        "media3-extractor"
     ).forEach { module -> exclude(group = "androidx.media3", module = module) }
 }
 
 tasks.withType<KotlinCompilationTask<*>>().configureEach {
     dependsOn(":composeApp:generateRuntimeConfigs", syncUpstreamSources.values)
 }
-

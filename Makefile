@@ -6,21 +6,56 @@ export JAVA_HOME ANDROID_HOME
 
 ANDROID_TV := apps/android-tv
 APPLE_TV := apps/apple-tv
+BOX_APK := $(ANDROID_TV)/app/build/outputs/apk/box/androidTvApp-box.apk
+BOX_PACKAGE := com.kien.movies.next
+# Core's build demands a distribution for assemble tasks; the bridge uses playstore sources.
+GRADLE := cd shared && ./gradlew -Pnuvio.android.distribution=full
+KOTLIN_SOURCES := "apps/android-tv/app/src/**/*.kt" "apps/android-tv/app/*.kts" \
+	"shared/android-tv-bridge/src/**/*.kt" "shared/android-tv-bridge/*.kts"
 APPLE_TV_DERIVED := /tmp/the-firm-apple-tv
 APPLE_TV_APP := $(APPLE_TV_DERIVED)/Build/Products/Release-appletvos/NuvioTv.app
 APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
 
-.PHONY: help check apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test engine
+.PHONY: help check lint format tv-runtime-init-check android-tv android-tv-test box-install \
+	box-roundtrip apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test engine
 
 help:
-	@echo "check             shared tests (Android TV lint and tests return with slice A2)"
+	@echo "check             shared tests, Android TV tests, lint and the TvRuntime init check"
+	@echo "lint              ktlint on the Android TV app and bridge sources"
+	@echo "format            ktlint --format on the same sources"
+	@echo "android-tv        box APK ($(BOX_APK))"
+	@echo "android-tv-test   unit tests of the Android TV app and bridge"
+	@echo "box-install       install the box APK with its profile (ANDROID_SERIAL=<ip>:5555)"
+	@echo "box-roundtrip     persistence round trip on the box (test addon on 127.0.0.1:8765)"
 	@echo "apple-tv          Release build for a device (APPLE_TEAM=<team id>)"
 	@echo "apple-tv-sim      Debug build for the tvOS simulator"
 	@echo "apple-tv-install  install the Release build (APPLE_TV_DEVICE=<devicectl id>)"
 	@echo "shared-test       Apple TV bridge tests on the tvOS simulator"
 	@echo "engine            build the torrent engine xcframework (about 16 minutes)"
 
-check: shared-test
+check: shared-test android-tv-test lint tv-runtime-init-check
+
+lint:
+	scripts/ktlint --relative $(KOTLIN_SOURCES)
+
+format:
+	scripts/ktlint --format --relative $(KOTLIN_SOURCES)
+
+tv-runtime-init-check:
+	scripts/check-tv-runtime-init
+
+android-tv:
+	$(GRADLE) :androidTvApp:assembleBox
+
+android-tv-test:
+	$(GRADLE) :androidTvApp:testDebugUnitTest :androidTvShared:testAndroidHostTest
+
+box-install: android-tv
+	BOX_PACKAGE=$(BOX_PACKAGE) $(ANDROID_TV)/box/install.sh $(BOX_APK)
+
+box-roundtrip:
+	$(GRADLE) :androidTvApp:assembleDebug :androidTvApp:assembleDebugAndroidTest
+	$(ANDROID_TV)/box/roundtrip.sh
 
 apple-tv-project:
 	cd $(APPLE_TV) && xcodegen generate

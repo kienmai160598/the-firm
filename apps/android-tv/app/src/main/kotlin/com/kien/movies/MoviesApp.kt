@@ -47,7 +47,7 @@ class MoviesApp : Application() {
             onFailure = { error ->
                 Log.e(TAG, "TvRuntime.init failed", error)
                 RuntimeState.Failed(error.message ?: error.javaClass.simpleName)
-            },
+            }
         )
     }
 

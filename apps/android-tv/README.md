@@ -3,7 +3,18 @@
 Being rebuilt from scratch to mirror `apps/apple-tv`, on the Kotlin logic in `shared/`. The plan,
 acceptance criteria, slices and the target folder tree are in `docs/android-tv-rebuild.md`.
 
-What is here before the app lands:
+Build and install (the app is a project of the `shared/` Gradle build):
+
+- `make android-tv`: the `box` APK (R8, armeabi-v7a, signed from `shared/local.properties`),
+  `app/build/outputs/apk/box/androidTvApp-box.apk`, package `com.kien.movies.next`.
+- `make box-install`: builds it and installs it on the box with `box/install.sh`
+  (`ANDROID_SERIAL=<ip>:5555`).
+- `make android-tv-test`: unit tests of the app and of the bridge (`shared/android-tv-bridge`).
+- `make box-roundtrip`: the persistence round trip (`box/roundtrip.sh`) on the box, against the
+  test addon served from `apps/apple-tv/TestAddon` on `127.0.0.1:8765`.
+- `make lint`, `make format`: ktlint over the app and bridge sources.
+
+Also here:
 
 - `box/install.sh`: installs an APK on the Mi Box and applies its baseline profile.
 - `box/perf/measure.sh`: a fixed remote scenario that records jank and memory. The old app's runs

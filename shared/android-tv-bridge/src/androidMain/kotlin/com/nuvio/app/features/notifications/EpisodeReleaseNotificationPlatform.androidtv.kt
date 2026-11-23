@@ -8,7 +8,7 @@ internal actual object EpisodeReleaseNotificationPlatform {
     actual suspend fun requestAuthorization(): Boolean = false
 
     actual suspend fun scheduleEpisodeReleaseNotifications(
-        requests: List<EpisodeReleaseNotificationRequest>,
+        requests: List<EpisodeReleaseNotificationRequest>
     ) = Unit
 
     actual suspend fun clearScheduledEpisodeReleaseNotifications() = Unit
