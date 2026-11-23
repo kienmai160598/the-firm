@@ -64,8 +64,8 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
     val playback = state.playback
 
     Box(modifier = Modifier.fillMaxSize()) {
-        viewModel.target.backdropUrl?.let { url -> Backdrop(url = url, isReceded = true) }
         if (playback == null) {
+            viewModel.target.backdropUrl?.let { url -> Backdrop(url = url, isReceded = true) }
             StreamsPage(
                 viewModel = viewModel,
                 state = state,
