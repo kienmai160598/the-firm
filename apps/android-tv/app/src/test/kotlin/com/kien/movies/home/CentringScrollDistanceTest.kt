@@ -12,7 +12,7 @@ class CentringScrollDistanceTest {
 
     @Test
     fun aCardAboveTheCentreScrollsBack() {
-        assertEquals(-258f, centringScrollDistance(offset = -85.5f, size = 191f, containerSize = 540f))
+        assertEquals(-260f, centringScrollDistance(offset = -85.5f, size = 191f, containerSize = 540f))
     }
 
     @Test
