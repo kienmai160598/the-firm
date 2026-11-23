@@ -53,22 +53,36 @@ class DetailsTextTest {
 
     @Test
     fun anUnreleasedEpisodeSaysUpcomingFirst() {
-        assertEquals(listOf("Upcoming", "2026-12-01"), episodeFacts(episode(isReleased = false, releaseDate = "2026-12-01")))
+        assertEquals(listOf("Upcoming", "2026-12-01"), episodeFacts(episode(isReleased = false, releaseDate = "2026-12-01", runtime = "47 min")))
     }
 
     @Test
-    fun heroFactsTakeTwoGenresThenReleaseAndRunTime() {
-        val show = details(genres = listOf("Drama", "Crime", "Thriller"), releaseLine = "2008", runtime = "47 min")
+    fun heroMetadataNamesTheKindThenTwoGenres() {
+        val show = details(genres = listOf("Drama", "Crime", "Thriller"))
 
-        assertEquals(listOf("Drama, Crime", "2008", "47 min"), heroFacts(show))
+        assertEquals(listOf("TV Show", "Drama", "Crime"), heroMetadata(show))
+        assertEquals(listOf("Movie"), heroMetadata(details(type = "movie")))
+        assertEquals(emptyList<String>(), heroMetadata(details(type = "channel")))
+    }
+
+    @Test
+    fun techFactsAreReleaseThenRunTime() {
+        assertEquals(listOf("2008", "47 min"), techFacts(details(releaseLine = "2008", runtime = "47 min")))
+        assertEquals(listOf("47 min"), techFacts(details(runtime = "47 min")))
     }
 
     @Test
     fun starringNamesTheFirstThreeCastMembers() {
         val cast = listOf("A", "B", "C", "D").map { name -> TvosCastMember(name, role = null, photoUrl = null) }
 
-        assertEquals("Starring A, B, C", starring(cast))
-        assertNull(starring(emptyList()))
+        assertEquals("A, B, C", starringNames(cast))
+        assertNull(starringNames(emptyList()))
+    }
+
+    @Test
+    fun anEpisodeOverlineNamesItsNumberOrFallsBackToTheCode() {
+        assertEquals("EPISODE 2", episodeOverline(episode(code = "E2", episodeNumber = 2)))
+        assertEquals("E2", episodeOverline(episode(code = "e2", episodeNumber = null)))
     }
 
     @Test
