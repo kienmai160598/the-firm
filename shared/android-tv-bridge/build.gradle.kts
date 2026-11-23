@@ -22,10 +22,11 @@ val tvosBridge = rootProject.file("apple-tv-bridge")
 // has the real androidx.compose.ui.graphics.Color.
 val stringStandIn = tvosBridge.resolve("src/commonMain/kotlin/org/jetbrains/compose/resources")
 
-// Media3 fork, torrent engine and libass from core/libs. Not linked: core's FFmpeg decoder (the
-// app links the downmix build from app/libs), lib-ui (no media3 PlayerView) and QuickJS
+// Media3 fork, torrent engine and libass from core/libs. The media3 AARs are `api`, so the app's
+// player compiles against the same single copy. Not linked here: core's FFmpeg decoder (the app
+// links the downmix build from app/libs), lib-ui (the app links it for SubtitleView) and QuickJS
 // (plugins are off in the playstore sources).
-val upstreamAars = listOf(
+val upstreamMedia3Aars = listOf(
     "lib-common-release.aar",
     "lib-datasource-release.aar",
     "lib-datasource-okhttp-release.aar",
@@ -33,7 +34,9 @@ val upstreamAars = listOf(
     "lib-decoder-mpegh-release.aar",
     "lib-exoplayer-release.aar",
     "lib-exoplayer-hls-release.aar",
-    "lib-extractor-release.aar",
+    "lib-extractor-release.aar"
+)
+val upstreamOtherAars = listOf(
     "lib-nuvio-engine-android-0.1.6.aar",
     "nuvio-libass-release.aar"
 )
@@ -193,7 +196,8 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.media3.decoder)
                 implementation(libs.androidx.media3.database)
-                upstreamAars.forEach { aar -> implementation(files(upstreamLibs.resolve(aar))) }
+                upstreamMedia3Aars.forEach { aar -> api(files(upstreamLibs.resolve(aar))) }
+                upstreamOtherAars.forEach { aar -> implementation(files(upstreamLibs.resolve(aar))) }
             }
         }
         commonTest {

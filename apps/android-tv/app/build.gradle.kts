@@ -93,6 +93,13 @@ dependencies {
     implementation(project(":androidTvShared"))
     // The downmix FFmpeg audio decoder; core's own FFmpeg AAR is not linked by the bridge.
     implementation(files("libs/lib-decoder-ffmpeg-release.aar"))
+    // Media3 fork: ExoPlayer, common, datasource and extractor come from the bridge (`api`);
+    // lib-ui (SubtitleView, AspectRatioFrameLayout) is linked once, here, from core/libs. A local
+    // AAR carries no POM, so its runtime dependency (recyclerview) is declared by hand.
+    implementation(files(rootProject.file("core/libs/lib-ui-release.aar")))
+    implementation(libs.androidx.recyclerview)
+    // Stock media3-decoder at the fork's version: the FFmpeg renderer's supertypes live there.
+    implementation(libs.androidx.media3.decoder)
 
     implementation(platform(libs.jetpack.compose.bom))
     implementation(libs.jetpack.compose.ui)
@@ -100,12 +107,25 @@ dependencies {
     implementation(libs.jetpack.tv.material)
     implementation(libs.androidx.activity.compose)
     implementation(libs.jetpack.lifecycle.runtimeCompose)
+    implementation(libs.jetpack.lifecycle.viewmodelCompose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.jetpack.profileinstaller)
 
+    // Images: Coil 3 with the OkHttp fetcher (without a fetcher AsyncImage loads nothing).
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    // Add addons from a phone (docs/android-tv-rebuild.md, 5b): local server and QR matrix.
+    implementation(libs.nanohttpd)
+    implementation(libs.zxing.core)
+
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.core)
     androidTestImplementation(libs.androidx.testRunner)
     androidTestImplementation(libs.androidx.testExt.junit)
+    androidTestImplementation(platform(libs.jetpack.compose.bom))
+    androidTestImplementation(libs.jetpack.compose.ui.test.junit4)
+    debugImplementation(libs.jetpack.compose.ui.test.manifest)
 }
 
 configurations.all {
