@@ -1,6 +1,7 @@
 package com.kien.movies.ui.screens.player
 
 import androidx.media3.common.text.Cue
+import com.kien.movies.core.player.SubtitleMojibakeSanitizer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

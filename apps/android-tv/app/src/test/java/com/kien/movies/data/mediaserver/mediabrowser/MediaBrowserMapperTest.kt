@@ -1,8 +1,8 @@
 package com.kien.movies.data.mediaserver.mediabrowser
 
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.mediaserver.ServerMediaKind
 import com.kien.movies.domain.model.ContentType
+import com.kien.movies.domain.model.ServerItemRef
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

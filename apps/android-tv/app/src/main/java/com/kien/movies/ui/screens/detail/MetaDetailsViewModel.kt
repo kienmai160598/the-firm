@@ -29,7 +29,6 @@ import com.kien.movies.data.local.TrailerSettingsDataStore
 import com.kien.movies.data.local.TraktAuthDataStore
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.WatchedItemsPreferences
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.repository.AddonEpisodeAirDate
 import com.kien.movies.data.repository.ImdbEpisodeRatingsRepository
 import com.kien.movies.data.repository.MDBListRepository
@@ -43,6 +42,7 @@ import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaTrailer
 import com.kien.movies.domain.model.NextToWatch
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.TmdbSettings
 import com.kien.movies.domain.model.TraktCommentReview
 import com.kien.movies.domain.model.Video

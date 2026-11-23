@@ -9,17 +9,20 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.media3.ui.PlayerView
 import com.kien.movies.R
+import com.kien.movies.domain.model.AspectMode
 import kotlin.math.roundToInt
 
-enum class AspectMode(@StringRes val labelResId: Int) {
-    ORIGINAL(R.string.player_aspect_fit),
-    FULL_SCREEN(R.string.player_aspect_crop),
-    STRETCH(R.string.player_aspect_stretch),
-    SLIGHT_ZOOM(R.string.player_aspect_mode_slight_zoom),
-    CINEMA_ZOOM(R.string.player_aspect_mode_cinema_zoom),
-    VERTICAL_STRETCH(R.string.player_aspect_fit_height),
-    HORIZONTAL_STRETCH(R.string.player_aspect_fit_width)
-}
+@get:StringRes
+internal val AspectMode.labelResId: Int
+    get() = when (this) {
+        AspectMode.ORIGINAL -> R.string.player_aspect_fit
+        AspectMode.FULL_SCREEN -> R.string.player_aspect_crop
+        AspectMode.STRETCH -> R.string.player_aspect_stretch
+        AspectMode.SLIGHT_ZOOM -> R.string.player_aspect_mode_slight_zoom
+        AspectMode.CINEMA_ZOOM -> R.string.player_aspect_mode_cinema_zoom
+        AspectMode.VERTICAL_STRETCH -> R.string.player_aspect_fit_height
+        AspectMode.HORIZONTAL_STRETCH -> R.string.player_aspect_fit_width
+    }
 
 internal fun aspectModeAppliedToExoSurface(
     tunnelingEnabled: Boolean,

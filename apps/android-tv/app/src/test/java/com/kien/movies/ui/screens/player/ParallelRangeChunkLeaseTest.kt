@@ -6,6 +6,7 @@ import androidx.media3.common.C
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.upstream.Allocation
+import com.kien.movies.core.player.ParallelRangeDataSource
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -131,7 +132,7 @@ class ParallelRangeChunkLeaseTest {
 
     private fun spec(position: Long) = DataSpec.Builder().setUri(fileUri).setPosition(position).build()
 
-    private fun pooledBuffer(allocation: Allocation): Any = Class.forName("com.kien.movies.ui.screens.player.ParallelRangeDataSource\$PooledBuffer")
+    private fun pooledBuffer(allocation: Allocation): Any = Class.forName("com.kien.movies.core.player.ParallelRangeDataSource\$PooledBuffer")
         .declaredConstructors.single().apply {
             isAccessible = true
         }.newInstance(allocation, allocation.buffer)

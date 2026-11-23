@@ -1,6 +1,7 @@
 package com.kien.movies.data.mediaserver
 
 import com.kien.movies.core.tracking.parseTrackingExternalIds
+import com.kien.movies.domain.model.ServerItemRef
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals

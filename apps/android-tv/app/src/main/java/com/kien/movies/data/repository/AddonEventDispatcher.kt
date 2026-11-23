@@ -2,9 +2,9 @@ package com.kien.movies.data.repository
 
 import android.util.Log
 import com.kien.movies.core.streams.supportsResource
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.remote.api.AddonApi
 import com.kien.movies.domain.model.Addon
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.repository.AddonRepository
 import java.net.URLEncoder
 import javax.inject.Inject

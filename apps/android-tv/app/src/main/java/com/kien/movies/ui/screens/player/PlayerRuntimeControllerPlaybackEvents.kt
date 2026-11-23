@@ -6,6 +6,9 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.SeekParameters
 import com.kien.movies.R
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
+import com.kien.movies.core.player.PlayerNextEpisodeRules
+import com.kien.movies.core.player.followingPostCreditsScene
 import com.kien.movies.core.tracking.TRACKING_SCROBBLE_DIAGNOSTIC_TAG
 import com.kien.movies.core.tracking.TrackingMediaKind
 import com.kien.movies.core.tracking.TrackingMediaReference
@@ -15,13 +18,13 @@ import com.kien.movies.core.tracking.buildTrackingMediaReference
 import com.kien.movies.core.tracking.scrobbleDiagnosticIdentity
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.local.NightMode
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.repository.AddonPlayerAction
 import com.kien.movies.data.repository.AddonPlayerEventTarget
 import com.kien.movies.data.repository.PlaybackIssueErrorInput
 import com.kien.movies.data.repository.PlaybackIssuePlaybackSettingsInput
 import com.kien.movies.data.repository.PlaybackIssueReportInput
 import com.kien.movies.data.repository.SkipInterval
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import java.io.IOException
 import kotlinx.coroutines.delay

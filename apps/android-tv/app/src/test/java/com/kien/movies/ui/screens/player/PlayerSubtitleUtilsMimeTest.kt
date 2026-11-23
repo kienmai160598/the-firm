@@ -1,7 +1,7 @@
 package com.kien.movies.ui.screens.player
 
 import androidx.media3.common.MimeTypes
-import com.kien.movies.ui.util.languageCodeToName
+import com.kien.movies.core.util.languageCodeToName
 import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

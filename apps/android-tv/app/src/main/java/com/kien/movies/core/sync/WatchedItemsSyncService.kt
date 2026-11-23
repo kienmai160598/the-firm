@@ -7,9 +7,9 @@ import com.kien.movies.core.tracking.TrackingProgressProviderRegistry
 import com.kien.movies.core.tracking.providerId
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.WatchedItemsPreferences
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.remote.supabase.SupabaseWatchedItem
 import com.kien.movies.data.remote.supabase.SupabaseWatchedItemEvent
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.model.WatchedMutationKey
 import io.github.jan.supabase.postgrest.Postgrest

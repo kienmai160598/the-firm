@@ -6,9 +6,9 @@ import com.kien.movies.core.sync.library.LIBRARY_SNAPSHOT_PAGE_SIZE
 import com.kien.movies.core.sync.library.LibrarySyncLocalStore
 import com.kien.movies.core.sync.library.LibrarySyncRemoteDataSource
 import com.kien.movies.core.sync.library.consumeCursorPages
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.domain.model.LibrarySyncReducer
 import com.kien.movies.domain.model.LibrarySyncState
+import com.kien.movies.domain.model.ServerItemRef
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException

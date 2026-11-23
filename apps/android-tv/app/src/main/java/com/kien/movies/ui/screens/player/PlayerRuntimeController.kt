@@ -19,6 +19,7 @@ import com.kien.movies.core.debrid.DirectDebridResolver
 import com.kien.movies.core.debrid.DirectDebridStreamPreparer
 import com.kien.movies.core.player.BitrateAwareLoadControl
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import com.kien.movies.core.plugin.PluginManager
 import com.kien.movies.core.streams.StreamBadgeMatcher
 import com.kien.movies.core.torrent.TorrentService
@@ -49,7 +50,9 @@ import com.kien.movies.data.repository.PlaybackIssueReportRepository
 import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.data.repository.SkipIntroRepository
 import com.kien.movies.data.repository.TraktEpisodeMappingService
+import com.kien.movies.domain.model.RememberedSubtitleSelection
 import com.kien.movies.domain.model.Subtitle
+import com.kien.movies.domain.model.TrackPreference
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.repository.AddonRepository
@@ -137,31 +140,6 @@ class PlayerRuntimeController(
         val language: String?,
         val name: String?,
         val streamUrl: String
-    )
-
-    internal data class RememberedTrackSelection(
-        val language: String?,
-        val name: String?,
-        val trackId: String? = null,
-        val indexHint: Int? = null,
-        val languageIndexHint: Int? = null,
-        val isForcedHint: Boolean? = null
-    )
-
-    internal sealed class RememberedSubtitleSelection {
-        data object Disabled : RememberedSubtitleSelection()
-        data class Internal(val track: RememberedTrackSelection) : RememberedSubtitleSelection()
-        data class Addon(
-            val id: String,
-            val url: String,
-            val language: String,
-            val addonName: String
-        ) : RememberedSubtitleSelection()
-    }
-
-    internal data class TrackPreference(
-        val audio: RememberedTrackSelection? = null,
-        val subtitle: RememberedSubtitleSelection? = null
     )
 
     internal data class PendingEngineSwitchTrackPreference(

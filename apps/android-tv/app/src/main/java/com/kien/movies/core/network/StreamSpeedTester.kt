@@ -5,8 +5,7 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.TransferListener
 import androidx.media3.datasource.okhttp.OkHttpDataSource
-import com.kien.movies.ui.screens.player.ParallelRangeDataSource
-import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
+import com.kien.movies.core.player.ParallelRangeDataSource
 import kotlinx.coroutines.launch
 import okhttp3.Request
 

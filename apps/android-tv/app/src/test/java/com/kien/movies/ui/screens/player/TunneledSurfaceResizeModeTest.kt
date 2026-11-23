@@ -1,6 +1,7 @@
 package com.kien.movies.ui.screens.player
 
 import androidx.media3.ui.AspectRatioFrameLayout
+import com.kien.movies.domain.model.AspectMode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

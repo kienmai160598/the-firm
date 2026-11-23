@@ -23,6 +23,7 @@ import com.kien.movies.core.image.StaleWhileRevalidateCacheStrategy
 import com.kien.movies.core.network.IPv4FirstDns
 import com.kien.movies.core.network.NoDelaySocketFactory
 import com.kien.movies.core.network.imageNetworkFetcherFactory
+import com.kien.movies.core.player.MemoryBudget
 import com.kien.movies.core.runtime.PluginRuntimeHooks
 import com.kien.movies.core.sync.StartupSyncService
 import com.kien.movies.core.sync.androidtv.AndroidTvChannelSyncService
@@ -34,7 +35,6 @@ import com.kien.movies.data.mediaserver.plex.PlexArtworkSigner
 import com.kien.movies.data.mediaserver.silo.SiloArtworkInterceptor
 import com.kien.movies.data.mediaserver.silo.SiloArtworkRefresher
 import com.kien.movies.data.simkl.SimklAnimeIdPreferenceHolder
-import com.kien.movies.ui.screens.settings.MemoryBudget
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit

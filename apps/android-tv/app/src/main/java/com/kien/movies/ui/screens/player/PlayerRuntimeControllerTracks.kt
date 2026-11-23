@@ -10,10 +10,13 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.container.NalUnitUtil
 import com.kien.movies.core.player.FrameRateUtils
+import com.kien.movies.core.util.languageCodeToName
 import com.kien.movies.data.local.AVAILABLE_SUBTITLE_LANGUAGES
 import com.kien.movies.data.local.InternalPlayerEngine
+import com.kien.movies.domain.model.RememberedSubtitleSelection
+import com.kien.movies.domain.model.RememberedTrackSelection
 import com.kien.movies.domain.model.Subtitle
-import com.kien.movies.ui.util.languageCodeToName
+import com.kien.movies.domain.model.TrackPreference
 import java.util.Locale
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -118,7 +121,7 @@ internal fun PlayerRuntimeController.updateAvailableTracks(tracks: Tracks) {
                         format.channelCount
                     )
                     val langDisplay = format.language?.takeIf { it != "und" }?.let {
-                        com.kien.movies.ui.util.languageCodeToName(it)
+                        com.kien.movies.core.util.languageCodeToName(it)
                     }
                     val baseName =
                         format.label ?: langDisplay
@@ -377,7 +380,7 @@ private fun PlayerRuntimeController.rememberEffectiveExoSubtitleSelectionForEngi
     val selection = when {
         selectedSubtitleIndex >= 0 -> {
             val selectedTrack = subtitleTracks.getOrNull(selectedSubtitleIndex) ?: return
-            PlayerRuntimeController.RememberedSubtitleSelection.Internal(
+            RememberedSubtitleSelection.Internal(
                 track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
                     state = _uiState.value,
                     language = selectedTrack.language,
@@ -391,7 +394,7 @@ private fun PlayerRuntimeController.rememberEffectiveExoSubtitleSelectionForEngi
 
         _uiState.value.selectedAddonSubtitle != null -> {
             val addon = _uiState.value.selectedAddonSubtitle ?: return
-            PlayerRuntimeController.RememberedSubtitleSelection.Addon(
+            RememberedSubtitleSelection.Addon(
                 id = addon.id,
                 url = addon.url,
                 language = addon.lang,
@@ -678,7 +681,7 @@ internal fun PlayerRuntimeController.maybeRestorePendingAudioSelectionAfterSubti
 
 internal fun PlayerRuntimeController.findMatchingTrackIndex(
     tracks: List<TrackInfo>,
-    target: PlayerRuntimeController.RememberedTrackSelection
+    target: RememberedTrackSelection
 ): Int {
     val strictIndex = findStrictMatchingTrackIndex(
         tracks = tracks,
@@ -709,7 +712,7 @@ internal fun PlayerRuntimeController.findMatchingTrackIndex(
 
 internal fun PlayerRuntimeController.findMatchingTrackIndexForEngineSwitchToMpv(
     tracks: List<TrackInfo>,
-    target: PlayerRuntimeController.RememberedTrackSelection,
+    target: RememberedTrackSelection,
     sourceEngine: InternalPlayerEngine
 ): Int {
     val strictIndex = findStrictMatchingTrackIndex(
@@ -768,7 +771,7 @@ private fun PlayerRuntimeController.describeTrackCandidatesForRestoreLog(
 }
 
 private fun PlayerRuntimeController.describeRememberedTrackForSwitchTrace(
-    selection: PlayerRuntimeController.RememberedTrackSelection?
+    selection: RememberedTrackSelection?
 ): String {
     if (selection == null) return "none"
     return "lang=${selection.language} name=${selection.name} trackId=${selection.trackId} " +
@@ -777,24 +780,24 @@ private fun PlayerRuntimeController.describeRememberedTrackForSwitchTrace(
 }
 
 private fun PlayerRuntimeController.describeRememberedSubtitleForSwitchTrace(
-    selection: PlayerRuntimeController.RememberedSubtitleSelection?
+    selection: RememberedSubtitleSelection?
 ): String {
     return when (selection) {
         null -> "none"
 
-        PlayerRuntimeController.RememberedSubtitleSelection.Disabled -> "disabled"
+        RememberedSubtitleSelection.Disabled -> "disabled"
 
-        is PlayerRuntimeController.RememberedSubtitleSelection.Internal ->
+        is RememberedSubtitleSelection.Internal ->
             "internal:${describeRememberedTrackForSwitchTrace(selection.track)}"
 
-        is PlayerRuntimeController.RememberedSubtitleSelection.Addon ->
+        is RememberedSubtitleSelection.Addon ->
             "addon:${selection.language}/${selection.addonName}/${selection.id}"
     }
 }
 
 private fun PlayerRuntimeController.findStrictMatchingTrackIndex(
     tracks: List<TrackInfo>,
-    target: PlayerRuntimeController.RememberedTrackSelection
+    target: RememberedTrackSelection
 ): Int {
     val targetTrackId = normalizeTrackMatchValue(target.trackId)
     val targetName = normalizeTrackMatchValue(target.name)
@@ -849,7 +852,7 @@ private fun PlayerRuntimeController.findStrictMatchingTrackIndex(
 
 private fun PlayerRuntimeController.findLanguageFallbackTrackIndex(
     tracks: List<TrackInfo>,
-    target: PlayerRuntimeController.RememberedTrackSelection
+    target: RememberedTrackSelection
 ): Int {
     val targetLang = normalizeTrackMatchValue(target.language)
     val result = if (!targetLang.isNullOrBlank()) {
@@ -904,7 +907,7 @@ private fun PlayerRuntimeController.findLanguageFallbackTrackIndex(
 
 private fun PlayerRuntimeController.findEngineSwitchHintTrackIndex(
     tracks: List<TrackInfo>,
-    target: PlayerRuntimeController.RememberedTrackSelection
+    target: RememberedTrackSelection
 ): Int {
     val indexHint = target.indexHint?.takeIf { it >= 0 } ?: -1
     val languageIndexHint = target.languageIndexHint?.takeIf { it >= 0 }
@@ -1071,7 +1074,7 @@ internal fun PlayerRuntimeController.applyPersistedTrackPreference(
                     pendingCandidate?.subtitle
                 )}"
     )
-    val pending: PlayerRuntimeController.TrackPreference = pendingCandidate ?: run {
+    val pending: TrackPreference = pendingCandidate ?: run {
         logSwitchTrace(
             stage = "restore-skip",
             message = "reason=no-pending-preference"
@@ -1137,7 +1140,7 @@ internal fun PlayerRuntimeController.applyPersistedTrackPreference(
     when (val subtitleSelection = pending.subtitle) {
         null -> Unit
 
-        PlayerRuntimeController.RememberedSubtitleSelection.Disabled -> {
+        RememberedSubtitleSelection.Disabled -> {
             val alreadyDisabled = subtitleTracks.none { it.isSelected }
             logSwitchTrace(
                 stage = "restore-subtitle-disabled",
@@ -1166,7 +1169,7 @@ internal fun PlayerRuntimeController.applyPersistedTrackPreference(
             }
         }
 
-        is PlayerRuntimeController.RememberedSubtitleSelection.Internal -> {
+        is RememberedSubtitleSelection.Internal -> {
             if (subtitleTracks.isEmpty()) {
                 logSwitchTrace(
                     stage = "restore-subtitle-internal",
@@ -1285,7 +1288,7 @@ internal fun PlayerRuntimeController.applyPersistedTrackPreference(
             }
         }
 
-        is PlayerRuntimeController.RememberedSubtitleSelection.Addon -> {
+        is RememberedSubtitleSelection.Addon -> {
             val state = _uiState.value
             // Only restore addon subtitle on exact match (same addon + same track ID).
             // Looser matches (same addon + same language, or any addon + same language)

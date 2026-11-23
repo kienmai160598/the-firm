@@ -4,6 +4,8 @@ import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.domain.model.ServerItemRef
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import com.kien.movies.domain.model.Video
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

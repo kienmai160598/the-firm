@@ -1,4 +1,4 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.network
 
 import android.os.SystemClock
 import android.util.Log

@@ -3,15 +3,15 @@ package com.kien.movies.data.mediaserver.mediabrowser
 import com.kien.movies.data.mediaserver.ServerConnection
 import com.kien.movies.data.mediaserver.ServerException
 import com.kien.movies.data.mediaserver.ServerFailure
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.mediaserver.ServerPlayMethod
 import com.kien.movies.data.mediaserver.ServerPlaybackRequest
-import com.kien.movies.data.mediaserver.ServerPlaybackTarget
 import com.kien.movies.data.mediaserver.ServerPlayerCapabilities
 import com.kien.movies.data.mediaserver.ServerSession
 import com.kien.movies.data.mediaserver.emby.EmbyProvider
 import com.kien.movies.data.mediaserver.jellyfin.JellyfinProvider
 import com.kien.movies.data.mediaserver.readableTranscodeReason
+import com.kien.movies.domain.model.ServerItemRef
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows

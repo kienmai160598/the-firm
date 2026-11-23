@@ -1,10 +1,9 @@
-package com.kien.movies.ui.screens.settings
+package com.kien.movies.core.player
 
 import android.content.Context
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.kien.movies.data.local.BufferSettings
-import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
 
 /**
  * Shared memory budget constants and helpers for buffer + parallel connection settings.

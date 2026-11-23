@@ -44,12 +44,12 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kien.movies.R
+import com.kien.movies.core.util.languageCodeToName
 import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.util.keepLtr
-import com.kien.movies.ui.util.languageCodeToName
 
 @Composable
 fun StreamInfoOverlay(

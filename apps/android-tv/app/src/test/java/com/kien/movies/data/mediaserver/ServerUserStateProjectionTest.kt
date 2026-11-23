@@ -3,6 +3,7 @@ package com.kien.movies.data.mediaserver
 import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.data.local.WatchProgressPreferences
 import com.kien.movies.data.local.WatchedItemsPreferences
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.repository.WatchProgressRepository

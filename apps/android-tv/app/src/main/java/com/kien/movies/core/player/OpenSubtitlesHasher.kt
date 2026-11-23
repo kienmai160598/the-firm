@@ -1,7 +1,8 @@
 package com.kien.movies.core.player
 
+import com.kien.movies.core.network.DEFAULT_PLAYBACK_USER_AGENT
+import com.kien.movies.core.network.PlayerPlaybackNetworking
 import com.kien.movies.ui.screens.player.PlayerMediaSourceFactory
-import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
 import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -80,7 +81,7 @@ object OpenSubtitlesHasher {
             }
         }
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-            requestBuilder.header("User-Agent", PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+            requestBuilder.header("User-Agent", DEFAULT_PLAYBACK_USER_AGENT)
         }
 
         return try {
@@ -113,7 +114,7 @@ object OpenSubtitlesHasher {
             }
         }
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-            requestBuilder.header("User-Agent", PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+            requestBuilder.header("User-Agent", DEFAULT_PLAYBACK_USER_AGENT)
         }
 
         val request = requestBuilder.build()

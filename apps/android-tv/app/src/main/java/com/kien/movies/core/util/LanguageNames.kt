@@ -1,22 +1,13 @@
-package com.kien.movies.ui.util
+package com.kien.movies.core.util
 
-import android.content.Context
-import com.kien.movies.R
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
-private val EPISODE_PATTERN = Regex("^Episode (\\d+)$", RegexOption.IGNORE_CASE)
 private val WHITESPACE = Regex("\\s+")
 private const val LANGUAGE_NAME_CACHE_LIMIT = 2_000
 private val languageNameCache = ConcurrentHashMap<String, String>()
 private val LANGUAGE_NAME_ALIASES_LONGEST_FIRST by lazy {
     LANGUAGE_NAME_ALIASES.entries.sortedByDescending { it.key.length }
-}
-
-fun String.localizeEpisodeTitle(appContext: Context): String {
-    val match = EPISODE_PATTERN.matchEntire(this.trim()) ?: return this
-    val number = match.groupValues[1]
-    return "${appContext.getString(R.string.episodes_episode)} $number"
 }
 
 internal val LANGUAGE_DISPLAY_OVERRIDES = mapOf(

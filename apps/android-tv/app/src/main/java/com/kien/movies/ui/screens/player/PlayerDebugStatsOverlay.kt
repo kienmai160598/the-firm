@@ -34,6 +34,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.tv.material3.Text
 import com.kien.movies.core.network.StreamSpeedTester
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import java.io.File
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers

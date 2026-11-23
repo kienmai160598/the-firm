@@ -2,6 +2,7 @@ package com.kien.movies.ui.screens.player
 
 import com.kien.movies.R
 import com.kien.movies.core.network.IPv4FirstDns
+import com.kien.movies.core.network.PlayerPlaybackNetworking
 import com.kien.movies.core.player.SubtitleCharsetDetector
 import com.kien.movies.domain.model.Subtitle
 import java.util.concurrent.TimeUnit

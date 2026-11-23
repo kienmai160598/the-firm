@@ -23,8 +23,6 @@ import com.kien.movies.data.local.TrailerSettingsDataStore
 import com.kien.movies.data.trailer.InAppYouTubeExtractor
 import com.kien.movies.data.trailer.TrailerSubtitleTrack
 import com.kien.movies.data.trailer.pickTrailerSubtitle
-import com.kien.movies.ui.screens.player.SdhFilteringTextOutput
-import com.kien.movies.ui.screens.settings.MemoryBudget
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject

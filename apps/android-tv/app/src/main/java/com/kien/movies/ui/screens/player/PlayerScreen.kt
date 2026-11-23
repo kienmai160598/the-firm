@@ -144,6 +144,7 @@ import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.local.LibassRenderMode
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.SubtitleStyleSettings
+import com.kien.movies.domain.model.AspectMode
 import com.kien.movies.domain.model.StreamBadge
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.WatchProgress

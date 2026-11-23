@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import android.view.Display
 import androidx.media3.common.MimeTypes
+import com.kien.movies.core.network.DEFAULT_PLAYBACK_USER_AGENT
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfo
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfoBuilder
 import java.net.URLDecoder
@@ -555,7 +556,7 @@ object FrameRateUtils {
     }
 
     private val probeHttpClient by lazy {
-        com.kien.movies.ui.screens.player.PlayerPlaybackNetworking.playbackHttpClient.newBuilder()
+        com.kien.movies.core.network.PlayerPlaybackNetworking.playbackHttpClient.newBuilder()
             .connectTimeout(8, java.util.concurrent.TimeUnit.SECONDS)
             .readTimeout(12, java.util.concurrent.TimeUnit.SECONDS)
             .writeTimeout(6, java.util.concurrent.TimeUnit.SECONDS)
@@ -594,7 +595,7 @@ object FrameRateUtils {
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
             requestBuilder.header(
                 "User-Agent",
-                com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+                DEFAULT_PLAYBACK_USER_AGENT
             )
         }
         headers.forEach { (k, v) ->
@@ -1379,7 +1380,7 @@ object FrameRateUtils {
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
             requestBuilder.header(
                 "User-Agent",
-                com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+                DEFAULT_PLAYBACK_USER_AGENT
             )
         }
 
@@ -1449,7 +1450,7 @@ object FrameRateUtils {
         if (headers.none { it.key.equals("User-Agent", ignoreCase = true) }) {
             requestBuilder.header(
                 "User-Agent",
-                com.kien.movies.ui.screens.player.PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+                DEFAULT_PLAYBACK_USER_AGENT
             )
         }
 

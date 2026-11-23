@@ -1,7 +1,7 @@
 package com.kien.movies.domain.model
 
 import androidx.compose.runtime.Immutable
-import com.kien.movies.ui.util.languageCodeToName
+import com.kien.movies.core.util.languageCodeToName
 
 @Immutable
 data class Subtitle(
@@ -17,6 +17,6 @@ data class Subtitle(
     fun getDisplayLanguage(): String = languageCodeToName(lang)
 
     companion object {
-        fun languageCodeToName(code: String): String = com.kien.movies.ui.util.languageCodeToName(code)
+        fun languageCodeToName(code: String): String = com.kien.movies.core.util.languageCodeToName(code)
     }
 }

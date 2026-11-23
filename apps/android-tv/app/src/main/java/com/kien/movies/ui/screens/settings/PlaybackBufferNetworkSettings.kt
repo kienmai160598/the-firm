@@ -19,9 +19,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.core.player.MemoryBudget
+import com.kien.movies.core.player.MemoryUsageStatus
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.VodCacheSizeMode
-import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
 import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesTheme
 import kotlin.math.min

@@ -7,6 +7,7 @@ import com.kien.movies.domain.model.AddonResource
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.supportsExtra
 import com.kien.movies.domain.repository.AddonRepository
 import io.mockk.every

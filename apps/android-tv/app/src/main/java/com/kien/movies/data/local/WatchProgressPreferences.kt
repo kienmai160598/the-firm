@@ -11,7 +11,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.kien.movies.core.profile.ProfileManager
-import com.kien.movies.data.mediaserver.ServerItemRef
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject

@@ -13,6 +13,7 @@ import com.kien.movies.data.local.NightMode
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.SubtitleStyleSettings
 import com.kien.movies.data.repository.SkipInterval
+import com.kien.movies.domain.model.AspectMode
 import com.kien.movies.domain.model.EpisodeOptionsOverlayStyle
 import com.kien.movies.domain.model.MetaCastMember
 import com.kien.movies.domain.model.Stream

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.media3.common.C
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import com.kien.movies.core.player.ParallelRangeDataSource
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

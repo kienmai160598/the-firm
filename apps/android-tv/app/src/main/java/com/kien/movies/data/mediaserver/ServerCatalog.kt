@@ -10,6 +10,7 @@ import com.kien.movies.domain.model.CatalogExtra
 import com.kien.movies.domain.model.CatalogRow
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import dagger.hilt.android.qualifiers.ApplicationContext

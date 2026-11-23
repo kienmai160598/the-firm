@@ -1,5 +1,6 @@
 package com.kien.movies.data.mediaserver
 
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamBehaviorHints
 import javax.inject.Inject

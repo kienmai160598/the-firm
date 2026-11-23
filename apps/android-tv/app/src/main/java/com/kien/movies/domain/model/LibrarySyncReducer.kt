@@ -1,7 +1,5 @@
 package com.kien.movies.domain.model
 
-import com.kien.movies.data.mediaserver.ServerItemRef
-
 object LibrarySyncReducer {
     fun sanitize(state: LibrarySyncState): LibrarySyncState {
         val items = state.items.toItemMap()

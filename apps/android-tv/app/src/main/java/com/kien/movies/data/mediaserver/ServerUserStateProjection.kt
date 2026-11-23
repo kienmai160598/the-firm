@@ -6,6 +6,7 @@ import com.kien.movies.data.local.WatchProgressPreferences
 import com.kien.movies.data.local.WatchedItemsPreferences
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.Meta
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.repository.WatchProgressRepository

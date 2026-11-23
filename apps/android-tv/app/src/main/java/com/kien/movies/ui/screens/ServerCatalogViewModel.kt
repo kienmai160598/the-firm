@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kien.movies.data.mediaserver.ServerCatalog
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.domain.model.CatalogRow
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.mergeCatalogPage
 import com.kien.movies.domain.model.nextCatalogSkip
 import dagger.hilt.android.lifecycle.HiltViewModel

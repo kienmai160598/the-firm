@@ -5,8 +5,10 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.SurfaceHolder
+import com.kien.movies.core.network.DEFAULT_PLAYBACK_USER_AGENT
 import com.kien.movies.data.local.MpvHardwareDecodeMode
 import com.kien.movies.data.local.SubtitleStyleSettings
+import com.kien.movies.domain.model.AspectMode
 import `is`.xyz.mpv.MPV
 import `is`.xyz.mpv.Utils
 import java.util.Locale
@@ -863,7 +865,7 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         )
         mpv.setOptionString("gpu-context", "android")
         mpv.setOptionString("opengl-es", "yes")
-        mpv.setOptionString("user-agent", PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+        mpv.setOptionString("user-agent", DEFAULT_PLAYBACK_USER_AGENT)
         // Preserve native ASS/SSA styling behavior on MPV.
         mpv.setOptionString("sub-ass-override", "no")
         mpv.setOptionString("sub-codepage", "auto:utf-8")

@@ -7,9 +7,9 @@ import com.kien.movies.core.tracking.TrackingProgressProviderRegistry
 import com.kien.movies.core.tracking.providerId
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.WatchProgressPreferences
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.remote.supabase.SupabaseWatchProgress
 import com.kien.movies.data.remote.supabase.SupabaseWatchProgressEvent
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import io.github.jan.supabase.postgrest.Postgrest
 import java.util.concurrent.ConcurrentHashMap

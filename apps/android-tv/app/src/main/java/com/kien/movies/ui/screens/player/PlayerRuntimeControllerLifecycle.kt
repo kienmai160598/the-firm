@@ -2,6 +2,9 @@ package com.kien.movies.ui.screens.player
 
 import android.content.Intent
 import android.media.audiofx.AudioEffect
+import com.kien.movies.domain.model.RememberedSubtitleSelection
+import com.kien.movies.domain.model.RememberedTrackSelection
+import com.kien.movies.domain.model.TrackPreference
 import kotlinx.coroutines.flow.update
 
 internal fun PlayerRuntimeController.releasePlayer() {
@@ -25,9 +28,9 @@ internal fun PlayerRuntimeController.releasePlayer(
         val currentTracks = _uiState.value.subtitleTracks
         val currentSubTrack = currentTracks.getOrNull(currentSubIdx)
         if (currentSubTrack != null) {
-            persistedTrackPreference = PlayerRuntimeController.TrackPreference(
-                subtitle = PlayerRuntimeController.RememberedSubtitleSelection.Internal(
-                    track = PlayerRuntimeController.RememberedTrackSelection(
+            persistedTrackPreference = TrackPreference(
+                subtitle = RememberedSubtitleSelection.Internal(
+                    track = RememberedTrackSelection(
                         language = currentSubTrack.language,
                         name = currentSubTrack.name,
                         indexHint = currentSubIdx,
@@ -36,8 +39,8 @@ internal fun PlayerRuntimeController.releasePlayer(
                 )
             )
         } else if (currentAddon != null) {
-            persistedTrackPreference = PlayerRuntimeController.TrackPreference(
-                subtitle = PlayerRuntimeController.RememberedSubtitleSelection.Addon(
+            persistedTrackPreference = TrackPreference(
+                subtitle = RememberedSubtitleSelection.Addon(
                     id = currentAddon.id,
                     url = currentAddon.url,
                     language = currentAddon.lang,

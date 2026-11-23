@@ -5,6 +5,7 @@ import androidx.media3.common.C
 import androidx.media3.common.MimeTypes
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.extractor.ExtractorsFactory
+import com.kien.movies.core.player.SubtitleMojibakeSanitizer
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncFallback
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncSettings

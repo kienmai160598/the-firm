@@ -1,5 +1,6 @@
 package com.kien.movies.ui.screens.player
 
+import com.kien.movies.core.player.SubtitleSdhFilter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

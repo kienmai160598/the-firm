@@ -7,6 +7,7 @@ import com.kien.movies.core.player.OpenSubtitlesHasher
 import com.kien.movies.data.local.FrameRateMatchingMode
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.repository.SkipInterval
+import com.kien.movies.domain.model.RememberedSubtitleSelection
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.enabledAddons
@@ -210,7 +211,7 @@ internal fun PlayerRuntimeController.refreshSubtitlesForCurrentEpisode() {
     val keepDisabled = subtitleDisabledByPersistedPreference ||
         (
             rememberedTrackPreference?.subtitle ==
-                PlayerRuntimeController.RememberedSubtitleSelection.Disabled
+                RememberedSubtitleSelection.Disabled
             )
     if (!isUserExplicitSubtitleSelection && !keepDisabled) {
         rememberedTrackPreference = rememberedTrackPreference?.copy(subtitle = null)

@@ -1,7 +1,6 @@
 package com.kien.movies.core.player
 
 import android.content.Context
-import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
 
 /**
  * Trailers render through a TextureView on top of the home UI, so a 4K trailer costs a few hundred

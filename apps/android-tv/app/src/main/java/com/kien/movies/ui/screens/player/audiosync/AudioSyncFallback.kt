@@ -13,8 +13,8 @@ import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.CuesWithTiming
+import com.kien.movies.core.network.PlayerPlaybackNetworking
 import com.kien.movies.domain.model.Subtitle
-import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
 import com.kien.movies.ui.screens.player.PlayerRuntimeController
 import com.kien.movies.ui.screens.player.PlayerSubtitleUtils
 import com.kien.movies.ui.screens.player.audiosync.asr.AsrModel

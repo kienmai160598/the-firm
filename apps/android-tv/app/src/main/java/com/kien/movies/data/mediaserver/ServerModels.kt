@@ -4,6 +4,7 @@ import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.domain.model.ContentType
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import com.kien.movies.domain.model.Subtitle
 import kotlinx.serialization.Serializable
 
@@ -77,36 +78,6 @@ class ServerSignIn(
     val token: String
 ) {
     override fun toString(): String = "ServerSignIn(serverId=$serverId)"
-}
-
-data class ServerItemRef(val connectionId: String, val itemId: String) {
-    fun encode(): String = "$PREFIX$connectionId:${itemId.escapeSegment()}"
-
-    companion object {
-        private const val PREFIX = "srv1:"
-
-        fun isServerId(id: String?): Boolean = id?.startsWith(PREFIX) == true
-
-        fun parse(id: String?): ServerItemRef? {
-            if (id == null || !id.startsWith(PREFIX)) return null
-            val body = id.removePrefix(PREFIX)
-            val separator = body.indexOf(':')
-            if (separator <= 0 || separator == body.lastIndex) return null
-            val itemId = body.substring(separator + 1).unescapeSegment() ?: return null
-            return ServerItemRef(connectionId = body.substring(0, separator), itemId = itemId)
-        }
-    }
-}
-
-private fun String.escapeSegment(): String = replace("%", "%25").replace(":", "%3A")
-
-private fun String.unescapeSegment(): String? {
-    if (':' in this) return null
-    return replace("%3A", ":", ignoreCase = true).replace("%25", "%")
-}
-
-data class ServerPlaybackTarget(val item: ServerItemRef, val mediaSourceId: String?) {
-    fun key(): String = "${item.encode()}:${mediaSourceId.orEmpty()}"
 }
 
 data class ServerPage<T>(val items: List<T>, val totalCount: Int?)

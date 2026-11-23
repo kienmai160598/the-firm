@@ -2,6 +2,8 @@ package com.kien.movies.ui.screens.player
 
 import com.kien.movies.R
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.player.PlayerNextEpisodeRules
+import com.kien.movies.core.player.followingPostCreditsScene
 import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.AutoSkipSegmentType
 import com.kien.movies.data.repository.SkipInterval

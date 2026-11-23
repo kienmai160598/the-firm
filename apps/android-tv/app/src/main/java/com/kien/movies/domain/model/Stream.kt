@@ -2,7 +2,6 @@ package com.kien.movies.domain.model
 
 import androidx.compose.runtime.Immutable
 import com.kien.movies.core.debrid.DebridProviders
-import com.kien.movies.data.mediaserver.ServerPlaybackTarget
 import kotlin.math.roundToInt
 import kotlinx.serialization.Serializable
 

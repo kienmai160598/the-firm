@@ -5,7 +5,11 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
+import com.kien.movies.core.player.SubtitleMojibakeSanitizer
+import com.kien.movies.domain.model.RememberedSubtitleSelection
+import com.kien.movies.domain.model.RememberedTrackSelection
 import com.kien.movies.domain.model.Subtitle
+import com.kien.movies.domain.model.TrackPreference
 import com.kien.movies.ui.screens.player.autosync.AutoSyncSyncedSubtitle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
@@ -99,7 +103,7 @@ internal fun PlayerRuntimeController.rememberAudioSelection(trackIndex: Int) {
     rememberedTrackPreference =
         basePreference
             .copy(
-                audio = PlayerRuntimeController.RememberedTrackSelection(
+                audio = RememberedTrackSelection(
                     language = selectedTrack.language,
                     name = selectedTrack.name,
                     trackId = selectedTrack.trackId
@@ -247,7 +251,7 @@ internal fun PlayerRuntimeController.rememberInternalSubtitleSelection(trackInde
             "trackIndex=$trackIndex lang=${selectedTrack.language} name=${selectedTrack.name} " +
                 "id=${selectedTrack.trackId} forced=${selectedTrack.isForced}"
     )
-    val rememberedSelection = PlayerRuntimeController.RememberedSubtitleSelection.Internal(
+    val rememberedSelection = RememberedSubtitleSelection.Internal(
         track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
             state = _uiState.value,
             language = selectedTrack.language,
@@ -393,16 +397,16 @@ internal fun PlayerRuntimeController.rememberSubtitleDisabled() {
     explicitSubtitleSelectionForEngineSwitch =
         PlayerRuntimeController.ExplicitSubtitleSelectionForEngineSwitch(
             streamUrl = currentStreamUrl,
-            selection = PlayerRuntimeController.RememberedSubtitleSelection.Disabled
+            selection = RememberedSubtitleSelection.Disabled
         )
     effectiveSubtitleSelectionForEngineSwitch =
         PlayerRuntimeController.ExplicitSubtitleSelectionForEngineSwitch(
             streamUrl = currentStreamUrl,
-            selection = PlayerRuntimeController.RememberedSubtitleSelection.Disabled
+            selection = RememberedSubtitleSelection.Disabled
         )
     rememberedTrackPreference =
         basePreference
-            .copy(subtitle = PlayerRuntimeController.RememberedSubtitleSelection.Disabled)
+            .copy(subtitle = RememberedSubtitleSelection.Disabled)
     persistTrackPreference()
 }
 
@@ -671,7 +675,7 @@ internal fun PlayerRuntimeController.rememberAddonSubtitleSelection(subtitle: Su
         stage = "user-remember-subtitle-addon",
         message = "addonId=${subtitle.id} addonLang=${subtitle.lang} addonName=${subtitle.addonName}"
     )
-    val rememberedSelection = PlayerRuntimeController.RememberedSubtitleSelection.Addon(
+    val rememberedSelection = RememberedSubtitleSelection.Addon(
         id = subtitle.id,
         url = subtitle.url,
         language = PlayerSubtitleUtils.normalizeLanguageCode(subtitle.lang),
@@ -700,14 +704,14 @@ internal fun PlayerRuntimeController.rememberAddonSubtitleSelection(subtitle: Su
     persistTrackPreference()
 }
 
-private fun PlayerRuntimeController.currentTrackPreferenceForPersistence(): PlayerRuntimeController.TrackPreference {
+private fun PlayerRuntimeController.currentTrackPreferenceForPersistence(): TrackPreference {
     // A restored selection is cleared from persistedTrackPreference once applied, so a later
     // save (e.g. AutoSync resetting the delay) must fall back to the loaded snapshot instead,
     // or it would overwrite the stored subtitle with nothing.
     return rememberedTrackPreference
         ?: loadedTrackPreference
         ?: persistedTrackPreference
-        ?: PlayerRuntimeController.TrackPreference()
+        ?: TrackPreference()
 }
 
 internal fun PlayerRuntimeController.persistTrackPreference() {
@@ -722,22 +726,22 @@ internal fun PlayerRuntimeController.persistTrackPreference() {
     val subtitle = pref.subtitle
     val persisted = com.kien.movies.data.local.PersistedTrackPreference(
         subtitleType = when (subtitle) {
-            is PlayerRuntimeController.RememberedSubtitleSelection.Internal -> "INTERNAL"
-            is PlayerRuntimeController.RememberedSubtitleSelection.Addon -> "ADDON"
-            PlayerRuntimeController.RememberedSubtitleSelection.Disabled -> "DISABLED"
+            is RememberedSubtitleSelection.Internal -> "INTERNAL"
+            is RememberedSubtitleSelection.Addon -> "ADDON"
+            RememberedSubtitleSelection.Disabled -> "DISABLED"
             null -> null
         },
         subtitleLanguage = when (subtitle) {
-            is PlayerRuntimeController.RememberedSubtitleSelection.Internal -> subtitle.track.language
-            is PlayerRuntimeController.RememberedSubtitleSelection.Addon -> subtitle.language
+            is RememberedSubtitleSelection.Internal -> subtitle.track.language
+            is RememberedSubtitleSelection.Addon -> subtitle.language
             else -> null
         },
-        subtitleName = (subtitle as? PlayerRuntimeController.RememberedSubtitleSelection.Internal)?.track?.name,
-        subtitleTrackId = (subtitle as? PlayerRuntimeController.RememberedSubtitleSelection.Internal)?.track?.trackId,
-        subtitleIsForced = (subtitle as? PlayerRuntimeController.RememberedSubtitleSelection.Internal)?.track?.isForcedHint,
-        addonSubtitleId = (subtitle as? PlayerRuntimeController.RememberedSubtitleSelection.Addon)?.id,
-        addonSubtitleUrl = (subtitle as? PlayerRuntimeController.RememberedSubtitleSelection.Addon)?.url,
-        addonSubtitleAddonName = (subtitle as? PlayerRuntimeController.RememberedSubtitleSelection.Addon)?.addonName,
+        subtitleName = (subtitle as? RememberedSubtitleSelection.Internal)?.track?.name,
+        subtitleTrackId = (subtitle as? RememberedSubtitleSelection.Internal)?.track?.trackId,
+        subtitleIsForced = (subtitle as? RememberedSubtitleSelection.Internal)?.track?.isForcedHint,
+        addonSubtitleId = (subtitle as? RememberedSubtitleSelection.Addon)?.id,
+        addonSubtitleUrl = (subtitle as? RememberedSubtitleSelection.Addon)?.url,
+        addonSubtitleAddonName = (subtitle as? RememberedSubtitleSelection.Addon)?.addonName,
         audioLanguage = audio?.language,
         audioName = audio?.name,
         audioTrackId = audio?.trackId

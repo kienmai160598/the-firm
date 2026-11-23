@@ -4,7 +4,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.kien.movies.data.local.ProfileDataStoreFactory
-import com.kien.movies.data.mediaserver.ServerItemRef
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.model.WatchedMutationKey

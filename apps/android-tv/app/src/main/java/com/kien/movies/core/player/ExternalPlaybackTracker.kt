@@ -26,7 +26,6 @@ import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.repository.MetaRepository
 import com.kien.movies.domain.repository.WatchProgressRepository
-import com.kien.movies.ui.screens.player.PlayerNextEpisodeRules
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject

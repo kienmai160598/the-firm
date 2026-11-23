@@ -56,6 +56,7 @@ import androidx.media3.extractor.ts.TsExtractor
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.kien.movies.R
+import com.kien.movies.core.network.PlayerPlaybackNetworking
 import com.kien.movies.core.player.BitrateAwareLoadControl
 import com.kien.movies.core.player.DolbyVisionBaseLayerPolicy
 import com.kien.movies.core.player.DolbyVisionCodecFallback
@@ -64,6 +65,10 @@ import com.kien.movies.core.player.DolbyVisionConversionStats
 import com.kien.movies.core.player.DolbyVisionExtractorsFactory
 import com.kien.movies.core.player.DoviBridge
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.core.player.MemoryBudget
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
+import com.kien.movies.core.player.SdhFilteringTextOutput
+import com.kien.movies.core.player.SubtitleMojibakeSanitizer
 import com.kien.movies.core.tracking.TrackingScrobbleAction
 import com.kien.movies.core.util.findCause
 import com.kien.movies.data.local.AudioLanguageOption
@@ -75,7 +80,6 @@ import com.kien.movies.data.local.SUBTITLE_LANGUAGE_FORCED
 import com.kien.movies.data.repository.PlaybackIssueErrorInput
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncTaps
-import com.kien.movies.ui.screens.settings.MemoryBudget
 import java.net.SocketTimeoutException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
