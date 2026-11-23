@@ -1,6 +1,8 @@
 package com.kien.movies.search
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +65,7 @@ import kotlinx.coroutines.launch
  * is there in every state (loading, empty, error). Down from the keyboard reaches the capsules or
  * the first section. Opening a card records the query as a recent search, then opens Details.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(router: Router) {
     WindowBackground(TvColors.searchBackground)
@@ -92,48 +97,54 @@ fun SearchScreen(router: Router) {
         (neighbour?.let(recentFocus::get) ?: keyboardFocus.row).requestFocus()
     }
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = LIST_BOTTOM)
-    ) {
-        item(key = "header", contentType = "header") {
-            Column(
-                modifier = Modifier.onFocusChanged { state ->
-                    if (state.hasFocus) scope.launch { listState.animateScrollToItem(0) }
+    // One inset spec for the page and every row in it: a focused child stays inside the side
+    // margins (rows) or the margin band at top and bottom (page) with the least scroll, instead
+    // of the TV default that pulls every focused child to a pivot line.
+    val scrollSpec = rememberSearchBringIntoViewSpec(inset = TvGrid.margin)
+    CompositionLocalProvider(LocalBringIntoViewSpec provides scrollSpec) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = LIST_BOTTOM)
+        ) {
+            item(key = "header", contentType = "header") {
+                Column(
+                    modifier = Modifier.onFocusChanged { state ->
+                        if (state.hasFocus) scope.launch { listState.animateScrollToItem(0) }
+                    }
+                ) {
+                    Spacer(Modifier.height(FIELD_TOP))
+                    SearchField(state = viewModel.query, isEditing = isEditing, onEditingEnd = { isEditing = false })
+                    Spacer(Modifier.height(FIELD_TO_KEYBOARD))
+                    SearchKeyboard(
+                        focus = keyboardFocus,
+                        onType = viewModel::type,
+                        onDelete = viewModel::deleteLast,
+                        onOpenIme = { isEditing = true }
+                    )
+                    Spacer(Modifier.height(KEYBOARD_BOTTOM))
                 }
-            ) {
-                Spacer(Modifier.height(FIELD_TOP))
-                SearchField(state = viewModel.query, isEditing = isEditing, onEditingEnd = { isEditing = false })
-                Spacer(Modifier.height(FIELD_TO_KEYBOARD))
-                SearchKeyboard(
-                    focus = keyboardFocus,
-                    onType = viewModel::type,
-                    onDelete = viewModel::deleteLast,
-                    onOpenIme = { isEditing = true }
+            }
+            val suggestions = (content as? SearchContent.Results)?.suggestions.orEmpty()
+            if (suggestions.isNotEmpty()) {
+                item(key = "suggestions", contentType = "suggestions") {
+                    SearchSuggestions(suggestions = suggestions, onPick = pickQuery, modifier = Modifier.padding(bottom = SUGGESTIONS_BOTTOM))
+                }
+            }
+            item(key = "divider", contentType = "divider") { SearchDivider() }
+            when (val current = content) {
+                is SearchContent.Start -> startItems(
+                    content = current,
+                    recentFocus = recentFocus,
+                    onPick = pickQuery,
+                    onLongPress = { recentQuery -> removalTarget = recentQuery },
+                    onOpen = open
                 )
-                Spacer(Modifier.height(KEYBOARD_BOTTOM))
-            }
-        }
-        val suggestions = (content as? SearchContent.Results)?.suggestions.orEmpty()
-        if (suggestions.isNotEmpty()) {
-            item(key = "suggestions", contentType = "suggestions") {
-                SearchSuggestions(suggestions = suggestions, onPick = pickQuery, modifier = Modifier.padding(bottom = SUGGESTIONS_BOTTOM))
-            }
-        }
-        item(key = "divider", contentType = "divider") { SearchDivider() }
-        when (val current = content) {
-            is SearchContent.Start -> startItems(
-                content = current,
-                recentFocus = recentFocus,
-                onPick = pickQuery,
-                onLongPress = { recentQuery -> removalTarget = recentQuery },
-                onOpen = open
-            )
 
-            is SearchContent.Status -> item(key = "status", contentType = "status") { SearchStatus(current) }
+                is SearchContent.Status -> item(key = "status", contentType = "status") { SearchStatus(current) }
 
-            is SearchContent.Results -> resultItems(current, onOpen = open)
+                is SearchContent.Results -> resultItems(current, onOpen = open)
+            }
         }
     }
 
@@ -173,8 +184,12 @@ private fun LazyListScope.resultItems(content: SearchContent.Results, onOpen: (T
 private fun TopResultsGrid(items: List<TvosItem>, onOpen: (TvosItem) -> Unit) {
     val rows = if (items.size > RESULT_COLUMNS) TOP_RESULTS_ROWS else 1
     val ordered = remember(items, rows) { rowMajorForColumnGrid(items, rows) }
+    // New results reorder the cards; a fresh state starts them at the first column instead of
+    // following the old first card to wherever it moved.
+    val gridState = remember(ordered) { LazyGridState() }
     LazyHorizontalGrid(
         rows = GridCells.Fixed(rows),
+        state = gridState,
         modifier = Modifier.fillMaxWidth().height(gridHeight(rows)).focusRestorer(),
         contentPadding = PaddingValues(horizontal = TvGrid.margin),
         horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter),

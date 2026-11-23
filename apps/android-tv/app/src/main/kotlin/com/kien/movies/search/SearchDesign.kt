@@ -1,11 +1,16 @@
 package com.kien.movies.search
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -97,3 +102,28 @@ fun Modifier.glassEdge(shape: Shape, visible: Boolean): Modifier = if (visible) 
 fun glassEdgeBorder(shape: Shape): Border = Border(border = BorderStroke(GLASS_EDGE_WIDTH, TvColors.glassEdge), shape = shape)
 
 private val GLASS_EDGE_WIDTH = 1.dp
+
+/**
+ * Keeps a focused child [inset] away from both ends of a scroller with the least scroll, instead
+ * of the TV default that pulls every focused child to a pivot line. A child larger than the space
+ * is aligned to the leading inset. Search's copy of Home's `rememberInsetBringIntoViewSpec`.
+ * lead: move to design/
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun rememberSearchBringIntoViewSpec(inset: Dp): BringIntoViewSpec {
+    val density = LocalDensity.current
+    return remember(density, inset) {
+        val insetPx = with(density) { inset.toPx() }
+        object : BringIntoViewSpec {
+            override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+                val end = containerSize - insetPx
+                return when {
+                    offset < insetPx -> offset - insetPx
+                    offset + size > end -> minOf(offset + size - end, offset - insetPx)
+                    else -> 0f
+                }
+            }
+        }
+    }
+}
