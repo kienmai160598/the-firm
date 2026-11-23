@@ -2,6 +2,7 @@ package com.kien.movies.ui.screens.search
 
 sealed interface SearchEvent {
     data class QueryChanged(val query: String) : SearchEvent
+    data object ClearQuery : SearchEvent
     data object SubmitSearch : SearchEvent
     /** Moving from the text input to the results confirms the current search (see #2928 review). */
     data object RememberSearchFromTextInput : SearchEvent

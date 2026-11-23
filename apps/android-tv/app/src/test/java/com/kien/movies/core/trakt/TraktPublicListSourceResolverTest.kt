@@ -1,5 +1,6 @@
 package com.kien.movies.core.trakt
 
+import com.kien.movies.data.repository.TraktClientCredentials
 import android.content.Context
 import com.kien.movies.R
 import com.kien.movies.core.network.NetworkResult
@@ -307,7 +308,8 @@ class TraktPublicListSourceResolverTest {
             context = context,
             traktApi = api,
             traktAuthDataStore = authStore,
-            authSessionNoticeDataStore = mockk<AuthSessionNoticeDataStore>(relaxed = true)
+            authSessionNoticeDataStore = mockk<AuthSessionNoticeDataStore>(relaxed = true),
+            credentials = TraktClientCredentials("client-id", "client-secret")
         )
         return TraktPublicListSourceResolver(
             appContext = context,

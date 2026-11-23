@@ -433,6 +433,14 @@ fun SearchScreen(
             submitCurrentQuery(trimmedNextQuery)
         }
     }
+    val handleQueryCleared: () -> Unit = {
+        backToFieldLatched = false
+        focusResults = false
+        pendingFocusMoveToResultsQuery = null
+        pendingFocusMoveSawSearching = false
+        pendingFocusMoveHadExistingSearchRows = false
+        viewModel.onEvent(SearchEvent.ClearQuery)
+    }
     val submitRecentSearch: (String) -> Unit = { recentQuery ->
         val trimmedRecentQuery = recentQuery.trim()
         if (trimmedRecentQuery.isNotEmpty()) {
@@ -639,6 +647,7 @@ fun SearchScreen(
                     },
                     onVoiceFocusChanged = { focused -> if (focused) lastInputWasVoice = true },
                     onQueryChanged = handleQueryChanged,
+                    onQueryCleared = handleQueryCleared,
                     onSubmit = {
                         submitCurrentQuery(uiState.query.trim())
                     },
@@ -1130,6 +1139,7 @@ private fun SearchInputField(
     onSearchFieldFocusChanged: (Boolean) -> Unit,
     onVoiceFocusChanged: (Boolean) -> Unit,
     onQueryChanged: (String) -> Unit,
+    onQueryCleared: () -> Unit,
     onSubmit: () -> Unit,
     showVoiceSearch: Boolean,
     isVoiceListening: Boolean,
@@ -1322,7 +1332,7 @@ private fun SearchInputField(
                 onClick = {
                     // Clearing drops this button from the row, so hand focus back first.
                     runCatching { searchFocusRequester.requestFocus() }
-                    onQueryChanged("")
+                    onQueryCleared()
                 },
                 modifier = Modifier
                     .size(MoviesTheme.spacing.huge)

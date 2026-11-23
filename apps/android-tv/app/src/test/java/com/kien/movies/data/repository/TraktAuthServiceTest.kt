@@ -31,7 +31,8 @@ class TraktAuthServiceTest {
             context = mockk<Context>(relaxed = true),
             traktApi = traktApi,
             traktAuthDataStore = traktAuthDataStore,
-            authSessionNoticeDataStore = authSessionNoticeDataStore
+            authSessionNoticeDataStore = authSessionNoticeDataStore,
+            credentials = TraktClientCredentials("client-id", "client-secret")
         )
 
         assertFalse(service.refreshTokenIfNeeded(force = true))
@@ -56,7 +57,8 @@ class TraktAuthServiceTest {
             context = mockk<Context>(relaxed = true),
             traktApi = traktApi,
             traktAuthDataStore = traktAuthDataStore,
-            authSessionNoticeDataStore = authSessionNoticeDataStore
+            authSessionNoticeDataStore = authSessionNoticeDataStore,
+            credentials = TraktClientCredentials("client-id", "client-secret")
         )
 
         assertFalse(service.refreshTokenIfNeeded(force = true))

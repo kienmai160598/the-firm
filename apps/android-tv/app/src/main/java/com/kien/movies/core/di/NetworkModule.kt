@@ -1,5 +1,6 @@
 package com.kien.movies.core.di
 
+import com.kien.movies.data.repository.TraktClientCredentials
 import android.content.Context
 import android.util.Log
 import com.kien.movies.BuildConfig
@@ -237,6 +238,13 @@ object NetworkModule {
                 expectedAccessToken = authorization.accessToken
             )
         }
+    )
+
+    @Provides
+    @Singleton
+    fun provideTraktClientCredentials(): TraktClientCredentials = TraktClientCredentials(
+        clientId = BuildConfig.TRAKT_CLIENT_ID,
+        clientSecret = BuildConfig.TRAKT_CLIENT_SECRET
     )
 
     @Provides

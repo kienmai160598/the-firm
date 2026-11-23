@@ -235,6 +235,7 @@ class SearchViewModel @Inject constructor(
     fun onEvent(event: SearchEvent) {
         when (event) {
             is SearchEvent.QueryChanged -> onQueryChanged(event.query)
+            SearchEvent.ClearQuery -> clearQuery()
             SearchEvent.SubmitSearch -> submitSearch()
             SearchEvent.RememberSearchFromTextInput -> rememberSearchFromTextInput()
             SearchEvent.ClearRecentSearches -> clearRecentSearches()
@@ -256,6 +257,11 @@ class SearchViewModel @Inject constructor(
                 performSearch(uiState.value.submittedQuery.ifBlank { uiState.value.query })
             }
         }
+    }
+
+    private fun clearQuery() {
+        lastNonEmptyQuery = ""
+        onQueryChanged("")
     }
 
     private fun onQueryChanged(query: String) {

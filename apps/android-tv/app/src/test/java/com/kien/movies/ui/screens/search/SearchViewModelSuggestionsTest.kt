@@ -165,7 +165,7 @@ class SearchViewModelSuggestionsTest {
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value.suggestions.isNotEmpty())
 
-        viewModel.onEvent(SearchEvent.QueryChanged(""))
+        viewModel.onEvent(SearchEvent.ClearQuery)
         advanceUntilIdle()
 
         assertEquals(emptyList<String>(), viewModel.uiState.value.suggestions)
