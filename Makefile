@@ -11,10 +11,12 @@ APPLE_TV_DERIVED := /tmp/the-firm-apple-tv
 APPLE_TV_APP := $(APPLE_TV_DERIVED)/Build/Products/Release-appletvos/NuvioTv.app
 APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
 
-.PHONY: help android-tv android-tv-test box-install apple-tv-project apple-tv apple-tv-sim \
-	apple-tv-install shared-test engine
+.PHONY: help check toolchain-check android-tv android-tv-test box-install apple-tv-project \
+	apple-tv apple-tv-sim apple-tv-install shared-test engine
 
 help:
+	@echo "check             toolchain check and Android TV unit tests"
+	@echo "toolchain-check   fail when the two Gradle builds use different toolchain versions"
 	@echo "android-tv        box APK ($(BOX_APK))"
 	@echo "android-tv-test   Android TV unit tests"
 	@echo "box-install       install the box APK with its profile (ANDROID_SERIAL=<ip>:5555)"
@@ -23,6 +25,11 @@ help:
 	@echo "apple-tv-install  install the Release build (APPLE_TV_DEVICE=<devicectl id>)"
 	@echo "shared-test       Apple TV bridge tests on the tvOS simulator"
 	@echo "engine            build the torrent engine xcframework (about 16 minutes)"
+
+check: toolchain-check android-tv-test
+
+toolchain-check:
+	scripts/toolchain-check
 
 android-tv:
 	cd $(ANDROID_TV) && ./gradlew :app:assembleFullBox

@@ -13,7 +13,7 @@
 
 ```
 apps/
-  android-tv/          Android TV app. Its own Gradle build (AGP 8.13, Kotlin 2.3).
+  android-tv/          Android TV app. Its own Gradle build.
     app/               the app module
     box/               install and perf scripts for the Mi Box
     box/legal-test-addon/  builds an addon of openly licensed torrent films for tests
@@ -27,7 +27,8 @@ engine/                builds the torrent engine (NuvioMedia/nuvio-engine, pinne
 Makefile               one entry point for every build
 ```
 
-Both Gradle builds use Gradle 9.4.1, AGP 9.2 and Kotlin 2.4.10. The Android TV app does not use
+Both Gradle builds use Gradle 9.4.1, AGP 9.2 and Kotlin 2.4.10; `make toolchain-check` fails
+when they drift apart. The Android TV app does not use
 `shared/` yet: it still carries its own copy of the logic.
 
 ## Build
