@@ -1,5 +1,7 @@
 package com.kien.movies.ui.screens.player
 
+import com.kien.movies.core.player.SubtitleMojibakeSanitizer
+
 internal object PlayerSubtitleCueParser {
     private val timestampRegex = Regex("""(?:(\d+):)?(\d{1,2}):(\d{2})([.,](\d+))?""")
 

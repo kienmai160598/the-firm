@@ -3,9 +3,7 @@ package com.kien.movies.data.mediaserver.plex
 import com.kien.movies.core.tracking.TrackingExternalIds
 import com.kien.movies.data.mediaserver.ServerCandidate
 import com.kien.movies.data.mediaserver.ServerIndexEntry
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.mediaserver.ServerMediaKind
-import com.kien.movies.data.mediaserver.ServerPlaybackTarget
 import com.kien.movies.data.mediaserver.ServerTitle
 import com.kien.movies.data.mediaserver.ServerUserState
 import com.kien.movies.data.mediaserver.domainType
@@ -14,6 +12,8 @@ import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaCastMember
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.PosterShape
+import com.kien.movies.domain.model.ServerItemRef
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import com.kien.movies.domain.model.Video
 import kotlin.math.roundToInt
 

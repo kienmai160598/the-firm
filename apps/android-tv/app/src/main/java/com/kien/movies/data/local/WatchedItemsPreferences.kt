@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.kien.movies.core.profile.ProfileManager
-import com.kien.movies.data.mediaserver.ServerItemRef
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.model.WatchedMutationKey
 import com.kien.movies.domain.model.mutationKey

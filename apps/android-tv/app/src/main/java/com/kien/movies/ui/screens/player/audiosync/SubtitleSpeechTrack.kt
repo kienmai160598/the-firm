@@ -1,6 +1,6 @@
 package com.kien.movies.ui.screens.player.audiosync
 
-import com.kien.movies.ui.screens.player.SubtitleSdhFilter
+import com.kien.movies.core.player.SubtitleSdhFilter
 
 /** Dialogue intervals of a subtitle file, in subtitle time (milliseconds). */
 internal class SubtitleSpeechTrack private constructor(

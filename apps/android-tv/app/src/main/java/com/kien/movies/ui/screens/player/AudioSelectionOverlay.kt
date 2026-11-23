@@ -54,12 +54,12 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.core.util.languageCodeToName
 import com.kien.movies.data.local.NightMode
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.util.languageCodeToName
 import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive

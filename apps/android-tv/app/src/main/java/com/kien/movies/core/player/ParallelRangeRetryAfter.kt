@@ -1,4 +1,4 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.player
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter

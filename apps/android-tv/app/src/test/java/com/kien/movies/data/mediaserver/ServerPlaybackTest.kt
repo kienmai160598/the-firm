@@ -5,6 +5,8 @@ import com.kien.movies.core.tmdb.TmdbService
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
 import com.kien.movies.domain.model.AddonStreams
+import com.kien.movies.domain.model.ServerItemRef
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import com.kien.movies.domain.repository.MetaRepository
 import io.mockk.every
 import io.mockk.mockk

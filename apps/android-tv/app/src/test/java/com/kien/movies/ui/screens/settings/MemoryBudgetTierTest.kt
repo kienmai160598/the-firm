@@ -1,6 +1,7 @@
 package com.kien.movies.ui.screens.settings
 
 import androidx.media3.common.util.UnstableApi
+import com.kien.movies.core.player.MemoryBudget
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

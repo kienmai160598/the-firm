@@ -2,6 +2,7 @@ package com.kien.movies.ui.screens.player
 
 import android.util.Log
 import androidx.media3.exoplayer.SeekParameters
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import com.kien.movies.data.local.InternalPlayerEngine
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
@@ -181,7 +182,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
                 showChaptersPanel = false
             )
         }
-        clearChapterSkipState()
+        chapterSkipDetection.clear()
         recomputeMergedSkipIntervals()
         cancelPauseOverlay()
         startProgressUpdates()

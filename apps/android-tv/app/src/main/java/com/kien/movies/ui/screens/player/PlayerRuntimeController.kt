@@ -19,6 +19,7 @@ import com.kien.movies.core.debrid.DirectDebridResolver
 import com.kien.movies.core.debrid.DirectDebridStreamPreparer
 import com.kien.movies.core.player.BitrateAwareLoadControl
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import com.kien.movies.core.plugin.PluginManager
 import com.kien.movies.core.streams.StreamBadgeMatcher
 import com.kien.movies.core.torrent.TorrentService
@@ -49,7 +50,9 @@ import com.kien.movies.data.repository.PlaybackIssueReportRepository
 import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.data.repository.SkipIntroRepository
 import com.kien.movies.data.repository.TraktEpisodeMappingService
+import com.kien.movies.domain.model.RememberedSubtitleSelection
 import com.kien.movies.domain.model.Subtitle
+import com.kien.movies.domain.model.TrackPreference
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.repository.AddonRepository
@@ -90,7 +93,6 @@ class PlayerRuntimeController(
     internal val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
     internal val layoutPreferenceDataStore: com.kien.movies.data.local.LayoutPreferenceDataStore,
     internal val episodeShufflePlayback: com.kien.movies.core.player.EpisodeShufflePlayback,
-    internal val watchedItemsPreferences: com.kien.movies.data.local.WatchedItemsPreferences,
     internal val trackPreferenceDataStore: com.kien.movies.data.local.TrackPreferenceDataStore,
     internal val audioDelayRouteDataStore: AudioDelayRouteDataStore,
     internal val torrentService: TorrentService,
@@ -139,31 +141,6 @@ class PlayerRuntimeController(
         val streamUrl: String
     )
 
-    internal data class RememberedTrackSelection(
-        val language: String?,
-        val name: String?,
-        val trackId: String? = null,
-        val indexHint: Int? = null,
-        val languageIndexHint: Int? = null,
-        val isForcedHint: Boolean? = null
-    )
-
-    internal sealed class RememberedSubtitleSelection {
-        data object Disabled : RememberedSubtitleSelection()
-        data class Internal(val track: RememberedTrackSelection) : RememberedSubtitleSelection()
-        data class Addon(
-            val id: String,
-            val url: String,
-            val language: String,
-            val addonName: String
-        ) : RememberedSubtitleSelection()
-    }
-
-    internal data class TrackPreference(
-        val audio: RememberedTrackSelection? = null,
-        val subtitle: RememberedSubtitleSelection? = null
-    )
-
     internal data class PendingEngineSwitchTrackPreference(
         val streamUrl: String,
         val preference: TrackPreference,
@@ -192,8 +169,6 @@ class PlayerRuntimeController(
     internal val initialEpisode: Int? = navigationArgs.initialEpisode
     internal val initialEpisodeTitle: String? = navigationArgs.initialEpisodeTitle
     internal val launchStartedAtElapsedMs: Long? = navigationArgs.launchStartedAtMs
-    internal val rememberedAudioLanguage: String? = navigationArgs.rememberedAudioLanguage
-    internal val rememberedAudioName: String? = navigationArgs.rememberedAudioName
     internal val cloudSessionToken: String? = navigationArgs.cloudSessionToken
     internal val mediaSourceFactory = PlayerMediaSourceFactory(context.applicationContext).apply {
         onStreamRedirected =
@@ -356,6 +331,14 @@ class PlayerRuntimeController(
     )
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
+    internal val stillWatching = StillWatchingPrompt(
+        scope = scope,
+        uiState = _uiState,
+        pausePlayback = { pauseForStillWatchingPrompt() },
+        playNextEpisode = { playNextEpisode(userInitiated = true) },
+        resetPostPlayOverlay = { resetPostPlayOverlayState(clearEpisode = true) }
+    )
+
     init {
         scope.launch {
             _uiState
@@ -495,7 +478,6 @@ class PlayerRuntimeController(
     internal var subtitleTimingRefreshJob: Job? = null
     internal var nextEpisodeAutoPlayJob: Job? = null
     internal var debridResolveJob: Job? = null
-    internal var stillWatchingPromptJob: Job? = null
     internal var startupLoadingReportJob: Job? = null
     internal var sourceStreamsJob: Job? = null
     internal var sourceBadgeJob: Job? = null
@@ -514,16 +496,8 @@ class PlayerRuntimeController(
     internal var lastPlaybackIssueError: PlaybackIssueErrorInput? = null
     internal val playbackIssueReportRequestVersion = AtomicLong(0L)
     internal val playbackAnalyticsDiagnostics = PlayerPlaybackAnalyticsDiagnostics()
-    internal val loadingDiagnosticEvents: ArrayDeque<PlayerLoadingDiagnosticEvent> = ArrayDeque()
-    internal val loadingDiagnosticRawEventLines: ArrayDeque<String> = ArrayDeque()
+    internal val loadingDiagnostics = PlayerLoadingDiagnosticsLog()
     internal val pendingPlaybackRawEventLines: ArrayDeque<String> = ArrayDeque()
-    internal var loadingDiagnosticsStartedAtMs: Long = 0L
-    internal var currentLoadingPhase: String = "idle"
-    internal var currentLoadingPhaseStartedAtMs: Long = 0L
-    internal var currentLoadingMessageForReport: String? = null
-    internal var currentLoadingProgressForReport: Float? = null
-    internal var lastLoadingDiagnosticSignature: String = ""
-    internal var startupPhaseSequence: Int = 0
 
     internal var lastSavedPosition: Long = 0L
     internal val saveThresholdMs = 5000L
@@ -580,10 +554,8 @@ class PlayerRuntimeController(
     internal var torrentBackgroundResume: TorrentBackgroundResume? = null
 
     internal var skipIntervals: List<SkipInterval> = emptyList()
-    internal var chapterSkipIntervals: List<SkipInterval> = emptyList()
     internal var apiSkipIntervals: List<SkipInterval> = emptyList()
-    internal var skipDetectionChapters: List<PlayerChapter> = emptyList()
-    internal var skipChaptersComputedForDuration: Long = 0L
+    internal val chapterSkipDetection = ChapterSkipDetection()
     internal var skipIntroEnabled: Boolean = true
     internal var parentalGuideEnabled: Boolean = false
     internal var autoSkipSegmentTypes: Set<AutoSkipSegmentType> = emptySet()
@@ -635,9 +607,6 @@ class PlayerRuntimeController(
     internal var nextEpisodeThresholdModeSetting: NextEpisodeThresholdMode = NextEpisodeThresholdMode.PERCENTAGE
     internal var nextEpisodeThresholdPercentSetting: Float = 98f
     internal var nextEpisodeThresholdMinutesBeforeEndSetting: Float = 2f
-    internal var stillWatchingEnabledSetting: Boolean = false
-    internal var stillWatchingEpisodeThresholdSetting: Int =
-        PlayerSettings.DEFAULT_STILL_WATCHING_EPISODE_THRESHOLD
     internal var mpvHi10pGnextSoftwareFallbackEnabledSetting: Boolean = false
     internal var mpvHardwareDecodeModeSetting: MpvHardwareDecodeMode = MpvHardwareDecodeMode.AUTO_SAFE
     internal var mpvPreferredAudioLanguages: List<String> = emptyList()
@@ -736,7 +705,6 @@ class PlayerRuntimeController(
     internal var hasRetriedCurrentStreamAfterMediaPeriodHolderCrash: Boolean = false
     internal var timeoutRecoveryAttempts: Int = 0
     internal var errorRetryCount: Int = 0
-    internal var consecutiveAutoPlayCount: Int = 0
     internal var errorRetryJob: Job? = null
     internal var stableProgressResetJob: Job? = null
 

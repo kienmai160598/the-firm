@@ -1,4 +1,4 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.player
 
 import android.net.Uri
 import android.os.SystemClock
@@ -612,7 +612,7 @@ internal class ParallelRangeDataSource(
     private var inFlightServeLogged: Boolean = false
 
     private val sessionChunkCap: Int = effectivePrefetchDepth +
-        if (com.kien.movies.ui.screens.settings.MemoryBudget.isLowRamTier) 2 else 4
+        if (com.kien.movies.core.player.MemoryBudget.isLowRamTier) 2 else 4
 
     override fun open(dataSpec: DataSpec): Long {
         val isSubtitle = dataSpec.uri.getQueryParameter("nuvio_type") == "subtitle"

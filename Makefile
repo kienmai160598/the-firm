@@ -13,11 +13,12 @@ APPLE_TV_SIM := 'platform=tvOS Simulator,name=Apple TV 4K (4th generation)'
 KOTLIN_SOURCES := "app/src/**/*.kt" "baselineprofile/src/**/*.kt" "*.kts" "app/*.kts" \
 	"baselineprofile/*.kts"
 
-.PHONY: help check toolchain-check lint format android-tv android-tv-test box-install \
-	apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test engine
+.PHONY: help check toolchain-check layering-check lint format android-tv android-tv-test \
+	box-install apple-tv-project apple-tv apple-tv-sim apple-tv-install shared-test engine
 
 help:
-	@echo "check             toolchain check, lint and Android TV unit tests"
+	@echo "check             toolchain check, layering check, lint and Android TV unit tests"
+	@echo "layering-check    fail when data, core or domain use ui, or domain uses data"
 	@echo "toolchain-check   fail when the two Gradle builds use different toolchain versions"
 	@echo "lint              ktlint on the Android TV Kotlin sources"
 	@echo "format            ktlint --format on the Android TV Kotlin sources"
@@ -30,10 +31,13 @@ help:
 	@echo "shared-test       Apple TV bridge tests on the tvOS simulator"
 	@echo "engine            build the torrent engine xcframework (about 16 minutes)"
 
-check: toolchain-check lint android-tv-test
+check: toolchain-check layering-check lint android-tv-test
 
 toolchain-check:
 	scripts/toolchain-check
+
+layering-check:
+	scripts/check-layering
 
 lint:
 	cd $(ANDROID_TV) && ../../scripts/ktlint --relative $(KOTLIN_SOURCES)

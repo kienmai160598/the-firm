@@ -1,11 +1,10 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.network
 
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
-import com.kien.movies.core.network.IPv4FirstDns
-import com.kien.movies.core.network.PlaybackSocketFactory
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -201,7 +200,7 @@ internal object PlayerPlaybackNetworking {
         val httpFactory = OkHttpDataSource.Factory(client).apply {
             setDefaultRequestProperties(requestHeaders)
             if (requestHeaders.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-                setUserAgent(PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+                setUserAgent(DEFAULT_PLAYBACK_USER_AGENT)
             }
         }
         return LoggingDataSourceFactory(httpFactory, "HTTP")
@@ -230,7 +229,7 @@ internal object PlayerPlaybackNetworking {
             requestMethod = method
             setRequestProperty(
                 "User-Agent",
-                headers["User-Agent"] ?: PlayerMediaSourceFactory.DEFAULT_USER_AGENT
+                headers["User-Agent"] ?: DEFAULT_PLAYBACK_USER_AGENT
             )
             headers.forEach { (key, value) ->
                 if (key.equals("Range", ignoreCase = true)) return@forEach

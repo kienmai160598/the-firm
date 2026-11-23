@@ -1,4 +1,4 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.player
 
 import androidx.media3.common.text.Cue
 import androidx.media3.common.text.CueGroup

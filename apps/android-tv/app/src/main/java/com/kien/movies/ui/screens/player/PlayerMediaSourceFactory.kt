@@ -30,7 +30,11 @@ import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.SubtitleParser
 import com.kien.movies.MoviesApplication
 import com.kien.movies.R
+import com.kien.movies.core.network.DEFAULT_PLAYBACK_USER_AGENT
 import com.kien.movies.core.network.NoDelaySocketFactory
+import com.kien.movies.core.network.PlayerPlaybackNetworking
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
+import com.kien.movies.core.player.ParallelRangeDataSource
 import com.kien.movies.core.util.findCause
 import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.data.local.VodCacheSizeMode
@@ -144,7 +148,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         val chunkMb = (chunkBytes / (1024L * 1024L)).toInt().coerceAtLeast(1)
         val safeNativeMb = MoviesExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
         val reserveMb = MoviesExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
-        return com.kien.movies.ui.screens.settings.MemoryBudget.prefetchDepthChunks(
+        return com.kien.movies.core.player.MemoryBudget.prefetchDepthChunks(
             connections,
             chunkMb,
             safeNativeMb,
@@ -229,12 +233,12 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             val okHttpFactory = OkHttpDataSource.Factory(playbackHttpClient).apply {
                 setDefaultRequestProperties(sanitizedHeaders)
                 if (sanitizedHeaders.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-                    setUserAgent(DEFAULT_USER_AGENT)
+                    setUserAgent(DEFAULT_PLAYBACK_USER_AGENT)
                 }
             }
             val sessionChunkBytes = parallelChunkSizeKb
                 .coerceAtMost(
-                    com.kien.movies.ui.screens.settings.MemoryBudget.tierMaxChunkMb * 1024
+                    com.kien.movies.core.player.MemoryBudget.tierMaxChunkMb * 1024
                 )
                 .toLong() * 1024L
             val effectiveNative =
@@ -465,47 +469,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         private const val VOD_CACHE_TRIM_STEP_BYTES = 64L * 1024L * 1024L
         private const val LOG_TAG = "PlayerMediaSource"
         private const val AUTO_VOD_CACHE_FLOOR_BYTES = 2L * 1024L * 1024L * 1024L
-        internal const val DEFAULT_USER_AGENT =
-            "Mozilla/5.0 (Linux; Android 13; Android TV) AppleWebKit/537.36 " +
-                "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-
-        private const val MIME_PROBE_CACHE_SIZE = 64
-
-        data class StreamProbeInfo(val contentLength: Long, val acceptsRanges: Boolean)
-
-        private val probeInfoCache = object : LinkedHashMap<String, StreamProbeInfo>(
-            MIME_PROBE_CACHE_SIZE,
-            0.75f,
-            true
-        ) {
-            override fun removeEldestEntry(
-                eldest: MutableMap.MutableEntry<String, StreamProbeInfo>?
-            ): Boolean {
-                return size > MIME_PROBE_CACHE_SIZE
-            }
-        }
-
-        @JvmStatic
-        fun getProbeInfo(url: String, headers: Map<String, String>): StreamProbeInfo? {
-            val sanitizedHeaders = sanitizeHeaders(headers)
-            val cacheKey = buildMimeProbeCacheKey(url, sanitizedHeaders)
-            return synchronized(probeInfoCache) {
-                probeInfoCache[cacheKey]
-            }
-        }
-
-        private fun buildMimeProbeCacheKey(url: String, headers: Map<String, String>): String {
-            if (headers.isEmpty()) return url
-            return buildString {
-                append(url)
-                headers.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (key, value) ->
-                    append('|')
-                    append(key)
-                    append('=')
-                    append(value)
-                }
-            }
-        }
 
         data class NormalizedPlaybackRequest(val url: String, val headers: Map<String, String>)
 
@@ -979,7 +942,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                         }
                     }
                     if (sanitizedHeaders.none { it.key.equals("User-Agent", ignoreCase = true) }) {
-                        requestBuilder.header("User-Agent", DEFAULT_USER_AGENT)
+                        requestBuilder.header("User-Agent", DEFAULT_PLAYBACK_USER_AGENT)
                     }
 
                     PlayerPlaybackNetworking.playbackHttpClient.newCall(

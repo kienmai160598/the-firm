@@ -1,6 +1,5 @@
 package com.kien.movies.domain.model
 
-import com.kien.movies.data.mediaserver.ServerItemRef
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

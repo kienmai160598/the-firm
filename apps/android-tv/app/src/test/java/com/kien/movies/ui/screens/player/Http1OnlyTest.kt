@@ -1,5 +1,7 @@
 package com.kien.movies.ui.screens.player
 
+import com.kien.movies.core.network.PlayerPlaybackNetworking
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import org.junit.Assert.assertEquals

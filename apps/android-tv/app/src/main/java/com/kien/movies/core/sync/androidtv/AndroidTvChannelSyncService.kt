@@ -12,7 +12,6 @@ import com.kien.movies.data.local.ContinueWatchingEnrichmentCache
 import com.kien.movies.data.local.LayoutPreferenceDataStore
 import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.domain.model.WatchProgress
-import com.kien.movies.ui.screens.home.ContinueWatchingItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

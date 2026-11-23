@@ -34,11 +34,11 @@ import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamBadgeSettingsDataStore
 import com.kien.movies.data.local.StreamLinkCacheDataStore
 import com.kien.movies.data.mediaserver.ServerPlayback
-import com.kien.movies.data.mediaserver.ServerPlaybackTarget
 import com.kien.movies.data.mediaserver.ServerStreams
 import com.kien.movies.data.mediaserver.serverPlaybackMessageRes
 import com.kien.movies.domain.model.AddonStreams
 import com.kien.movies.domain.model.Meta
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import com.kien.movies.domain.model.Stream
 import com.kien.movies.domain.model.StreamDebridCacheState
 import com.kien.movies.domain.model.Video

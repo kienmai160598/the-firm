@@ -16,7 +16,6 @@ import com.kien.movies.core.tracking.effectiveLibrarySourceMode
 import com.kien.movies.core.tracking.providerId
 import com.kien.movies.data.local.LibraryPreferences
 import com.kien.movies.data.local.TraktSettingsDataStore
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.domain.model.LibraryEntry
 import com.kien.movies.domain.model.LibraryEntryInput
 import com.kien.movies.domain.model.LibraryListPrivacy
@@ -25,6 +24,7 @@ import com.kien.movies.domain.model.LibrarySourceMode
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.ListMembershipSnapshot
 import com.kien.movies.domain.model.SavedLibraryItem
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.repository.LibraryRepository
 import com.kien.movies.domain.repository.MetaRepository
 import javax.inject.Inject

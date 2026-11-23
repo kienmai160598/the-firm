@@ -7,8 +7,8 @@ import androidx.media3.common.Format
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Tracks
 import androidx.media3.common.text.Cue
-import com.kien.movies.ui.util.LANGUAGE_OVERRIDES
-import com.kien.movies.ui.util.resolveLanguageNameAlias
+import com.kien.movies.core.util.LANGUAGE_OVERRIDES
+import com.kien.movies.core.util.resolveLanguageNameAlias
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 

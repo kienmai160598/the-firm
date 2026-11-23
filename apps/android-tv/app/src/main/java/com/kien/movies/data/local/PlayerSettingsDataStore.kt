@@ -11,11 +11,11 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.core.player.MemoryBudget
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import com.kien.movies.core.player.SubtitleFonts
 import com.kien.movies.core.profile.ProfileManager
-import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
-import com.kien.movies.ui.screens.settings.MemoryBudget
-import com.kien.movies.ui.util.languageCodeToName
+import com.kien.movies.core.util.languageCodeToName
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

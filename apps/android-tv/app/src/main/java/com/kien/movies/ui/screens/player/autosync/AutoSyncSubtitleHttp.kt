@@ -1,8 +1,8 @@
 package com.kien.movies.ui.screens.player.autosync
 
 import androidx.annotation.VisibleForTesting
+import com.kien.movies.core.network.PlayerPlaybackNetworking
 import com.kien.movies.core.player.SubtitleCharsetDetector
-import com.kien.movies.ui.screens.player.PlayerPlaybackNetworking
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import kotlinx.coroutines.CancellationException

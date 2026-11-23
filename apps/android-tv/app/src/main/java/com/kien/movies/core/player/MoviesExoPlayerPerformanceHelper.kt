@@ -1,4 +1,4 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.player
 
 import android.content.Context
 import androidx.media3.common.C
@@ -10,7 +10,6 @@ import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import com.kien.movies.data.local.PlayerSettings
-import com.kien.movies.ui.screens.settings.MemoryBudget
 
 /**
  * Centralizes all Movies ExoPlayer performance enhancements behind a single toggle.

@@ -83,7 +83,7 @@ class SubtitleFileCache @Inject constructor(
                     bodyBytes,
                     languageHint = input.lang
                 )
-                val sanitizedText = com.kien.movies.ui.screens.player.SubtitleMojibakeSanitizer.sanitize(
+                val sanitizedText = com.kien.movies.core.player.SubtitleMojibakeSanitizer.sanitize(
                     normalizedText
                 ).toString()
                 file.writeText(sanitizedText, Charsets.UTF_8)

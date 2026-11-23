@@ -24,9 +24,9 @@ import com.kien.movies.data.local.TraktSettingsDataStore
 import com.kien.movies.data.local.WatchProgressPreferences
 import com.kien.movies.data.local.WatchProgressSource
 import com.kien.movies.data.local.WatchedItemsPreferences
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.mediaserver.ServerWatchMark
 import com.kien.movies.data.mediaserver.ServerWatched
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.WatchedItem
 import com.kien.movies.domain.model.WatchedMutationKey

@@ -9,7 +9,6 @@ import com.kien.movies.domain.model.ShuffleSurface
 import com.kien.movies.domain.model.Video
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.repository.WatchProgressRepository
-import com.kien.movies.ui.screens.player.PlayerNextEpisodeRules
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.combine

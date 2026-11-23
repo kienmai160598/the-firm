@@ -5,6 +5,9 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kien.movies.core.profile.ProfileManager
+import com.kien.movies.domain.model.RememberedSubtitleSelection
+import com.kien.movies.domain.model.RememberedTrackSelection
+import com.kien.movies.domain.model.TrackPreference
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
@@ -143,9 +146,9 @@ data class PersistedTrackPreference(
     val audioTrackId: String?
 )
 
-internal fun PersistedTrackPreference.toTrackPreference(): com.kien.movies.ui.screens.player.PlayerRuntimeController.TrackPreference? {
+internal fun PersistedTrackPreference.toTrackPreference(): TrackPreference? {
     val audio = if (audioLanguage != null || audioName != null || audioTrackId != null) {
-        com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedTrackSelection(
+        RememberedTrackSelection(
             language = audioLanguage,
             name = audioName,
             trackId = audioTrackId
@@ -155,8 +158,8 @@ internal fun PersistedTrackPreference.toTrackPreference(): com.kien.movies.ui.sc
     }
 
     val subtitle = when (subtitleType) {
-        "INTERNAL" -> com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedSubtitleSelection.Internal(
-            track = com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedTrackSelection(
+        "INTERNAL" -> RememberedSubtitleSelection.Internal(
+            track = RememberedTrackSelection(
                 language = subtitleLanguage,
                 name = subtitleName,
                 trackId = subtitleTrackId,
@@ -164,20 +167,20 @@ internal fun PersistedTrackPreference.toTrackPreference(): com.kien.movies.ui.sc
             )
         )
 
-        "ADDON" -> com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedSubtitleSelection.Addon(
+        "ADDON" -> RememberedSubtitleSelection.Addon(
             id = addonSubtitleId ?: "",
             url = addonSubtitleUrl ?: "",
             language = subtitleLanguage ?: "",
             addonName = addonSubtitleAddonName ?: ""
         )
 
-        "DISABLED" -> com.kien.movies.ui.screens.player.PlayerRuntimeController.RememberedSubtitleSelection.Disabled
+        "DISABLED" -> RememberedSubtitleSelection.Disabled
 
         else -> null
     }
 
     if (audio == null && subtitle == null) return null
-    return com.kien.movies.ui.screens.player.PlayerRuntimeController.TrackPreference(
+    return TrackPreference(
         audio = audio,
         subtitle = subtitle
     )

@@ -15,7 +15,6 @@ import com.kien.movies.data.mediaserver.ServerPlaybackEvent
 import com.kien.movies.data.mediaserver.ServerPlaybackEventType
 import com.kien.movies.data.mediaserver.ServerPlaybackRequest
 import com.kien.movies.data.mediaserver.ServerPlaybackSession
-import com.kien.movies.data.mediaserver.ServerPlaybackTarget
 import com.kien.movies.data.mediaserver.ServerProvider
 import com.kien.movies.data.mediaserver.ServerSession
 import com.kien.movies.data.mediaserver.ServerSignIn
@@ -25,6 +24,7 @@ import com.kien.movies.data.mediaserver.ServerTrack
 import com.kien.movies.data.mediaserver.mediabrowser.ServerClientIdentity
 import com.kien.movies.data.mediaserver.mediabrowser.normalizeServerAddress
 import com.kien.movies.data.mediaserver.mediabrowser.pathSegment
+import com.kien.movies.domain.model.ServerPlaybackTarget
 import com.kien.movies.domain.model.Subtitle
 import java.time.Instant
 import java.util.Collections

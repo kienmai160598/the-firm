@@ -8,13 +8,13 @@ import com.kien.movies.core.poster.CustomPosterScreen
 import com.kien.movies.core.poster.patternForScreen
 import com.kien.movies.core.poster.withCustomPosterUrls
 import com.kien.movies.core.tmdb.TmdbEnrichment
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.domain.model.DetailImdbRatingsVisibility
 import com.kien.movies.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.kien.movies.domain.model.HomeImdbRatingsVisibility
 import com.kien.movies.domain.model.HomeLayout
 import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.TmdbSettings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

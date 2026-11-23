@@ -15,6 +15,8 @@ import androidx.media3.extractor.text.DefaultSubtitleParserFactory
 import androidx.media3.extractor.text.SubtitleParser
 import androidx.media3.ui.SubtitleView
 import com.kien.movies.R
+import com.kien.movies.core.player.SubtitleMojibakeSanitizer
+import com.kien.movies.core.player.SubtitleSdhFilter
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.autosync.AutoSyncLibassSubtitles
 import com.kien.movies.ui.screens.player.autosync.AutoSyncSyncedSubtitle

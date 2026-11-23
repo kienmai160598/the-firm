@@ -11,9 +11,9 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.kien.movies.core.streams.StreamBadgeMatcher
+import com.kien.movies.core.util.languageCodeToName
 import com.kien.movies.domain.model.StreamBadge
 import com.kien.movies.ui.components.StreamImportedBadgeChip
-import com.kien.movies.ui.util.languageCodeToName
 
 @Composable
 internal fun rememberPlayerBadges(

@@ -7,6 +7,7 @@ import com.kien.movies.core.player.OpenSubtitlesHasher
 import com.kien.movies.data.local.FrameRateMatchingMode
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.repository.SkipInterval
+import com.kien.movies.domain.model.RememberedSubtitleSelection
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.enabledAddons
@@ -210,7 +211,7 @@ internal fun PlayerRuntimeController.refreshSubtitlesForCurrentEpisode() {
     val keepDisabled = subtitleDisabledByPersistedPreference ||
         (
             rememberedTrackPreference?.subtitle ==
-                PlayerRuntimeController.RememberedSubtitleSelection.Disabled
+                RememberedSubtitleSelection.Disabled
             )
     if (!isUserExplicitSubtitleSelection && !keepDisabled) {
         rememberedTrackPreference = rememberedTrackPreference?.copy(subtitle = null)
@@ -468,8 +469,8 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
             nextEpisodeThresholdPercentSetting = settings.nextEpisodeThresholdPercent
             nextEpisodeThresholdMinutesBeforeEndSetting =
                 settings.nextEpisodeThresholdMinutesBeforeEnd
-            stillWatchingEnabledSetting = settings.stillWatchingEnabled
-            stillWatchingEpisodeThresholdSetting = settings.stillWatchingEpisodeThreshold
+            stillWatching.enabled = settings.stillWatchingEnabled
+            stillWatching.episodeThreshold = settings.stillWatchingEpisodeThreshold
 
             // VOD cache config is gated by the "Custom Playback Buffers" master.
             // When the master is off the cache is disabled at player build time, so
@@ -559,8 +560,7 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
                 if (skipIntervals.isNotEmpty() || _uiState.value.activeSkipInterval != null) {
                     skipIntervals = emptyList()
                     apiSkipIntervals = emptyList()
-                    chapterSkipIntervals = emptyList()
-                    skipChaptersComputedForDuration = 0L
+                    chapterSkipDetection.forgetIntervals()
                     skipIntroFetchedKey = null
                     autoSkippedIntervalKeys.clear()
                     _uiState.update {
@@ -782,7 +782,11 @@ private fun PlayerRuntimeController.setApiSkipIntervals(api: List<SkipInterval>)
 /** Recompute the merged skipIntervals from chapters (priority) + API (gap-fill). */
 internal fun PlayerRuntimeController.recomputeMergedSkipIntervals() {
     val isMovie = contentType.equals("movie", ignoreCase = true)
-    val merged = mergeSkipIntervals(apiSkipIntervals, chapterSkipIntervals, isMovie = isMovie)
+    val merged = mergeSkipIntervals(
+        apiSkipIntervals,
+        chapterSkipDetection.intervals,
+        isMovie = isMovie
+    )
     if (merged == skipIntervals) return
     skipIntervals = merged
 }

@@ -2,6 +2,8 @@ package com.kien.movies.ui.screens.player
 
 import com.kien.movies.R
 import com.kien.movies.core.network.NetworkResult
+import com.kien.movies.core.player.PlayerNextEpisodeRules
+import com.kien.movies.core.player.followingPostCreditsScene
 import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.AutoSkipSegmentType
 import com.kien.movies.data.repository.SkipInterval
@@ -355,8 +357,7 @@ private fun PlayerRuntimeController.applyRecomputedNextEpisode(
 internal fun PlayerRuntimeController.resetPostPlayOverlayState(clearEpisode: Boolean = false) {
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null
-    stillWatchingPromptJob?.cancel()
-    stillWatchingPromptJob = null
+    stillWatching.cancel()
     _uiState.update { state ->
         state.copy(
             nextEpisode = if (clearEpisode) null else state.nextEpisode,
@@ -441,16 +442,13 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(
 
     if (_uiState.value.postPlayDismissedForCurrentEpisode) return
 
-    val shouldEnterStillWatching = shouldEnterStillWatchingPrompt(
-        stillWatchingEnabled = stillWatchingEnabledSetting,
+    val shouldEnterStillWatching = stillWatching.isDue(
         autoPlayNextEpisodeEnabled = streamAutoPlayNextEpisodeEnabledSetting,
-        nextEpisodeHasAired = state.nextEpisode.hasAired,
-        consecutiveAutoPlayCount = consecutiveAutoPlayCount,
-        threshold = stillWatchingEpisodeThresholdSetting
+        nextEpisodeHasAired = state.nextEpisode.hasAired
     )
 
     if (shouldEnterStillWatching) {
-        enterStillWatchingPromptMode()
+        stillWatching.show()
     } else {
         val ne = state.nextEpisode
         val isUnplayable = !ne.hasAired ||

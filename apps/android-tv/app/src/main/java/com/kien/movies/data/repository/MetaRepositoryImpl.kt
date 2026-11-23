@@ -6,13 +6,13 @@ import com.kien.movies.R
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.data.mapper.toDomain
 import com.kien.movies.data.mediaserver.ServerCatalog
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.mediaserver.messageRes
 import com.kien.movies.data.mediaserver.serverFailure
 import com.kien.movies.data.remote.api.AddonApi
 import com.kien.movies.domain.model.Addon
 import com.kien.movies.domain.model.AddonResource
 import com.kien.movies.domain.model.Meta
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.AddonRepository
 import com.kien.movies.domain.repository.MetaRepository

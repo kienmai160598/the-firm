@@ -3,6 +3,7 @@ package com.kien.movies.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.UnstableApi
 import com.kien.movies.core.player.LastPlaybackDiagnostics
+import com.kien.movies.core.player.MemoryBudget
 import com.kien.movies.core.plugin.PluginManager
 import com.kien.movies.core.torrent.TorrentCacheClearResult
 import com.kien.movies.core.torrent.TorrentCacheSize

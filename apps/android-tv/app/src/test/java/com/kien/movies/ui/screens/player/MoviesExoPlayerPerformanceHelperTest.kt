@@ -1,6 +1,7 @@
 package com.kien.movies.ui.screens.player
 
 import android.content.Context
+import com.kien.movies.core.player.MoviesExoPlayerPerformanceHelper
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -216,7 +217,7 @@ class MoviesExoPlayerPerformanceHelperTest {
         val targetBytes = targetBufferBytesField.getInt(loadControl)
 
         assertEquals(
-            com.kien.movies.ui.screens.settings.MemoryBudget.MIN_BUFFER_MB * 1024 * 1024,
+            com.kien.movies.core.player.MemoryBudget.MIN_BUFFER_MB * 1024 * 1024,
             targetBytes
         )
     }

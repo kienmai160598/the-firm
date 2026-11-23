@@ -1,5 +1,6 @@
 package com.kien.movies.ui.screens.player
 
+import com.kien.movies.core.player.PlayerNextEpisodeRules
 import com.kien.movies.data.local.NextEpisodeThresholdMode
 import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.domain.model.Video

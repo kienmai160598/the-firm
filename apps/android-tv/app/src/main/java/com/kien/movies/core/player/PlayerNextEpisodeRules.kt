@@ -1,4 +1,4 @@
-package com.kien.movies.ui.screens.player
+package com.kien.movies.core.player
 
 import com.kien.movies.core.util.isEpisodeReleaseAired
 import com.kien.movies.core.util.parseEpisodeReleaseLocalDate

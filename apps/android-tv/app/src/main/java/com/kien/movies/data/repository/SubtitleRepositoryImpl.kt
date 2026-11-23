@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.network.safeApiCall
-import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.remote.api.AddonApi
 import com.kien.movies.domain.model.Addon
+import com.kien.movies.domain.model.ServerItemRef
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.enabledAddons
 import com.kien.movies.domain.repository.SubtitleRepository
