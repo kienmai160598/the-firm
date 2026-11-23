@@ -13,6 +13,8 @@ struct StreamSheet: Identifiable {
 }
 
 struct StreamsView: View {
+    private static let playerPresentationTime: Duration = .seconds(1)
+
     @StateObject private var model: StreamsModel
     @State private var sheet: StreamSheet?
     @State private var pendingResume: PendingResume?
@@ -21,6 +23,7 @@ struct StreamsView: View {
     @State private var checkingStreamKey: String?
     @State private var directResume: TvosResumePoint?
     @StateObject private var torrent = TorrentSession()
+    @Environment(\.accessibilityReduceMotion) private var reducesMotion
 
     private let resumesDirectly: Bool
 
@@ -31,16 +34,14 @@ struct StreamsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 36) {
-            StreamsHeader(
-                target: model.target,
-                resume: directResume,
-                isChecking: checkingStreamKey != nil,
-                torrentStatus: torrent.startingStreamKey == nil ? nil : torrent.status
-            )
+            StreamsHeader(target: model.target, resume: directResume)
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .transition(.opacity)
         }
-        .animation(.smooth, value: checkingStreamKey)
+        .animation(motion, value: model.phase)
+        .animation(motion, value: selection)
+        .animation(motion, value: model.searchingAddonCount)
         .background { StreamsBackground(backdropUrl: model.target.backdropUrl) }
         .sheet(item: $sheet) { sheet in
             StreamDetailSheet(stream: sheet.stream, notice: sheet.notice)
@@ -62,6 +63,7 @@ struct StreamsView: View {
             PlaybackScreen(request: request) { notice in
                 fail(request, notice: notice)
             }
+            .task { await clearSelectionOncePlayerCovers() }
         }
         .onAppear {
             model.observe()
@@ -78,13 +80,45 @@ struct StreamsView: View {
 
     @ViewBuilder
     private var content: some View {
-        if let emptyState = model.emptyState {
-            StreamsEmptyView(emptyState: emptyState, onRetry: model.reload)
-        } else if model.groups.isEmpty {
+        switch model.phase {
+        case .empty:
+            if let emptyState = model.emptyState {
+                StreamsEmptyView(emptyState: emptyState, onRetry: model.reload)
+                    .transition(.opacity)
+            }
+        case .loading:
             StreamsLoadingView()
-        } else {
-            StreamGroupList(groups: model.groups, onSelect: select)
+                .transition(.opacity)
+        case .list:
+            StreamGroupList(
+                groups: model.visibleGroups,
+                searchingAddonCount: model.searchingAddonCount,
+                selection: selection,
+                onSelect: select
+            )
+            .transition(.opacity)
         }
+    }
+
+    private var motion: Animation {
+        reducesMotion ? .linear(duration: 0.15) : .smooth(duration: 0.35)
+    }
+
+    private var selection: StreamSelection? {
+        guard let checkingStreamKey else { return nil }
+        guard torrent.startingStreamKey == checkingStreamKey else {
+            return StreamSelection(streamKey: checkingStreamKey, progress: .checking)
+        }
+        return StreamSelection(streamKey: checkingStreamKey, progress: torrentProgress)
+    }
+
+    private var torrentProgress: StreamRowProgress {
+        guard let status = torrent.status else { return .startingTorrent }
+        return StreamRowProgress(
+            title: status.step ?? StreamRowProgress.startingTorrent.title,
+            detail: "\(status.peers) peers, \(status.seeds) seeds, \(status.downloadSpeedLabel)",
+            fraction: Double(status.bufferFraction)
+        )
     }
 
     private var isResumeChoiceShown: Binding<Bool> {
@@ -142,7 +176,6 @@ struct StreamsView: View {
         let stream = probe.stream
         Task { @MainActor in
             let engine = await PlaybackPreflight.engine(for: probe)
-            checkingStreamKey = nil
             chooseStart(stream, engine: engine)
         }
     }
@@ -168,12 +201,16 @@ struct StreamsView: View {
             return
         }
         #endif
+        checkingStreamKey = nil
         pendingResume = pending
     }
 
     private func start(_ stream: TvosStream, resumes: Bool, engine: PlayerEngine) {
         pendingResume = nil
         playback = playbackRequest(for: stream, resumes: resumes, engine: engine)
+        if playback == nil {
+            checkingStreamKey = nil
+        }
     }
 
     private func playbackRequest(
@@ -198,12 +235,19 @@ struct StreamsView: View {
         )
     }
 
+    private func clearSelectionOncePlayerCovers() async {
+        try? await Task.sleep(for: Self.playerPresentationTime)
+        checkingStreamKey = nil
+    }
+
     private func fail(_ request: PlaybackRequest, notice: StreamNotice) {
+        checkingStreamKey = nil
         playbackFailure = StreamSheet(stream: request.stream, notice: notice)
         playback = nil
     }
 
     private func afterPlayback() {
+        checkingStreamKey = nil
         torrent.stop()
         loadDirectResume()
         guard let failure = playbackFailure else { return }

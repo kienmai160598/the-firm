@@ -1,19 +1,26 @@
 import SwiftUI
 import NuvioTvShared
 
+struct StreamSelection: Equatable {
+    let streamKey: String
+    let progress: StreamRowProgress
+}
+
 struct StreamGroupList: View {
     let groups: [TvosStreamGroup]
+    let searchingAddonCount: Int
+    let selection: StreamSelection?
     let onSelect: (TvosStream) -> Void
 
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(alignment: .leading, spacing: 48) {
+            LazyVStack(alignment: .leading, spacing: 44) {
                 ForEach(groups, id: \.addonId) { group in
-                    StreamGroupSection(
-                        group: group,
-                        isAwaitingFirstStream: isAwaitingFirstStream,
-                        onSelect: onSelect
-                    )
+                    StreamGroupSection(group: group, selection: selection, onSelect: onSelect)
+                }
+                if searchingAddonCount > 0 {
+                    StreamsSearchingFooter(addonCount: searchingAddonCount)
+                        .transition(.opacity)
                 }
             }
             .padding(.horizontal, 24)
@@ -22,87 +29,82 @@ struct StreamGroupList: View {
         .scrollClipDisabled()
         .focusSection()
     }
-
-    private var isAwaitingFirstStream: Bool {
-        groups.allSatisfy { $0.streams.isEmpty }
-    }
 }
 
 private struct StreamGroupSection: View {
     let group: TvosStreamGroup
-    let isAwaitingFirstStream: Bool
+    let selection: StreamSelection?
     let onSelect: (TvosStream) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            StreamGroupHeader(title: group.addonName, isLoading: group.isLoading)
-            VStack(alignment: .leading, spacing: 16) {
-                rows
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var rows: some View {
-        if let errorMessage = group.errorMessage {
-            StreamGroupMessageRow(text: errorMessage, systemImage: "exclamationmark.triangle")
-        } else if group.streams.isEmpty && group.isLoading {
-            if isAwaitingFirstStream {
-                StreamsLoadingRow()
-            }
-        } else if group.streams.isEmpty {
-            StreamGroupMessageRow(text: "No streams from this addon", systemImage: "tray")
-        } else {
-            ForEach(group.streams) { stream in
-                Button {
-                    onSelect(stream)
-                } label: {
-                    StreamRow(stream: stream)
-                }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.roundedRectangle(radius: 28))
-            }
-        }
-    }
-}
-
-private struct StreamGroupHeader: View {
-    let title: String
-    let isLoading: Bool
-
-    var body: some View {
-        HStack(spacing: 20) {
-            Text(title)
-                .font(.system(size: 31, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.6))
+        VStack(alignment: .leading, spacing: 18) {
+            Text(group.addonName)
+                .font(.system(size: 27, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .padding(.leading, 8)
                 .accessibilityAddTraits(.isHeader)
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(0.6)
+            if let errorMessage = group.errorMessage, group.streams.isEmpty {
+                Label(errorMessage, systemImage: "exclamationmark.triangle")
+                    .font(.system(size: 25))
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 8)
+            }
+            VStack(alignment: .leading, spacing: 14) {
+                ForEach(group.streams) { stream in
+                    StreamButton(
+                        stream: stream,
+                        progress: progress(for: stream),
+                        isDimmed: isDimmed(stream),
+                        onSelect: onSelect
+                    )
+                }
             }
         }
     }
-}
 
-private struct StreamGroupMessageRow: View {
-    let text: String
-    let systemImage: String
+    private func progress(for stream: TvosStream) -> StreamRowProgress? {
+        selection?.streamKey == stream.key ? selection?.progress : nil
+    }
 
-    var body: some View {
-        Label(text, systemImage: systemImage)
-            .font(.system(size: 29))
-            .foregroundStyle(.secondary)
+    private func isDimmed(_ stream: TvosStream) -> Bool {
+        guard let selection else { return false }
+        return selection.streamKey != stream.key
     }
 }
 
-private struct StreamsLoadingRow: View {
+private struct StreamButton: View {
+    let stream: TvosStream
+    let progress: StreamRowProgress?
+    let isDimmed: Bool
+    let onSelect: (TvosStream) -> Void
+
     var body: some View {
-        HStack(spacing: 24) {
+        Button {
+            onSelect(stream)
+        } label: {
+            StreamRow(stream: stream, progress: progress)
+        }
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.roundedRectangle(radius: 24))
+        .opacity(isDimmed ? 0.45 : 1)
+    }
+}
+
+private struct StreamsSearchingFooter: View {
+    let addonCount: Int
+
+    var body: some View {
+        HStack(spacing: 18) {
             ProgressView()
-            Text("Finding streams")
-                .font(.system(size: 29, weight: .medium))
+            Text(text)
+                .font(.system(size: 25, weight: .medium))
                 .foregroundStyle(.secondary)
         }
-        .focusable()
+        .padding(.leading, 8)
+    }
+
+    private var text: String {
+        addonCount == 1 ? "Searching 1 more addon" : "Searching \(addonCount) more addons"
     }
 }

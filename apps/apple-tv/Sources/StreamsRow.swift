@@ -14,7 +14,7 @@ extension TvosStream {
         name.split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
-            .joined(separator: "  ·  ")
+            .joined(separator: "   ")
     }
 
     var fileLine: String? {
@@ -31,71 +31,102 @@ extension TvosStream {
     }
 }
 
+struct StreamRowProgress: Equatable {
+    let title: String
+    let detail: String?
+    let fraction: Double?
+
+    static let checking = StreamRowProgress(title: "Checking stream", detail: nil, fraction: nil)
+    static let startingTorrent = StreamRowProgress(
+        title: "Starting torrent",
+        detail: nil,
+        fraction: nil
+    )
+}
+
 struct StreamRow: View {
-    private static let headlineWidth: CGFloat = 190
-    private static let maxCapabilities = 6
+    private static let height: CGFloat = 104
+    private static let maxCapabilities = 4
 
     let stream: TvosStream
+    let progress: StreamRowProgress?
 
     var body: some View {
         let features = stream.features
-        HStack(alignment: .center, spacing: 36) {
-            StreamHeadline(resolution: features.resolution, size: features.size)
-                .frame(width: Self.headlineWidth, alignment: .leading)
-            VStack(alignment: .leading, spacing: 10) {
-                if !features.capabilities.isEmpty {
-                    StreamCapabilities(
-                        labels: Array(features.capabilities.prefix(Self.maxCapabilities))
-                    )
-                }
+        HStack(spacing: 28) {
+            StreamResolutionBadge(resolution: features.resolution)
+            VStack(alignment: .leading, spacing: 12) {
                 Text(stream.oneLineName)
-                    .font(.system(size: 27, weight: .semibold))
+                    .font(.system(size: 29, weight: .semibold))
                     .lineLimit(1)
-                if let fileLine = stream.fileLine {
-                    Text(fileLine)
-                        .font(.system(size: 22))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
+                StreamDetailLine(
+                    capabilities: Array(features.capabilities.prefix(Self.maxCapabilities)),
+                    fileLine: stream.fileLine
+                )
             }
-            Spacer(minLength: 0)
-            StreamDelivery(isTorrent: stream.isTorrent, seeders: features.seeders)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            trailing(features)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
+        .frame(height: Self.height)
+    }
+
+    @ViewBuilder
+    private func trailing(_ features: StreamFeatures) -> some View {
+        if let progress {
+            StreamRowProgressView(progress: progress)
+                .transition(.opacity)
+        } else {
+            StreamFacts(size: features.size, seeders: features.seeders, isTorrent: stream.isTorrent)
+                .transition(.opacity)
+        }
     }
 }
 
-private struct StreamHeadline: View {
+private struct StreamResolutionBadge: View {
     let resolution: String?
-    let size: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(resolution ?? "Video")
-                .font(.system(size: 44, weight: .heavy))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            Text(size ?? "Size unknown")
-                .font(.system(size: size == nil ? 21 : 27, weight: .semibold))
-                .foregroundStyle(size == nil ? .tertiary : .secondary)
-                .monospacedDigit()
-                .lineLimit(1)
+        Group {
+            if let resolution {
+                Text(resolution)
+                    .font(.system(size: 28, weight: .bold))
+                    .minimumScaleFactor(0.7)
+            } else {
+                Image(systemName: "play.rectangle")
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
         }
+        .lineLimit(1)
+        .frame(width: 124, height: 64)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.primary.opacity(0.1))
+        )
     }
 }
 
-private struct StreamCapabilities: View {
-    let labels: [String]
+private struct StreamDetailLine: View {
+    let capabilities: [String]
+    let fileLine: String?
 
     var body: some View {
         HStack(spacing: 10) {
-            ForEach(labels, id: \.self) { label in
+            ForEach(capabilities, id: \.self) { label in
                 StreamCapabilityBadge(text: label)
             }
+            if let fileLine {
+                Text(fileLine)
+                    .font(.system(size: 22))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .padding(.leading, capabilities.isEmpty ? 0 : 6)
+            }
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .frame(height: 32)
     }
 }
 
@@ -104,8 +135,9 @@ private struct StreamCapabilityBadge: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 20, weight: .bold))
+            .font(.system(size: 19, weight: .bold))
             .lineLimit(1)
+            .fixedSize()
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
             .overlay(
@@ -116,25 +148,60 @@ private struct StreamCapabilityBadge: View {
     }
 }
 
-private struct StreamDelivery: View {
-    let isTorrent: Bool
+private struct StreamFacts: View {
+    let size: String?
     let seeders: Int?
+    let isTorrent: Bool
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 6) {
-            Label(isTorrent ? "Torrent" : "Direct", systemImage: symbol)
-                .font(.system(size: 22, weight: .medium))
-            if let seeders {
-                Text("\(seeders) seeds")
-                    .font(.system(size: 21))
+        VStack(alignment: .trailing, spacing: 8) {
+            if let size {
+                Text(size)
+                    .font(.system(size: 25, weight: .semibold))
                     .monospacedDigit()
             }
+            HStack(spacing: 18) {
+                if let seeders {
+                    Label("\(seeders)", systemImage: "person.2.fill")
+                        .monospacedDigit()
+                }
+                Label(isTorrent ? "Torrent" : "Direct", systemImage: deliverySymbol)
+            }
+            .font(.system(size: 21, weight: .medium))
+            .foregroundStyle(.secondary)
         }
-        .foregroundStyle(.secondary)
+        .lineLimit(1)
         .fixedSize()
     }
 
-    private var symbol: String {
+    private var deliverySymbol: String {
         isTorrent ? "arrow.down.circle" : "link"
+    }
+}
+
+private struct StreamRowProgressView: View {
+    let progress: StreamRowProgress
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 8) {
+            HStack(spacing: 16) {
+                ProgressView()
+                Text(progress.title)
+                    .font(.system(size: 25, weight: .semibold))
+                    .lineLimit(1)
+            }
+            if let fraction = progress.fraction {
+                ProgressView(value: fraction)
+                    .frame(width: 260)
+            }
+            if let detail = progress.detail {
+                Text(detail)
+                    .font(.system(size: 20))
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: 420, alignment: .trailing)
     }
 }

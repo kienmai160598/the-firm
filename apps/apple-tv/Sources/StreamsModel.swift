@@ -1,6 +1,12 @@
 import Foundation
 import NuvioTvShared
 
+enum StreamsPhase: Equatable {
+    case loading
+    case list
+    case empty
+}
+
 @MainActor
 final class StreamsModel: ObservableObject {
     @Published private(set) var groups: [TvosStreamGroup] = []
@@ -12,6 +18,19 @@ final class StreamsModel: ObservableObject {
 
     init(target: TvosStreamTarget) {
         self.target = target
+    }
+
+    var phase: StreamsPhase {
+        if emptyState != nil { return .empty }
+        return visibleGroups.isEmpty ? .loading : .list
+    }
+
+    var visibleGroups: [TvosStreamGroup] {
+        groups.filter { !$0.streams.isEmpty || $0.errorMessage != nil }
+    }
+
+    var searchingAddonCount: Int {
+        groups.filter { $0.isLoading && $0.streams.isEmpty }.count
     }
 
     func observe() {
