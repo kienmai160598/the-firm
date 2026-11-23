@@ -1,15 +1,17 @@
 package com.kien.movies
 
+import android.view.KeyEvent
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kien.movies.addons.ADDON_ROW_TAG
 import com.kien.movies.addons.PHONE_BUTTON_TAG
+import com.kien.movies.addons.URL_SURFACE_TAG
 import com.kien.movies.addons.dialogButtonTag
 import com.kien.movies.addons.phone.PHONE_ADDRESS_TAG
 import com.kien.movies.addons.phone.PHONE_CLOSE_TAG
@@ -48,7 +50,7 @@ class PhoneAddonTest {
     @Test
     fun aq1_addFromPhoneShowsTheCodeAndTheAddressWithinASecond() {
         openAddons()
-        compose.onNodeWithTag(PHONE_BUTTON_TAG).requestFocus()
+        focusPhoneButton()
 
         tv.select()
 
@@ -93,12 +95,30 @@ class PhoneAddonTest {
     private fun openAddons() {
         tv.launch(DebugLaunch.ROUTE to "tab/addons")
         tv.await(hasTestTag(PHONE_BUTTON_TAG))
+        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG) or hasTestTag(URL_SURFACE_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
+    }
+
+    /** D-pad only: from a row Left into the panel, Up to the URL field, then Down to the button. */
+    private fun focusPhoneButton() {
+        if (compose.onAllNodes(isFocused() and hasTestTag(ADDON_ROW_TAG)).fetchSemanticsNodes().isNotEmpty()) {
+            tv.press(KeyEvent.KEYCODE_DPAD_LEFT)
+        }
+        pressUntilFocused(KeyEvent.KEYCODE_DPAD_UP, hasTestTag(URL_SURFACE_TAG))
+        pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(PHONE_BUTTON_TAG))
+    }
+
+    private fun pressUntilFocused(keyCode: Int, matcher: SemanticsMatcher) {
+        repeat(MAX_PRESSES) {
+            if (compose.onAllNodes(isFocused() and matcher).fetchSemanticsNodes().isNotEmpty()) return
+            tv.press(keyCode)
+        }
+        tv.awaitFocus(matcher)
     }
 
     /** Opens the panel and returns the address it shows; skipped when the TV has no network. */
     private fun openPhonePanel(): String {
         openAddons()
-        compose.onNodeWithTag(PHONE_BUTTON_TAG).requestFocus()
+        focusPhoneButton()
         tv.select()
         tv.await(hasTestTag(PHONE_QR_TAG) or hasTestTag(PHONE_PROBLEM_TAG), QR_TIMEOUT_MS)
         val address = shownAddress()
@@ -152,5 +172,6 @@ class PhoneAddonTest {
         const val INSTALL_TIMEOUT_MS = 30_000L
         const val STOP_TIMEOUT_MS = 3_000L
         const val HTTP_TIMEOUT_MS = 2_000
+        const val MAX_PRESSES = 6
     }
 }

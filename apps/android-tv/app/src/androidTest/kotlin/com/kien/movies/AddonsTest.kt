@@ -1,6 +1,7 @@
 package com.kien.movies
 
 import android.view.KeyEvent
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocused
@@ -8,7 +9,6 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kien.movies.addons.ADDON_ROW_TAG
 import com.kien.movies.addons.EMPTY_TITLE
@@ -27,7 +27,8 @@ import org.junit.runner.RunWith
 /**
  * Addons ACs A1 to A4 (docs/android-tv-rebuild.md, section 6), ported from
  * apps/apple-tv/UITests/AddonsTests.swift. A2 and A3 need the test addon of
- * apps/apple-tv/TestAddon on 127.0.0.1:8765 (adb reverse) and are skipped without it. A4 removes
+ * apps/apple-tv/TestAddon on 127.0.0.1:8765 (adb reverse) and are skipped without it. D-pad
+ * only, as section 6 asks: no test moves focus through semantics. A4 removes
  * every installed addon: run it on a cleared app (`pm clear com.kien.movies.next`).
  */
 @RunWith(AndroidJUnit4::class)
@@ -43,7 +44,7 @@ class AddonsTest {
     @Test
     fun a1_aManifestThatCannotBeReachedShowsWhyItFailed() {
         openAddons()
-        compose.onNodeWithTag(URL_SURFACE_TAG).requestFocus()
+        focusInPanel(URL_SURFACE_TAG)
         tv.select()
         tv.awaitFocus(hasTestTag(URL_FIELD_TAG))
 
@@ -54,11 +55,13 @@ class AddonsTest {
         tv.assertFocusedTag(URL_SURFACE_TAG)
     }
 
+    /** A2, and tvOS `defaultFocus`: the first addon row has focus when Addons opens. */
     @Test
     fun a2_turnOffMarksTheAddonOff() {
         openAddons(DebugLaunch.ADDON_URL to TEST_ADDON_URL)
         assumeTestAddon()
-        focusRow(TEST_ADDON_NAME)
+        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG))
+        pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(ADDON_ROW_TAG) and hasText(TEST_ADDON_NAME, substring = true))
 
         tv.select()
         tv.awaitFocus(hasTestTag(dialogButtonTag("Turn Off")))
@@ -71,7 +74,8 @@ class AddonsTest {
     fun a3_moveUpPutsTheAddonFirst() {
         openAddons(DebugLaunch.ADDON_URL to TEST_ADDON_URL)
         assumeTestAddon()
-        focusRow(TEST_ADDON_NAME)
+        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG))
+        pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(ADDON_ROW_TAG) and hasText(TEST_ADDON_NAME, substring = true))
         tv.select()
         tv.awaitFocus(hasTestTag(dialogButtonTag("Turn Off")) or hasTestTag(dialogButtonTag("Turn On")))
         pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(dialogButtonTag("Move Up")))
@@ -88,7 +92,7 @@ class AddonsTest {
     fun a4_removingEveryAddonShowsTheEmptyStateAndKeepsFocus() {
         openAddons()
         repeat(MAX_ADDONS_TO_REMOVE) {
-            if (compose.onAllNodes(hasTestTag(ADDON_ROW_TAG)).fetchSemanticsNodes().isNotEmpty()) removeFirstAddon()
+            if (compose.onAllNodes(hasTestTag(ADDON_ROW_TAG)).fetchSemanticsNodes().isNotEmpty()) removeFocusedAddon()
         }
 
         tv.await(hasText(EMPTY_TITLE), TvRobot.FOCUS_TIMEOUT_MS)
@@ -96,8 +100,9 @@ class AddonsTest {
         tv.assertFocusedTag(URL_SURFACE_TAG)
     }
 
-    private fun removeFirstAddon() {
-        compose.onAllNodes(hasTestTag(ADDON_ROW_TAG)).onFirstRequestFocus()
+    /** Removes the focused row; focus then moves to its neighbour, or the URL field after the last. */
+    private fun removeFocusedAddon() {
+        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG))
         tv.select()
         tv.awaitFocus(hasTestTag(dialogButtonTag("Turn Off")) or hasTestTag(dialogButtonTag("Turn On")))
         pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(dialogButtonTag("Remove")))
@@ -107,17 +112,13 @@ class AddonsTest {
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
         tv.awaitFocus(hasTestTag(dialogButtonTag("Remove")))
         tv.select()
-        compose.waitUntil(TvRobot.FOCUS_TIMEOUT_MS) { compose.onAllNodes(isFocused()).fetchSemanticsNodes().size == 1 }
-    }
-
-    private fun androidx.compose.ui.test.SemanticsNodeInteractionCollection.onFirstRequestFocus() {
-        get(0).requestFocus()
-        compose.waitForIdle()
+        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG) or hasTestTag(URL_SURFACE_TAG))
     }
 
     private fun openAddons(vararg extras: Pair<String, Any>) {
         tv.launch(DebugLaunch.ROUTE to "tab/addons", *extras)
         tv.await(hasTestTag(URL_SURFACE_TAG))
+        tv.awaitFocus(hasTestTag(ADDON_ROW_TAG) or hasTestTag(URL_SURFACE_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
     }
 
     private fun assumeTestAddon() {
@@ -125,12 +126,15 @@ class AddonsTest {
         assumeTrue("Test addon server is not running", listed)
     }
 
-    private fun focusRow(name: String) {
-        compose.onAllNodes(hasTestTag(ADDON_ROW_TAG)).onFirstRequestFocus()
-        pressUntilFocused(KeyEvent.KEYCODE_DPAD_DOWN, hasTestTag(ADDON_ROW_TAG) and hasText(name, substring = true))
+    /** From the first focus (a row, or the URL field with no addons): Left into the panel, then Up to [tag]. */
+    private fun focusInPanel(tag: String) {
+        if (compose.onAllNodes(isFocused() and hasTestTag(ADDON_ROW_TAG)).fetchSemanticsNodes().isNotEmpty()) {
+            tv.press(KeyEvent.KEYCODE_DPAD_LEFT)
+        }
+        pressUntilFocused(KeyEvent.KEYCODE_DPAD_UP, hasTestTag(tag))
     }
 
-    private fun pressUntilFocused(keyCode: Int, matcher: androidx.compose.ui.test.SemanticsMatcher) {
+    private fun pressUntilFocused(keyCode: Int, matcher: SemanticsMatcher) {
         repeat(MAX_PRESSES) {
             if (compose.onAllNodes(isFocused() and matcher).fetchSemanticsNodes().isNotEmpty()) return
             tv.press(keyCode)

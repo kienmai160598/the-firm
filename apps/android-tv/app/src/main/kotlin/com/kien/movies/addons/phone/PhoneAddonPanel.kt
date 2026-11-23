@@ -60,17 +60,21 @@ private sealed interface PhoneAddonSetup {
  * the QR code and the address as text, the confirmation dialog for a proposal and the results.
  *
  * The server lives exactly as long as this panel: it stops when the panel closes (Close, Back, a
- * tab change), when the app goes to the background (ON_STOP closes the panel) and after 10 idle
- * minutes. Every state holds a focusable Close button.
+ * tab change), when the app goes to the background (ON_STOP closes it and the panel) and after 10
+ * idle minutes; closing twice is harmless. Every state holds a focusable Close button, [closeFocus].
  */
 @Composable
-fun PhoneAddonPanel(install: PhoneAddonInstaller, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun PhoneAddonPanel(
+    install: PhoneAddonInstaller,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    closeFocus: FocusRequester = remember { FocusRequester() }
+) {
     val context = LocalContext.current.applicationContext
     val currentInstall by rememberUpdatedState(install)
     val currentOnClose by rememberUpdatedState(onClose)
     var setup by remember { mutableStateOf<PhoneAddonSetup>(PhoneAddonSetup.Starting) }
     var attempt by remember { mutableIntStateOf(0) }
-    val closeFocus = remember { FocusRequester() }
 
     LaunchedEffect(attempt) {
         setup = PhoneAddonSetup.Starting
@@ -95,7 +99,11 @@ fun PhoneAddonPanel(install: PhoneAddonInstaller, onClose: () -> Unit, modifier:
             server?.let(::closeOffMainThread)
         }
     }
-    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { currentOnClose() }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        // Stop at once: recomposition, which would reach the effect's finally, pauses in the background.
+        (setup as? PhoneAddonSetup.Running)?.server?.let(::closeOffMainThread)
+        currentOnClose()
+    }
     BackHandler(onBack = onClose)
     LaunchedEffect(Unit) {
         withFrameNanos {}

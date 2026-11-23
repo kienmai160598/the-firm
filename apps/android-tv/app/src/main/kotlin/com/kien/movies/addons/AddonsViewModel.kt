@@ -50,7 +50,7 @@ class AddonsViewModel(
 
     fun install(rawUrl: String) {
         val url = rawUrl.trim()
-        if (url.isEmpty() || state.value.isInstalling) return
+        if (url.isEmpty() || installStatus.value == AddonInstallStatus.Installing) return
         installStatus.value = AddonInstallStatus.Installing
         viewModelScope.launch { installStatus.value = installer(url).toStatus() }
     }

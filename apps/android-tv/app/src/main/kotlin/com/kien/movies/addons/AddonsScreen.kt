@@ -60,6 +60,7 @@ fun AddonsScreen() {
     var focusAfterRemoval by remember { mutableStateOf<FocusAfterRemoval?>(null) }
     val fieldFocus = remember { FocusRequester() }
     val phoneButtonFocus = remember { FocusRequester() }
+    val phoneCloseFocus = remember { FocusRequester() }
     val firstRowFocus = remember { FocusRequester() }
     val rowFocus = remember { mutableMapOf<String, FocusRequester>() }
 
@@ -75,6 +76,7 @@ fun AddonsScreen() {
             if (showsPhonePanel) {
                 PhoneAddonPanel(
                     install = viewModel::installFromPhone,
+                    closeFocus = phoneCloseFocus,
                     onClose = {
                         showsPhonePanel = false
                         phoneButtonFocusTick++
@@ -132,8 +134,8 @@ fun AddonsScreen() {
         val pending = focusAfterRemoval ?: return@LaunchedEffect
         if (state.addons.any { addon -> addon.manifestUrl == pending.removed }) return@LaunchedEffect
         withFrameNanos {}
-        val target = pending.next?.let(rowFocus::get) ?: if (showsPhonePanel) null else fieldFocus
-        target?.requestFocus()
+        val target = pending.next?.let(rowFocus::get) ?: if (showsPhonePanel) phoneCloseFocus else fieldFocus
+        target.requestFocus()
         focusAfterRemoval = null
     }
     LaunchedEffect(phoneButtonFocusTick) {
