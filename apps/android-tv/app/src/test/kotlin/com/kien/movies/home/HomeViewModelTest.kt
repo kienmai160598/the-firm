@@ -81,6 +81,15 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun anEpisodeCardBandShowsTheEpisodeCodeAndTheTimeLeft() {
+        val home = homeState(continueWatching = TvosContinueWatchingRow("Continue Watching", listOf(watching("k1"))))
+
+        val details = homeUiState(home).watchingRows.single().cards.single().details
+
+        assertEquals(listOf("S1, E2", "20 min left"), details)
+    }
+
+    @Test
     fun aRowThatDidNotChangeKeepsItsInstanceWhenAnotherRowChanges() {
         val popular = TvosRow("one", "Popular", listOf(item("a")))
         val before = homeUiState(homeState(rows = listOf(popular, TvosRow("two", "New", listOf(item("b"))))))

@@ -199,13 +199,20 @@ private fun watchingRow(key: String, row: TvosContinueWatchingRow) = WatchingRow
 private fun watchingCard(item: TvosContinueWatchingItem) = WatchingCard(
     key = item.key,
     title = item.title,
-    details = listOfNotNull(item.subtitle, item.progressLabel).filter(String::isNotEmpty),
+    details = listOfNotNull(episodeCode(item.target) ?: item.subtitle, item.progressLabel).filter(String::isNotEmpty),
     progressLabel = item.progressLabel,
     imageUrl = item.imageUrl,
     progressFraction = item.progressFraction,
     isNextUp = item.isNextUp,
     target = item.target
 )
+
+/** "S1, E2" as on Apple's cards (`03-sidebar-down.png`), so the band fits; null for a movie. */
+internal fun episodeCode(target: TvosStreamTarget): String? {
+    val season = target.seasonNumber ?: return null
+    val episode = target.episodeNumber ?: return null
+    return "S$season, E$episode"
+}
 
 /** This list, with each element that equals its keyed match in [previous] replaced by that instance. */
 private fun <T : Any> List<T>.reusing(previous: List<T>, key: (T) -> String): List<T> {
