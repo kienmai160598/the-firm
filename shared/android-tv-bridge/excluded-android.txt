@@ -1,0 +1,48 @@
+androidMain/kotlin/com/nuvio/app/core/ui/AppIconPainter.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/ui/ArtworkBackdrop.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/ui/BackdropFocus.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/ui/FloatingNavigationBar.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/ui/NativeBottomSheet.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/ui/PlatformImageLoader.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/ui/PlatformInsets.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/details/components/BackdropPaletteImage.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/home/components/CollectionCardRemoteImage.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/player/AudioOutputKey.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/player/PlayerEngine.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/player/PlayerPlatformEffects.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/settings/IntegrationLogoPainter.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/simkl/SimklBrandPainter.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/trakt/TraktBrandPainter.android.kt	actual of an expect in a file the tvOS lists exclude
+androidPlaystore/kotlin/com/nuvio/app/features/details/components/HeroTrailerPlayerSurface.android.kt	actual of an expect in a file the tvOS lists exclude
+androidPlaystore/kotlin/com/nuvio/app/features/settings/PluginsSettingsPage.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/MainActivity.kt	phone Activity: splash, edge to edge, App() composable
+androidMain/kotlin/com/nuvio/app/LinkActivity.kt	phone deep link Activity
+androidMain/kotlin/com/nuvio/app/NuvioApplication.kt	phone Application: coil image loader setup
+androidMain/kotlin/com/nuvio/app/core/ui/AshSwarmRenderer.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/player/SubtitleFonts.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/features/settings/AppIconPlatform.android.kt	actual of an expect in a file the tvOS lists exclude
+androidMain/kotlin/com/nuvio/app/core/diagnostics/SentryInitializer.kt	phone crash reporting start, needs sentry-android; not called by the TV app
+androidMain/kotlin/com/nuvio/app/core/ui/glass/GlassBarSurface.kt	phone UI: glass navigation bar (compose foundation, haze)
+androidMain/kotlin/com/nuvio/app/core/ui/jelly/JellyTabs.kt	phone UI: jelly tab bar (compose material3)
+androidMain/kotlin/com/nuvio/app/features/autosync/AutoSyncLibmpvCoordinator.android.kt	player UI: mpv and compose LocalContext, AutoSyncMpvCoordinator is excluded on both TVs
+androidMain/kotlin/com/nuvio/app/features/autosync/AutoSyncPlayerCoordinator.android.kt	needs AutoSyncSyncedSubtitle (excluded common) and PlayerSidecarSubtitles
+androidMain/kotlin/com/nuvio/app/features/autosync/AutoSyncPlayerEngineController.android.kt	player UI: compose LocalContext, needs AutoSyncPlayerCoordinator
+androidMain/kotlin/com/nuvio/app/features/autosync/AutoSyncSidecarBridge.android.kt	needs PlayerSidecarSubtitles (excluded)
+androidMain/kotlin/com/nuvio/app/features/downloads/AndroidDownloadScheduler.kt	downloads: WorkManager scheduling
+androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsTransferWorker.kt	downloads: WorkManager worker
+androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.android.kt	downloads: notification with phone R and AppIconPlatform; bridge stub in src/androidMain
+androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsNotificationActionReceiver.kt	downloads: notification actions, needs AndroidDownloadScheduler
+androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsTransferJobService.kt	downloads: foreground job service, needs AndroidDownloadScheduler
+androidMain/kotlin/com/nuvio/app/features/notifications/EpisodeReleaseNotificationPlatform.android.kt	notification permission, WorkManager, Activity binding; bridge stub in src/androidMain
+androidMain/kotlin/com/nuvio/app/features/notifications/EpisodeReleaseNotificationWorker.android.kt	notifications: WorkManager worker
+androidMain/kotlin/com/nuvio/app/features/player/CustomDefaultTrackNameProvider.kt	player UI: media3 lib-ui DefaultTrackNameProvider, lib-ui is not linked
+androidMain/kotlin/com/nuvio/app/features/player/MpvErrorLog.kt	mpv engine (is.xyz.mpv), a fallback engine after cutover
+androidMain/kotlin/com/nuvio/app/features/player/MpvSurfaceView.android.kt	mpv engine (is.xyz.mpv), a fallback engine after cutover
+androidMain/kotlin/com/nuvio/app/features/player/PlayerNowPlayingController.android.kt	media session notification with phone R resources
+androidMain/kotlin/com/nuvio/app/features/player/PlayerPictureInPictureManager.android.kt	picture in picture, needs ComponentActivity and phone R
+androidMain/kotlin/com/nuvio/app/features/player/PlayerSidecarSubtitles.kt	player UI: media3 SubtitleView and phone R
+androidMain/kotlin/com/nuvio/app/features/player/SubtitleCuePresenter.kt	player UI: compose text subtitle rendering
+androidMain/kotlin/com/nuvio/app/features/player/PlayerSubtitleRouting.android.kt	needs SubtitleRequestHeaderDataSourceFactory from the excluded PlayerEngine.android.kt
+androidPlaystore/kotlin/com/nuvio/app/features/player/PlatformPlaybackDataSourceFactory.android.kt	needs SubtitleRequestHeaderDataSourceFactory from the excluded PlayerEngine.android.kt
+androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.android.kt	downloads: needs AndroidDownloadScheduler (WorkManager); bridge stub in src/androidMain
+androidMain/kotlin/com/nuvio/app/features/player/PlaybackErrorMessages.kt	needs MpvNonHttpExplanationKind from the excluded MpvErrorLog.kt (mpv)
