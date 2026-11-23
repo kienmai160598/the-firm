@@ -557,10 +557,8 @@ class PlayerRuntimeController(
     internal var torrentBackgroundResume: TorrentBackgroundResume? = null
 
     internal var skipIntervals: List<SkipInterval> = emptyList()
-    internal var chapterSkipIntervals: List<SkipInterval> = emptyList()
     internal var apiSkipIntervals: List<SkipInterval> = emptyList()
-    internal var skipDetectionChapters: List<PlayerChapter> = emptyList()
-    internal var skipChaptersComputedForDuration: Long = 0L
+    internal val chapterSkipDetection = ChapterSkipDetection()
     internal var skipIntroEnabled: Boolean = true
     internal var parentalGuideEnabled: Boolean = false
     internal var autoSkipSegmentTypes: Set<AutoSkipSegmentType> = emptySet()

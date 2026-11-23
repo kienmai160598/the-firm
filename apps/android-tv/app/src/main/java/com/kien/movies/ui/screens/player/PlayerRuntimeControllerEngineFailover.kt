@@ -64,7 +64,7 @@ internal fun PlayerRuntimeController.maybeAutoSwitchInternalPlayerOnStartupError
             playerEngineSwitchInfoText = switchMessage
         )
     }
-    clearChapterSkipState()
+    chapterSkipDetection.clear()
     recomputeMergedSkipIntervals()
 
     val switchingToMpv = targetEngine == InternalPlayerEngine.MVP_PLAYER
@@ -135,7 +135,7 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
             playerEngineSwitchInfoText = switchMessage
         )
     }
-    clearChapterSkipState()
+    chapterSkipDetection.clear()
     recomputeMergedSkipIntervals()
 
     val switchingToMpv = targetEngine == InternalPlayerEngine.MVP_PLAYER

@@ -182,7 +182,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
                 showChaptersPanel = false
             )
         }
-        clearChapterSkipState()
+        chapterSkipDetection.clear()
         recomputeMergedSkipIntervals()
         cancelPauseOverlay()
         startProgressUpdates()

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 internal fun PlayerRuntimeController.refreshMpvChapters(view: MoviesMpvSurfaceView) {
     val showChapters = _uiState.value.chaptersEnabled
     if (mpvChaptersStreamUrl == currentStreamUrl &&
-        skipDetectionChapters.isNotEmpty() &&
+        chapterSkipDetection.hasChapters &&
         (!showChapters || _uiState.value.chapters.isNotEmpty())
     ) {
         return
@@ -96,46 +96,21 @@ internal fun PlayerRuntimeController.loadExoChapters() {
     }
 }
 
-/**
- * Store raw chapters for skip detection (independent of UI list) and compute intervals
- * if duration is already known. The raw chapters are kept so they survive the UI list
- * being cleared (e.g. chapters panel off on Exo) and can be recomputed when skip intro
- * is toggled on or the duration becomes available.
- */
 private fun PlayerRuntimeController.onChaptersLoaded(chapters: List<PlayerChapter>) {
-    skipDetectionChapters = chapters
-    skipChaptersComputedForDuration = 0L
+    chapterSkipDetection.load(chapters)
     if (skipIntroEnabled) {
         tryComputeChapterSkipIntervals()
     }
 }
 
-/**
- * Compute chapter skip intervals if the duration is known and we haven't already done so
- * for this stream at this duration. Sets a flag to avoid re-running regexes on every tick.
- */
-private fun PlayerRuntimeController.tryComputeChapterSkipIntervals(): Boolean {
-    val chapters = skipDetectionChapters.takeIf { it.size >= 2 } ?: return false
-    val durationMs = _playbackTimeline.value.duration.takeIf { it > 0L } ?: return false
-    if (skipChaptersComputedForDuration == durationMs) return false
-    skipChaptersComputedForDuration = durationMs
-    chapterSkipIntervals = ChapterSkipIntervals.fromChapters(chapters, durationMs)
-    recomputeMergedSkipIntervals()
-    return true
+private fun PlayerRuntimeController.tryComputeChapterSkipIntervals() {
+    if (chapterSkipDetection.computeIntervals(_playbackTimeline.value.duration)) {
+        recomputeMergedSkipIntervals()
+    }
 }
 
-/**
- * Called from the playback tick. Retries chapter interval computation once the duration
- * becomes known, then stops. Guarded by skipIntroEnabled.
- */
 internal fun PlayerRuntimeController.recomputeChapterSkipIntervalsIfNeeded() {
     if (!skipIntroEnabled) return
-    if (skipChaptersComputedForDuration > 0L) return // already computed for this stream
+    if (chapterSkipDetection.isComputed) return
     tryComputeChapterSkipIntervals()
-}
-
-internal fun PlayerRuntimeController.clearChapterSkipState() {
-    skipDetectionChapters = emptyList()
-    chapterSkipIntervals = emptyList()
-    skipChaptersComputedForDuration = 0L
 }

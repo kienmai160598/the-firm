@@ -560,8 +560,7 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
                 if (skipIntervals.isNotEmpty() || _uiState.value.activeSkipInterval != null) {
                     skipIntervals = emptyList()
                     apiSkipIntervals = emptyList()
-                    chapterSkipIntervals = emptyList()
-                    skipChaptersComputedForDuration = 0L
+                    chapterSkipDetection.forgetIntervals()
                     skipIntroFetchedKey = null
                     autoSkippedIntervalKeys.clear()
                     _uiState.update {
@@ -783,7 +782,11 @@ private fun PlayerRuntimeController.setApiSkipIntervals(api: List<SkipInterval>)
 /** Recompute the merged skipIntervals from chapters (priority) + API (gap-fill). */
 internal fun PlayerRuntimeController.recomputeMergedSkipIntervals() {
     val isMovie = contentType.equals("movie", ignoreCase = true)
-    val merged = mergeSkipIntervals(apiSkipIntervals, chapterSkipIntervals, isMovie = isMovie)
+    val merged = mergeSkipIntervals(
+        apiSkipIntervals,
+        chapterSkipDetection.intervals,
+        isMovie = isMovie
+    )
     if (merged == skipIntervals) return
     skipIntervals = merged
 }

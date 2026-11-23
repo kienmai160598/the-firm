@@ -1190,7 +1190,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(stream: Stream) {
         pendingResumeProgress = null
         _uiState.update { it.copy(pendingSeekPosition = resumePositionMs) }
     }
-    clearChapterSkipState()
+    chapterSkipDetection.clear()
     recomputeMergedSkipIntervals()
     showStreamSourceIndicator(stream)
     resetPostPlayOverlayState(clearEpisode = false)
@@ -1327,7 +1327,7 @@ private fun PlayerRuntimeController.switchToTorrentSourceStream(stream: Stream) 
             isTorrentStream = true
         )
     }
-    clearChapterSkipState()
+    chapterSkipDetection.clear()
     recomputeMergedSkipIntervals()
     applyStreamMetadata(stream)
     currentFilename = stream.behaviorHints?.filename
@@ -2013,7 +2013,7 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
     playbackStartedForParentalGuide = false
     skipIntervals = emptyList()
     apiSkipIntervals = emptyList()
-    clearChapterSkipState()
+    chapterSkipDetection.clear()
     skipIntroFetchedKey = null
     lastActiveSkipType = null
     autoSkippedIntervalKeys.clear()
@@ -2135,7 +2135,7 @@ private fun PlayerRuntimeController.switchToEpisodeStreamCommon(
     playbackStartedForParentalGuide = false
     skipIntervals = emptyList()
     apiSkipIntervals = emptyList()
-    clearChapterSkipState()
+    chapterSkipDetection.clear()
     skipIntroFetchedKey = null
     lastActiveSkipType = null
     autoSkippedIntervalKeys.clear()
