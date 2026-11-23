@@ -149,11 +149,9 @@ private struct HeroDetails: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
             HeroTitle(name: item.name, logoUrl: item.logoUrl)
-            if !metadataLine.isEmpty {
-                Text(metadataLine)
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.8))
-            }
+            MetadataLine(facts: facts, imdbRating: item.imdbRating, badgeFontSize: 24)
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.8))
             if let overview = item.overview {
                 Text(overview)
                     .font(.callout)
@@ -162,10 +160,11 @@ private struct HeroDetails: View {
             }
             RouteLink(value: AppRoute.details(type: item.type, id: item.metaId)) {
                 Label("Watch Now", systemImage: "play.fill")
-                    .font(.headline)
-                    .padding(.horizontal, 12)
+                    .font(.body.weight(.semibold))
+                    .padding(.horizontal, 8)
             }
             .glassProminentButtonStyle()
+            .controlSize(.small)
             .focused(focusedId, equals: item.metaId)
             .accessibilityIdentifier("homeHeroButton")
             .accessibilityValue(item.name)
@@ -174,13 +173,10 @@ private struct HeroDetails: View {
         .frame(maxWidth: 860, alignment: .leading)
     }
 
-    private var metadataLine: String {
+    private var facts: [String] {
         let kind = item.type == "series" ? "TV Show" : "Movie"
-        let rating = item.imdbRating.map { "IMDb \($0)" }
         let genres = item.genres.prefix(2).joined(separator: ", ")
-        return [kind, item.releaseInfo, genres.isEmpty ? nil : genres, rating]
-            .compactMap { $0 }
-            .joined(separator: " · ")
+        return [kind, item.releaseInfo, genres.isEmpty ? nil : genres].compactMap { $0 }
     }
 }
 

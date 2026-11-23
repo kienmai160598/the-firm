@@ -21,6 +21,7 @@ final class ContinueWatchingTests: XCTestCase {
         playEpisode(from: "Play S1 E1", seconds: 6)
 
         XCTAssertTrue(tv.button(beginningWith: "Resume S1 E1").waitForExistence(timeout: 10))
+        tv.screenshot("details-resume")
         XCTAssertTrue(episodeValue(1).hasSuffix("% watched"), "E1: \(episodeValue(1))")
     }
 
@@ -49,6 +50,7 @@ final class ContinueWatchingTests: XCTestCase {
         XCTAssertTrue(seriesCard.waitForExistence(timeout: 60))
         XCTAssertTrue((seriesCard.value as? String ?? "").hasSuffix("left"))
         tv.focusCard(seriesCard)
+        tv.screenshot("home-cw-card")
         tv.remote.press(.select)
         let stream = tv.button(containing: Self.episodeStream)
         XCTAssertTrue(stream.waitForExistence(timeout: 30))

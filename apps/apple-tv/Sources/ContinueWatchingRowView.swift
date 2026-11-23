@@ -92,7 +92,7 @@ private struct ContinueWatchingCard: View {
             Text(item.title)
                 .font(.system(size: 26, weight: .semibold))
                 .lineLimit(1)
-            Text(detailLine)
+            FactLine(facts: details)
                 .font(.system(size: 22))
                 .foregroundStyle(.white.opacity(0.55))
                 .lineLimit(1)
@@ -100,26 +100,27 @@ private struct ContinueWatchingCard: View {
         .frame(width: Self.width, alignment: .leading)
     }
 
-    private var detailLine: String {
+    private var details: [String] {
         [item.subtitle, item.progressLabel]
             .compactMap { $0 }
             .filter { !$0.isEmpty }
-            .joined(separator: "  ·  ")
     }
 }
 
 struct WatchProgressBar: View {
     let fraction: Double
+    var track: Color = .black.opacity(0.55)
+    var height: CGFloat = 8
 
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
-                Capsule().fill(.black.opacity(0.55))
+                Capsule().fill(track)
                 Capsule()
                     .fill(.white)
                     .frame(width: geometry.size.width * min(max(fraction, 0), 1))
             }
         }
-        .frame(height: 8)
+        .frame(height: height)
     }
 }

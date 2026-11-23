@@ -142,8 +142,8 @@ private struct EpisodeCard: View {
                     .foregroundStyle(.white.opacity(0.6))
                     .lineLimit(3)
             }
-            if !detailLine.isEmpty {
-                Text(detailLine)
+            if !details.isEmpty {
+                FactLine(facts: details)
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(.white.opacity(0.45))
                     .lineLimit(1)
@@ -183,10 +183,8 @@ private struct EpisodeCard: View {
             .joined(separator: "  ")
     }
 
-    private var detailLine: String {
+    private var details: [String] {
         let upcoming: String? = episode.isReleased ? nil : "Upcoming"
-        return [upcoming, episode.releaseDate, episode.runtime]
-            .compactMap { $0 }
-            .joined(separator: "  ·  ")
+        return [upcoming, episode.releaseDate, episode.runtime].compactMap { $0 }
     }
 }
