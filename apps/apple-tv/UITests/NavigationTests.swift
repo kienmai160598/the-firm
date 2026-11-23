@@ -61,6 +61,26 @@ final class NavigationTests: XCTestCase {
         XCTAssertTrue(tv.app.wait(for: .runningBackground, timeout: 10))
     }
 
+    func testTypingATitleInSearchShowsItsPoster() {
+        tv.launch(withTestAddon: false)
+        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
+        tv.focusHero()
+        tv.remote.press(.menu)
+        XCTAssertTrue(waitForTab("Home"))
+        tv.remote.press(.down)
+        XCTAssertTrue(waitForTab("Search"), "Focused \(tv.focusedTabTitle)")
+        tv.remote.press(.select)
+        let field = tv.app.searchFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        let keyboard = NSPredicate(format: "label == %@", "Keyboard")
+        XCTAssertTrue(tv.waitUntil(tv.focused, keyboard, timeout: 5), "Focused \(tv.focusedLabel)")
+
+        field.typeText("Breaking Bad")
+
+        XCTAssertTrue(tv.button(containing: "Breaking Bad").waitForExistence(timeout: 30))
+        tv.screenshot("search-results")
+    }
+
     func testPosterOpensDetailsThenStreamsAndMenuReturnsToTheSameCard() {
         tv.launch(withTestAddon: false)
         XCTAssertTrue(tv.app.staticTexts[Self.popularMovies].waitForExistence(timeout: 60))

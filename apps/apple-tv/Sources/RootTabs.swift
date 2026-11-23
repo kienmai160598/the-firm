@@ -31,8 +31,9 @@ enum RootTab: Hashable, CaseIterable {
     var screen: some View {
         switch self {
         case .home: HomeView()
+        case .search: SearchView()
         case .addons: AddonsView()
-        case .search, .library, .settings: PlaceholderView(title: title)
+        case .library, .settings: PlaceholderView(title: title)
         }
     }
 }
@@ -44,8 +45,10 @@ struct SidebarTabs: View {
     var body: some View {
         TabView(selection: $selection) {
             ForEach(RootTab.allCases, id: \.self) { tab in
-                Tab(tab.title, systemImage: tab.symbol, value: tab) {
-                    tab.screen
+                if tab == .search {
+                    Tab(value: tab, role: .search) { tab.screen }
+                } else {
+                    Tab(tab.title, systemImage: tab.symbol, value: tab) { tab.screen }
                 }
             }
         }
