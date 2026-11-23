@@ -1,6 +1,8 @@
 package com.kien.movies.search
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
@@ -44,8 +46,20 @@ class SearchViewModel internal constructor(
     /** Call before opening a result: records the current query as a recent search. */
     fun resultOpened() = queries.resultOpened(query.text.toString())
 
-    /** A recent search was picked: it becomes the query, which searches it after the pause. */
-    fun pickRecentSearch(recentQuery: String) = query.setTextAndPlaceCursorAtEnd(recentQuery)
+    /** A recent search or a suggestion was picked: it becomes the query, searched after the pause. */
+    fun pickQuery(text: String) = query.setTextAndPlaceCursorAtEnd(text)
+
+    /** A key of the on-screen keyboard: appends [text] at the end of the query. */
+    fun type(text: String) = query.edit {
+        append(text)
+        placeCursorAtEnd()
+    }
+
+    /** The keyboard's delete key: drops the last character, if any. */
+    fun deleteLast() = query.edit {
+        if (length > 0) delete(length - 1, length)
+        placeCursorAtEnd()
+    }
 
     fun removeRecentSearch(recentQuery: String) = queries.removeRecentSearch(recentQuery)
 
