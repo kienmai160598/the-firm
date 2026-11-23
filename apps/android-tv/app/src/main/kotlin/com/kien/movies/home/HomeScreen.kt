@@ -7,15 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,6 +33,7 @@ import com.kien.movies.design.SemanticsForScreenReaders
 import com.kien.movies.design.dpadRepeatThrottle
 import com.kien.movies.design.prunesUnreadSemantics
 import com.kien.movies.shell.AppRoute
+import com.kien.movies.shell.LocalNavPillState
 import com.kien.movies.shell.Router
 
 /**
@@ -61,6 +65,7 @@ fun HomeScreen(router: Router) {
 @Composable
 private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove: (String) -> Unit) {
     val listState = rememberLazyListState()
+    ReportsScrollToNavPill(listState)
     val focusMemory = rememberSaveable(saver = HomeFocusMemory.Saver) { HomeFocusMemory() }
     val homeFocus = remember { FocusRequester() }
     val heroHasFocus = remember { mutableStateOf(false) }
@@ -146,3 +151,16 @@ private const val CATALOG_ROW_TYPE = "catalog-row"
 
 // Room under the last shelf so its posters can be centred too: half the screen minus half a poster.
 private val LIST_BOTTOM_PADDING = 175.dp
+
+/** Hides the shell's collapsed pill while the page is scrolled away from the hero (RootTabs). */
+@Composable
+private fun ReportsScrollToNavPill(listState: LazyListState) {
+    val pillState = LocalNavPillState.current
+    LaunchedEffect(listState, pillState) {
+        snapshotFlow { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+            .collect { isScrolled -> pillState.isContentScrolled = isScrolled }
+    }
+    DisposableEffect(pillState) {
+        onDispose { pillState.isContentScrolled = false }
+    }
+}

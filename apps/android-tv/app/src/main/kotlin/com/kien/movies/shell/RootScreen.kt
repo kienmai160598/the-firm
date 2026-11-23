@@ -96,6 +96,7 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
             selected = route.tab,
             drawerState = drawerState,
             selectedTabFocus = selectedTabFocus,
+            contentFocus = contentFocus,
             onSelect = { tab ->
                 router.selectTab(tab)
                 contentFocusTick++
