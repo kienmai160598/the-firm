@@ -147,7 +147,6 @@
     <string name="cw_percent_watched">已觀看 %1$d%%</string>
     <string name="cw_hours_min_left">剩餘 %1$dh %2$dm</string>
     <string name="cw_min_left">剩餘 %1$dm</string>
-    <string name="cw_almost_done">即將完成</string>
     <string name="cw_airs_date">播出時間 %1$s</string>
     <string name="cw_airs_today">今日播出</string>
     <string name="cw_airs_tomorrow">明日播出</string>
@@ -177,7 +176,6 @@
     <string name="hero_director">導演：%1$s</string>
     <string name="hero_writer">編劇：%1$s</string>
     <string name="hero_play">播放</string>
-    <string name="hero_play_episode">播放 S%1$d E%2$d</string>
     <string name="hero_add_to_library">加入媒體庫</string>
     <string name="hero_remove_from_library">從媒體庫移除</string>
     <string name="hero_mark_watched">標記為已觀看</string>
@@ -186,7 +184,6 @@
     <string name="hero_press_back_trailer">按下返回鍵退出預告片</string>
     <string name="hero_synopsis_read_more">閱讀更多</string>
     <string name="hero_synopsis_dismiss_hint">按返回鍵關閉</string>
-    <string name="cd_rating">評分</string>
 
     <string name="episodes_season">第 %1$d 季</string>
     <string name="episodes_specials">特別篇</string>
@@ -247,10 +244,8 @@
     <string name="detail_section_production">製作公司</string>
     <string name="detail_comments_empty">尚無 Trakt 評論。</string>
     <string name="detail_comments_error">目前無法載入 Trakt 評論。</string>
-    <string name="detail_trailer_loading">正在載入預告片…</string>
     <string name="detail_trailer_error">目前無法載入預告片。</string>
     <string name="detail_comments_spoiler_hidden">此評論包含劇透。按下確認鍵以顯示。</string>
-    <string name="detail_comments_reveal_spoiler">顯示劇透</string>
     <string name="detail_comments_reveal_spoiler_hint">按下確認鍵以顯示劇透。</string>
     <string name="detail_comments_back_hint">點擊返回鍵關閉</string>
     <string name="detail_comments_badge_review">評論</string>
@@ -407,10 +402,7 @@
     <string name="update_channel_dialog_subtitle">選擇您要接收的更新類型</string>
     <string name="update_channel_stable_description">適合日常使用。</string>
     <string name="update_channel_beta_description">早期更新，可能包含錯誤、破壞功能或出現異常行為。</string>
-    <string name="about_privacy_policy">隱私權政策</string>
-    <string name="about_privacy_policy_subtitle">檢視我們的隱私權政策</string>
     <string name="support_nuvio_name">支持 Movies</string>
-    <string name="about_supporters_contributors">支持 Movies</string>
     <string name="about_supporters_contributors_subtitle">支持專案並查看社群致謝</string>
     <string name="about_licenses_attributions">授權與出處</string>
     <string name="about_licenses_attributions_subtitle">資料來源、致謝與 Android 授權</string>
@@ -454,11 +446,8 @@
     <string name="settings_content_discovery_subtitle">擴充套件、外掛、目錄與探索來源</string>
     <string name="settings_content_discovery_addons_subtitle">管理擴充套件、目錄順序和收藏</string>
     <string name="settings_content_discovery_plugins_subtitle">管理倉庫和串流提供者</string>
-    <string name="settings_plugins">外掛</string>
-    <string name="settings_plugins_subtitle">倉庫與提供者</string>
     <string name="settings_integration">整合</string>
     <string name="settings_playback">播放</string>
-    <string name="settings_trakt_subtitle">開啟 Trakt 連線畫面</string>
     <string name="settings_tracking_title">追蹤</string>
     <string name="settings_tracking_description">連接追蹤提供者，並選擇由哪一個為您提供媒體庫和繼續觀看資料。</string>
     <string name="tracking_accounts_title">帳戶</string>
@@ -486,8 +475,6 @@
     <string name="tracking_trakt_progress_required">當 Trakt 為觀看進度來源時可用</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">網路速度</string>
-    <string name="settings_network_subtitle">延遲與下載診斷</string>
     <string name="settings_advanced">進階</string>
     <string name="settings_advanced_subtitle">效能、導航、快取與診斷</string>
     <string name="experience_mode_essential">基礎模式</string>
@@ -593,19 +580,10 @@
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">快速水平導航</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">提高 D-pad 在行內的重複速度，同時保留重複節流功能。</string>
-    <string name="advanced_nuvio_performance_mode">ExoPlayer 原生記憶體</string>
-    <string name="advanced_nuvio_performance_mode_subtitle">啟用高效能原生分配器、堆外記憶體和網路優化，實現更流暢的播放</string>
-    <string name="buffer_device_ram_info">裝置記憶體：%s</string>
-    <string name="buffer_safe_limit_info">建議安全限制：%d MB</string>
-    <string name="buffer_safe_status">安全：在您裝置的建議限制內。</string>
-    <string name="buffer_unsafe_warning">警告：超出您的 %2$s 裝置的建議安全限制 (%1$d MB)。可能導致應用程式崩潰。</string>
-    <string name="buffer_auto_limit_active">自動縮放安全限制：%d MB</string>
     <string name="advanced_nuvio_focus_scroll">Movies 焦點滾動</string>
     <string name="advanced_nuvio_focus_scroll_subtitle">使用 Movies 的自訂全域焦點滾動動畫和定位。</string>
     <string name="advanced_rgb565">RGB565 影像解碼</string>
     <string name="advanced_rgb565_subtitle">對符合條件的非透明影像使用更低記憶體的 16 位元色彩。變更此項會重新啟動應用程式。</string>
-    <string name="advanced_memory_only_vertical_scroll">僅記憶體垂直滾動</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">在垂直滾動首頁行時跳過磁碟和網路的圖片請求。</string>
     <string name="advanced_compose_highlighter">Compose 高亮器</string>
     <string name="advanced_compose_highlighter_subtitle">為重組的 UI 元素閃爍邊框，用於效能除錯。</string>
     <string name="advanced_clear_cw_cache">清除繼續觀看快取</string>
@@ -617,7 +595,6 @@
     <string name="advanced_confirm_exit_subtitle">退出時完全終止應用程式並釋放記憶體。需要按兩次返回鍵以確認。</string>
     <string name="confirm_exit_toast">再按一次返回鍵退出</string>
     <string name="settings_debug">除錯</string>
-    <string name="settings_plugins_section_subtitle">管理倉庫、提供者和外掛狀態</string>
     <string name="settings_account_section_subtitle">帳戶與同步狀態</string>
     <string name="account_stat_addons">擴充套件</string>
     <string name="account_stat_plugins">外掛</string>
@@ -643,18 +620,6 @@
     <string name="action_back">返回</string>
     <string name="action_close">關閉</string>
 
-    <string name="supporters_contributors_title">支持 Movies</string>
-    <string name="supporters_contributors_subtitle">支持 Movies 的人們，以及在電視和行動裝置上共同建構的貢獻者。</string>
-    <string name="supporters_contributors_supporters_copy">支持者和捐贈者幫助專案持續推進，資助基礎設施，並為雄心勃勃的功能創造空間。</string>
-    <string name="supporters_contributors_donate_copy">Movies 將保持免費和開源。如果您想支持專案，可以幫助支付其背後的時間和基礎設施費用。</string>
-    <string name="supporters_contributors_donation_progress_title">本月的伺服器與維護</string>
-    <string name="supporters_contributors_donation_progress_complete">已覆蓋。額外的支持現在用於開發。</string>
-    <string name="supporters_contributors_donation_progress_remaining">達到 100% 後，額外的支持將用於開發。</string>
-    <string name="supporters_contributors_loading_donation_progress">正在載入資金進度...</string>
-    <string name="supporters_contributors_donate_button">支持 Movies</string>
-    <string name="supporters_contributors_qr_title">掃描以支持</string>
-    <string name="supporters_contributors_qr_subtitle">在手機上開啟連結以支持 Movies。</string>
-    <string name="supporters_contributors_qr_hint">將相機對準 QR 碼或使用下方的按鈕。</string>
     <string name="supporters_contributors_back_button">返回詳情</string>
     <string name="supporter_membership_title">Movies 支持者會員</string>
     <string name="supporter_membership_description">支持 Movies 有助於支付基礎設施和持續開發的費用，同時讓核心體驗對所有人保持免費。</string>
@@ -682,7 +647,6 @@
     <string name="supporters_loading">正在載入支持者…</string>
     <string name="supporters_empty">尚未找到支持者。</string>
     <string name="supporters_error_title">無法載入支持者</string>
-    <string name="supporters_no_message">未分享訊息。</string>
     <string name="supporters_level_supporter">支持者</string>
     <string name="supporters_level_supporter_plus">支持者+</string>
     <string name="supporters_since">自 %1$s 起支持 Movies</string>
@@ -697,7 +661,6 @@
     <string name="contributors_loading">正在載入 GitHub 貢獻者…</string>
     <string name="contributors_empty">尚未找到貢獻者。</string>
     <string name="contributors_error_title">無法載入貢獻者</string>
-    <string name="contributors_total_contributions">共 %1$d 次貢獻</string>
     <string name="contributors_open_github">開啟 GitHub 個人檔案</string>
     <string name="contributors_show_kofi_qr">顯示 Ko-fi QR 碼</string>
     <string name="contributors_hide_kofi_qr">隱藏 Ko-fi QR 碼</string>
@@ -764,7 +727,6 @@
     <string name="playback_engine_mvplayer_desc">使用帶有 Movies OSD 控制的 libmpv。實驗性功能。</string>
 
     <string name="video_section">影片</string>
-    <string name="audio_trailer_section">預告片</string>
     <string name="audio_autoplay_trailers">自動播放預告片</string>
     <string name="audio_autoplay_trailers_sub">在詳情和播放後畫面自動播放預告片</string>
     <string name="audio_trailer_delay">預告片延遲</string>
@@ -844,7 +806,6 @@
     <string name="audio_decoder_prefer_app_desc">優先使用 FFmpeg 解碼器。格式支援更好，但 CPU 使用率較高。</string>
     <string name="audio_decoder_controls">控制音訊和影片使用硬體或軟體 (FFmpeg) 解碼器</string>
 
-    <string name="sub_section">字幕</string>
     <string name="sub_not_set">未設定</string>
     <string name="sub_forced_lang">強制</string>
     <string name="sub_preferred_lang">偏好語言</string>
@@ -855,7 +816,6 @@
     <string name="sub_show_only_preferred_languages_desc">從選擇清單中隱藏所有其他字幕語言</string>
     <string name="sub_strip_sdh">移除 SDH 字幕</string>
     <string name="sub_strip_sdh_desc">從文字字幕中隱藏聲音描述和說話者標籤</string>
-    <string name="sub_organization">字幕排序</string>
     <string name="sub_size">大小</string>
     <string name="sub_vertical_offset">垂直偏移</string>
     <string name="sub_bold">粗體</string>
@@ -868,13 +828,6 @@
     <string name="sub_advanced_section">進階字幕渲染</string>
     <string name="sub_libass">對 ASS/SSA 字幕使用 libass</string>
     <string name="sub_libass_sub">實驗性：進階 ASS/SSA 渲染 (樣式、定位、動畫)</string>
-    <string name="sub_libass_mode">Libass 渲染模式</string>
-    <string name="sub_org_none">無 (預設順序)</string>
-    <string name="sub_org_by_lang">依語言</string>
-    <string name="sub_org_by_addon">依擴充套件</string>
-    <string name="sub_org_none_desc">以擴充套件預設順序顯示字幕。</string>
-    <string name="sub_org_by_lang_desc">依語言分組字幕。</string>
-    <string name="sub_org_by_addon_desc">依擴充套件來源分組字幕。</string>
 
     <string name="autoplay_reuse_last_link">重複使用上次連結</string>
     <string name="autoplay_reuse_last_link_sub">當快取仍有效時，自動播放同一部電影/集數的上次可用串流</string>
@@ -906,7 +859,6 @@
     <string name="autoplay_threshold_pct_title">觸發百分比</string>
     <string name="autoplay_threshold_pct_sub">當沒有片尾時間戳時的備用方案。</string>
     <string name="autoplay_threshold_min_title">觸發分鐘數</string>
-    <string name="autoplay_threshold_min_sub">當沒有片尾時間戳時的備用方案。</string>
     <string name="autoplay_scope_all">所有來源</string>
     <string name="autoplay_scope_addons">僅已安裝的擴充套件</string>
     <string name="autoplay_scope_plugins">僅已啟用的外掛</string>
@@ -946,8 +898,6 @@
     <string name="layout_section_home_desc">選擇結構和焦點區塊來源。</string>
     <string name="layout_landscape_posters">橫向海報</string>
     <string name="layout_landscape_posters_sub">在現代檢視中切換直式和橫式卡片。</string>
-    <string name="layout_preview_row">顯示預覽列</string>
-    <string name="layout_preview_row_sub">在現代首頁佈局中顯示下方列的局部預覽。</string>
     <string name="layout_hero_catalogs">焦點區塊目錄</string>
     <string name="layout_hero_catalogs_sub">選擇一個或多個目錄作為焦點區塊內容。</string>
     <string name="layout_section_content">首頁內容</string>
@@ -1088,8 +1038,6 @@
     <string name="layout_preset_balanced">平衡</string>
     <string name="layout_preset_comfort">舒適</string>
     <string name="layout_preset_large">大</string>
-    <string name="layout_memory_only_scroll">僅記憶體垂直滾動</string>
-    <string name="layout_memory_only_scroll_sub">垂直滾動時跳過載入新圖片。</string>
     <string name="layout_preset_sharp">銳利</string>
     <string name="layout_preset_subtle">柔和</string>
     <string name="layout_preset_classic">經典</string>
@@ -1151,28 +1099,10 @@
     <string name="mdblist_enable_title">啟用 MDBList 評分</string>
     <string name="mdblist_enable_subtitle">在中繼資料詳情畫面中從外部提供者獲取評分</string>
     <string name="mdblist_api_key_title">API 金鑰</string>
-    <string name="mdblist_api_key_subtitle">從 MDBList 獲取評分所需</string>
     <string name="mdblist_ratings_credentials_subtitle">使用您在「追蹤」中連接的 MDBList 帳戶，或為評分單獨輸入 API 金鑰。</string>
     <string name="mdblist_ratings_connected_account">使用已連接的帳戶</string>
     <string name="mdblist_ratings_key_override_subtitle">API 金鑰將覆蓋您已連接的帳戶用於評分。清除它以再次使用已連接的帳戶。</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">顯示 Trakt 分數</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">顯示 IMDb 分數 (並在可用時隱藏預設的 IMDb 行)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">顯示 TMDB 分數</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">顯示 Letterboxd 分數</string>
-    <string name="mdblist_tomatoes_title">爛番茄</string>
-    <string name="mdblist_tomatoes_subtitle">顯示評論家分數</string>
-    <string name="mdblist_audience_title">觀眾分數</string>
-    <string name="mdblist_audience_subtitle">顯示觀眾分數</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">顯示 Metacritic 分數</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">顯示 MyAnimeList 評分</string>
     <string name="mdblist_dialog_title">MDBList API 金鑰</string>
-    <string name="mdblist_dialog_subtitle">輸入您的 API 金鑰以獲取外部評分</string>
     <string name="mdblist_dialog_placeholder">輸入 MDBList API 金鑰</string>
     <string name="mdblist_not_set">未設定</string>
     <string name="mdblist_invalid_api_key">無效的 MDBList API 金鑰</string>
@@ -1191,25 +1121,11 @@
     <string name="debrid_section_instant_playback">連結準備</string>
     <string name="debrid_section_filters">過濾器與排序</string>
     <string name="debrid_section_formatting">格式設定</string>
-    <string name="debrid_provider_title">提供者</string>
-    <string name="debrid_provider_subtitle">其他提供者將在之後新增</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">連線您的 Torbox 帳戶。</string>
     <string name="debrid_provider_description">連線您的 %1$s 帳戶。</string>
     <string name="debrid_provider_device_description">在瀏覽器中連結您的 %1$s 帳戶。</string>
     <string name="debrid_api_key_dialog_title">%1$s API 金鑰</string>
     <string name="debrid_api_key_dialog_subtitle">輸入您的 %1$s API 金鑰。</string>
     <string name="debrid_api_key_dialog_placeholder">輸入 %1$s API 金鑰</string>
-    <string name="debrid_dialog_title">Torbox API 金鑰</string>
-    <string name="debrid_dialog_subtitle">輸入您的 Torbox API 金鑰。</string>
-    <string name="debrid_dialog_placeholder">輸入 Torbox API 金鑰</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid API 權杖</string>
-    <string name="debrid_real_debrid_api_key_subtitle">本地 Real-Debrid 連結解析所需</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid API 權杖</string>
-    <string name="debrid_real_debrid_dialog_subtitle">為 Direct Debrid 輸入您的 Real-Debrid API 權杖</string>
-    <string name="debrid_real_debrid_dialog_placeholder">輸入 Real-Debrid API 權杖</string>
     <string name="debrid_not_set">未設定</string>
     <string name="debrid_connected">已連線</string>
     <string name="debrid_connect_provider">連線 %1$s</string>
@@ -1218,14 +1134,11 @@
     <string name="debrid_device_auth_connected">%1$s 已在此裝置上連線。</string>
     <string name="debrid_device_auth_starting">正在啟動安全登入…</string>
     <string name="debrid_device_auth_instructions">掃描 QR 碼並輸入此代碼以批准 Movies。</string>
-    <string name="debrid_device_auth_code_copied">代碼已複製。</string>
     <string name="debrid_device_auth_waiting">正在等待批准…</string>
     <string name="debrid_device_auth_failed">無法啟動登入。</string>
     <string name="debrid_device_auth_missing_configuration">此登入方式未在此版本中配置。</string>
     <string name="debrid_device_auth_expired">此代碼已過期。請重試。</string>
     <string name="debrid_key_invalid">無法驗證此 API 金鑰。</string>
-    <string name="debrid_invalid_torbox_api_key">無法驗證此 API 金鑰。</string>
-    <string name="debrid_invalid_real_debrid_api_key">無法驗證此 API 金鑰。</string>
     <string name="debrid_prepare_instant_playback">準備連結</string>
     <string name="debrid_prepare_instant_playback_description">在播放開始前解析可播放連結。</string>
     <string name="debrid_prepare_stream_count">要準備的連結數</string>
@@ -1244,29 +1157,6 @@
     <string name="debrid_stream_sort_smallest">最小優先</string>
     <string name="debrid_stream_sort_best_audio">最佳音訊優先</string>
     <string name="debrid_stream_sort_language">語言優先</string>
-    <string name="debrid_stream_sort_default">原始順序</string>
-    <string name="debrid_stream_sort_quality">最佳品質優先</string>
-    <string name="debrid_stream_sort_size_desc">最大優先</string>
-    <string name="debrid_stream_sort_size_asc">最小優先</string>
-    <string name="debrid_stream_min_quality_title">最低品質</string>
-    <string name="debrid_stream_min_quality_subtitle">隱藏低於所選解析度的來源。</string>
-    <string name="debrid_stream_min_quality_any">任何品質</string>
-    <string name="debrid_stream_min_quality_720">720p 及以上</string>
-    <string name="debrid_stream_min_quality_1080">1080p 及以上</string>
-    <string name="debrid_stream_min_quality_2160">僅 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">顯示、隱藏或要求 Dolby Vision 來源。</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">顯示、隱藏或要求 HDR 來源。</string>
-    <string name="debrid_stream_feature_any">任何</string>
-    <string name="debrid_stream_feature_exclude">隱藏</string>
-    <string name="debrid_stream_feature_only">僅限</string>
-    <string name="debrid_stream_codec_title">編解碼器</string>
-    <string name="debrid_stream_codec_subtitle">依影片編解碼器過濾來源。</string>
-    <string name="debrid_stream_codec_any">任何編解碼器</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid 串流過濾對話框 -->
     <string name="debrid_stream_per_resolution_limit_title">依解析度限制</string>
@@ -1320,11 +1210,9 @@
     <string name="settings_stream_badge_position_bottom">下方</string>
     <string name="settings_stream_badge_urls_title">Fusion 標章網址</string>
     <string name="settings_stream_badge_urls_description">匯入最多 %1$d 個 Fusion 風格串流標章 JSON 網址。每個網址可以單獨更新或刪除。</string>
-    <string name="settings_stream_badge_urls_search_description">管理已匯入的 Fusion 風格串流標章 JSON 網址。</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d 個網址，%3$d 個啟用的 Fusion 標章</string>
     <string name="settings_fusion_badges_empty">未匯入 Fusion 標章網址。</string>
     <string name="settings_fusion_badge_url_label">Fusion 標章 JSON 網址</string>
-    <string name="settings_fusion_badge_urls_imported">已匯入 %1$d/%2$d 個 Fusion 網址</string>
     <string name="settings_fusion_badge_url_active">啟用</string>
     <string name="settings_fusion_badge_url_inactive">停用</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s，%2$d 個已啟用標章，%3$d 個群組</string>
@@ -1387,14 +1275,12 @@
 
     <string name="trakt_description">使用 Trakt 同步您的觀看清單、觀看進度、繼續觀看、記錄和個人清單。</string>
     <string name="trakt_connected_as">以 %1$s 身分連線</string>
-    <string name="trakt_account_login">帳戶登入</string>
     <string name="trakt_awaiting_instruction">前往 trakt.tv/activate 並輸入此代碼：</string>
     <string name="trakt_waiting_approval">正在等待批准…</string>
     <string name="qr_login_approved">登入已批准。正在完成登入…</string>
     <string name="qr_login_pending">正在等待手機上的批准…</string>
     <string name="qr_login_expired">QR 碼登入已過期。請產生新代碼。</string>
     <string name="qr_login_preparing">正在準備 QR 碼登入…</string>
-    <string name="qr_login_device_auth_failed">裝置驗證失敗</string>
     <string name="qr_login_scan_prompt">掃描 QR 碼並在手機上登入</string>
     <string name="qr_login_start_failed">啟動 QR 碼登入失敗</string>
     <string name="qr_login_signing_in">正在為您登入…</string>
@@ -1402,38 +1288,20 @@
     <string name="qr_login_exchange_failed">無法完成 QR 碼登入</string>
     <string name="trakt_code_expires">代碼將在 %1$s 後過期</string>
     <string name="trakt_token_refreshes">Trakt 存取權杖將在 %1$s 後重新整理</string>
-    <string name="trakt_login_instruction">按下「登入」以啟動 Trakt 裝置驗證。QR 碼將在此顯示。</string>
     <string name="trakt_missing_credentials">local.properties 中缺少 TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET。</string>
     <string name="trakt_watch_progress_title">觀看進度</string>
     <string name="trakt_watch_progress_subtitle">選擇哪個進度來源提供繼續播放和繼續觀看功能</string>
     <string name="trakt_watch_progress_dialog_title">觀看進度</string>
-    <string name="trakt_watch_progress_dialog_subtitle">選擇繼續播放和繼續觀看應使用 Trakt 還是 Movies Sync，同時 Trakt 記錄保持啟用。</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_nuvio">Movies Sync</string>
     <string name="trakt_library_source_title">媒體庫來源</string>
     <string name="trakt_library_source_subtitle">選擇 Movies 從哪裡讀取您的媒體庫</string>
     <string name="trakt_library_source_dialog_title">媒體庫來源</string>
-    <string name="trakt_library_source_dialog_subtitle">選擇儲存和管理媒體庫項目的位置</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_nuvio">Movies 媒體庫</string>
-    <string name="trakt_library_source_trakt_selected">已選擇 Trakt 媒體庫</string>
-    <string name="trakt_library_source_nuvio_selected">已選擇 Movies 媒體庫</string>
-    <string name="trakt_setting_on">開啟</string>
     <string name="trakt_setting_off">關閉</string>
-    <string name="trakt_watch_progress_trakt_selected">觀看進度來源設為 Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">觀看進度來源設為 Movies Sync</string>
     <string name="trakt_continue_watching_window">繼續觀看範圍</string>
     <string name="trakt_continue_watching_subtitle">納入繼續觀看的 Trakt 歷史記錄</string>
-    <string name="trakt_unaired_next_up">未播出的下一集</string>
-    <string name="trakt_unaired_next_up_subtitle">在播出前顯示即將播出的集數</string>
-    <string name="trakt_unaired_shown">顯示</string>
-    <string name="trakt_unaired_hidden">隱藏</string>
-    <string name="trakt_unaired_now_shown">現在顯示未播出的下一集</string>
-    <string name="trakt_unaired_now_hidden">現在隱藏未播出的下一集</string>
     <string name="trakt_comments_title">評論</string>
     <string name="trakt_comments_subtitle">在中繼資料頁面上顯示 Trakt 評論</string>
-    <string name="trakt_comments_dialog_title">評論</string>
-    <string name="trakt_comments_dialog_subtitle">選擇當您的帳戶已連線時，中繼資料頁面是否應顯示 Trakt 評論。</string>
     <string name="trakt_comments_now_shown">現在顯示中繼資料頁面上的 Trakt 評論</string>
     <string name="trakt_comments_now_hidden">現在隱藏中繼資料頁面上的 Trakt 評論</string>
     <string name="trakt_more_like_this_source_title">更多類似內容來源</string>
@@ -1450,15 +1318,8 @@
     <string name="trakt_disconnect">中斷連線</string>
     <string name="trakt_disconnect_title">中斷 Trakt 連線？</string>
     <string name="trakt_disconnect_subtitle">這將中斷您的 Trakt 帳戶與 Movies 的連線。</string>
-    <string name="trakt_login">登入</string>
-    <string name="trakt_retry">重試</string>
-    <string name="trakt_back">返回</string>
     <string name="trakt_cw_window_title">繼續觀看範圍</string>
     <string name="trakt_cw_window_subtitle">選擇多少 Trakt 活動應出現在繼續觀看中。</string>
-    <string name="trakt_unaired_dialog_title">未播出的下一集</string>
-    <string name="trakt_unaired_dialog_subtitle">選擇繼續觀看是否應包含播出前的即將播出集數。</string>
-    <string name="trakt_show_unaired">顯示未播出的集數</string>
-    <string name="trakt_hide_unaired">隱藏未播出的集數</string>
     <string name="trakt_all_history">所有歷史記錄</string>
     <string name="trakt_days_format">%1$d 天</string>
 
@@ -1508,23 +1369,13 @@
     <string name="profile_manage_title">管理個人資料</string>
     <string name="profile_manage_subtitle">選擇要編輯、切換或建立新個人資料</string>
     <string name="profile_manage_hint">選擇要管理的個人資料</string>
-    <string name="profile_primary_label">主要</string>
-    <string name="profile_shares_primary">共用主要使用者的 %1$s</string>
     <string name="profile_edit_label">編輯</string>
     <string name="profile_edit_header">編輯個人資料</string>
-    <string name="profile_add">新增個人資料</string>
     <string name="profile_create_title">建立個人資料</string>
-    <string name="profile_edit_title">編輯個人資料 %1$s</string>
     <string name="profile_name_placeholder">個人資料名稱</string>
-    <string name="profile_avatar_color">頭像顏色</string>
-    <string name="profile_use_primary_addons">使用主要使用者的擴充套件</string>
-    <string name="profile_use_primary_plugins">使用主要使用者的外掛</string>
     <string name="profile_creating">建立中…</string>
     <string name="profile_create_btn">建立</string>
-    <string name="profile_confirm">確認</string>
     <string name="profile_delete">刪除</string>
-    <string name="profile_addons">擴充套件</string>
-    <string name="profile_plugins">外掛</string>
     <string name="profile_choose_avatar">選擇頭像</string>
     <string name="profile_custom_avatar_web_panel_note">自訂頭像網址可從 Movies 網頁面板配置。</string>
     <string name="profile_editor_tab_avatar">頭像</string>
@@ -1533,7 +1384,6 @@
     <string name="profile_background_member_note">自訂背景網址可從 Movies 網頁面板配置。</string>
     <string name="profile_background_normal">一般</string>
     <string name="profile_background_custom">自訂</string>
-    <string name="profile_avatar_none_selected">未選擇頭像</string>
     <string name="profile_avatar_focus_hint">聚焦頭像以檢視其名稱</string>
     <string name="profile_avatar_category_all">全部</string>
     <string name="profile_avatar_category_supporter">支持者</string>
@@ -1567,30 +1417,17 @@
     <string name="profile_copy_settings_created_success">已使用來自 %1$s 的設定建立個人資料。</string>
     <string name="profile_copy_settings_created_error">個人資料已建立，但無法複製設定。您可以從個人資料選項重試。</string>
     <string name="profile_create_error">無法建立個人資料。請重試。</string>
-    <string name="profile_pin_title">個人資料 PIN 鎖</string>
-    <string name="profile_pin_enabled_subtitle">此個人資料在切換前需要輸入 4 位數 PIN 碼。</string>
-    <string name="profile_pin_disabled_subtitle">設定 4 位數 PIN 碼以鎖定此個人資料。</string>
     <string name="profile_pin_set">設定 PIN</string>
     <string name="profile_pin_change">變更 PIN</string>
     <string name="profile_pin_remove">移除 PIN</string>
-    <string name="profile_pin_set_title">設定個人資料 PIN</string>
-    <string name="profile_pin_set_subtitle">輸入 4 位數 PIN 碼並確認。</string>
     <string name="profile_pin_enter">輸入 4 位數 PIN</string>
-    <string name="profile_pin_confirm">確認 4 位數 PIN</string>
-    <string name="profile_pin_mismatch">PIN 碼不相符。</string>
-    <string name="profile_pin_save">儲存 PIN</string>
-    <string name="profile_pin_unlock_title">解鎖 %1$s</string>
-    <string name="profile_pin_unlock_subtitle">輸入 4 位數 PIN 碼以繼續。</string>
     <string name="profile_pin_verifying">驗證中…</string>
-    <string name="profile_pin_unlock_action">解鎖</string>
     <string name="profile_pin_overlay_unlock_heading">輸入您的 PIN 以存取 %1$s。</string>
     <string name="profile_pin_overlay_set_heading">為 %1$s 建立 4 位數 PIN。</string>
     <string name="profile_pin_overlay_confirm_heading">確認您的新 PIN。</string>
     <string name="profile_pin_overlay_unlock_support">使用遙控器或鍵盤輸入 4 位數字。</string>
-    <string name="profile_pin_overlay_change_verify_kicker">需要安全驗證。</string>
     <string name="profile_pin_overlay_change_verify_heading">輸入目前的 PIN 以變更 %1$s 的 PIN。</string>
     <string name="profile_pin_overlay_change_verify_support">在設定新 PIN 之前輸入目前的 4 位數 PIN。</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">需要安全驗證。</string>
     <string name="profile_pin_overlay_remove_verify_heading">輸入目前的 PIN 以移除 %1$s 的鎖定。</string>
     <string name="profile_pin_overlay_remove_verify_support">輸入目前的 4 位數 PIN 以移除此鎖定。</string>
     <string name="profile_pin_overlay_delete_verify_heading">輸入目前的 PIN 以刪除 %1$s。</string>
@@ -1622,7 +1459,6 @@
     <string name="addon_error_invalid_scheme">擴充套件網址必須以 http 或 https 開頭</string>
     <string name="addon_installed_section">已安裝</string>
     <string name="addon_empty">未安裝擴充套件。請新增一個以開始使用。</string>
-    <string name="addon_remove">移除</string>
     <string name="addon_delete_confirm_title">刪除擴充套件？</string>
     <string name="addon_delete_confirm_message">您確定要刪除它嗎？</string>
     <string name="addon_delete_no">否</string>
@@ -1676,8 +1512,6 @@
     <string name="debrid_missing_api_key">請在設定中新增 Debrid API 金鑰。</string>
     <string name="debrid_not_cached">未在此服務上快取。</string>
     <string name="debrid_resolution_failed">無法解析此 Debrid 串流。</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P 串流</string>
     <string name="p2p_consent_body">此串流使用點對點 (P2P) 技術。啟用 P2P 即表示您知悉並同意：\n\n\u2022 您的 IP 位址將對網路中的其他對等節點可見\n\u2022 您對所存取的內容負全部責任\n\u2022 您確認在您的司法管轄區內擁有串流此內容的合法權利\n\u2022 Movies 不託管、散佈或控制任何 P2P 內容\n\u2022 Movies 對您因使用 P2P 串流而產生的任何法律後果不承擔任何責任\n\n您完全自行承擔使用此功能的風險。P2P 可隨時在設定中停用。</string>
     <string name="p2p_consent_enable">啟用 P2P</string>
@@ -1686,9 +1520,6 @@
     <string name="settings_p2p_subtitle">允許點對點 (torrent) 串流</string>
     <string name="settings_p2p_hide_stats_title">隱藏 torrent 統計資料</string>
     <string name="settings_p2p_hide_stats_subtitle">在載入和播放期間隱藏緩衝、種子、對等節點和下載速度</string>
-    <string name="p2p_download_title">正在下載 P2P 引擎</string>
-    <string name="p2p_download_subtitle">這是 P2P 串流所需的一次性下載。</string>
-    <string name="stream_type_external">外部</string>
     <string name="stream_player_picker_title">應使用哪個播放器？</string>
     <string name="stream_player_internal">內建</string>
     <string name="stream_player_external">外部</string>
@@ -1699,15 +1530,12 @@
     <string name="player_loading_preparing">正在準備串流…</string>
     <string name="player_loading_detecting_format">正在偵測串流格式…</string>
     <string name="external_player_loading_skip_segments">正在載入片頭/片尾片段…</string>
-    <string name="player_loading_subtitles">正在獲取字幕…</string>
     <string name="player_loading_subtitles_from">正在從 %1$d 個擴充套件獲取字幕…</string>
     <string name="player_loading_subtitles_progress">正在獲取字幕… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">字幕：%1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">正在建構播放器…</string>
     <string name="player_loading_starting">正在啟動串流…</string>
     <string name="player_loading_buffering">緩衝中…</string>
-    <string name="player_loading_fallback_pcm_audio">音訊軌道初始化失敗 - 切換至 PCM 音訊…</string>
-    <string name="player_loading_fallback_hevc_decoder">解碼器初始化失敗 - 切換至 HEVC 解碼器…</string>
     <string name="player_engine_switching_title">正在切換播放引擎</string>
     <string name="player_engine_switching_message">啟動失敗。正在切換至 %1$s…</string>
     <string name="player_engine_switching_manual_message">正在切換至 %1$s…</string>
@@ -1754,10 +1582,6 @@
         <item quantity="other">已載入 %1$d 秒</item>
     </plurals>
     <string name="player_speed_title">播放速度</string>
-    <string name="player_more_actions_title">更多操作</string>
-    <string name="player_more_speed">播放速度</string>
-    <string name="player_more_aspect_ratio">畫面比例</string>
-    <string name="player_more_open_external">在外部播放器中開啟</string>
     <string name="player_error_no_stream_url">未提供串流網址</string>
 
 
@@ -1784,14 +1608,12 @@
     <string name="stream_info_player_engine">播放引擎</string>
 
     <string name="sources_title">來源</string>
-    <string name="sources_reload">重新載入</string>
     <string name="sources_close">關閉</string>
     <string name="sources_playing">播放中</string>
     <string name="sources_no_streams">找不到串流</string>
 
     <string name="episodes_panel_close">關閉</string>
     <string name="episodes_panel_back">返回</string>
-    <string name="episodes_panel_reload">重新載入</string>
     <string name="episodes_panel_no_streams">找不到串流</string>
     <string name="episodes_panel_no_episodes">沒有可用的集數</string>
     <string name="episodes_panel_title">集數</string>
@@ -1807,8 +1629,6 @@
     <string name="player_aspect_mode_cinema_zoom">電影縮放</string>
 
     <string name="audio_dialog_title">音訊</string>
-    <string name="audio_dialog_tab_tracks">音軌</string>
-    <string name="audio_dialog_tab_mix">混音</string>
     <string name="audio_delay_label">音訊延遲</string>
     <string name="audio_delay_range">範圍：%1$.2fs 至 %2$.2fs</string>
     <string name="audio_mix_label">放大 (PCM)</string>
@@ -1826,31 +1646,18 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">停用時，混音下轉歸一化可能會降低整體音量。</string>
 
     <string name="subtitle_dialog_title">字幕</string>
-    <string name="subtitle_no_builtin">沒有可用的內建字幕</string>
     <string name="subtitle_loading_addon">正在從擴充套件載入字幕…</string>
     <string name="subtitle_no_addon">沒有可用的擴充套件字幕</string>
     <string name="subtitle_text_color">文字顏色</string>
     <string name="subtitle_outline_color">外框顏色</string>
     <string name="subtitle_reset_defaults">重設為預設</string>
-    <string name="subtitle_tab_builtin">內建</string>
-    <string name="subtitle_tab_addons">擴充套件</string>
     <string name="subtitle_tab_languages">語言</string>
-    <string name="subtitle_tab_style">樣式</string>
     <string name="subtitle_tab_delay">延遲</string>
     <string name="subtitle_delay_reset">重設</string>
     <string name="subtitle_none">無</string>
     <string name="subtitle_built_in">內建</string>
-    <string name="subtitle_all">全部</string>
-    <string name="subtitle_section_core">核心</string>
-    <string name="subtitle_section_advanced">進階</string>
-    <string name="subtitle_font_size">字體大小</string>
     <string name="subtitle_bold">粗體</string>
-    <string name="subtitle_outline">外框</string>
-    <string name="subtitle_bottom_offset">底部偏移</string>
-    <string name="subtitle_on">開啟</string>
-    <string name="subtitle_off">關閉</string>
     <string name="subtitle_style_title">字幕樣式</string>
-    <string name="subtitle_style_customize">自訂</string>
     <string name="subtitle_style_color">顏色</string>
     <string name="subtitle_style_reset">重設</string>
     <string name="subtitle_style_font_size">字體大小</string>
@@ -1863,8 +1670,6 @@
     <string name="subtitle_style_on">開啟</string>
     <string name="subtitle_style_off">關閉</string>
     <string name="subtitle_style_weight">字重</string>
-    <string name="panel_failed_load_streams">載入串流失敗</string>
-    <string name="panel_failed_load_episodes">載入集數失敗</string>
 
     <string name="pause_you_are_watching">您正在觀看</string>
     <string name="pause_cast_label">演員</string>
@@ -1907,7 +1712,6 @@
     <string name="display_mode_resolution">解析度</string>
 
 
-    <string name="search_keyboard_hint">按下鍵盤上的「完成」以搜尋</string>
     <string name="search_placeholder">搜尋電影與影集</string>
     <string name="search_start_title">開始搜尋</string>
     <string name="search_start_subtitle">請輸入至少 2 個字元</string>
@@ -1923,7 +1727,6 @@
     <string name="search_no_results_subtitle">請嘗試使用不同的關鍵字搜尋</string>
     <string name="search_error_no_catalogs">在已安裝的擴充套件中找不到可搜尋的目錄</string>
 
-    <string name="library_syncing">正在同步 Trakt 媒體庫…</string>
     <string name="library_title">媒體庫</string>
     <string name="library_filter_list">清單</string>
     <string name="library_filter_type">類型</string>
@@ -1976,14 +1779,12 @@
     <string name="genre_sporting_event">體育賽事</string>
     <string name="genre_superhero">超級英雄</string>
     <string name="genre_suspense">懸疑</string>
-    <string name="library_sort_trakt_order">Trakt 順序</string>
     <string name="library_sort_provider_order">提供者順序</string>
     <string name="library_sort_added_desc">新增 ↓</string>
     <string name="library_sort_added_asc">新增 ↑</string>
     <string name="library_sort_title_asc">標題 A-Z</string>
     <string name="library_sort_title_desc">標題 Z-A</string>
     <string name="library_manage_lists">管理清單</string>
-    <string name="library_manage_trakt_lists">管理 Trakt 清單</string>
     <string name="library_no_lists">尚無個人清單。</string>
     <string name="library_list_create">建立</string>
     <string name="library_list_edit">編輯</string>
@@ -1997,10 +1798,7 @@
     <string name="library_list_privacy">隱私</string>
     <string name="library_delete_title">刪除此清單？</string>
     <string name="library_delete_subtitle">這將從 Trakt 移除該清單及其所有項目。</string>
-    <string name="library_delete_confirm">刪除</string>
     <string name="library_source_local">本地</string>
-    <string name="library_source_nuvio">NUVIO</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">已儲存</string>
     <string name="library_source_cloud">雲端</string>
     <string name="library_watchlist">觀看清單</string>
@@ -2019,18 +1817,13 @@
     <string name="library_list_edit_dialog_title">編輯清單</string>
     <string name="library_sync_btn">同步</string>
     <string name="library_syncing_btn">同步中…</string>
-    <string name="cloud_library_connect_action">連線帳戶</string>
     <string name="cloud_library_connect_message">在「已連線的服務」設定中連線帳戶，以從您的雲端媒體庫瀏覽可播放的檔案。</string>
     <string name="cloud_library_connect_title">未連線雲端帳戶</string>
-    <string name="cloud_library_disabled_action">開啟已連線的服務</string>
     <string name="cloud_library_disabled_message">在「已連線的服務」設定中開啟雲端媒體庫，以從已連線帳戶瀏覽檔案。</string>
     <string name="cloud_library_disabled_title">雲端媒體庫已關閉</string>
     <string name="cloud_library_empty_message">沒有可播放的雲端檔案符合目前的過濾條件。</string>
     <string name="cloud_library_empty_title">這裡還沒有內容</string>
     <string name="cloud_library_file_picker_title">選擇要播放的檔案</string>
-    <string name="cloud_library_load_failed">無法載入 %1$s 雲端媒體庫</string>
-    <string name="cloud_library_no_files_message">此項目未暴露可播放的影片檔案。</string>
-    <string name="cloud_library_no_files_title">沒有可播放的檔案</string>
     <string name="cloud_library_no_playable_files">沒有可播放的檔案</string>
     <string name="cloud_library_one_playable_file">1 個可播放的檔案</string>
     <string name="cloud_library_opening">開啟中…</string>
@@ -2068,18 +1861,7 @@
     <string name="account_sign_out">登出</string>
     <string name="account_sign_out_confirm_title">登出？</string>
     <string name="account_sign_out_confirm_subtitle">您需要重新登入才能在此裝置上同步媒體庫、觀看進度、擴充套件和外掛。</string>
-    <string name="account_error_signin_required">請先登入帳戶。</string>
-    <string name="account_signin_create_title">登入／建立帳戶</string>
-    <string name="account_signin_create_desc">使用電子郵件和密碼建立或登入您的帳戶。</string>
-    <string name="account_generate_sync_desc">在此裝置上建立代碼，讓其他裝置可以連結到此裝置。</string>
-    <string name="account_enter_sync_desc">使用同步碼將此裝置連結至其他裝置。</string>
-    <string name="account_signed_in_as">已登入為</string>
-    <string name="account_generate_sync_signed_in_desc">建立代碼，讓其他裝置可以與此帳戶同步。</string>
-    <string name="account_unknown_device">未知裝置</string>
 
-    <string name="auth_signin_title">登入</string>
-    <string name="auth_signin_tv_disabled">電視上的電子郵件/密碼輸入已停用。請繼續使用 QR 碼登入。</string>
-    <string name="auth_signin_qr_btn">繼續使用 QR</string>
     <string name="auth_email_hint">直接使用您自託管伺服器上的帳戶登入。</string>
     <string name="auth_email_instruction">輸入您的電子郵件和密碼以繼續。</string>
     <string name="auth_email_placeholder">電子郵件地址</string>
@@ -2127,13 +1909,10 @@
     <string name="custom_server_session_clear_failed">無法安全清除目前工作階段。伺服器未被變更。</string>
     <string name="custom_server_restart_failed">伺服器已儲存，但應用程式無法自動重新啟動。請手動重新啟動。</string>
 
-    <string name="auth_qr_title">使用 QR 碼登入</string>
     <string name="auth_qr_tagline">隨時隨地觀看您的媒體庫</string>
     <string name="auth_qr_finishing">正在完成登入…</string>
-    <string name="auth_qr_code_label">代碼：%1$s</string>
     <string name="auth_qr_expires">將在 %1$s 後過期</string>
     <string name="auth_qr_scan_instruction">掃描 QR 碼或在瀏覽器中輸入短代碼。</string>
-    <string name="auth_qr_code_display">代碼：%1$s</string>
     <string name="auth_qr_manual_instruction">或前往 %1$s 並輸入</string>
     <string name="auth_qr_refresh">重新整理 QR</string>
     <string name="auth_qr_continue_without_account">不使用帳戶繼續</string>
@@ -2144,34 +1923,13 @@
     <string name="auth_qr_please_wait">請稍候…</string>
     <string name="auth_qr_continue">繼續</string>
     <string name="auth_qr_back">返回</string>
-    <string name="auth_qr_terms_prefix">註冊/登入即表示我同意</string>
-    <string name="auth_qr_terms_link">服務條款</string>
 
-    <string name="sync_generate_title">產生同步碼</string>
-    <string name="sync_generate_subtitle">建立 PIN 以保護您的同步碼。與其他裝置分享此代碼。</string>
-    <string name="sync_generate_code_label">您的同步碼</string>
-    <string name="sync_generate_instruction">在其他裝置上輸入此代碼和您的 PIN 以連結它們。</string>
-    <string name="sync_generate_done">完成</string>
-    <string name="sync_generate_pin_label">選擇 PIN (4-8 個字元)</string>
-    <string name="sync_generate_pin_placeholder">輸入 PIN</string>
-    <string name="sync_generate_generating">產生中…</string>
-    <string name="sync_generate_code_btn">產生代碼</string>
 
-    <string name="sync_claim_title">連結裝置</string>
-    <string name="sync_claim_subtitle">輸入其他裝置的同步碼和 PIN 以連結此裝置。</string>
-    <string name="sync_claim_success">裝置連結成功！您的擴充套件和外掛現在將同步。</string>
-    <string name="sync_claim_done">完成</string>
-    <string name="sync_claim_code_label">同步碼</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">輸入 PIN</string>
-    <string name="sync_claim_linking">連結中…</string>
 
     <string name="plugin_readonly_notice">使用主要使用者的外掛，無法變更</string>
     <string name="plugin_repositories_section">倉庫 (%1$d)</string>
     <string name="plugin_providers_section">提供者 (%1$d)</string>
     <string name="plugin_title">外掛</string>
-    <string name="plugin_subtitle">管理本地爬蟲和提供者</string>
     <string name="plugin_enable_plugins_title">全域啟用外掛提供者</string>
     <string name="plugin_enable_plugins_subtitle">在串流探索期間使用外掛提供者</string>
     <string name="plugin_group_by_repository_title">依倉庫分組外掛提供者</string>
@@ -2202,8 +1960,6 @@
     <string name="plugin_test_results">測試結果 (%1$d 個串流)</string>
     <string name="plugin_and_more">... 還有 %1$d 個</string>
     <string name="plugin_providers_count">%1$d 個提供者</string>
-    <string name="plugin_enabled">已啟用</string>
-    <string name="plugin_disabled">已停用</string>
     <string name="plugin_no_repos">尚未新增倉庫。\n新增倉庫以開始使用。</string>
     <string name="plugin_error_invalid_url">請輸入有效的網址</string>
     <string name="plugin_error_add_repo">新增倉庫失敗：%1$s</string>
@@ -2241,7 +1997,6 @@
 
     <string name="update_title">應用程式更新</string>
     <string name="update_available">有可用更新</string>
-    <string name="update_downloading">正在下載更新</string>
     <string name="update_download">下載</string>
     <string name="update_downloading_ellipsis">下載中…</string>
     <string name="update_downloading_progress">正在下載 %1$d%%</string>
@@ -2251,13 +2006,6 @@
     <string name="update_latest_version">您正在使用最新版本。</string>
     <string name="update_unknown_sources">允許從未知來源安裝以繼續。</string>
     <!-- AccountScreen -->
-    <string name="account_title">帳戶</string>
-    <string name="account_sign_in_description">登入以在裝置間同步您的媒體庫、觀看進度、擴充套件和外掛。當 Trakt 未連線時，媒體庫同步使用 Movies Sync，觀看進度可使用 Trakt 或 Movies Sync。</string>
-    <string name="account_sync_code_title">同步碼</string>
-    <string name="account_sync_code_description">無需建立帳戶即可跨裝置同步。</string>
-    <string name="account_linked_devices">已連結的裝置 (%1$d)</string>
-    <string name="account_no_linked_devices">沒有已連結的裝置</string>
-    <string name="account_unlink">取消連結</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">正在載入集數評分…</string>
@@ -2284,34 +2032,23 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">編輯個人資料 %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">音訊穿透 (TrueHD、DTS、AC-3 等) 是自動的。當透過 HDMI 連線至相容的 AV 接收器或 Soundbar 時，無損音訊會原樣傳送，不進行解碼。</string>
-    <string name="audio_dv_title">DV7 - HEVC 備用</string>
-    <string name="audio_dv_sub">對於沒有硬體 DV 支援的裝置，將 Dolby Vision Profile 7 對應至標準 HEVC</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">首頁</string>
     <string name="nav_discover">探索</string>
     <string name="nav_search">搜尋</string>
     <string name="nav_library">媒體庫</string>
-    <string name="nav_addons">擴充套件</string>
-    <string name="nav_movies">電影</string>
-    <string name="nav_series">影集</string>
     <string name="nav_settings">設定</string>
     <string name="action_select">選擇</string>
-    <string name="settings_rounded_ui">圓角 UI</string>
-    <string name="cd_expand_sidebar">展開側邊欄</string>
 
-    <string name="update_checking">正在檢查更新…</string>
     <string name="update_waiting_for_stable">下一個穩定版本發布時您將收到通知</string>
     <string name="update_download_complete">下載完成。準備安裝。</string>
-    <string name="update_up_to_date">系統已是最新。最新變更：</string>
     <string name="update_close">關閉</string>
     <string name="update_open_settings">開啟設定</string>
     <string name="update_install">安裝</string>
-    <string name="update_ignore">忽略</string>
 
     <!-- 更新流程錯誤 -->
     <string name="update_error_check_failed">更新檢查失敗</string>
@@ -2379,7 +2116,6 @@
     <!-- 搜尋錯誤 -->
 
     <!-- 首頁錯誤 -->
-    <string name="home_error_no_addons">未安裝擴充套件</string>
     <string name="home_error_no_catalog_addons">未安裝目錄擴充套件</string>
 
     <!-- 播放器錯誤 -->
@@ -2403,7 +2139,6 @@
     <string name="cd_stream_info">串流資訊</string>
     <string name="cd_more_actions">更多操作</string>
     <string name="cd_close_more_actions">關閉更多操作</string>
-    <string name="cd_back">返回</string>
     <string name="cd_next_episode_thumbnail">下一集縮圖</string>
     <string name="cd_current">目前</string>
     <string name="cd_loading_backdrop">載入背景圖</string>
@@ -2418,7 +2153,6 @@
     <string name="cd_remove">移除</string>
     <string name="cd_preview">預覽</string>
     <string name="cd_test">測試</string>
-    <string name="cd_unlink">取消連結</string>
     <string name="cd_nuvio_logo">Movies</string>
     <string name="cd_trakt_logo">Trakt 標誌</string>
     <string name="cd_trakt_qr">Trakt 啟用 QR</string>
@@ -2426,7 +2160,6 @@
     <string name="cd_open_discover">開啟探索</string>
     <string name="cd_clear_search">清除搜尋</string>
     <string name="cd_voice_search">語音搜尋</string>
-    <string name="cd_donation_qr">贊助 QR 碼</string>
     <string name="cd_contributor_qr">貢獻者支持 QR 碼</string>
     <string name="cd_expand">展開 %1$s</string>
     <string name="cd_collapse">摺疊 %1$s</string>
@@ -2509,7 +2242,6 @@
     <string name="collections_editor_choose_emoji">選擇表情符號</string>
     <string name="collections_editor_back">返回</string>
     <string name="collections_editor_edit_collection">編輯收藏</string>
-    <string name="collections_editor_catalog_count">%1$d 個目錄</string>
     <string name="collections_editor_source_count">%1$d 個來源</string>
     <string name="collections_editor_sources">來源</string>
     <string name="collections_editor_source">來源</string>
@@ -2539,7 +2271,6 @@
     <string name="collections_editor_tmdb_collection_id">收藏 ID</string>
     <string name="collections_editor_tmdb_company_search">製作公司名稱、ID 或網址</string>
     <string name="collections_editor_tmdb_display_title">顯示標題</string>
-    <string name="collections_editor_tmdb_title_optional">標題 (選填)</string>
     <string name="collections_editor_tmdb_search">搜尋</string>
     <string name="collections_editor_add_source">新增來源</string>
     <string name="collections_editor_save_source">儲存來源</string>
@@ -2687,7 +2418,6 @@
     <string name="collections_card_subtitle">將目錄分組到首頁畫面上的資料夾中</string>
     <string name="collections_tab_all">全部</string>
     <string name="collections_tab_combined">合併</string>
-    <string name="collection_editor_remove_cd">移除</string>
     <string name="collection_editor_choice_both">兩者</string>
     <string name="collection_editor_resolved_trakt_list">已解析的 Trakt 清單</string>
     <string name="collection_editor_trakt_search_placeholder">搜尋標題、Trakt 網址或清單 ID</string>
@@ -2773,7 +2503,6 @@
     <string name="player_error_stream_rate_limited">\n\n對串流來源的請求過於頻繁。請稍等片刻再重試。</string>
     <string name="player_error_stream_unavailable">\n\n串流伺服器目前無法使用。請嘗試其他來源。</string>
     <string name="player_error_source_invalid_content">來源錯誤：串流來源回傳無效或無法播放的內容。連結可能已過期或伺服器回傳了錯誤頁面而非影片。\n\n請嘗試其他來源。[%1$s]</string>
-    <string name="player_error_decoder">解碼器錯誤</string>
     <string name="player_error_unsupported_format">此串流使用的格式您的裝置可能不支援。請嘗試其他來源。[%1$s]</string>
     <string name="player_error_initialize_failed">初始化播放器失敗</string>
     <string name="player_error_mpv_surface_failed">初始化 libmpv 表面失敗</string>
@@ -2808,7 +2537,6 @@
     <string name="library_synced">媒體庫已同步</string>
     <string name="library_error_refresh_failed">重新整理媒體庫失敗</string>
     <string name="library_list_created">清單已建立</string>
-    <string name="library_error_invalid_list">無效的清單</string>
     <string name="library_list_updated">清單已更新</string>
     <string name="library_error_save_list_failed">儲存清單失敗</string>
     <string name="library_list_deleted">清單已刪除</string>
@@ -2817,13 +2545,8 @@
     <string name="library_error_reorder_lists_failed">重新排序清單失敗</string>
     <string name="library_list_fallback_title">清單</string>
     <!-- 媒體庫隱私顯示標籤 -->
-    <string name="library_privacy_private">私人</string>
-    <string name="library_privacy_link">連結</string>
-    <string name="library_privacy_friends">好友</string>
-    <string name="library_privacy_public">公開</string>
 
     <!-- Trakt 錯誤 -->
-    <string name="trakt_error_auth_required">需要 Trakt 驗證</string>
     <string name="trakt_library_error_request_failed">Trakt 請求失敗</string>
     <string name="trakt_library_error_create_list_failed">建立清單失敗</string>
     <string name="trakt_library_error_update_list_failed">更新清單失敗</string>
@@ -2840,18 +2563,13 @@
     <string name="trakt_library_error_auth_expired">Trakt 驗證已過期</string>
     <string name="trakt_library_error_list_not_found">找不到 Trakt 清單</string>
     <string name="trakt_library_error_list_limit_reached">已達 Trakt 清單上限。需要升級。</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">標記已觀看所需的 Trakt ID 不足</string>
     <string name="trakt_error_request_failed">Trakt 請求失敗</string>
-    <string name="simkl_account_title">Simkl 帳戶</string>
     <string name="simkl_description">連接 Simkl 以同步清單、觀看歷史、播放進度和記錄。</string>
-    <string name="simkl_connect">連接 Simkl</string>
-    <string name="simkl_disconnect">中斷 Simkl 連線</string>
     <string name="simkl_disconnect_title">中斷 Simkl 連線？</string>
     <string name="simkl_disconnect_subtitle">這將從此個人資料移除 Simkl 帳戶和快取的 Simkl 資料。</string>
     <string name="simkl_connected_as">以 %1$s 身分連線</string>
     <string name="simkl_user_fallback">Simkl 使用者</string>
     <string name="simkl_awaiting_instruction">開啟 Simkl 驗證頁面並輸入此代碼。</string>
-    <string name="simkl_code_expires">代碼將在 %1$s 後過期</string>
     <string name="simkl_sync_now">立即同步</string>
     <string name="simkl_visit">造訪 Simkl</string>
     <string name="simkl_sync_info_action">同步如何運作</string>
@@ -2869,8 +2587,6 @@
     <string name="simkl_status_disconnected">已中斷 Simkl 連線</string>
     <string name="simkl_status_syncing">正在同步 Simkl…</string>
     <string name="simkl_status_synced">Simkl 同步完成</string>
-    <string name="simkl_watch_progress_selected">已選擇 Simkl 用於繼續觀看</string>
-    <string name="simkl_library_source_selected">已選擇 Simkl 用於媒體庫</string>
     <string name="simkl_error_code_expired">Simkl 代碼已過期。請重新開始。</string>
     <string name="simkl_error_authorization_revoked">Simkl 授權已被撤銷。請重新連線。</string>
     <string name="simkl_error_network">無法存取 Simkl。請重試。</string>
@@ -2902,14 +2618,11 @@
     <string name="stream_embedded_group">內嵌串流</string>
     <string name="stream_embedded_fallback_name">內嵌串流</string>
     <string name="stream_quality_unknown">未知</string>
-    <string name="stream_addon_unknown">未知</string>
-    <string name="tmdb_unknown_entity">未知</string>
     <string name="web_tmdb_company_fallback">TMDB 公司 %1$d</string>
     <string name="web_tmdb_collection_fallback">TMDB 收藏 %1$d</string>
     <string name="web_error_invalid_request_body">無效的請求主體</string>
 
     <!-- 字幕偏好語言備用文字 -->
-    <string name="language_english">英語</string>
 
     <!-- 支持者 / 貢獻者 / 贊助商錯誤 -->
     <string name="supporters_error_load">無法載入支持者。</string>
@@ -2918,7 +2631,6 @@
     <string name="contributors_error_api_not_configured">貢獻者 API 未配置。</string>
     <string name="contributors_error_api_http">貢獻者 API 錯誤：%1$d</string>
     <string name="supporters_error_api_http">捐贈 API 錯誤：%1$d</string>
-    <string name="sponsors_error_api_http">贊助商 API 錯誤：%1$d</string>
 
     <!-- 貢獻者角色標章 -->
     <string name="contributor_role_translator">翻譯者</string>
@@ -2936,7 +2648,6 @@
 
     <!-- 播放器執行時期：串流 / 外部連結錯誤 -->
     <string name="player_torrent_starting_engine">正在啟動 P2P 引擎…</string>
-    <string name="player_torrent_rebuffer_status">%1$s 已緩衝</string>
     <string name="player_stream_error_invalid_external_url">無效的外部網址</string>
     <string name="player_stream_error_open_external_link_failed">無法開啟外部連結</string>
     <string name="player_stream_error_invalid_url">無效的串流網址</string>
@@ -2944,11 +2655,6 @@
 
     <!-- 中繼資料倉庫：擴充套件詳情錯誤片段 -->
     <string name="meta_error_detail_no_metadata_for_id">未為此 ID 回傳中繼資料</string>
-    <string name="meta_error_detail_addon_unreachable">無法連線至擴充套件伺服器</string>
-    <string name="meta_error_detail_addon_connection_failed">擴充套件連線失敗</string>
-    <string name="meta_error_detail_addon_timeout">擴充套件請求逾時</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">擴充套件使用了 Android 封鎖的不安全 HTTP 連線</string>
-    <string name="meta_error_detail_addon_request_failed">擴充套件請求失敗</string>
 
     <!-- 串流倉庫：擴充套件詳情錯誤片段 + 擷取 -->
     <string name="stream_error_detail_no_streams_for_id">未為此 ID 回傳串流</string>
@@ -2975,8 +2681,6 @@
     <string name="trakt_comments_error_request_failed">Trakt 評論請求失敗</string>
     <string name="trakt_library_error_fetch_list_items">擷取清單項目失敗</string>
 
-    <string name="watchlist_removed">已從觀看清單移除</string>
-    <string name="watchlist_added">已新增至觀看清單</string>
 
     <!-- Debrid：過濾規則列 -->
     <string name="debrid_picker_preferred_resolutions_title">偏好的解析度</string>
@@ -3202,13 +2906,11 @@
     <string name="stream_test_card_title">執行上次播放的串流速度測試</string>
     <string name="stream_test_server_label">伺服器：%1$s</string>
     <string name="stream_test_no_stream">未記錄播放。請播放影片以對其主機執行診斷測試。</string>
-    <string name="stream_test_btn_start">開始測試</string>
     <string name="stream_test_btn_measuring_baseline">正在測量基準…</string>
     <string name="stream_test_btn_measuring_parallel1">正在測量並行 (1個連線)…</string>
     <string name="stream_test_btn_measuring_parallel4">正在測量並行 (4個連線)…</string>
     <string name="stream_test_btn_measuring_parallel8">正在測量並行 (8個連線)…</string>
     <string name="stream_test_btn_measuring_parallel16">正在測量並行 (16個連線)…</string>
-    <string name="stream_test_btn_run_again">再次執行</string>
     <string name="stream_test_btn_running">執行中…</string>
     <string name="stream_test_label_baseline">標準單連線 (基準)</string>
     <string name="stream_test_label_parallel1">並行連線 (1個連線)</string>

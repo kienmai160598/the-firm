@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -109,11 +108,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -4681,62 +4678,6 @@ private fun SpeedSelectionDialog(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun MoreActionsDialog(
-    onPlaybackSpeed: () -> Unit,
-    onToggleAspectRatio: () -> Unit,
-    onOpenInExternalPlayer: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .width(360.dp)
-                .clip(PlayerSurfaceStyle.cardShape())
-                .background(MoviesTheme.colors.BackgroundElevated)
-        ) {
-            Column(
-                modifier = Modifier.padding(MoviesTheme.spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.player_more_actions_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MoviesTheme.colors.TextPrimary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
-                )
-
-                MoreActionItem(
-                    text = stringResource(R.string.player_more_speed),
-                    onClick = onPlaybackSpeed
-                )
-                MoreActionItem(
-                    text = stringResource(R.string.player_more_aspect_ratio),
-                    onClick = onToggleAspectRatio
-                )
-                MoreActionItem(
-                    text = stringResource(R.string.player_more_open_external),
-                    onClick = onOpenInExternalPlayer
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MoreActionItem(text: String, onClick: () -> Unit) {
-    MoviesCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
-        )
     }
 }
 

@@ -773,8 +773,6 @@ internal class AudioSubtitleSyncController(
         model = null
     }
 
-    fun activeSessionKey(): String? = session?.key
-
     fun release() {
         released = true
         session = null
@@ -1551,7 +1549,6 @@ internal class AudioSubtitleSyncController(
         private const val ALIGN_INTERVAL_MS = 8_000L
         private const val SEARCH_INTERVAL_MS = 3_000L
         private const val RECOGNIZER_REFRESH_MS = 1_000L
-        private const val DIAGNOSTICS_HEARTBEAT_MS = 15_000L
         private const val PREFERENCES = "nuvio_audio_sync"
         private const val REMEMBER_PREFIX = "v3:"
         private const val MAX_REMEMBERED = 200
@@ -1598,7 +1595,6 @@ internal class AudioSubtitleSyncController(
 
         /** Playback has started and buffered this much before sampling competes for bandwidth. */
         private val SAMPLE_AFTER_FRAMES = (5_000 / SpeechTimeline.FRAME_DURATION_MS).toInt()
-        private val NEAR_PLAYHEAD_FRAMES = (5_000 / SpeechTimeline.FRAME_DURATION_MS).toInt()
 
         /** Audio playback should have buffered before sampling opens another connection. */
         private val BUFFERED_AHEAD_FRAMES = (15_000 / SpeechTimeline.FRAME_DURATION_MS).toInt()
@@ -1647,7 +1643,6 @@ internal class AudioSubtitleSyncController(
         }
 
         private val periodPrefix = Regex("^(\\d+:)+")
-        private val changingPanelFields = Regex(" ahead=\\d+s words=\\d+")
 
         /**
          * Same audio track, tolerating the Format differences between the extractor output and the

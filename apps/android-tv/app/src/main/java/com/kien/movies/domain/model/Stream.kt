@@ -106,11 +106,6 @@ data class Stream(
     }
 
     /**
-     * Returns true if this is a YouTube stream
-     */
-    fun isYouTube(): Boolean = ytId != null
-
-    /**
      * Returns the YouTube video id when [ytId] is the only way to play this stream,
      * so the video has to be resolved on the device before playback.
      */

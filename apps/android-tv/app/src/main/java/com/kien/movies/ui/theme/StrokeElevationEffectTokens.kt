@@ -17,16 +17,6 @@ data class MoviesStrokeTokens(
 )
 
 @Immutable
-data class MoviesElevationTokens(
-    val none: Dp,
-    val card: Dp,
-    val focused: Dp,
-    val menu: Dp,
-    val dialog: Dp,
-    val overlay: Dp
-)
-
-@Immutable
 data class MoviesEffectTokens(
     val blurSoft: Dp,
     val blurPanel: Dp,
@@ -52,17 +42,6 @@ object MoviesStrokes {
         heavy = 3.dp,
         progress = 4.dp,
         divider = 1.dp
-    )
-}
-
-object MoviesElevations {
-    val tokens = MoviesElevationTokens(
-        none = 0.dp,
-        card = 2.dp,
-        focused = 8.dp,
-        menu = 8.dp,
-        dialog = 12.dp,
-        overlay = 16.dp
     )
 }
 

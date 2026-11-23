@@ -11,23 +11,18 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +39,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
@@ -92,7 +86,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -106,7 +99,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.ConfigurationCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
@@ -195,10 +187,8 @@ import com.kien.movies.ui.screens.profile.ProfileSelectionScreen
 import com.kien.movies.ui.theme.MoviesComponents
 import com.kien.movies.ui.theme.MoviesLayout
 import com.kien.movies.ui.theme.MoviesMotion
-import com.kien.movies.ui.theme.MoviesPrimitives
 import com.kien.movies.ui.theme.MoviesRadii
 import com.kien.movies.ui.theme.MoviesTheme
-import com.kien.movies.ui.theme.ThemeColors
 import com.kien.movies.ui.theme.accentBrush
 import com.kien.movies.ui.theme.brandWordmarkResource
 import com.kien.movies.ui.util.LocalFastHorizontalNavigationEnabled
@@ -2164,7 +2154,6 @@ private fun ModernSidebarScaffold(
 ) {
     val showSidebar = currentRoute in rootRoutes
     val sidebarTokens = MoviesComponents.tokens.sidebar
-    val collapsedSidebarWidth = if (sidebarCollapsed) MoviesTheme.spacing.none else sidebarTokens.collapsedWidth
     val openSidebarWidth = sidebarTokens.expandedWidth
 
     val focusManager = LocalFocusManager.current
@@ -2274,14 +2263,8 @@ private fun ModernSidebarScaffold(
 
     val sidebarVisible = showSidebar && (isSidebarExpanded || !sidebarCollapsed)
     val sidebarHazeState = remember { HazeState() }
-    // Panel is always laid out at full expanded width; open/close is
-    // purely a graphicsLayer transform (scale + alpha) so Compose never
-    // re-layouts and haze doesn't re-render blur every frame.
-    val sidebarWidth = if (sidebarVisible) openSidebarWidth else collapsedSidebarWidth
-    val animationDuration = if (sidebarVisible) 400 else 300
     val animationEasing = if (sidebarVisible) FastOutSlowInEasing else FastOutLinearInEasing
 
-    val sidebarSlideX = MoviesTheme.spacing.none
     val sidebarSurfaceAlpha by animateFloatAsState(
         targetValue = if (isSidebarExpanded) 1f else 0f,
         animationSpec = tween(
@@ -2323,8 +2306,6 @@ private fun ModernSidebarScaffold(
     val sidebarShowCollapsedPill by remember { derivedStateOf { sidebarExpandProgress < 0.98f } }
 
     val sidebarIconScale = 1f
-    val sidebarBloomScale = 1f
-    val sidebarDeflateOffsetX = MoviesTheme.spacing.none
     val sidebarDeflateOffsetY = MoviesTheme.spacing.none
 
     LaunchedEffect(
@@ -2649,7 +2630,6 @@ private fun CollapsedSidebarPill(
     val bgElevated = colors.BackgroundElevated
     val bgCard = colors.BackgroundCard
     val borderBase = colors.Border
-    val mediaColors = colors.media
     val pillBackgroundBrush = remember(blurEnabled) {
         val alpha = if (blurEnabled) 0.65f else 0.96f
         Brush.verticalGradient(

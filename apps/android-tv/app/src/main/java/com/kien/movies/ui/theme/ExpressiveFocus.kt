@@ -3,21 +3,17 @@ package com.kien.movies.ui.theme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -33,9 +29,6 @@ internal object ExpressiveFocus {
     const val CONTROL_SCALE = 1.04f
     const val PILL_PERCENT = 50
 
-    /** Capsules keep their shape on focus, as on tvOS. */
-    const val FOCUSED_PILL_PERCENT = 50
-
     /** Elevation of the one soft shadow under a focused card. */
     val CARD_LIFT_ELEVATION: Dp = 18.dp
 
@@ -44,9 +37,6 @@ internal object ExpressiveFocus {
 
     /** Content on [focusedContainer]: black. */
     val focusedContent: Color get() = ExpressiveColors.onFocus
-
-    /** Resting fill of a button or pill: white at 14%. */
-    val frostedContainer: Color get() = ExpressiveColors.frosted
 
     @Composable
     fun containerColor(
@@ -95,22 +85,6 @@ internal object ExpressiveFocus {
     /** White content at rest, black on a focused white fill. */
     @Composable
     fun frostedContentColor(focused: Boolean): Color = contentColor(focused = focused, resting = MoviesTheme.colors.TextPrimary)
-
-    /** A capsule; kept as a function so callers written for the M3E corner morph still work. */
-    @Composable
-    fun morphingPill(focused: Boolean): Shape {
-        val percent by animateFloatAsState(
-            targetValue = (if (focused) FOCUSED_PILL_PERCENT else PILL_PERCENT).toFloat(),
-            animationSpec = ExpressiveMotion.focusLift(),
-            label = "expressivePillCorner"
-        )
-        return RoundedCornerShape(FractionalCornerSize(percent.coerceIn(0f, 50f)))
-    }
-}
-
-/** [CornerSize] taking a Float as percent; the Float overload of CornerSize means pixels. */
-private data class FractionalCornerSize(private val percent: Float) : CornerSize {
-    override fun toPx(shapeSize: Size, density: Density): Float = shapeSize.minDimension * percent / 100f
 }
 
 /** Grows a focused control on the focus lift spring; [scale] 1 leaves it still. */

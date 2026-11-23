@@ -31,7 +31,6 @@ import com.kien.movies.data.local.PlayerSettingsDataStore
 import com.kien.movies.data.local.StreamAutoPlayMode
 import com.kien.movies.data.local.StreamAutoPlaySource
 import com.kien.movies.data.local.SubtitleOrganizationMode
-import com.kien.movies.data.local.TrailerSettings
 import com.kien.movies.data.local.TrailerSettingsDataStore
 import com.kien.movies.data.local.VodCacheSizeMode
 import com.kien.movies.domain.model.enabledAddons
@@ -58,7 +57,6 @@ class PlaybackSettingsViewModel @Inject constructor(
     val playerSettings: Flow<PlayerSettings> = playerSettingsDataStore.playerSettings
     val transparentLetterbox: Flow<Boolean> = deviceLocalPlayerPreferences.transparentLetterbox
     val releaseDecoderOnBackground: Flow<Boolean> = deviceLocalPlayerPreferences.releaseDecoderOnBackground
-    val trailerSettings: Flow<TrailerSettings> = trailerSettingsDataStore.settings
     val torrentSettingsFlow: Flow<TorrentSettingsData> = torrentSettings.settings
     val torrentCacheState: StateFlow<TorrentCacheState> = torrentService.cacheState
     val torrentState: StateFlow<TorrentState> = torrentService.state
@@ -113,14 +111,6 @@ class PlaybackSettingsViewModel @Inject constructor(
 
     suspend fun setExternalPlayerSendSkipSegments(enabled: Boolean) {
         playerSettingsDataStore.setExternalPlayerSendSkipSegments(enabled)
-    }
-
-    suspend fun setTrailerEnabled(enabled: Boolean) {
-        trailerSettingsDataStore.setEnabled(enabled)
-    }
-
-    suspend fun setTrailerDelaySeconds(seconds: Int) {
-        trailerSettingsDataStore.setDelaySeconds(seconds)
     }
 
     // Audio settings

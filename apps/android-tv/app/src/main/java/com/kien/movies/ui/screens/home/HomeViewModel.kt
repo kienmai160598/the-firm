@@ -32,7 +32,6 @@ import com.kien.movies.domain.model.ContinueWatchingSortMode
 import com.kien.movies.domain.model.LibraryEntryInput
 import com.kien.movies.domain.model.ListMembershipChanges
 import com.kien.movies.domain.model.MDBListSettings
-import com.kien.movies.domain.model.Meta
 import com.kien.movies.domain.model.MetaPreview
 import com.kien.movies.domain.model.TmdbSettings
 import com.kien.movies.domain.repository.AddonRepository
@@ -51,7 +50,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -101,10 +99,6 @@ class HomeViewModel @Inject constructor(
         internal const val TAG = "HomeViewModel"
         internal const val STARTUP_GRACE_PERIOD_MS = 1_500L
         internal const val CONTINUE_WATCHING_ENRICHMENT_GRACE_PERIOD_MS = 1_000L
-        private const val CONTINUE_WATCHING_WINDOW_MS = 30L * 24 * 60 * 60 * 1000
-        private const val MAX_RECENT_PROGRESS_ITEMS = 300
-        private const val MAX_NEXT_UP_LOOKUPS = 24
-        private const val MAX_NEXT_UP_CONCURRENCY = 4
         private const val MAX_CATALOG_LOAD_CONCURRENCY = 3
 
         /** How long a home catalog is left alone before a return to Home re-requests it. */
@@ -174,7 +168,6 @@ class HomeViewModel @Inject constructor(
     }
 
     internal val _loadingCatalogs = MutableStateFlow<Set<String>>(emptySet())
-    val loadingCatalogs: StateFlow<Set<String>> = _loadingCatalogs.asStateFlow()
 
     internal val _enrichingItemId = MutableStateFlow<String?>(null)
     val enrichingItemId: StateFlow<String?> = _enrichingItemId.asStateFlow()
@@ -363,7 +356,6 @@ class HomeViewModel @Inject constructor(
     internal var movieWatchedBatchJob: Job? = null
     internal var lastMovieWatchedItemKeys: Set<String> = emptySet()
     internal var seriesWatchedObserverJob: Job? = null
-    internal var libraryTabsObserverJob: Job? = null
     internal var activePosterListPickerInput: LibraryEntryInput? = null
     internal var pendingPosterListPickerChanges: ListMembershipChanges? = null
 
@@ -535,11 +527,6 @@ class HomeViewModel @Inject constructor(
         }
         // Bump trigger so the pipeline's collectLatest restarts with fresh state.
         cwPipelineRefreshTrigger.value++
-    }
-
-    internal fun remainingStartupGraceMs(nowMs: Long = SystemClock.elapsedRealtime()): Long {
-        if (!startupGracePeriodActive) return 0L
-        return (STARTUP_GRACE_PERIOD_MS - (nowMs - startupStartedAtMs)).coerceAtLeast(0L)
     }
 
     internal fun remainingContinueWatchingEnrichmentGraceMs(
@@ -995,8 +982,6 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun loadAllCatalogs(addons: List<Addon>, forceReload: Boolean = false) = loadAllCatalogsPipeline(addons, forceReload)
 
-    private fun loadCatalog(addon: Addon, catalog: CatalogDescriptor, generation: Long) = loadCatalogPipeline(addon, catalog, generation)
-
     private fun loadMoreCatalogItems(catalogId: String, addonId: String, type: String) = loadMoreCatalogItemsPipeline(catalogId, addonId, type)
 
     internal fun scheduleUpdateCatalogRows() {
@@ -1072,25 +1057,9 @@ class HomeViewModel @Inject constructor(
 
     internal var posterStatusReconcileJob: Job? = null
 
-    private fun schedulePosterStatusReconcile(rows: List<CatalogRow>) = schedulePosterStatusReconcilePipeline(rows)
-
-    private fun reconcilePosterStatusObservers(rows: List<CatalogRow>) = reconcilePosterStatusObserversPipeline(rows)
-
     private fun navigateToDetail(itemId: String, itemType: String) {
         _uiState.update { it.copy(selectedItemId = itemId) }
     }
-
-    private suspend fun enrichHeroItems(
-        items: List<MetaPreview>,
-        settings: TmdbSettings
-    ): List<MetaPreview> = enrichHeroItemsPipeline(items, settings)
-
-    private fun replaceGridHeroItems(
-        gridItems: List<GridItem>,
-        heroItems: List<MetaPreview>
-    ): List<GridItem> = replaceGridHeroItemsPipeline(gridItems, heroItems)
-
-    private fun heroEnrichmentSignature(items: List<MetaPreview>, settings: TmdbSettings): String = heroEnrichmentSignaturePipeline(items, settings)
 
     /**
      * Saves the current focus and scroll state for restoration when returning to this screen.
@@ -1127,27 +1096,6 @@ class HomeViewModel @Inject constructor(
         )
         if (_focusState.value == nextState) return
         _focusState.value = nextState
-    }
-
-    /**
-     * Updates the stable focus target for a specific row.
-     */
-    fun updateFocusedItemKey(rowKey: String, itemKey: String) {
-        _focusState.update { state ->
-            val nextMap = state.focusedItemKeyByRow.toMutableMap()
-            if (nextMap[rowKey] == itemKey) return@update state
-            nextMap[rowKey] = itemKey
-            state.copy(focusedItemKeyByRow = nextMap)
-        }
-    }
-
-    /**
-     * Updates the currently focused row key.
-     */
-    fun updateFocusedRowKey(rowKey: String?) {
-        _focusState.update { state ->
-            if (state.focusedRowKey == rowKey) state else state.copy(focusedRowKey = rowKey)
-        }
     }
 
     /**

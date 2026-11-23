@@ -1150,22 +1150,6 @@ class FolderDetailViewModel @Inject constructor(
         }
     }
 
-    fun saveFollowLayoutGridFocusState(
-        verticalScrollIndex: Int,
-        verticalScrollOffset: Int,
-        focusedItemKey: String?
-    ) {
-        val nextState = com.kien.movies.ui.screens.home.HomeScreenFocusState(
-            verticalScrollIndex = verticalScrollIndex,
-            verticalScrollOffset = verticalScrollOffset,
-            focusedItemKey = focusedItemKey,
-            hasSavedFocus = true
-        )
-        if (_followLayoutFocusState.value != nextState) {
-            _followLayoutFocusState.value = nextState
-        }
-    }
-
     private fun loadTmdbSourceForTab(
         tabIndex: Int,
         source: TmdbCollectionSource,
@@ -1847,10 +1831,6 @@ class FolderDetailViewModel @Inject constructor(
             }
             if (changed) state.copy(tabs = updatedTabs) else state
         }
-    }
-
-    fun scrollToTop() {
-        _scrollToTopTrigger.value++
     }
 
     /**

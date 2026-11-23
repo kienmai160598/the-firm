@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -267,23 +266,6 @@ private fun SyncOverviewCard(overview: SyncOverview) {
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SyncStatChip(label: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MoviesTheme.colors.Secondary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = label,
-            fontSize = metaFontSize(9.sp),
-            color = MoviesTheme.colors.TextTertiary
-        )
     }
 }
 

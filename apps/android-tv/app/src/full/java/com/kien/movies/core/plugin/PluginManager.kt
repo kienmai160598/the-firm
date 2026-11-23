@@ -56,7 +56,6 @@ private const val TAG = "PluginManager"
 // providers overlap with fast ones instead of batching in groups of 5. OkHttp's
 // dispatcher + the providers' own internal parallelism stay the real bottleneck.
 private const val MAX_CONCURRENT_SCRAPERS = 10
-private const val MAX_RESULT_ITEMS = 150
 private const val MAX_RESPONSE_SIZE = 5 * 1024 * 1024L
 
 // Outer safety-net timeout for scrapers. The runner now internally caps loadLinks
@@ -715,73 +714,6 @@ class PluginManager @Inject constructor(
             runCatching { dataStore.recordPluginProviderPlay(scraperId) }
                 .onFailure { error -> Log.w(TAG, "Failed to record plugin provider play", error) }
         }
-    }
-
-    private suspend fun scrapersInRunOrder(
-        scrapers: List<ScraperInfo>,
-        priorityBingeGroup: String?
-    ): List<ScraperInfo> {
-        if (scrapers.size < 2) return scrapers
-        val stats = runCatching { dataStore.pluginProviderPlayStats() }.getOrElse { emptyMap() }
-        return scrapers.orderForPluginPlayback(
-            id = { it.id },
-            priorityBingeGroup = priorityBingeGroup,
-            stats = stats
-        )
-    }
-
-    /**
-     * Execute all enabled scrapers for a given media
-     */
-    suspend fun executeScrapers(
-        tmdbId: String,
-        mediaType: String,
-        season: Int? = null,
-        episode: Int? = null,
-        priorityBingeGroup: String? = null
-    ): List<LocalScraperResult> = coroutineScope {
-        if (!dataStore.pluginsEnabled.first()) {
-            return@coroutineScope emptyList()
-        }
-
-        val enabledScraperList = scrapersInRunOrder(
-            enabledScrapers.first().filter { it.supportsType(mediaType) },
-            priorityBingeGroup
-        )
-
-        if (enabledScraperList.isEmpty()) {
-            return@coroutineScope emptyList()
-        }
-
-        Log.d(TAG, "Executing ${enabledScraperList.size} scrapers for $mediaType:$tmdbId")
-
-        // Preload all extractors from EXTERNAL_DEX repos before any scraper runs
-        val dexScraperIds = enabledScraperList
-            .filter { it.type == RepositoryType.EXTERNAL_DEX }
-            .map { it.id }
-        if (dexScraperIds.isNotEmpty()) {
-            // Also load ALL dex scrapers from the same repos (not just enabled ones)
-            // since extractors can live in any .cs3 file
-            val allDexIds = dataStore.scrapers.first()
-                .filter { it.type == RepositoryType.EXTERNAL_DEX }
-                .map { it.id }
-            withContext(Dispatchers.IO) {
-                externalExtensionLoader.ensureExtractorsLoaded(allDexIds)
-            }
-        }
-
-        val results = enabledScraperList.mapIndexed { index, scraper ->
-            async(scraperOrchestrationDispatcher) {
-                if (index > 0) {
-                    kotlinx.coroutines.delay(index * 60L)
-                }
-                executeScraperWithSingleFlight(scraper, tmdbId, mediaType, season, episode)
-            }
-        }.awaitAll()
-
-        results.flatten()
-            .distinctBy { it.url }
-            .take(MAX_RESULT_ITEMS)
     }
 
     /**

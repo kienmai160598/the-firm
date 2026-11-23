@@ -3,8 +3,6 @@ package com.kien.movies.ui.screens.player
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.RectF
-import android.media.MediaFormat
-import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -31,7 +29,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ForwardingRenderer
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.RendererCapabilities
-import androidx.media3.exoplayer.RendererConfiguration
 import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.audio.AudioCapabilities
@@ -39,8 +36,6 @@ import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
-import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter
-import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.LoadEventInfo
@@ -73,7 +68,6 @@ import com.kien.movies.core.tracking.TrackingScrobbleAction
 import com.kien.movies.core.util.findCause
 import com.kien.movies.data.local.AudioLanguageOption
 import com.kien.movies.data.local.Dv7HandlingMode
-import com.kien.movies.data.local.FrameRateMatchingMode
 import com.kien.movies.data.local.InternalPlayerEngine
 import com.kien.movies.data.local.LibassRenderMode
 import com.kien.movies.data.local.PlayerSettings
@@ -83,7 +77,6 @@ import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.ui.screens.player.audiosync.AudioSyncTaps
 import com.kien.movies.ui.screens.settings.MemoryBudget
 import java.net.SocketTimeoutException
-import kotlin.math.min
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -92,7 +85,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 private const val MPV_AFR_SETTLE_DELAY_MS = 2_000L
-private const val AUDIO_DELAY_REFRESH_DEBOUNCE_MS = 120L
 private const val PLAYER_RELEASE_TIMEOUT_MS = 3000L
 private const val PLAYER_REBUILD_SETTLE_DELAY_MS = 120L
 private const val ADAPTIVE_QUALITY_INCREASE_MIN_DURATION_MS = 2_000
@@ -3048,15 +3040,6 @@ private fun createDolbyVisionFallbackCodecSelector(
     return MediaCodecSelector.DEFAULT
 }
 
-private fun describeExtensionRendererMode(mode: Int): String {
-    return when (mode) {
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF -> "off"
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON -> "on"
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER -> "prefer"
-        else -> mode.toString()
-    }
-}
-
 private fun DefaultRenderersFactory.applyMapDv7ToHevcIfSupported(
     enabled: Boolean
 ): DefaultRenderersFactory {
@@ -3151,8 +3134,6 @@ private fun PlayerRuntimeController.recordFirstFrameDiagnostics(
     val sourceProfile = DolbyVisionConversionStats.getLastSourceProfile()
         ?: parseDvProfileFromCodecString(currentVideoTrackCodecs)
     val conversionMode = DolbyVisionConversionStats.getLastSelectedConversionMode()
-    val conversionAttempted =
-        hasAttemptedDv7ToDv81ForCurrentPlayback || conversionCalls > 0 || signalingRewrites > 0
     if (pendingSeekTelemetryAwaitingFirstFrame && pendingSeekTelemetryRequestedAtMs > 0L) {
         pendingSeekTelemetryRequestedAtMs = 0L
         pendingSeekTelemetryTargetMs = -1L

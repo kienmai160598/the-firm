@@ -170,13 +170,6 @@ private fun TorboxCloudFileDto.bestCloudFileName(parentName: String?): String? {
     } ?: candidates.firstNonBlank()
 }
 
-fun torboxRequestIdParameterName(type: CloudLibraryItemType): String = when (type) {
-    CloudLibraryItemType.Torrent -> "torrent_id"
-    CloudLibraryItemType.Usenet -> "usenet_id"
-    CloudLibraryItemType.WebDownload -> "web_id"
-    CloudLibraryItemType.File -> "file_id"
-}
-
 private fun List<String?>.firstNonBlank(): String? = firstOrNull { !it.isNullOrBlank() }?.trim()
 
 private fun String.sameDisplayName(other: String?): Boolean {

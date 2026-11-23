@@ -198,10 +198,6 @@ class CollectionManagementViewModel @Inject constructor(
         return json
     }
 
-    fun clearExported() {
-        _uiState.update { it.copy(exportedJson = null) }
-    }
-
     fun showImportDialog() {
         _uiState.update {
             it.copy(
@@ -309,11 +305,6 @@ class CollectionManagementViewModel @Inject constructor(
 
     fun validateCurrentText() {
         validateJson(_uiState.value.importText.trim())
-    }
-
-    fun handleFileContent(content: String) {
-        _uiState.update { it.copy(importText = content) }
-        validateJson(content)
     }
 
     fun fetchUrl() {

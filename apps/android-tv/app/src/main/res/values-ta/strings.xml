@@ -149,7 +149,6 @@
     <string name="cw_percent_watched">%1$d%% பார்த்தது</string>
     <string name="cw_hours_min_left">%1$dh %2$dm மீதம்</string>
     <string name="cw_min_left">%1$dm மீதம்</string>
-    <string name="cw_almost_done">கிட்டத்தட்ட முடிந்தது</string>
     <string name="cw_airs_date">ஒளிபரப்பு %1$s</string>
     <string name="cw_action_go_to_details">விவரங்களுக்கு செல்</string>
     <string name="cw_action_start_from_beginning">தொடக்கத்திலிருந்து தொடங்கு</string>
@@ -167,14 +166,12 @@
     <string name="hero_director">இயக்குனர்: %1$s</string>
     <string name="hero_writer">எழுத்தாளர்: %1$s</string>
     <string name="hero_play">இயக்கு</string>
-    <string name="hero_play_episode">இயக்கு S%1$d E%2$d</string>
     <string name="hero_add_to_library">நூலகத்தில் சேர்</string>
     <string name="hero_remove_from_library">நூலகத்திலிருந்து நீக்கு</string>
     <string name="hero_mark_watched">பார்த்ததாக குறி</string>
     <string name="hero_mark_unwatched">பார்க்காததாக குறி</string>
     <string name="hero_play_trailer">ட்ரெய்லர் இயக்கு</string>
     <string name="hero_press_back_trailer">ட்ரெய்லரிலிருந்து வெளியேற பின் அழுத்தவும்</string>
-    <string name="cd_rating">மதிப்பீடு</string>
 
     <!-- EpisodesSection -->
     <string name="episodes_season">சீசன் %1$d</string>
@@ -236,10 +233,8 @@
     <string name="detail_section_production">தயாரிப்பு</string>
     <string name="detail_comments_empty">Trakt விமர்சனங்கள் இன்னும் இல்லை.</string>
     <string name="detail_comments_error">Trakt விமர்சனங்களை இப்போது ஏற்ற முடியவில்லை.</string>
-    <string name="detail_trailer_loading">ட்ரெய்லர் ஏற்றப்படுகிறது...</string>
     <string name="detail_trailer_error">ட்ரெய்லரை இப்போது ஏற்ற முடியவில்லை.</string>
     <string name="detail_comments_spoiler_hidden">ஸ்பாய்லர் விமர்சனம். காண OK அழுத்தவும்.</string>
-    <string name="detail_comments_reveal_spoiler">ஸ்பாய்லரை காட்டு</string>
     <string name="detail_comments_reveal_spoiler_hint">ஸ்பாய்லரை காண OK அழுத்தவும்.</string>
     <string name="detail_comments_back_hint">மூட பின் அழுத்தவும்</string>
     <string name="detail_comments_badge_review">விமர்சனம்</string>
@@ -337,9 +332,6 @@
     <string name="about_version">பதிப்பு %1$s</string>
     <string name="about_check_updates">புதுப்பிப்புகளை சரிபார்</string>
     <string name="about_check_updates_subtitle">சமீபத்திய வெளியீட்டை பதிவிறக்கு</string>
-    <string name="about_privacy_policy">தனியுரிமைக் கொள்கை</string>
-    <string name="about_privacy_policy_subtitle">எங்கள் தனியுரிமைக் கொள்கையை காண்க</string>
-    <string name="about_supporters_contributors">ஆதரவாளர்கள் &amp; பங்களிப்பாளர்கள்</string>
     <string name="about_supporters_contributors_subtitle">திறந்த அங்கீகாரம் மற்றும் திட்ட நன்றிகள்</string>
     <string name="about_licenses_attributions">உரிமங்கள் &amp; நன்றிக்குறிப்புகள்</string>
     <string name="about_licenses_attributions_subtitle">தரவு மூலங்கள், நன்றிகள் மற்றும் ஆண்ட்ராய்டு உரிமங்கள்</string>
@@ -370,13 +362,8 @@
     <string name="settings_account">அக்கவுண்ட்</string>
     <string name="settings_profiles">புரொஃபைல்கள்</string>
     <string name="settings_layout">அமைப்பு வடிவம்</string>
-    <string name="settings_plugins">பிளகின்கள்</string>
-    <string name="settings_plugins_subtitle">களஞ்சியங்கள் மற்றும் வழங்குநர்கள்</string>
     <string name="settings_integration">ஒருங்கிணைப்புகள்</string>
     <string name="settings_playback">இயக்கம்</string>
-    <string name="settings_trakt_subtitle">ட்ராக்ட் இணைப்பு திரையை திற</string>
-    <string name="settings_network">இணைய வேகம்</string>
-    <string name="settings_network_subtitle">தாமதம் மற்றும் பதிவிறக்க ஆய்வு</string>
     <string name="settings_advanced">மேம்பட்டது</string>
     <string name="settings_advanced_subtitle">செயல்திறன், வழிசெலுத்தல், கேச் மற்றும் ஆய்வு</string>
     <string name="experience_mode_essential">எளிமை</string>
@@ -463,8 +450,6 @@
     <string name="advanced_fast_horizontal_navigation_subtitle">மீள்வேக கட்டுப்பாட்டை வைத்தபடி டி-பேட் வேகத்தை அதிகரிக்கவும்.</string>
     <string name="advanced_nuvio_focus_scroll">நுவியோ கவன உருட்டல்</string>
     <string name="advanced_nuvio_focus_scroll_subtitle">நுவியோவின் தனிப்பயன் கவன உருட்டல் அசைவூட்டலை பயன்படுத்து.</string>
-    <string name="advanced_memory_only_vertical_scroll">நினைவக மட்டும் செங்குத்து உருட்டல்</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">முகப்பு வரிசைகளை உருட்டும் போது வட்டு மற்றும் இணைய பட கோரிக்கைகளை தவிர்.</string>
     <string name="advanced_compose_highlighter">காம்போஸ் ஒளிர்விப்பு</string>
     <string name="advanced_compose_highlighter_subtitle">செயல்திறன் ஆய்வுக்காக மறுஉருவாக்க UI கூறுகளை ஒளிரச்செய்.</string>
     <string name="advanced_clear_cw_cache">தொடர்ந்து பார்ப்பது கேச் அழி</string>
@@ -473,7 +458,6 @@
     <string name="advanced_remember_last_profile">கடைசி புரொஃபைலை நினைவில் வை</string>
     <string name="advanced_remember_last_profile_subtitle">தொடக்கத்தில் கடைசியாக தேர்ந்தெடுத்த புரொஃபைலை நினைவில் வைத்திரு</string>
     <string name="settings_debug">பிழைத்திருத்தம்</string>
-    <string name="settings_plugins_section_subtitle">களஞ்சியங்கள், வழங்குநர்கள் மற்றும் பிளகின் நிலைகளை நிர்வகி</string>
     <string name="settings_account_section_subtitle">அக்கவுண்ட் மற்றும் ஒத்திசைவு நிலை</string>
     <string name="account_stat_addons">ஆட்-ஆன்கள்</string>
     <string name="account_stat_plugins">பிளகின்கள்</string>
@@ -498,14 +482,6 @@
     <string name="action_close">மூடு</string>
 
         <!-- SupportersContributorsScreen -->
-    <string name="supporters_contributors_title">ஆதரவாளர்கள் &amp; பங்களிப்பாளர்கள்</string>
-    <string name="supporters_contributors_subtitle">Movies-க்கு ஆதரவளிக்கும் மற்றும் டிவி, மொபைல் முழுவதும் இதை உருவாக்கும் நபர்கள்.</string>
-    <string name="supporters_contributors_supporters_copy">ஆதரவாளர்கள் மற்றும் நன்கொடையாளர்கள் இந்த திட்டம் தொடர்ந்து முன்னேற, கட்டமைப்பு செலவுகளை ஏற்க, மற்றும் பெரிய அம்சங்களுக்கு இடமளிக்க உதவுகின்றனர்.</string>
-    <string name="supporters_contributors_donate_copy">Movies எப்போதும் இலவசமாகவும் திறந்த மூலமாகவும் இருக்கும். திட்டத்தை ஆதரிக்க விரும்பினால், இதற்கான நேரம் மற்றும் கட்டமைப்பு செலவுகளுக்கு உதவலாம்.</string>
-    <string name="supporters_contributors_donate_button">Movies-க்கு நன்கொடை அளிக்கவும்</string>
-    <string name="supporters_contributors_qr_title">நன்கொடை அளிக்க ஸ்கேன் செய்யவும்</string>
-    <string name="supporters_contributors_qr_subtitle">Movies-வை ஆதரிக்க உங்கள் தொலைபேசியில் இணைப்பைத் திறக்கவும்.</string>
-    <string name="supporters_contributors_qr_hint">QR குறியீட்டை கேமராவால் ஸ்கேன் செய்யவும் அல்லது கீழே உள்ள பொத்தானைப் பயன்படுத்தவும்.</string>
     <string name="supporters_contributors_back_button">விவரங்களுக்கு திரும்பு</string>
     <string name="supporters_tab">ஆதரவாளர்கள்</string>
     <string name="sponsors_tab">ஆதரிப்பாளர்கள்</string>
@@ -513,7 +489,6 @@
     <string name="supporters_loading">ஆதரவாளர்கள் ஏற்றப்படுகிறது…</string>
     <string name="supporters_empty">இன்னும் ஆதரவாளர்கள் இல்லை.</string>
     <string name="supporters_error_title">ஆதரவாளர்களை ஏற்ற முடியவில்லை</string>
-    <string name="supporters_no_message">எந்த செய்தியும் பகிரப்படவில்லை.</string>
     <string name="supporters_open_donations">நன்கொடை பக்கத்தை திற</string>
     <string name="sponsors_loading">ஆதரிப்பாளர்கள் ஏற்றப்படுகிறது…</string>
     <string name="sponsors_empty">இன்னும் ஆதரிப்பாளர்கள் இல்லை.</string>
@@ -524,7 +499,6 @@
     <string name="contributors_loading">GitHub பங்களிப்பாளர்கள் ஏற்றப்படுகிறது…</string>
     <string name="contributors_empty">இன்னும் பங்களிப்பாளர்கள் இல்லை.</string>
     <string name="contributors_error_title">பங்களிப்பாளர்களை ஏற்ற முடியவில்லை</string>
-    <string name="contributors_total_contributions">மொத்த பங்களிப்புகள் %1$d</string>
     <string name="contributors_open_github">GitHub சுயவிவரத்தை திற</string>
     <string name="contributors_show_kofi_qr">Ko-fi QR-ஐ காட்டு</string>
     <string name="contributors_hide_kofi_qr">Ko-fi QR-ஐ மறை</string>
@@ -584,7 +558,6 @@
     <string name="playback_engine_mvplayer_desc">Movies OSD கட்டுப்பாடுகளுடன் libmpv பயன்படுத்துகிறது. சோதனை நிலையில் உள்ளது.</string>
 
         <!-- PlaybackAudioSettings -->
-    <string name="audio_trailer_section">ட்ரெய்லர்</string>
     <string name="audio_autoplay_trailers">தானியங்கு ட்ரெய்லர் இயக்கம்</string>
     <string name="audio_autoplay_trailers_sub">செயலற்ற நிலையில் சில நேரம் கழித்து விவரத் திரையில் ட்ரெய்லர்களை தானாக இயக்கவும்</string>
     <string name="audio_trailer_delay">ட்ரெய்லர் தாமதம்</string>
@@ -624,7 +597,6 @@
     <string name="audio_decoder_controls">ஒலி மற்றும் காணொளிக்காக வன்பொருள் அல்லது மென்பொருள் (எப்எப்எம்பிஇஜி) டிகோடர்கள் பயன்படுத்தப்படுகிறதா என்பதை கட்டுப்படுத்துகிறது</string>
 
     <!-- PlaybackSubtitleSettings -->
-    <string name="sub_section">வசன வரிகள்</string>
     <string name="sub_not_set">அமைக்கப்படவில்லை</string>
     <string name="sub_forced_lang">கட்டாயம்</string>
     <string name="sub_preferred_lang">விருப்பமான மொழி</string>
@@ -633,7 +605,6 @@
     <string name="sub_use_forced_subtitles_desc">ஒலி மற்றும் வசன மொழி பொருந்தினால் கட்டாய வசன வரிகளுக்கு முன்னுரிமை கொடு; இல்லையெனில் எதையும் தேர்ந்தெடுக்க வேண்டாம்</string>
     <string name="sub_show_only_preferred_languages">விருப்ப மொழிகளை மட்டும் காட்டு</string>
     <string name="sub_show_only_preferred_languages_desc">தேர்வு பட்டியலில் உள்ள பிற வசன மொழிகளை மறை</string>
-    <string name="sub_organization">வசன வரி ஒழுங்கமைப்பு</string>
     <string name="sub_size">அளவு</string>
     <string name="sub_vertical_offset">செங்குத்து இடமாற்றம்</string>
     <string name="sub_bold">தடித்த</string>
@@ -646,13 +617,6 @@
     <string name="sub_advanced_section">மேம்பட்ட வசன வரி காட்சிப்படுத்தல்</string>
     <string name="sub_libass">ஏஎஸ்எஸ்/எஸ்எஸ்ஏ வசனங்களுக்கு லிபாஸ் பயன்படுத்து</string>
     <string name="sub_libass_sub">சோதனை நிலை: மேம்பட்ட ஏஎஸ்எஸ்/எஸ்எஸ்ஏ காட்சி (பாணி, நிலை, அசைவூட்டம்)</string>
-    <string name="sub_libass_mode">லிபாஸ் காட்சி முறை</string>
-    <string name="sub_org_none">எதுவுமில்லை (இயல்புநிலை வரிசை)</string>
-    <string name="sub_org_by_lang">மொழிப்படி</string>
-    <string name="sub_org_by_addon">ஆட்ஒன்படி</string>
-    <string name="sub_org_none_desc">ஆட்ஒன் இயல்புநிலை முடிவு வரிசையில் வசனங்களை காட்டு.</string>
-    <string name="sub_org_by_lang_desc">வசனங்களை மொழிப்படி குழுவாக்கு.</string>
-    <string name="sub_org_by_addon_desc">வசனங்களை ஆட்ஒன் மூலத்தின்படி குழுவாக்கு.</string>
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">கடைசி இணைப்பை மீண்டும் பயன்படுத்து</string>
@@ -677,7 +641,6 @@
     <string name="autoplay_threshold_pct_title">வரம்பு சதவீதம்</string>
     <string name="autoplay_threshold_pct_sub">அவுட்ரோ நேரமுத்திரை இல்லாதபோது மாற்று வழி.</string>
     <string name="autoplay_threshold_min_title">வரம்பு நிமிடங்கள்</string>
-    <string name="autoplay_threshold_min_sub">அவுட்ரோ நேரமுத்திரை இல்லாதபோது மாற்று வழி.</string>
     <string name="autoplay_scope_all">அனைத்து மூலங்களும்</string>
     <string name="autoplay_scope_addons">நிறுவப்பட்ட ஆட்ஒன்கள் மட்டும்</string>
     <string name="autoplay_scope_plugins">இயக்கப்பட்ட பிளகின்கள் மட்டும்</string>
@@ -718,8 +681,6 @@
     <string name="layout_section_home_desc">வடிவமைப்பு மற்றும் ஹீரோ மூலத்தைத் தேர்ந்தெடு.</string>
     <string name="layout_landscape_posters">கிடைநிலை போஸ்டர்கள்</string>
     <string name="layout_landscape_posters_sub">நவீன காட்சிக்காக நேர்நிலை மற்றும் கிடைநிலை அட்டைகளுக்கு இடையில் மாற்று.</string>
-    <string name="layout_preview_row">முன்னோட்ட வரியைக் காட்டு</string>
-    <string name="layout_preview_row_sub">நவீன முகப்பு தளவமைப்பில் கீழே உள்ள வரியின் பகுதி முன்னோட்டத்தைக் காட்டு.</string>
     <string name="layout_hero_catalogs">ஹீரோ பட்டியல்கள்</string>
     <string name="layout_hero_catalogs_sub">ஹீரோ உள்ளடக்கத்திற்காக ஒன்று அல்லது அதற்கு மேற்பட்ட பட்டியல்களைத் தேர்ந்தெடு.</string>
     <string name="layout_section_content">முகப்பு உள்ளடக்கம்</string>
@@ -805,8 +766,6 @@
     <string name="layout_preset_balanced">சமநிலை</string>
     <string name="layout_preset_comfort">வசதியான</string>
     <string name="layout_preset_large">பெரியது</string>
-    <string name="layout_memory_only_scroll">நினைவகம் மட்டும் செங்குத்து உருட்டல்</string>
-    <string name="layout_memory_only_scroll_sub">செங்குத்தாக உருட்டும் போது புதிய படங்களை ஏற்றுவதை தவிர்.</string>
     <string name="layout_preset_sharp">தெளிவான</string>
     <string name="layout_preset_subtle">மென்மையான</string>
     <string name="layout_preset_classic">பாரம்பரிய</string>
@@ -823,23 +782,7 @@
     <string name="mdblist_enable_title">எம்டிபிலிஸ்ட் மதிப்பீடுகளை இயக்கு</string>
     <string name="mdblist_enable_subtitle">மேட்டாடேட்டா விவரத்திரையில் வெளிப்புற வழங்குநர்களிலிருந்து மதிப்பீடுகளை பெறு</string>
     <string name="mdblist_api_key_title">ஏபிஐ விசை</string>
-    <string name="mdblist_api_key_subtitle">எம்டிபிலிஸ்டிலிருந்து மதிப்பீடுகளை பெற அவசியம்</string>
-    <string name="mdblist_trakt_title">டிராக்ட்</string>
-    <string name="mdblist_trakt_subtitle">டிராக்ட் மதிப்பெண்ணை காட்டு</string>
-    <string name="mdblist_imdb_title">ஐஎம்டிபி</string>
-    <string name="mdblist_imdb_subtitle">ஐஎம்டிபி மதிப்பெண்ணை காட்டு (கிடைத்தால் இயல்புநிலை ஐஎம்டிபி வரியை மறை)</string>
-    <string name="mdblist_tmdb_title">டிஎம்டிபி</string>
-    <string name="mdblist_tmdb_subtitle">டிஎம்டிபி மதிப்பெண்ணை காட்டு</string>
-    <string name="mdblist_letterboxd_title">லெட்டர்பாக்ஸ்ட்</string>
-    <string name="mdblist_letterboxd_subtitle">லெட்டர்பாக்ஸ்ட் மதிப்பெண்ணை காட்டு</string>
-    <string name="mdblist_tomatoes_title">ராட்டன் டொமேட்டோஸ்</string>
-    <string name="mdblist_tomatoes_subtitle">விமர்சகர் மதிப்பெண்ணை காட்டு</string>
-    <string name="mdblist_audience_title">பார்வையாளர் மதிப்பெண்</string>
-    <string name="mdblist_audience_subtitle">பார்வையாளர் மதிப்பெண்ணை காட்டு</string>
-    <string name="mdblist_metacritic_title">மெட்டாகிரிட்டிக்</string>
-    <string name="mdblist_metacritic_subtitle">மெட்டாகிரிட்டிக் மதிப்பெண்ணை காட்டு</string>
     <string name="mdblist_dialog_title">எம்டிபிலிஸ்ட் ஏபிஐ விசை</string>
-    <string name="mdblist_dialog_subtitle">வெளிப்புற மதிப்பீடுகளை பெற உங்கள் ஏபிஐ விசையை உள்ளிடவும்</string>
     <string name="mdblist_dialog_placeholder">எம்டிபிலிஸ்ட் ஏபிஐ விசையை உள்ளிடவும்</string>
     <string name="mdblist_not_set">அமைக்கப்படவில்லை</string>
     <string name="mdblist_invalid_api_key">தவறான எம்டிபிலிஸ்ட் ஏபிஐ விசை</string>
@@ -894,14 +837,12 @@
     <!-- TraktScreen -->
     <string name="trakt_description">உங்கள் பார்க்கப்பட்டியல், பார்வை முன்னேற்றம், தொடர்ந்து பார்ப்பது, ஸ்க்ரோபிள்கள் மற்றும் தனிப்பட்ட பட்டியல்களை ட்ராக்ட் உடன் ஒத்திசைக்கவும்.</string>
     <string name="trakt_connected_as">%1$s ஆக இணைக்கப்பட்டுள்ளது</string>
-    <string name="trakt_account_login">கணக்கு உள்நுழைவு</string>
     <string name="trakt_awaiting_instruction">trakt.tv/activate க்கு சென்று இந்த குறியீட்டை உள்ளிடவும்:</string>
     <string name="trakt_waiting_approval">அனுமதிக்காக காத்திருக்கிறது…</string>
     <string name="qr_login_approved">உள்நுழைவு அனுமதிக்கப்பட்டது. உள்நுழைவு முடிக்கப்படுகிறது…</string>
     <string name="qr_login_pending">உங்கள் தொலைபேசியில் அனுமதிக்க காத்திருக்கிறது…</string>
     <string name="qr_login_expired">க்யூஆர் உள்நுழைவு காலாவதியானது. புதிய குறியீட்டை உருவாக்கவும்.</string>
     <string name="qr_login_preparing">க்யூஆர் உள்நுழைவு தயாராகிறது...</string>
-    <string name="qr_login_device_auth_failed">சாதனத்தை அங்கீகரிக்க முடியவில்லை</string>
     <string name="qr_login_scan_prompt">க்யூஆர் ஐ ஸ்கேன் செய்து உங்கள் தொலைபேசியில் உள்நுழையவும்</string>
     <string name="qr_login_start_failed">க்யூஆர் உள்நுழைவை தொடங்க முடியவில்லை</string>
     <string name="qr_login_signing_in">உங்களை உள்நுழைக்கிறது…</string>
@@ -909,38 +850,20 @@
     <string name="qr_login_exchange_failed">க்யூஆர் உள்நுழைவை முடிக்க முடியவில்லை</string>
     <string name="trakt_code_expires">குறியீடு %1$s இல் காலாவதியாகும்</string>
     <string name="trakt_token_refreshes">ட்ராக்ட் அணுகல் டோக்கன் %1$s இல் புதுப்பிக்கப்படும்</string>
-    <string name="trakt_login_instruction">உள்நுழைவை தொடங்க உள்நுழைவு பொத்தானை அழுத்தவும். க்யூஆர் குறியீடு இங்கு தோன்றும்.</string>
     <string name="trakt_missing_credentials">local.properties இல் TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET இல்லை.</string>
     <string name="trakt_watch_progress_title">பார்வை முன்னேற்றம்</string>
     <string name="trakt_watch_progress_subtitle">மீண்டும் தொடங்கு மற்றும் தொடர்ந்து பார்ப்பதற்கு எந்த முன்னேற்ற மூலத்தை பயன்படுத்துவது என்பதை தேர்வு செய்யவும்</string>
     <string name="trakt_watch_progress_dialog_title">பார்வை முன்னேற்றம்</string>
-    <string name="trakt_watch_progress_dialog_subtitle">ட்ராக்ட் ஸ்க்ரோபிளிங் செயலிலேயே இருக்கும் போது, மீண்டும் தொடங்கு மற்றும் தொடர்ந்து பார்ப்பதற்கு ட்ராக்ட் அல்லது நுவியோ ஒத்திசைவை பயன்படுத்த வேண்டுமா என்பதை தேர்வு செய்யவும்.</string>
-    <string name="trakt_watch_progress_source_trakt">ட்ராக்ட்</string>
     <string name="trakt_watch_progress_source_nuvio">நுவியோ ஒத்திசைவு</string>
     <string name="trakt_library_source_title">நூலக மூலம்</string>
     <string name="trakt_library_source_subtitle">உங்கள் தொகுப்பை சேமிக்கவும் பார்க்கவும் எந்த நூலகத்தை பயன்படுத்துவது என்பதை தேர்வு செய்யவும்</string>
     <string name="trakt_library_source_dialog_title">நூலக மூலம்</string>
-    <string name="trakt_library_source_dialog_subtitle">உங்கள் நூலக உருப்படிகளை எங்கு சேமித்து நிர்வகிப்பது என்பதை தேர்வு செய்யவும்</string>
-    <string name="trakt_library_source_trakt">ட்ராக்ட்</string>
     <string name="trakt_library_source_nuvio">நுவியோ நூலகம்</string>
-    <string name="trakt_library_source_trakt_selected">ட்ராக்ட் நூலகம் தேர்ந்தெடுக்கப்பட்டது</string>
-    <string name="trakt_library_source_nuvio_selected">நுவியோ நூலகம் தேர்ந்தெடுக்கப்பட்டது</string>
-    <string name="trakt_setting_on">இயக்கம்</string>
     <string name="trakt_setting_off">நிறுத்தம்</string>
-    <string name="trakt_watch_progress_trakt_selected">பார்வை முன்னேற்ற மூலம் ட்ராக்ட் ஆக அமைக்கப்பட்டது</string>
-    <string name="trakt_watch_progress_nuvio_selected">பார்வை முன்னேற்ற மூலம் நுவியோ ஒத்திசைவு ஆக அமைக்கப்பட்டது</string>
     <string name="trakt_continue_watching_window">தொடர்ந்து பார்ப்பது சாளரம்</string>
     <string name="trakt_continue_watching_subtitle">தொடர்ந்து பார்ப்பதற்காக கருதப்படும் ட்ராக்ட் வரலாறு</string>
-    <string name="trakt_unaired_next_up">ஒளிபரப்பாகாத அடுத்த அத்தியாயங்கள்</string>
-    <string name="trakt_unaired_next_up_subtitle">வரவிருக்கும் அத்தியாயங்களை வெளியீட்டுக்கு முன் காட்டு</string>
-    <string name="trakt_unaired_shown">காட்டப்பட்டது</string>
-    <string name="trakt_unaired_hidden">மறைக்கப்பட்டது</string>
-    <string name="trakt_unaired_now_shown">ஒளிபரப்பாகாத அடுத்த அத்தியாயங்கள் இப்போது காட்டப்படுகின்றன</string>
-    <string name="trakt_unaired_now_hidden">ஒளிபரப்பாகாத அடுத்த அத்தியாயங்கள் இப்போது மறைக்கப்படுகின்றன</string>
     <string name="trakt_comments_title">கருத்துகள்</string>
     <string name="trakt_comments_subtitle">மெட்டாடேட்டா பக்கங்களில் ட்ராக்ட் விமர்சனங்களை காட்டு</string>
-    <string name="trakt_comments_dialog_title">கருத்துகள்</string>
-    <string name="trakt_comments_dialog_subtitle">உங்கள் கணக்கு இணைக்கப்பட்டிருக்கும் போது, மெட்டாடேட்டா பக்கங்களில் ட்ராக்ட் விமர்சனங்களை காட்ட வேண்டுமா என்பதை தேர்வு செய்யவும்.</string>
     <string name="trakt_comments_now_shown">மெட்டாடேட்டா பக்கங்களில் ட்ராக்ட் விமர்சனங்கள் இப்போது காட்டப்படுகின்றன</string>
     <string name="trakt_comments_now_hidden">மெட்டாடேட்டா பக்கங்களில் ட்ராக்ட் விமர்சனங்கள் இப்போது மறைக்கப்படுகின்றன</string>
     <string name="trakt_more_like_this_source_title">இதுபோன்றவை மூலம்</string>
@@ -957,15 +880,8 @@
     <string name="trakt_disconnect">இணைப்பை துண்டிக்கவும்</string>
     <string name="trakt_disconnect_title">ட்ராக்ட் இணைப்பை துண்டிக்கவா?</string>
     <string name="trakt_disconnect_subtitle">இது உங்கள் ட்ராக்ட் கணக்கை நுவியோவிலிருந்து துண்டிக்கும்.</string>
-    <string name="trakt_login">உள்நுழை</string>
-    <string name="trakt_retry">மீண்டும் முயற்சி</string>
-    <string name="trakt_back">பின்</string>
     <string name="trakt_cw_window_title">தொடர்ந்து பார்ப்பது சாளரம்</string>
     <string name="trakt_cw_window_subtitle">தொடர்ந்து பார்ப்பதில் எவ்வளவு ட்ராக்ட் செயல்பாடு தோன்ற வேண்டும் என்பதை தேர்வு செய்யவும்.</string>
-    <string name="trakt_unaired_dialog_title">ஒளிபரப்பாகாத அடுத்த அத்தியாயங்கள்</string>
-    <string name="trakt_unaired_dialog_subtitle">வெளியீட்டுக்கு முன் வரவிருக்கும் அத்தியாயங்களை தொடர்ந்து பார்ப்பதில் சேர்க்க வேண்டுமா என்பதை தேர்வு செய்யவும்.</string>
-    <string name="trakt_show_unaired">ஒளிபரப்பாகாத அத்தியாயங்களை காட்டு</string>
-    <string name="trakt_hide_unaired">ஒளிபரப்பாகாத அத்தியாயங்களை மறை</string>
     <string name="trakt_all_history">முழு வரலாறு</string>
     <string name="trakt_days_format">%1$d நாட்கள்</string>
 
@@ -1004,26 +920,15 @@
     <string name="profile_manage_title">சுயவிவரங்களை நிர்வகிக்கவும்</string>
     <string name="profile_manage_subtitle">திருத்த, மாற்ற அல்லது புதியதை உருவாக்க ஒரு சுயவிவரத்தை தேர்ந்தெடுக்கவும்</string>
     <string name="profile_manage_hint">நிர்வகிக்க ஒரு சுயவிவரத்தை தேர்ந்தெடுக்கவும்</string>
-    <string name="profile_primary_label">முதன்மை</string>
-    <string name="profile_shares_primary">முதன்மையின் %1$s ஐ பகிர்கிறது</string>
     <string name="profile_edit_label">திருத்து</string>
     <string name="profile_edit_header">சுயவிவரத்தை திருத்து</string>
-    <string name="profile_add">சுயவிவரம் சேர்</string>
     <string name="profile_create_title">சுயவிவரம் உருவாக்கு</string>
-    <string name="profile_edit_title">சுயவிவரம் %1$s ஐ திருத்து</string>
     <string name="profile_name_placeholder">சுயவிவரப் பெயர்</string>
-    <string name="profile_avatar_color">அவதார் நிறம்</string>
-    <string name="profile_use_primary_addons">முதன்மை சுயவிவரத்தின் அட்ஆன்களை பயன்படுத்து</string>
-    <string name="profile_use_primary_plugins">முதன்மை சுயவிவரத்தின் பிளகின்களை பயன்படுத்து</string>
     <string name="profile_creating">உருவாக்கப்படுகிறது…</string>
     <string name="profile_create_btn">உருவாக்கு</string>
-    <string name="profile_confirm">உறுதிப்படுத்து</string>
     <string name="profile_delete">நீக்கு</string>
-    <string name="profile_addons">அட்ஆன்கள்</string>
-    <string name="profile_plugins">பிளகின்கள்</string>
     <string name="profile_choose_avatar">அவதாரை தேர்ந்தெடுக்கவும்</string>
     <string name="profile_custom_avatar_web_panel_note">தனிப்பயன் அவதார் யூஆர்எல்கள் நுவியோ வலைப் பலகையில் அமைக்கப்படலாம்.</string>
-    <string name="profile_avatar_none_selected">அவதார் எதுவும் தேர்ந்தெடுக்கப்படவில்லை</string>
     <string name="profile_avatar_focus_hint">அதன் பெயரை காண ஒரு அவதாரில் கவனம் செலுத்தவும்</string>
     <string name="profile_avatar_category_all">அனைத்தும்</string>
     <string name="profile_avatar_category_anime">அனிமே</string>
@@ -1034,30 +939,17 @@
     <string name="profile_add_new">சுயவிவரம் சேர்</string>
     <string name="profile_cancel">ரத்து செய்</string>
     <string name="profile_save">சேமி</string>
-    <string name="profile_pin_title">சுயவிவர பின் பூட்டு</string>
-    <string name="profile_pin_enabled_subtitle">மாற்றுவதற்கு முன் இந்த சுயவிவரத்திற்கு 4 இலக்க பின் தேவை.</string>
-    <string name="profile_pin_disabled_subtitle">இந்த சுயவிவரத்தை பூட்ட 4 இலக்க பின் அமைக்கவும்.</string>
     <string name="profile_pin_set">பின் அமை</string>
     <string name="profile_pin_change">பின் மாற்று</string>
     <string name="profile_pin_remove">பின் அகற்று</string>
-    <string name="profile_pin_set_title">சுயவிவர பின் அமை</string>
-    <string name="profile_pin_set_subtitle">4 இலக்க பினை உள்ளிட்டு உறுதிப்படுத்தவும்.</string>
     <string name="profile_pin_enter">4 இலக்க பினை உள்ளிடவும்</string>
-    <string name="profile_pin_confirm">4 இலக்க பினை உறுதிப்படுத்தவும்</string>
-    <string name="profile_pin_mismatch">பின் மதிப்புகள் பொருந்தவில்லை.</string>
-    <string name="profile_pin_save">பின் சேமி</string>
-    <string name="profile_pin_unlock_title">%1$s ஐ திறக்கவும்</string>
-    <string name="profile_pin_unlock_subtitle">தொடர 4 இலக்க பினை உள்ளிடவும்.</string>
     <string name="profile_pin_verifying">சரிபார்க்கப்படுகிறது…</string>
-    <string name="profile_pin_unlock_action">திற</string>
     <string name="profile_pin_overlay_unlock_heading">%1$s ஐ அணுக உங்கள் பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_set_heading">%1$s க்கு 4 இலக்க பினை உருவாக்கவும்.</string>
     <string name="profile_pin_overlay_confirm_heading">உங்கள் புதிய பினை உறுதிப்படுத்தவும்.</string>
     <string name="profile_pin_overlay_unlock_support">4 இலக்கங்களை உள்ளிட உங்கள் ரிமோட் அல்லது விசைப்பலகையை பயன்படுத்தவும்.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">பாதுகாப்பு சரிபார்ப்பு தேவை.</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$s க்கான பினை மாற்ற தற்போதைய பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_change_verify_support">புதியதை அமைக்கும் முன் தற்போதைய 4 இலக்க பினை உள்ளிடவும்.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">பாதுகாப்பு சரிபார்ப்பு தேவை.</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$s க்கான பூட்டை அகற்ற தற்போதைய பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_remove_verify_support">இந்த பூட்டை அகற்ற தற்போதைய 4 இலக்க பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$s ஐ நீக்க தற்போதைய பினை உள்ளிடவும்.</string>
@@ -1089,7 +981,6 @@
     <string name="addon_error_invalid_scheme">அட்ஆன் யூஆர்எல் http அல்லது https மூலம் தொடங்க வேண்டும்</string>
     <string name="addon_installed_section">நிறுவப்பட்டவை</string>
     <string name="addon_empty">அட்ஆன்கள் எதுவும் நிறுவப்படவில்லை. தொடங்க ஒன்றை சேர்க்கவும்.</string>
-    <string name="addon_remove">அகற்று</string>
     <string name="addon_manage_from_phone_title">தொலைபேசியிலிருந்து நிர்வகிக்கவும்</string>
     <string name="addon_manage_from_phone_subtitle">உங்கள் தொலைபேசியில் இருந்து அட்ஆன்கள், கேட்டலாக்கள் மற்றும் தொகுப்புகளை நிர்வகிக்க க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">உங்கள் தொலைபேசியில் இருந்து அட்ஆன்களை நிறுவ அல்லது அகற்ற க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
@@ -1132,8 +1023,6 @@
     <string name="stream_no_streams">ஸ்ட்ரீம்கள் எதுவும் கிடைக்கவில்லை</string>
     <string name="stream_no_streams_hint">ஸ்ட்ரீம்களை கண்டுபிடிக்க மேலும் ஆடான்களை நிறுவ முயற்சிக்கவும்</string>
     <string name="stream_finding_source">ஸ்ட்ரீம் மூலத்தை கண்டுபிடிக்கிறது</string>
-    <string name="stream_type_torrent">டோரண்ட்</string>
-    <string name="stream_type_youtube">யூடியூப்</string>
     <string name="p2p_consent_title">பீடூபீ ஸ்ட்ரீமிங்</string>
     <string name="p2p_consent_body">இந்த ஸ்ட்ரீம் பியர்-டு-பியர் (பீடூபீ) தொழில்நுட்பத்தை பயன்படுத்துகிறது. பீடூபீயை இயக்குவதன் மூலம், நீங்கள் பின்வருவனவற்றை ஒப்புக்கொள்கிறீர்கள்:\n\n\u2022 உங்கள் ஐபி முகவரி பிணையத்தில் உள்ள பிற பியர்களுக்கு தெரியும்\n\u2022 நீங்கள் அணுகும் உள்ளடக்கத்திற்கு முழுப் பொறுப்பு உங்களுக்கே\n\u2022 உங்கள் சட்டப்பரப்பில் இந்த உள்ளடக்கத்தை ஸ்ட்ரீம் செய்ய சட்டப்பூர்வ உரிமை உங்களிடம் உள்ளது என்பதை உறுதிப்படுத்துகிறீர்கள்\n\u2022 நுவியோ எந்த பீடூபீ உள்ளடக்கத்தையும் ஹோஸ்ட் செய்யாது, பகிராது அல்லது கட்டுப்படுத்தாது\n\u2022 பீடூபீ ஸ்ட்ரீமிங்கைப் பயன்படுத்துவதால் ஏற்படும் எந்த சட்ட விளைவுகளுக்கும் நுவியோ பொறுப்பேற்காது\n\nஇந்த அம்சத்தை முழுமையாக உங்கள் சொந்த ஆபத்தில் பயன்படுத்துகிறீர்கள். அமைப்புகளில் எப்போது வேண்டுமானாலும் பீடூபீயை முடக்கலாம்.</string>
     <string name="p2p_consent_enable">பீடூபீயை இயக்கு</string>
@@ -1142,9 +1031,6 @@
     <string name="settings_p2p_subtitle">பியர்-டு-பியர் (டோரண்ட்) ஸ்ட்ரீம்களை அனுமதி</string>
     <string name="settings_p2p_hide_stats_title">டோரண்ட் புள்ளிவிவரங்களை மறை</string>
     <string name="settings_p2p_hide_stats_subtitle">ஏற்றுதல் மற்றும் இயக்கத்தின் போது பஃபர், சீட்ஸ், பியர்ஸ் மற்றும் பதிவிறக்க வேகத்தை மறை</string>
-    <string name="p2p_download_title">பீடூபீ என்ஜின் பதிவிறக்கம் செய்யப்படுகிறது</string>
-    <string name="p2p_download_subtitle">இது பீடூபீ ஸ்ட்ரீமிங்கிற்கு தேவையான ஒருமுறை பதிவிறக்கம்.</string>
-    <string name="stream_type_external">வெளிப்புறம்</string>
     <string name="stream_player_picker_title">எந்த பிளேயர் பயன்படுத்தப்பட வேண்டும்?</string>
     <string name="stream_player_internal">உள்ளமைவு</string>
     <string name="stream_player_external">வெளிப்புறம்</string>
@@ -1154,15 +1040,12 @@
     <string name="player_no_external_player">வெளிப்புற பிளேயர் எதுவும் கிடைக்கவில்லை</string>
     <string name="player_loading_preparing">ஸ்ட்ரீம் தயாராகிறது…</string>
     <string name="player_loading_detecting_format">ஸ்ட்ரீம் வடிவம் கண்டறியப்படுகிறது…</string>
-    <string name="player_loading_subtitles">சப்டைட்டில்கள் பெறப்படுகிறது…</string>
     <string name="player_loading_subtitles_from">%1$d ஆடான்களிலிருந்து சப்டைட்டில்கள் பெறப்படுகிறது…</string>
     <string name="player_loading_subtitles_progress">சப்டைட்டில்கள் பெறப்படுகிறது… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">சப்டைட்டில்கள்: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">பிளேயர் உருவாக்கப்படுகிறது…</string>
     <string name="player_loading_starting">ஸ்ட்ரீம் தொடங்குகிறது…</string>
     <string name="player_loading_buffering">பஃபரிங்…</string>
-    <string name="player_loading_fallback_pcm_audio">ஆடியோ ட்ராக் தொடக்கம் தோல்வியடைந்தது - பிசிஎம் ஆடியோவுக்கு மாறுகிறது…</string>
-    <string name="player_loading_fallback_hevc_decoder">டிகோடர் தொடக்கம் தோல்வியடைந்தது - ஹீவிசி டிகோடருக்கு மாறுகிறது…</string>
     <string name="player_engine_switching_title">பிளேயர் என்ஜின் மாற்றப்படுகிறது</string>
     <string name="player_engine_switching_message">தொடக்கம் தோல்வியடைந்தது. %1$s க்கு மாறுகிறது…</string>
     <string name="player_engine_switching_manual_message">%1$s க்கு மாறுகிறது...</string>
@@ -1196,10 +1079,6 @@
     <string name="player_error_title">இயக்கப் பிழை</string>
     <string name="player_go_back">திரும்பிச் செல்</string>
     <string name="player_speed_title">இயக்க வேகம்</string>
-    <string name="player_more_actions_title">மேலும் செயல்கள்</string>
-    <string name="player_more_speed">இயக்க வேகம்</string>
-    <string name="player_more_aspect_ratio">திரை விகிதம்</string>
-    <string name="player_more_open_external">வெளிப்புற பிளேயரில் திற</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">மூலம்</string>
@@ -1224,7 +1103,6 @@
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">மூலங்கள்</string>
-    <string name="sources_reload">மீளேற்று</string>
     <string name="sources_close">மூடு</string>
     <string name="sources_playing">இயங்குகிறது</string>
     <string name="sources_no_streams">ஸ்ட்ரீம்கள் எதுவும் கிடைக்கவில்லை</string>
@@ -1232,7 +1110,6 @@
     <!-- EpisodesSidePanel -->
     <string name="episodes_panel_close">மூடு</string>
     <string name="episodes_panel_back">பின்செல்</string>
-    <string name="episodes_panel_reload">மீளேற்று</string>
     <string name="episodes_panel_no_streams">ஸ்ட்ரீம்கள் எதுவும் கிடைக்கவில்லை</string>
     <string name="episodes_panel_no_episodes">எபிசோடுகள் எதுவும் இல்லை</string>
     <string name="episodes_panel_title">எபிசோடுகள்</string>
@@ -1249,8 +1126,6 @@
 
     <!-- AudioDialog -->
     <string name="audio_dialog_title">ஒலி</string>
-    <string name="audio_dialog_tab_tracks">ஒலி</string>
-    <string name="audio_dialog_tab_mix">கலவை</string>
     <string name="audio_delay_label">ஒலி தாமதம்</string>
     <string name="audio_delay_range">வரம்பு: %1$.2fs முதல் %2$.2fs வரை</string>
     <string name="audio_mix_label">ஒலி வலுப்படுத்தல் (பிசிஎம்)</string>
@@ -1263,30 +1138,17 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">வசனங்கள்</string>
-    <string name="subtitle_no_builtin">உட்பொதிக்கப்பட்ட வசனங்கள் இல்லை</string>
     <string name="subtitle_loading_addon">ஆடான்களிலிருந்து வசனங்கள் ஏற்றப்படுகிறது\u2026</string>
     <string name="subtitle_no_addon">ஆடான் வசனங்கள் இல்லை</string>
     <string name="subtitle_text_color">உரை நிறம்</string>
     <string name="subtitle_outline_color">வெளிக்கோடு நிறம்</string>
     <string name="subtitle_reset_defaults">இயல்புநிலைக்கு மீட்டமை</string>
-    <string name="subtitle_tab_builtin">உட்பொதிக்கப்பட்டது</string>
-    <string name="subtitle_tab_addons">ஆடான்கள்</string>
     <string name="subtitle_tab_languages">மொழிகள்</string>
-    <string name="subtitle_tab_style">பாணி</string>
     <string name="subtitle_tab_delay">தாமதம்</string>
     <string name="subtitle_none">எதுவுமில்லை</string>
     <string name="subtitle_built_in">உட்பொதிக்கப்பட்டது</string>
-    <string name="subtitle_all">அனைத்தும்</string>
-    <string name="subtitle_section_core">முக்கியம்</string>
-    <string name="subtitle_section_advanced">மேம்பட்டது</string>
-    <string name="subtitle_font_size">எழுத்தளவு</string>
     <string name="subtitle_bold">தடித்த</string>
-    <string name="subtitle_outline">வெளிக்கோடு</string>
-    <string name="subtitle_bottom_offset">கீழ் இடைவெளி</string>
-    <string name="subtitle_on">இயக்கு</string>
-    <string name="subtitle_off">நிறுத்து</string>
     <string name="subtitle_style_title">வசன பாணி</string>
-    <string name="subtitle_style_customize">தனிப்பயனாக்கு</string>
     <string name="subtitle_style_color">நிறம்</string>
     <string name="subtitle_style_reset">மீட்டமை</string>
     <string name="subtitle_style_font_size">எழுத்தளவு</string>
@@ -1298,8 +1160,6 @@
     <string name="subtitle_style_defaults">இயல்புநிலைகள்</string>
     <string name="subtitle_style_on">இயக்கு</string>
     <string name="subtitle_style_off">நிறுத்து</string>
-    <string name="panel_failed_load_streams">ஸ்ட்ரீம்களை ஏற்ற முடியவில்லை</string>
-    <string name="panel_failed_load_episodes">எபிசோடுகளை ஏற்ற முடியவில்லை</string>
 
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">நீங்கள் பார்க்கிறது</string>
@@ -1335,7 +1195,6 @@
 
 
     <!-- SearchScreen -->
-    <string name="search_keyboard_hint">தேட விசைப்பலகையில் முடிந்தது என்பதை அழுத்தவும்</string>
     <string name="search_placeholder">திரைப்படங்கள் &amp; தொடர்கள் தேடு</string>
     <string name="search_start_title">தேடலை தொடங்கு</string>
     <string name="search_start_subtitle">குறைந்தது 2 எழுத்துகளை உள்ளிடவும்</string>
@@ -1348,7 +1207,6 @@
     <string name="search_voice_unavailable">இந்த சாதனத்தில் குரல் தேடல் கிடைக்காது.</string>
 
     <!-- LibraryScreen -->
-    <string name="library_syncing">ட்ராக்ட் நூலகம் ஒத்திசைக்கப்படுகிறது\u2026</string>
     <string name="library_title">நூலகம்</string>
     <string name="library_filter_list">பட்டியல்</string>
     <string name="library_filter_type">வகை</string>
@@ -1384,13 +1242,11 @@
     <string name="genre_soap">சோப்</string>
     <string name="genre_talk">உரையாடல்</string>
     <string name="genre_war_politics">போர் &amp; அரசியல்</string>
-    <string name="library_sort_trakt_order">ட்ராக்ட் வரிசை</string>
     <string name="library_sort_added_desc">சேர்த்தது ↓</string>
     <string name="library_sort_added_asc">சேர்த்தது ↑</string>
     <string name="library_sort_title_asc">தலைப்பு A-Z</string>
     <string name="library_sort_title_desc">தலைப்பு Z-A</string>
     <string name="library_manage_lists">பட்டியல்களை நிர்வகி</string>
-    <string name="library_manage_trakt_lists">ட்ராக்ட் பட்டியல்களை நிர்வகி</string>
     <string name="library_no_lists">தனிப்பட்ட பட்டியல்கள் இன்னும் இல்லை.</string>
     <string name="library_list_create">உருவாக்கு</string>
     <string name="library_list_edit">திருத்து</string>
@@ -1404,10 +1260,7 @@
     <string name="library_list_privacy">தனியுரிமை</string>
     <string name="library_delete_title">இந்த பட்டியலை அழிக்கவா?</string>
     <string name="library_delete_subtitle">இது பட்டியலையும் அதிலுள்ள அனைத்து உருப்படிகளையும் ட்ராக்டிலிருந்து அகற்றும்.</string>
-    <string name="library_delete_confirm">அழி</string>
     <string name="library_source_local">உள்ளகம்</string>
-    <string name="library_source_nuvio">நூவியோ</string>
-    <string name="library_source_trakt">ட்ராக்ட்</string>
     <string name="library_watchlist">பார்க்க வேண்டிய பட்டியல்</string>
     <string name="library_syncing_library">நூலகம் ஒத்திசைக்கப்படுகிறது\u2026</string>
     <string name="library_type_all">அனைத்தும்</string>
@@ -1426,17 +1279,11 @@
     <string name="account_sign_out">வெளியேறு</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">உள்நுழை</string>
-    <string name="auth_signin_tv_disabled">தொலைக்காட்சியில் மின்னஞ்சல்/கடவுச்சொல் உள்ளீடு முடக்கப்பட்டுள்ளது. க்யூஆர் உள்நுழைவை தொடரவும்.</string>
-    <string name="auth_signin_qr_btn">க்யூஆர் மூலம் தொடர்க</string>
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_title">க்யூஆர் மூலம் உள்நுழை</string>
     <string name="auth_qr_finishing">உள்நுழைவு முடிக்கப்படுகிறது\u2026</string>
-    <string name="auth_qr_code_label">குறியீடு: %1$s</string>
     <string name="auth_qr_expires">காலாவதி ஆகும் நேரம் %1$s</string>
     <string name="auth_qr_scan_instruction">க்யூஆரை ஸ்கேன் செய்து, உலாவியில் ஒப்புதல் அளித்து, பின்னர் இங்கு திரும்பவும்.</string>
-    <string name="auth_qr_code_display">குறியீடு: %1$s</string>
     <string name="auth_qr_refresh">க்யூஆர் புதுப்பி</string>
     <string name="auth_qr_continue_without_account">கணக்கு இல்லாமல் தொடர்க</string>
     <string name="auth_qr_connected">இந்த தொலைக்காட்சியில் உங்கள் கணக்கு இணைக்கப்பட்டுள்ளது.</string>
@@ -1448,30 +1295,14 @@
     <string name="auth_qr_back">பின்செல்</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">ஒத்திசைவு குறியீடு உருவாக்கு</string>
-    <string name="sync_generate_subtitle">உங்கள் ஒத்திசைவு குறியீட்டை பாதுகாக்க ஒரு பின் உருவாக்கவும். இந்த குறியீட்டை உங்கள் பிற சாதனங்களுடன் பகிரவும்.</string>
-    <string name="sync_generate_code_label">உங்கள் ஒத்திசைவு குறியீடு</string>
-    <string name="sync_generate_instruction">சாதனங்களை இணைக்க, இந்த குறியீடும் உங்கள் பின்னும் மற்ற சாதனத்தில் உள்ளிடவும்.</string>
-    <string name="sync_generate_done">முடிந்தது</string>
-    <string name="sync_generate_pin_label">ஒரு பின் தேர்ந்தெடுக்கவும் (4-8 எழுத்துகள்)</string>
-    <string name="sync_generate_pin_placeholder">பின் உள்ளிடவும்</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">சாதனம் இணை</string>
-    <string name="sync_claim_subtitle">இந்த சாதனத்தை இணைக்க, உங்கள் மற்ற சாதனத்திலிருந்து ஒத்திசைவு குறியீடும் பின்னும் உள்ளிடவும்.</string>
-    <string name="sync_claim_success">சாதனம் வெற்றிகரமாக இணைக்கப்பட்டது! உங்கள் அடான்கள் மற்றும் பிளகின்கள் இப்போது ஒத்திசையும்.</string>
-    <string name="sync_claim_done">முடிந்தது</string>
-    <string name="sync_claim_code_label">ஒத்திசைவு குறியீடு</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">பின்</string>
-    <string name="sync_claim_pin_placeholder">பின் உள்ளிடவும்</string>
 
     <!-- PluginScreen -->
     <string name="plugin_readonly_notice">முதன்மை சுயவிவரத்தின் பிளகின்கள் பயன்படுத்தப்படுகின்றன, மாற்ற முடியாது</string>
     <string name="plugin_repositories_section">களஞ்சியங்கள் (%1$d)</string>
     <string name="plugin_providers_section">வழங்கிகள் (%1$d)</string>
     <string name="plugin_title">பிளகின்கள்</string>
-    <string name="plugin_subtitle">உள்ளூர் ஸ்கிரேப்பர்கள் மற்றும் வழங்கிகளை நிர்வகிக்கவும்</string>
     <string name="plugin_enable_plugins_title">பிளகின் வழங்கிகளை உலகளவில் இயக்கு</string>
     <string name="plugin_enable_plugins_subtitle">ஸ்ட்ரீம் கண்டறிதலின் போது பிளகின் வழங்கிகளை பயன்படுத்தவும்</string>
     <string name="plugin_group_by_repository_title">பிளகின் வழங்கிகளை களஞ்சியப்படி குழுவாக்கு</string>
@@ -1533,18 +1364,10 @@
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">செயலி புதுப்பிப்பு</string>
-    <string name="update_downloading">புதுப்பிப்பு பதிவிறக்கப்படுகிறது</string>
     <string name="update_download">பதிவிறக்கு</string>
     <string name="update_downloading_ellipsis">பதிவிறக்கப்படுகிறது…</string>
     <string name="update_unknown_sources">தொடர தெரியாத மூலங்களிலிருந்து நிறுவலை அனுமதிக்கவும்.</string>
     <!-- AccountScreen -->
-    <string name="account_title">கணக்கு</string>
-    <string name="account_sign_in_description">சாதனங்கள் முழுவதும் உங்கள் நூலகம், பார்வை முன்னேற்றம், அடான்கள் மற்றும் பிளகின்களை ஒத்திசைக்க உள்நுழைக. டிராக்ட் இணைக்கப்படாதபோது நூலக ஒத்திசைவு நூவியோ ஒத்திசைவை பயன்படுத்தும், மேலும் பார்வை முன்னேற்றம் டிராக்ட் அல்லது நூவியோ ஒத்திசைவு இரண்டிலும் இயங்கலாம்.</string>
-    <string name="account_sync_code_title">ஒத்திசைவு குறியீடு</string>
-    <string name="account_sync_code_description">கணக்கு உருவாக்காமல் சாதனங்களுக்கு இடையில் ஒத்திசைக்கவும்.</string>
-    <string name="account_linked_devices">இணைக்கப்பட்ட சாதனங்கள் (%1$d)</string>
-    <string name="account_no_linked_devices">இணைக்கப்பட்ட சாதனங்கள் இல்லை</string>
-    <string name="account_unlink">இணைப்பு நீக்கு</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">எபிசோட் மதிப்பீடுகள் ஏற்றப்படுகின்றன...</string>
@@ -1574,39 +1397,25 @@
     <!-- PluginScreen -->
     <string name="plugin_and_more">... மேலும் %1$d</string>
     <string name="plugin_providers_count">%1$d வழங்கிகள்</string>
-    <string name="plugin_enabled">இயக்கப்பட்டது</string>
-    <string name="plugin_disabled">முடக்கப்பட்டது</string>
     <string name="plugin_no_repos">இதுவரை களஞ்சியங்கள் எதுவும் சேர்க்கப்படவில்லை.\nதொடங்க ஒரு களஞ்சியம் சேர்க்கவும்.</string>
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">சுயவிவரம் %1$d திருத்து</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">ஆடியோ பாஸ்த்ரூ (ட்ரூஎச்டி, டிடிஎஸ், ஏசி-3 போன்றவை) தானாக இயங்கும். ஏற்ற ஏவி ரிசீவர் அல்லது சவுண்ட்பார் எச்டிஎம்ஐ மூலம் இணைக்கப்பட்டால், லாஸ்லெஸ் ஆடியோ டிகோடு செய்யாமல் அப்படியே அனுப்பப்படும்.</string>
-    <string name="audio_dv_title">டிவி7 - ஹெவிக் மாற்று</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">முகப்பு</string>
     <string name="nav_discover">கண்டறிதல்</string>
     <string name="nav_search">தேடல்</string>
     <string name="nav_library">நூலகம்</string>
-    <string name="nav_addons">அடான்கள்</string>
-    <string name="nav_movies">திரைப்படங்கள்</string>
-    <string name="nav_series">தொடர்கள்</string>
     <string name="nav_settings">அமைப்புகள்</string>
     <string name="action_select">தேர்ந்தெடு</string>
-    <string name="settings_rounded_ui">வட்டமான இடைமுகம்</string>
-    <string name="cd_expand_sidebar">பக்கப்பட்டியை விரிவாக்கு</string>
 
-    <string name="update_checking">புதுப்பிப்புகள் சரிபார்க்கப்படுகிறது…</string>
     <string name="update_download_complete">பதிவிறக்கம் முடிந்தது. நிறுவ தயாராக உள்ளது.</string>
-    <string name="update_up_to_date">கணினி புதுப்பித்த நிலையில் உள்ளது. சமீபத்திய மாற்றங்கள்:</string>
     <string name="update_close">மூடு</string>
     <string name="update_open_settings">அமைப்புகளைத் திற</string>
     <string name="update_install">நிறுவு</string>
-    <string name="update_ignore">புறக்கணி</string>
-    <string name="watchlist_added">பார்ப்புப் பட்டியலில் சேர்க்கப்பட்டது</string>
-    <string name="watchlist_removed">பார்ப்புப் பட்டியலிலிருந்து அகற்றப்பட்டது</string>
 
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">பின்னை சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
@@ -1617,18 +1426,8 @@
     <string name="profile_pin_current_required">இந்த சுயவிவரத்தில் ஏற்கனவே பின் உள்ளது. மாற்ற தற்போதைய பின்னை உள்ளிடவும்.</string>
 
     <!-- Account Screen -->
-    <string name="account_signin_create_title">உள்நுழை / கணக்கு உருவாக்கு</string>
-    <string name="account_signin_create_desc">உங்கள் கணக்கை உருவாக்க அல்லது உள்நுழைய மின்னஞ்சல் மற்றும் கடவுச்சொல்லைப் பயன்படுத்தவும்.</string>
-    <string name="account_generate_sync_desc">மற்ற சாதனங்கள் இதனுடன் இணைக்க இந்த சாதனத்தில் ஒரு குறியீடு உருவாக்கவும்.</string>
-    <string name="account_enter_sync_desc">ஒத்திசைவு குறியீட்டை பயன்படுத்தி இந்த சாதனத்தை மற்றொரு சாதனத்துடன் இணைக்கவும்.</string>
-    <string name="account_signed_in_as">உள்நுழைந்தவர்</string>
-    <string name="account_generate_sync_signed_in_desc">மற்ற சாதனங்கள் இந்த கணக்குடன் ஒத்திசைக்க ஒரு குறியீடு உருவாக்கவும்.</string>
-    <string name="account_unknown_device">அறியாத சாதனம்</string>
 
     <!-- Sync screens -->
-    <string name="sync_claim_linking">இணைக்கப்படுகிறது\u2026</string>
-    <string name="sync_generate_generating">உருவாக்கப்படுகிறது\u2026</string>
-    <string name="sync_generate_code_btn">குறியீடு உருவாக்கு</string>
 
     <!-- Search -->
     <string name="search_no_results_title">முடிவுகள் இல்லை</string>
@@ -1686,13 +1485,11 @@
     <string name="addon_error_not_found">ஆட்ஒன் கிடைக்கவில்லை</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">முதலில் கணக்கில் உள்நுழையவும்.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">நிறுவப்பட்ட ஆட்ஒன்களில் தேடக்கூடிய கேட்டலாக்குகள் எதுவும் இல்லை</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">ஆட்ஒன்கள் எதுவும் நிறுவப்படவில்லை</string>
     <string name="home_error_no_catalog_addons">கேட்டலாக் ஆட்ஒன்கள் எதுவும் நிறுவப்படவில்லை</string>
 
     <!-- Player errors -->
@@ -1726,7 +1523,6 @@
     <string name="cd_stream_info">ஸ்ட்ரீம் தகவல்</string>
     <string name="cd_more_actions">மேலும் செயல்கள்</string>
     <string name="cd_close_more_actions">மேலும் செயல்களை மூடு</string>
-    <string name="cd_back">பின்</string>
     <string name="cd_next_episode_thumbnail">அடுத்த எபிசோட் சிறுபடம்</string>
     <string name="cd_current">தற்போது</string>
     <string name="cd_loading_backdrop">பின்னணி படம் ஏற்றப்படுகிறது</string>
@@ -1741,14 +1537,12 @@
     <string name="cd_remove">அகற்று</string>
     <string name="cd_preview">முன்னோட்டம்</string>
     <string name="cd_test">சோதனை</string>
-    <string name="cd_unlink">இணைப்பை நீக்கு</string>
     <string name="cd_nuvio_logo">நுவியோடிவி</string>
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>
     <string name="cd_trakt_qr">ட்ராக்ட் செயல்படுத்தும் க்யூஆர்</string>
     <string name="cd_imdb">ஐஎம்டிபி</string>
     <string name="cd_open_discover">டிஸ்கவரை திற</string>
     <string name="cd_voice_search">குரல் தேடல்</string>
-    <string name="cd_donation_qr">நன்கொடை க்யூஆர் குறியீடு</string>
     <string name="cd_contributor_qr">பங்களிப்பாளர் ஆதரவு க்யூஆர் குறியீடு</string>
     <string name="cd_expand">விரிவு செய் %1$s</string>
     <string name="cd_collapse">சுருக்கு %1$s</string>
@@ -1832,7 +1626,6 @@
     <string name="collections_editor_choose_emoji">ஈமோஜி தேர்ந்தெடு</string>
     <string name="collections_editor_back">பின்</string>
     <string name="collections_editor_edit_collection">தொகுப்பைத் திருத்து</string>
-    <string name="collections_editor_catalog_count">%1$d கேட்டலாக்(கள்)</string>
     <string name="collections_editor_source_count">%1$d மூலம்(கள்)</string>
     <string name="collections_editor_sources">மூலங்கள்</string>
     <string name="collections_editor_source">மூலம்</string>
@@ -1862,7 +1655,6 @@
     <string name="collections_editor_tmdb_collection_id">தொகுப்பு ஐடி</string>
     <string name="collections_editor_tmdb_company_search">தயாரிப்பு நிறுவனம் பெயர், ஐடி, அல்லது யுஆர்எல்</string>
     <string name="collections_editor_tmdb_display_title">காட்சி தலைப்பு</string>
-    <string name="collections_editor_tmdb_title_optional">தலைப்பு (விருப்பம்)</string>
     <string name="collections_editor_tmdb_search">தேடு</string>
     <string name="collections_editor_add_source">மூலம் சேர்</string>
     <string name="collections_editor_save_source">மூலத்தை சேமி</string>
@@ -2003,7 +1795,6 @@
     <string name="collections_card_subtitle">உங்கள் முகப்புத்திரையில் கேட்டலாக்களை கோப்புறைகளாக குழுவாக்குங்கள்</string>
     <string name="collections_tab_all">அனைத்தும்</string>
     <string name="collections_tab_combined">இணைந்தது</string>
-    <string name="collection_editor_remove_cd">அகற்று</string>
     <string name="collection_editor_choice_both">இரண்டும்</string>
     <string name="collection_editor_resolved_trakt_list">தீர்மானிக்கப்பட்ட ட்ராக்ட் பட்டியல்</string>
     <string name="collection_editor_trakt_search_placeholder">தலைப்பு, ட்ராக்ட் யுஆர்எல், அல்லது பட்டியல் ஐடி தேடு</string>
@@ -2087,7 +1878,6 @@
     <string name="player_error_stream_rate_limited">\n\nஸ்ட்ரீம் மூலத்திற்கு மிக அதிக கோரிக்கைகள் அனுப்பப்பட்டுள்ளன. சிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.</string>
     <string name="player_error_stream_unavailable">\n\nஸ்ட்ரீம் சேவையகம் தற்போது கிடைக்கவில்லை. வேறு மூலத்தை முயற்சிக்கவும்.</string>
     <string name="player_error_source_invalid_content">மூலப் பிழை: ஸ்ட்ரீம் மூலம் தவறான அல்லது இயக்க முடியாத உள்ளடக்கத்தை வழங்கியது. இணைப்பு காலாவதியானிருக்கலாம் அல்லது சேவையகம் காணொளிக்கு பதிலாக பிழைப் பக்கத்தை வழங்கியிருக்கலாம்.\n\nவேறு மூலத்தை முயற்சிக்கவும். [%1$s]</string>
-    <string name="player_error_decoder">டிகோடர் பிழை</string>
     <string name="player_error_unsupported_format">இந்த ஸ்ட்ரீம் உங்கள் சாதனம் ஆதரிக்காத வடிவத்தை பயன்படுத்துகிறது. வேறு மூலத்தை முயற்சிக்கவும். [%1$s]</string>
     <string name="player_error_initialize_failed">பிளேயரை தொடங்க முடியவில்லை</string>
     <string name="player_error_mpv_surface_failed">libmpv மேற்பரப்பை தொடங்க முடியவில்லை</string>
@@ -2122,7 +1912,6 @@
     <string name="library_synced">நூலகம் ஒத்திசைக்கப்பட்டது</string>
     <string name="library_error_refresh_failed">நூலகத்தைப் புதுப்பிக்க முடியவில்லை</string>
     <string name="library_list_created">பட்டியல் உருவாக்கப்பட்டது</string>
-    <string name="library_error_invalid_list">தவறான பட்டியல்</string>
     <string name="library_list_updated">பட்டியல் புதுப்பிக்கப்பட்டது</string>
     <string name="library_error_save_list_failed">பட்டியலைச் சேமிக்க முடியவில்லை</string>
     <string name="library_list_deleted">பட்டியல் நீக்கப்பட்டது</string>
@@ -2131,13 +1920,8 @@
     <string name="library_error_reorder_lists_failed">பட்டியல்களை மறுவரிசைப்படுத்த முடியவில்லை</string>
     <string name="library_list_fallback_title">பட்டியல்</string>
     <!-- Library privacy display labels (mapped from API value, not used as a key) -->
-    <string name="library_privacy_private">தனிப்பட்டது</string>
-    <string name="library_privacy_link">இணைப்பு</string>
-    <string name="library_privacy_friends">நண்பர்கள்</string>
-    <string name="library_privacy_public">பொது</string>
 
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">ட்ராக்ட் அங்கீகாரம் தேவை</string>
     <string name="trakt_library_error_request_failed">ட்ராக்ட் கோரிக்கை தோல்வியடைந்தது</string>
     <string name="trakt_library_error_create_list_failed">பட்டியலை உருவாக்க முடியவில்லை</string>
     <string name="trakt_library_error_update_list_failed">பட்டியலைப் புதுப்பிக்க முடியவில்லை</string>
@@ -2154,7 +1938,6 @@
     <string name="trakt_library_error_auth_expired">ட்ராக்ட் அங்கீகாரம் காலாவதியானது</string>
     <string name="trakt_library_error_list_not_found">ட்ராக்ட் பட்டியல் கிடைக்கவில்லை</string>
     <string name="trakt_library_error_list_limit_reached">ட்ராக்ட் பட்டியல் வரம்பை அடைந்துவிட்டது. மேம்படுத்தல் தேவை.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">பார்த்ததாகக் குறிக்க போதுமான ட்ராக்ட் ஐடிகள் இல்லை</string>
     <string name="trakt_error_request_failed">ட்ராக்ட் கோரிக்கை தோல்வியடைந்தது</string>
     <string name="trakt_error_mark_watched_failed">ட்ராக்டில் பார்த்ததாகக் குறிக்க முடியவில்லை (%1$d)</string>
 
@@ -2176,14 +1959,11 @@
     <string name="stream_embedded_group">உட்பொதிக்கப்பட்ட ஸ்ட்ரீம்கள்</string>
     <string name="stream_embedded_fallback_name">உட்பொதி ஸ்ட்ரீம்</string>
     <string name="stream_quality_unknown">அறியப்படாதது</string>
-    <string name="stream_addon_unknown">அறியப்படாதது</string>
-    <string name="tmdb_unknown_entity">அறியப்படாதது</string>
     <string name="web_tmdb_company_fallback">டிஎம்டிபி நிறுவனம் %1$d</string>
     <string name="web_tmdb_collection_fallback">டிஎம்டிபி தொகுப்பு %1$d</string>
     <string name="web_error_invalid_request_body">தவறான கோரிக்கை உட்பொருள்</string>
 
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">ஆங்கிலம்</string>
 
     <!-- Supporters / contributors / sponsors errors -->
     <string name="supporters_error_load">ஆதரவாளர்களை ஏற்ற முடியவில்லை.</string>
@@ -2192,7 +1972,6 @@
     <string name="contributors_error_api_not_configured">பங்களிப்பாளர்கள் ஏபிஐ அமைக்கப்படவில்லை.</string>
     <string name="contributors_error_api_http">பங்களிப்பாளர்கள் ஏபிஐ பிழை: %1$d</string>
     <string name="supporters_error_api_http">நன்கொடை ஏபிஐ பிழை: %1$d</string>
-    <string name="sponsors_error_api_http">ஆதரவுநிதியாளர்கள் ஏபிஐ பிழை: %1$d</string>
 
     <!-- Contributor role badges -->
     <string name="contributor_role_translator">மொழிபெயர்ப்பாளர்</string>
@@ -2210,7 +1989,6 @@
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">பி2பி இயந்திரம் தொடங்குகிறது…</string>
-    <string name="player_torrent_rebuffer_status">%1$s இடைநினைவில் சேமிக்கப்பட்டது</string>
     <string name="player_stream_error_invalid_external_url">தவறான வெளிப்புற யுஆர்எல்</string>
     <string name="player_stream_error_open_external_link_failed">வெளிப்புற இணைப்பைத் திறக்க முடியவில்லை</string>
     <string name="player_stream_error_invalid_url">தவறான ஸ்ட்ரீம் யுஆர்எல்</string>
@@ -2218,11 +1996,6 @@
 
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">இந்த ஐடிக்கான மெட்டாடேட்டா திரும்ப பெறப்படவில்லை</string>
-    <string name="meta_error_detail_addon_unreachable">ஆடான் சர்வரை அணுக முடியவில்லை</string>
-    <string name="meta_error_detail_addon_connection_failed">ஆடானுடன் இணைப்பு தோல்வியடைந்தது</string>
-    <string name="meta_error_detail_addon_timeout">ஆடான் கோரிக்கையின் நேரம் முடிந்தது</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">ஆண்ட்ராய்டால் தடுக்கப்பட்ட பாதுகாப்பற்ற ஹெச்டிடிபி இணைப்பை இந்த ஆடான் பயன்படுத்துகிறது</string>
-    <string name="meta_error_detail_addon_request_failed">ஆடான் கோரிக்கை தோல்வியடைந்தது</string>
 
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">இந்த ஐடிக்கான ஸ்ட்ரீம்கள் எதுவும் திரும்ப பெறப்படவில்லை</string>

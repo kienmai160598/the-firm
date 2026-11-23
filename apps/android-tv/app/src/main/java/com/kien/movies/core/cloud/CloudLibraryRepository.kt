@@ -4,7 +4,6 @@ import android.content.Context
 import com.kien.movies.R
 import com.kien.movies.core.debrid.DebridProviderCapability
 import com.kien.movies.core.debrid.DebridProviders
-import com.kien.movies.core.debrid.DebridServiceCredential
 import com.kien.movies.core.debrid.supports
 import com.kien.movies.data.local.DebridSettingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -90,16 +89,5 @@ class CloudLibraryRepository @Inject constructor(
             item = item,
             file = file
         )
-    }
-
-    suspend fun connectedCloudCredentials(): List<DebridServiceCredential> {
-        val settings = dataStore.settings.first()
-        return settings
-            .takeIf { it.cloudLibraryEnabled }
-            ?.let(DebridProviders::configuredServices)
-            .orEmpty()
-            .filter { credential ->
-                credential.provider.supports(DebridProviderCapability.CloudLibrary)
-            }
     }
 }

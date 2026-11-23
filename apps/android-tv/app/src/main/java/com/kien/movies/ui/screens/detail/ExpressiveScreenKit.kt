@@ -2,12 +2,10 @@
 
 package com.kien.movies.ui.screens.detail
 
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -15,17 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.tv.material3.Border
-import androidx.tv.material3.ButtonColors
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.CardBorder
-import androidx.tv.material3.CardColors
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import com.kien.movies.ui.theme.ExpressiveColors
-import com.kien.movies.ui.theme.ExpressiveMotion
-import com.kien.movies.ui.theme.MoviesTheme
 
 // Shared by the detail, stream, search, library, profile, party, cast and ambient screens. Every
 // build has the Material 3 Expressive look; the helpers that still take an upstream value ignore
@@ -55,40 +44,6 @@ internal fun TextStyle.atLeastOnBox(floor: TextUnit): TextStyle {
     val step = floor.value - fontSize.value
     val raisedLineHeight = if (lineHeight.isSpecified) (lineHeight.value + step).sp else lineHeight
     return copy(fontSize = floor, lineHeight = raisedLineHeight)
-}
-
-/**
- * A tonal card in a lazy row: the container fills with the focus tone on focus, without a
- * ring. Fixed colours, not animated ones, so a focus move does not recompose every item.
- */
-@Composable
-internal fun tonalCardColors(resting: Color): CardColors {
-    val focused = MoviesTheme.colors.FocusBackground
-    return CardDefaults.colors(
-        containerColor = resting,
-        focusedContainerColor = focused,
-        pressedContainerColor = focused
-    )
-}
-
-@Composable
-internal fun noRingCardBorder(): CardBorder = CardDefaults.border(
-    border = Border.None,
-    focusedBorder = Border.None,
-    pressedBorder = Border.None
-)
-
-/** A tonal dialog button: rests frosted and turns white on focus. */
-@Composable
-internal fun tonalButtonColors(resting: Color = ExpressiveColors.frosted): ButtonColors {
-    return ButtonDefaults.colors(
-        containerColor = resting,
-        contentColor = MoviesTheme.colors.TextPrimary,
-        focusedContainerColor = MoviesTheme.colors.Secondary,
-        focusedContentColor = MoviesTheme.colors.OnSecondary,
-        pressedContainerColor = MoviesTheme.colors.Secondary,
-        pressedContentColor = MoviesTheme.colors.OnSecondary
-    )
 }
 
 /** A tv-material Button's own label style, raised to the TV floor. */

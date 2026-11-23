@@ -196,12 +196,4 @@ internal object AudioOutputRouteDetector {
             8
         )
     }
-
-    /** Playback attributes used by ExoPlayer for media (matches Media3 probes). */
-    fun mediaMovieAudioAttributes(): AudioAttributes {
-        return AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-            .build()
-    }
 }

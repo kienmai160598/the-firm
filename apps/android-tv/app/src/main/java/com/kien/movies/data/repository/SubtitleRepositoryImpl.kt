@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.kien.movies.core.network.NetworkResult
 import com.kien.movies.core.network.safeApiCall
-import com.kien.movies.data.local.AddonPreferences
 import com.kien.movies.data.mediaserver.ServerItemRef
 import com.kien.movies.data.remote.api.AddonApi
 import com.kien.movies.domain.model.Addon
@@ -276,6 +275,4 @@ class SubtitleRepositoryImpl @Inject constructor(
     private fun encodePathSegment(value: String): String {
         return java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
     }
-
-    private fun String?.isNullOfBlank(): Boolean = this == null || this.isBlank()
 }

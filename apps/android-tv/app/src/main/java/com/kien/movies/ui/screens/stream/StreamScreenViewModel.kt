@@ -1701,14 +1701,6 @@ class StreamScreenViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Returns true if an external player is currently active (launched but not yet returned).
-     * Used to keep the overlay visible while external player is on screen.
-     */
-    fun isExternalPlayerActive(): Boolean = externalPlaybackTracker.isTracking
-
-    fun isExternalPlayerAutoLaunch(): Boolean = externalPlaybackTracker.isAutoLaunch
-
     /** True when this screen was reached by an auto-next that the user has since aborted, so its
      *  pending auto-launch should be skipped (fall back to the source list). */
     fun isAutoNextContinuationAborted(): Boolean = externalPlaybackTracker.isAutoNextContinuationAborted()
@@ -1906,28 +1898,6 @@ class StreamScreenViewModel @Inject constructor(
         streamLoadScope = null
         streamLoadJob = null
         sourceChipErrorDismissJob?.cancel()
-    }
-
-    /**
-     * Get the resume position (in ms) for the given playback info.
-     * Returns 0 if no progress is saved.
-     */
-    suspend fun getResumePositionMs(playbackInfo: StreamPlaybackInfo): Long {
-        val contentId = playbackInfo.contentId ?: return 0L
-        val progress = if (playbackInfo.season != null && playbackInfo.episode != null) {
-            watchProgressRepository.getEpisodeProgress(
-                contentId,
-                playbackInfo.season,
-                playbackInfo.episode,
-                playbackInfo.profileId
-            )
-        } else {
-            watchProgressRepository.getProgress(contentId, playbackInfo.profileId)
-        }
-        val wp = progress.first() ?: return 0L
-        // Don't resume if completed
-        if (wp.isCompleted()) return 0L
-        return wp.position
     }
 
     /**

@@ -290,11 +290,6 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             return
         }
 
-        // ── Lazy loading: split into eager and deferred ──
-        val heroOnlyKeys = heroOnlyCatalogs.map { (addon, catalog) ->
-            catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
-        }.toSet()
-
         // Build display title helper (respects custom titles)
         val titlesSnapshot = customCatalogTitles
         val showTypeSuffix = _uiState.value.catalogTypeSuffixEnabled

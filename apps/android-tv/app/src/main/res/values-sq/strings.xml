@@ -143,7 +143,6 @@
     <string name="cw_percent_watched">%1$d%% e shikuar</string>
     <string name="cw_hours_min_left">kanë mbetur %1$dh %2$dm</string>
     <string name="cw_min_left">kanë mbetur %1$dm</string>
-    <string name="cw_almost_done">Pothuajse përfundoi</string>
     <string name="cw_airs_date">Transmetohet %1$s</string>
     <string name="cw_airs_today">Transmetohet sot</string>
     <string name="cw_airs_tomorrow">Transmetohet nesër</string>
@@ -171,7 +170,6 @@
     <string name="hero_director">Regjisori: %1$s</string>
     <string name="hero_writer">Skenaristi: %1$s</string>
     <string name="hero_play">Luaj</string>
-    <string name="hero_play_episode">Luaj S%1$d E%2$d</string>
     <string name="hero_add_to_library">Shto në bibliotekë</string>
     <string name="hero_remove_from_library">Hiq nga biblioteka</string>
     <string name="hero_mark_watched">Shëno si të shikuar</string>
@@ -180,7 +178,6 @@
     <string name="hero_press_back_trailer">Shtyp Kthehu për të dalë nga traileri</string>
     <string name="hero_synopsis_read_more">Lexo më shumë</string>
     <string name="hero_synopsis_dismiss_hint">Shtyp Kthehu për ta mbyllur</string>
-    <string name="cd_rating">Vlerësimi</string>
     <string name="episodes_season">Sezoni %1$d</string>
     <string name="episodes_specials">Speciale</string>
     <string name="episodes_episode">Episod</string>
@@ -236,10 +233,8 @@
     <string name="detail_section_production">Produksioni</string>
     <string name="detail_comments_empty">Ende nuk ka vlerësime të disponueshme nga Trakt.</string>
     <string name="detail_comments_error">Nuk mund të ngarkohen vlerësimet nga Trakt tani.</string>
-    <string name="detail_trailer_loading">Duke ngarkuar trailerin...</string>
     <string name="detail_trailer_error">Nuk mund të ngarkohet traileri tani.</string>
     <string name="detail_comments_spoiler_hidden">Vlerësim me spoiler. Shtyp OK për ta zbuluar.</string>
-    <string name="detail_comments_reveal_spoiler">Zbulo spoilerin</string>
     <string name="detail_comments_reveal_spoiler_hint">Shtyp OK për ta zbuluar spoilerin.</string>
     <string name="detail_comments_back_hint">Kliko Kthehu për ta mbyllur</string>
     <string name="detail_comments_badge_review">Vlerësim</string>
@@ -347,10 +342,7 @@
     <string name="about_update_banner_subtitle">Shfaq një baner kur është i disponueshëm një version i ri</string>
     <string name="about_check_updates">Kontrollo për përditësime</string>
     <string name="about_check_updates_subtitle">Shkarko versionin më të fundit</string>
-    <string name="about_privacy_policy">Politika e privatësisë</string>
-    <string name="about_privacy_policy_subtitle">Shiko politikën tonë të privatësisë</string>
     <string name="support_nuvio_name">Mbështet Movies</string>
-    <string name="about_supporters_contributors">Mbështet Movies</string>
     <string name="about_supporters_contributors_subtitle">Mbështet projektin dhe shiko kontributet e komunitetit</string>
     <string name="about_licenses_attributions">Licencat dhe atributet</string>
     <string name="about_licenses_attributions_subtitle">Burimet e të dhënave, falënderimet dhe licencat Android</string>
@@ -390,11 +382,8 @@
     <string name="settings_content_discovery_subtitle">Shtesa, shtojca, katalogë dhe burime zbulimi</string>
     <string name="settings_content_discovery_addons_subtitle">Menaxho shtesat, renditjen e katalogëve dhe koleksionet</string>
     <string name="settings_content_discovery_plugins_subtitle">Menaxho depot dhe ofruesit e transmetimeve</string>
-    <string name="settings_plugins">Shtojcat</string>
-    <string name="settings_plugins_subtitle">Depot dhe ofruesit</string>
     <string name="settings_integration">Integrimet</string>
     <string name="settings_playback">Riprodhimi</string>
-    <string name="settings_trakt_subtitle">Hap ekranin e lidhjes me Trakt</string>
     <string name="settings_tracking_title">Gjurmimi</string>
     <string name="settings_tracking_description">Lidh ofruesit e gjurmimit dhe zgjidh cili prej tyre furnizon Bibliotekën dhe Vazhdo shikimin.</string>
     <string name="tracking_accounts_title">Llogaritë</string>
@@ -421,8 +410,6 @@
     <string name="tracking_trakt_progress_required">E disponueshme kur Trakt është burimi i progresit të shikimit</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">Shpejtësia e rrjetit</string>
-    <string name="settings_network_subtitle">Diagnostikimi i vonesës dhe shkarkimit</string>
     <string name="settings_advanced">Të avancuara</string>
     <string name="settings_advanced_subtitle">Performanca, navigimi, cache-i dhe diagnostikimi</string>
     <string name="experience_mode_essential">Bazë</string>
@@ -526,17 +513,8 @@
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Navigim i shpejtë horizontal</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Rrit shpejtësinë e përsëritjes së D-pad-it në rreshta duke mbajtur aktiv kufizimin e përsëritjes.</string>
-    <string name="advanced_nuvio_performance_mode">Memoria native e ExoPlayer</string>
-    <string name="advanced_nuvio_performance_mode_subtitle">Aktivizon allocator-in native me performancë të lartë, memorien jashtë heap-it dhe optimizimet e rrjetit për riprodhim më të rrjedhshëm</string>
-    <string name="buffer_device_ram_info">RAM-i i pajisjes: %s</string>
-    <string name="buffer_safe_limit_info">Kufiri i sigurt i rekomanduar: %d MB</string>
-    <string name="buffer_safe_status">I sigurt: Brenda kufirit të rekomanduar për pajisjen tuaj.</string>
-    <string name="buffer_unsafe_warning">Paralajmërim: Tejkalon kufirin e sigurt të rekomanduar (%1$d MB) për pajisjen tuaj %2$s. Mund të shkaktojë dështime të aplikacionit.</string>
-    <string name="buffer_auto_limit_active">Kufiri i sigurt i shkallëzuar automatikisht: %d MB</string>
     <string name="advanced_nuvio_focus_scroll">Lëvizja e fokusit Movies</string>
     <string name="advanced_nuvio_focus_scroll_subtitle">Përdor animacionin dhe pozicionimin e personalizuar global të lëvizjes së fokusit nga Movies.</string>
-    <string name="advanced_memory_only_vertical_scroll">Lëvizje vertikale vetëm në memorie</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Anashkalo kërkesat për imazhe nga disku dhe rrjeti gjatë lëvizjes vertikale në rreshtat e faqes kryesore.</string>
     <string name="advanced_compose_highlighter">Theksuesi Compose</string>
     <string name="advanced_compose_highlighter_subtitle">Ndiz kufijtë rreth elementeve të ndërfaqes që rikompozohen për diagnostikim të performancës.</string>
     <string name="advanced_clear_cw_cache">Pastro cache-in e Vazhdo shikimin</string>
@@ -545,7 +523,6 @@
     <string name="advanced_remember_last_profile">Mbaj mend profilin e fundit</string>
     <string name="advanced_remember_last_profile_subtitle">Mbaj mend profilin e fundit të zgjedhur gjatë nisjes</string>
     <string name="settings_debug">Debug</string>
-    <string name="settings_plugins_section_subtitle">Menaxho depot, ofruesit dhe gjendjet e shtojcave</string>
     <string name="settings_account_section_subtitle">Llogaria dhe statusi i sinkronizimit</string>
     <string name="account_stat_addons">shtesa</string>
     <string name="account_stat_plugins">shtojca</string>
@@ -569,18 +546,6 @@
     <string name="action_none">Asnjë</string>
     <string name="action_back">Kthehu</string>
     <string name="action_close">Mbyll</string>
-    <string name="supporters_contributors_title">Mbështet Movies</string>
-    <string name="supporters_contributors_subtitle">Njerëzit që mbështesin Movies dhe kontribuesit që e ndërtojnë në TV dhe celular.</string>
-    <string name="supporters_contributors_supporters_copy">Mbështetësit dhe donatorët ndihmojnë që projekti të ecë përpara, financojnë infrastrukturën dhe krijojnë hapësirë për veçori ambicioze.</string>
-    <string name="supporters_contributors_donate_copy">Movies do të mbetet falas dhe me burim të hapur. Nëse dëshironi ta mbështesni projektin, mund të ndihmoni në mbulimin e kohës dhe infrastrukturës pas tij.</string>
-    <string name="supporters_contributors_donation_progress_title">Serveri dhe mirëmbajtja e këtij muaji</string>
-    <string name="supporters_contributors_donation_progress_complete">U mbulua. Mbështetja shtesë tani shkon për zhvillim.</string>
-    <string name="supporters_contributors_donation_progress_remaining">Pas 100%, mbështetja shtesë shkon për zhvillim.</string>
-    <string name="supporters_contributors_loading_donation_progress">Duke ngarkuar progresin e financimit...</string>
-    <string name="supporters_contributors_donate_button">Mbështet Movies</string>
-    <string name="supporters_contributors_qr_title">Skano për të mbështetur</string>
-    <string name="supporters_contributors_qr_subtitle">Hap lidhjen në telefonin tënd për të mbështetur Movies.</string>
-    <string name="supporters_contributors_qr_hint">Drejto kamerën nga kodi QR ose përdor butonin më poshtë.</string>
     <string name="supporters_contributors_back_button">Kthehu te detajet</string>
     <string name="supporters_tab">Mbështetësit</string>
     <string name="sponsors_tab">Sponsorët</string>
@@ -588,7 +553,6 @@
     <string name="supporters_loading">Duke ngarkuar mbështetësit…</string>
     <string name="supporters_empty">Ende nuk u gjetën mbështetës.</string>
     <string name="supporters_error_title">Nuk mund të ngarkohen mbështetësit</string>
-    <string name="supporters_no_message">Nuk u nda asnjë mesazh.</string>
     <string name="supporters_level_supporter">Mbështetës</string>
     <string name="supporters_level_supporter_plus">Mbështetës+</string>
     <string name="supporters_since">Mbështet Movies që nga %1$s</string>
@@ -603,7 +567,6 @@
     <string name="contributors_loading">Duke ngarkuar kontribuesit e GitHub…</string>
     <string name="contributors_empty">Ende nuk u gjetën kontribues.</string>
     <string name="contributors_error_title">Nuk mund të ngarkohen kontribuesit</string>
-    <string name="contributors_total_contributions">%1$d kontribute gjithsej</string>
     <string name="contributors_open_github">Hap profilin në GitHub</string>
     <string name="contributors_show_kofi_qr">Shfaq QR-në e Ko-fi</string>
     <string name="contributors_hide_kofi_qr">Fshih QR-në e Ko-fi</string>
@@ -664,7 +627,6 @@
     <string name="playback_engine_exoplayer_desc">Përputhshmëria më e mirë me veçoritë aktuale të Movies.</string>
     <string name="playback_engine_mvplayer_desc">Përdor libmpv me kontrollet OSD të Movies. Eksperimentale.</string>
     <string name="video_section">Video</string>
-    <string name="audio_trailer_section">Traileri</string>
     <string name="audio_autoplay_trailers">Luaj automatikisht trailerat</string>
     <string name="audio_autoplay_trailers_sub">Luaj automatikisht trailerat në ekranin e detajeve pas një periudhe pasiviteti</string>
     <string name="audio_trailer_delay">Vonesa e trailerit</string>
@@ -741,7 +703,6 @@
     <string name="audio_decoder_prefer_device_desc">Përdor dekoderët harduerikë kur janë të disponueshëm dhe kalo në FFmpeg si rezervë. Rekomandohet për shumicën e pajisjeve.</string>
     <string name="audio_decoder_prefer_app_desc">Përdor dekoderët FFmpeg kur janë të disponueshëm. Mbështetje më e mirë e formateve, por përdorim më i lartë i CPU-së.</string>
     <string name="audio_decoder_controls">Kontrollon nëse përdoren dekoderë harduerikë apo softuerikë (FFmpeg) për audio dhe video</string>
-    <string name="sub_section">Titrat</string>
     <string name="sub_not_set">Nuk është caktuar</string>
     <string name="sub_forced_lang">I detyruar</string>
     <string name="sub_preferred_lang">Gjuha e preferuar</string>
@@ -752,7 +713,6 @@
     <string name="sub_show_only_preferred_languages_desc">Fshih të gjitha gjuhët e tjera të titrave nga lista e përzgjedhjes</string>
     <string name="sub_strip_sdh">Hiq shënimet SDH nga titrat</string>
     <string name="sub_strip_sdh_desc">Fshih përshkrimet e tingujve dhe etiketat e folësve nga titrat tekstualë</string>
-    <string name="sub_organization">Organizimi i titrave</string>
     <string name="sub_size">Madhësia</string>
     <string name="sub_vertical_offset">Zhvendosja vertikale</string>
     <string name="sub_bold">Trashë</string>
@@ -765,13 +725,6 @@
     <string name="sub_advanced_section">Renderim i avancuar i titrave</string>
     <string name="sub_libass">Përdor libass për titrat ASS/SSA</string>
     <string name="sub_libass_sub">Eksperimentale: renderim i avancuar ASS/SSA (stile, pozicionim, animacione)</string>
-    <string name="sub_libass_mode">Modaliteti i renderimit Libass</string>
-    <string name="sub_org_none">Asnjë (renditja e parazgjedhur)</string>
-    <string name="sub_org_by_lang">Sipas gjuhës</string>
-    <string name="sub_org_by_addon">Sipas shtesës</string>
-    <string name="sub_org_none_desc">Shfaq titrat sipas renditjes së parazgjedhur të rezultateve të shtesës.</string>
-    <string name="sub_org_by_lang_desc">Grupo titrat sipas gjuhës.</string>
-    <string name="sub_org_by_addon_desc">Grupo titrat sipas burimit të shtesës.</string>
     <string name="autoplay_reuse_last_link">Ripërdor lidhjen e fundit</string>
     <string name="autoplay_reuse_last_link_sub">Luaj automatikisht transmetimin e fundit funksional për të njëjtin film/episod kur cache-i është ende i vlefshëm</string>
     <string name="autoplay_last_link_cache">Kohëzgjatja e cache-it të lidhjes së fundit</string>
@@ -798,7 +751,6 @@
     <string name="autoplay_threshold_pct_title">Përqindja e pragut</string>
     <string name="autoplay_threshold_pct_sub">Rezervë kur nuk ekziston kohëshënues i daljes.</string>
     <string name="autoplay_threshold_min_title">Minutat e pragut</string>
-    <string name="autoplay_threshold_min_sub">Rezervë kur nuk ekziston kohëshënues i daljes.</string>
     <string name="autoplay_scope_all">Të gjitha burimet</string>
     <string name="autoplay_scope_addons">Vetëm shtesat e instaluara</string>
     <string name="autoplay_scope_plugins">Vetëm shtojcat e aktivizuara</string>
@@ -837,8 +789,6 @@
     <string name="layout_section_home_desc">Zgjidh strukturën dhe burimin e hero-s.</string>
     <string name="layout_landscape_posters">Postera horizontalë</string>
     <string name="layout_landscape_posters_sub">Kalo midis kartave vertikale dhe horizontale për pamjen Moderne.</string>
-    <string name="layout_preview_row">Shfaq rreshtin paraprak</string>
-    <string name="layout_preview_row_sub">Shfaq një pamje të pjesshme të rreshtit poshtë në paraqitjen Moderne të faqes kryesore.</string>
     <string name="layout_hero_catalogs">Katalogët e hero-s</string>
     <string name="layout_hero_catalogs_sub">Zgjidh një ose më shumë katalogë për përmbajtjen e hero-s.</string>
     <string name="layout_section_content">Përmbajtja e faqes kryesore</string>
@@ -969,8 +919,6 @@
     <string name="layout_preset_balanced">I balancuar</string>
     <string name="layout_preset_comfort">Komod</string>
     <string name="layout_preset_large">I madh</string>
-    <string name="layout_memory_only_scroll">Lëvizje vertikale vetëm në memorie</string>
-    <string name="layout_memory_only_scroll_sub">Mos ngarko imazhe të reja gjatë lëvizjes vertikale.</string>
     <string name="layout_preset_sharp">I mprehtë</string>
     <string name="layout_preset_subtle">I lehtë</string>
     <string name="layout_preset_classic">Klasik</string>
@@ -984,25 +932,7 @@
     <string name="mdblist_enable_title">Aktivizo vlerësimet MDBList</string>
     <string name="mdblist_enable_subtitle">Merr vlerësime nga ofrues të jashtëm në ekranin e detajeve të metadata-ve</string>
     <string name="mdblist_api_key_title">Çelësi API</string>
-    <string name="mdblist_api_key_subtitle">Kërkohet për të marrë vlerësime nga MDBList</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Shfaq pikët e Trakt</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Shfaq pikët IMDb (dhe fshih rreshtin e parazgjedhur IMDb kur është i disponueshëm)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Shfaq pikët TMDB</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Shfaq pikët Letterboxd</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Shfaq pikët e kritikëve</string>
-    <string name="mdblist_audience_title">Pikët e audiencës</string>
-    <string name="mdblist_audience_subtitle">Shfaq pikët e audiencës</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Shfaq pikët Metacritic</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">Shfaq vlerësimin MyAnimeList</string>
     <string name="mdblist_dialog_title">Çelësi API i MDBList</string>
-    <string name="mdblist_dialog_subtitle">Shkruaj çelësin tënd API për të marrë vlerësime të jashtme</string>
     <string name="mdblist_dialog_placeholder">Shkruaj çelësin API të MDBList</string>
     <string name="mdblist_not_set">Nuk është caktuar</string>
     <string name="mdblist_invalid_api_key">Çelës API i pavlefshëm i MDBList</string>
@@ -1020,25 +950,11 @@
     <string name="debrid_section_instant_playback">Përgatitja e lidhjeve</string>
     <string name="debrid_section_filters">Filtrat dhe renditja</string>
     <string name="debrid_section_formatting">Formatimi</string>
-    <string name="debrid_provider_title">Ofruesi</string>
-    <string name="debrid_provider_subtitle">Ofrues të tjerë do të shtohen më vonë</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Lidh llogarinë tënde Torbox.</string>
     <string name="debrid_provider_description">Lidh llogarinë tënde %1$s.</string>
     <string name="debrid_provider_device_description">Lidh llogarinë tënde %1$s në shfletues.</string>
     <string name="debrid_api_key_dialog_title">Çelësi API i %1$s</string>
     <string name="debrid_api_key_dialog_subtitle">Shkruaj çelësin tënd API të %1$s.</string>
     <string name="debrid_api_key_dialog_placeholder">Shkruaj çelësin API të %1$s</string>
-    <string name="debrid_dialog_title">Çelësi API i Torbox</string>
-    <string name="debrid_dialog_subtitle">Shkruaj çelësin tënd API të Torbox.</string>
-    <string name="debrid_dialog_placeholder">Shkruaj çelësin API të Torbox</string>
-    <string name="debrid_real_debrid_api_key_title">Tokeni API i Real-Debrid</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Kërkohet për zgjidhjen lokale të lidhjeve Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_title">Tokeni API i Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Shkruaj tokenin tënd API të Real-Debrid për Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Shkruaj tokenin API të Real-Debrid</string>
     <string name="debrid_not_set">Nuk është caktuar</string>
     <string name="debrid_connected">Lidhur</string>
     <string name="debrid_connect_provider">Lidh %1$s</string>
@@ -1047,14 +963,11 @@
     <string name="debrid_device_auth_connected">%1$s është i lidhur në këtë pajisje.</string>
     <string name="debrid_device_auth_starting">Duke nisur hyrjen e sigurt...</string>
     <string name="debrid_device_auth_instructions">Skano QR-në dhe shkruaj këtë kod për të miratuar Movies.</string>
-    <string name="debrid_device_auth_code_copied">Kodi u kopjua.</string>
     <string name="debrid_device_auth_waiting">Në pritje të miratimit...</string>
     <string name="debrid_device_auth_failed">Nuk mund të nisej hyrja.</string>
     <string name="debrid_device_auth_missing_configuration">Kjo mënyrë hyrjeje nuk është konfiguruar në këtë build.</string>
     <string name="debrid_device_auth_expired">Ky kod ka skaduar. Provo përsëri.</string>
     <string name="debrid_key_invalid">Nuk mund të verifikohej ky çelës API.</string>
-    <string name="debrid_invalid_torbox_api_key">Nuk mund të verifikohej ky çelës API.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Nuk mund të verifikohej ky çelës API.</string>
     <string name="debrid_prepare_instant_playback">Përgatit lidhjet</string>
     <string name="debrid_prepare_instant_playback_description">Zgjidh lidhjet e luajtshme para se të fillojë riprodhimi.</string>
     <string name="debrid_prepare_stream_count">Lidhjet për t’u përgatitur</string>
@@ -1073,29 +986,6 @@
     <string name="debrid_stream_sort_smallest">Më të voglat të parat</string>
     <string name="debrid_stream_sort_best_audio">Audio më e mirë e para</string>
     <string name="debrid_stream_sort_language">Gjuha e para</string>
-    <string name="debrid_stream_sort_default">Renditja origjinale</string>
-    <string name="debrid_stream_sort_quality">Cilësia më e mirë e para</string>
-    <string name="debrid_stream_sort_size_desc">Më të mëdhatë të parat</string>
-    <string name="debrid_stream_sort_size_asc">Më të voglat të parat</string>
-    <string name="debrid_stream_min_quality_title">Cilësia minimale</string>
-    <string name="debrid_stream_min_quality_subtitle">Fshih burimet nën rezolucionin e zgjedhur.</string>
-    <string name="debrid_stream_min_quality_any">Çdo cilësi</string>
-    <string name="debrid_stream_min_quality_720">720p e lart</string>
-    <string name="debrid_stream_min_quality_1080">1080p e lart</string>
-    <string name="debrid_stream_min_quality_2160">Vetëm 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Shfaq, fshih ose kërko burime Dolby Vision.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Shfaq, fshih ose kërko burime HDR.</string>
-    <string name="debrid_stream_feature_any">Çfarëdo</string>
-    <string name="debrid_stream_feature_exclude">Fshih</string>
-    <string name="debrid_stream_feature_only">Vetëm</string>
-    <string name="debrid_stream_codec_title">Kodeku</string>
-    <string name="debrid_stream_codec_subtitle">Filtro burimet sipas kodekut të videos.</string>
-    <string name="debrid_stream_codec_any">Çdo kodek</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
     <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
     <string name="debrid_stream_per_resolution_limit_title">Kufiri për rezolucion</string>
     <string name="debrid_stream_per_resolution_limit_subtitle">Kufizo rezultatet e përsëritura 2160p, 1080p, 720p pas renditjes.</string>
@@ -1147,11 +1037,9 @@
     <string name="settings_stream_badge_position_bottom">Poshtë</string>
     <string name="settings_stream_badge_urls_title">URL-të e etiketave Fusion</string>
     <string name="settings_stream_badge_urls_description">Importo deri në %1$d URL JSON të etiketave të transmetimit të stilit Fusion. Çdo URL mund të përditësohet ose fshihet veçmas.</string>
-    <string name="settings_stream_badge_urls_search_description">Menaxho URL-të JSON të etiketave të transmetimit të stilit Fusion të importuara.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL, %3$d etiketa aktive Fusion</string>
     <string name="settings_fusion_badges_empty">Nuk janë importuar URL të etiketave Fusion.</string>
     <string name="settings_fusion_badge_url_label">URL JSON e etiketave Fusion</string>
-    <string name="settings_fusion_badge_urls_imported">%1$d/%2$d URL Fusion të importuara</string>
     <string name="settings_fusion_badge_url_active">Aktiv</string>
     <string name="settings_fusion_badge_url_inactive">Joaktiv</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d etiketa të aktivizuara, %3$d grupe</string>
@@ -1210,14 +1098,12 @@
     <string name="tmdb_language_dialog_title">Gjuha TMDB</string>
     <string name="trakt_description">Sinkronizo listën e shikimit, progresin e shikimit, Vazhdo shikimin, scrobble-t dhe listat personale me Trakt.</string>
     <string name="trakt_connected_as">Lidhur si %1$s</string>
-    <string name="trakt_account_login">Hyrja në llogari</string>
     <string name="trakt_awaiting_instruction">Shko te trakt.tv/activate dhe shkruaj këtë kod:</string>
     <string name="trakt_waiting_approval">Në pritje të miratimit…</string>
     <string name="qr_login_approved">Hyrja u miratua. Duke përfunduar hyrjen…</string>
     <string name="qr_login_pending">Në pritje të miratimit në telefonin tuaj…</string>
     <string name="qr_login_expired">Hyrja me QR ka skaduar. Gjenero një kod të ri.</string>
     <string name="qr_login_preparing">Duke përgatitur hyrjen me QR...</string>
-    <string name="qr_login_device_auth_failed">Autentifikimi i pajisjes dështoi</string>
     <string name="qr_login_scan_prompt">Skano QR-në dhe hyr në telefonin tënd</string>
     <string name="qr_login_start_failed">Nisja e hyrjes me QR dështoi</string>
     <string name="qr_login_signing_in">Duke ju kyçur…</string>
@@ -1225,38 +1111,20 @@
     <string name="qr_login_exchange_failed">Nuk mund të përfundohej hyrja me QR</string>
     <string name="trakt_code_expires">Kodi skadon pas %1$s</string>
     <string name="trakt_token_refreshes">Tokeni i qasjes Trakt rifreskohet pas %1$s</string>
-    <string name="trakt_login_instruction">Shtyp Hyr për të nisur autentifikimin e pajisjes Trakt. Këtu do të shfaqet një kod QR.</string>
     <string name="trakt_missing_credentials">Mungon TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET në local.properties.</string>
     <string name="trakt_watch_progress_title">Progresi i shikimit</string>
     <string name="trakt_watch_progress_subtitle">Zgjidh cili burim progresi furnizon vazhdimin dhe Vazhdo shikimin</string>
     <string name="trakt_watch_progress_dialog_title">Progresi i shikimit</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Zgjidh nëse vazhdimi dhe Vazhdo shikimin duhet të përdorin Trakt ose Movies Sync ndërsa scrobbling i Trakt mbetet aktiv.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_nuvio">Movies Sync</string>
     <string name="trakt_library_source_title">Burimi i bibliotekës</string>
     <string name="trakt_library_source_subtitle">Zgjidh cilin burim lexon Movies për Bibliotekën tënde</string>
     <string name="trakt_library_source_dialog_title">Burimi i bibliotekës</string>
-    <string name="trakt_library_source_dialog_subtitle">Zgjidh ku të ruhen dhe menaxhohen artikujt e bibliotekës</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_nuvio">Biblioteka Movies</string>
-    <string name="trakt_library_source_trakt_selected">Biblioteka Trakt u zgjodh</string>
-    <string name="trakt_library_source_nuvio_selected">Biblioteka Movies u zgjodh</string>
-    <string name="trakt_setting_on">Aktiv</string>
     <string name="trakt_setting_off">Joaktiv</string>
-    <string name="trakt_watch_progress_trakt_selected">Burimi i progresit të shikimit u caktua në Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">Burimi i progresit të shikimit u caktua në Movies Sync</string>
     <string name="trakt_continue_watching_window">Dritarja e Vazhdo shikimin</string>
     <string name="trakt_continue_watching_subtitle">Historiku Trakt që merret parasysh për Vazhdo shikimin</string>
-    <string name="trakt_unaired_next_up">Episodet e ardhshme që ende nuk janë transmetuar</string>
-    <string name="trakt_unaired_next_up_subtitle">Shfaq episodet e ardhshme para se të transmetohen</string>
-    <string name="trakt_unaired_shown">Shfaqur</string>
-    <string name="trakt_unaired_hidden">Fshehur</string>
-    <string name="trakt_unaired_now_shown">Episodet e ardhshme që ende nuk janë transmetuar tani shfaqen</string>
-    <string name="trakt_unaired_now_hidden">Episodet e ardhshme që ende nuk janë transmetuar tani fshihen</string>
     <string name="trakt_comments_title">Komentet</string>
     <string name="trakt_comments_subtitle">Shfaq vlerësimet Trakt në faqet e metadata-ve</string>
-    <string name="trakt_comments_dialog_title">Komentet</string>
-    <string name="trakt_comments_dialog_subtitle">Zgjidh nëse faqet e metadata-ve duhet të shfaqin vlerësimet Trakt kur llogaria juaj është e lidhur.</string>
     <string name="trakt_comments_now_shown">Vlerësimet Trakt në faqet e metadata-ve tani shfaqen</string>
     <string name="trakt_comments_now_hidden">Vlerësimet Trakt në faqet e metadata-ve tani fshihen</string>
     <string name="trakt_more_like_this_source_title">Burimi i Të ngjashme me këtë</string>
@@ -1273,15 +1141,8 @@
     <string name="trakt_disconnect">Shkëput</string>
     <string name="trakt_disconnect_title">Të shkëputet Trakt?</string>
     <string name="trakt_disconnect_subtitle">Kjo do ta shkëpusë llogarinë tënde Trakt nga Movies.</string>
-    <string name="trakt_login">Hyr</string>
-    <string name="trakt_retry">Provo përsëri</string>
-    <string name="trakt_back">Kthehu</string>
     <string name="trakt_cw_window_title">Dritarja e Vazhdo shikimin</string>
     <string name="trakt_cw_window_subtitle">Zgjidh sa aktivitet nga Trakt duhet të shfaqet te Vazhdo shikimin.</string>
-    <string name="trakt_unaired_dialog_title">Episodet e ardhshme që ende nuk janë transmetuar</string>
-    <string name="trakt_unaired_dialog_subtitle">Zgjidh nëse Vazhdo shikimin duhet të përfshijë episodet e ardhshme para publikimit.</string>
-    <string name="trakt_show_unaired">Shfaq episodet që ende nuk janë transmetuar</string>
-    <string name="trakt_hide_unaired">Fshih episodet që ende nuk janë transmetuar</string>
     <string name="trakt_all_history">I gjithë historiku</string>
     <string name="trakt_days_format">%1$d ditë</string>
     <string name="debug_title">Debug</string>
@@ -1329,23 +1190,13 @@
     <string name="profile_manage_title">Menaxho profilet</string>
     <string name="profile_manage_subtitle">Zgjidh një profil për ta redaktuar, ndërruar ose krijuar një të ri</string>
     <string name="profile_manage_hint">Zgjidh një profil për ta menaxhuar</string>
-    <string name="profile_primary_label">Kryesor</string>
-    <string name="profile_shares_primary">Ndan %1$s të profilit kryesor</string>
     <string name="profile_edit_label">Redakto</string>
     <string name="profile_edit_header">Redakto profilin</string>
-    <string name="profile_add">Shto profil</string>
     <string name="profile_create_title">Krijo profil</string>
-    <string name="profile_edit_title">Redakto profilin %1$s</string>
     <string name="profile_name_placeholder">Emri i profilit</string>
-    <string name="profile_avatar_color">Ngjyra e avatarit</string>
-    <string name="profile_use_primary_addons">Përdor shtesat e profilit kryesor</string>
-    <string name="profile_use_primary_plugins">Përdor shtojcat e profilit kryesor</string>
     <string name="profile_creating">Duke krijuar\u2026</string>
     <string name="profile_create_btn">Krijo</string>
-    <string name="profile_confirm">Konfirmo</string>
     <string name="profile_delete">Fshi</string>
-    <string name="profile_addons">shtesa</string>
-    <string name="profile_plugins">shtojca</string>
     <string name="profile_choose_avatar">Zgjidh avatarin</string>
     <string name="profile_custom_avatar_web_panel_note">URL-të e personalizuara të avatarëve mund të konfigurohen nga paneli web i Movies.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
@@ -1354,7 +1205,6 @@
     <string name="profile_background_member_note">URL-të e personalizuara të sfondit mund të konfigurohen nga paneli web i Movies.</string>
     <string name="profile_background_normal">Normal</string>
     <string name="profile_background_custom">I personalizuar</string>
-    <string name="profile_avatar_none_selected">Nuk është zgjedhur avatar</string>
     <string name="profile_avatar_focus_hint">Fokuso një avatar për të parë emrin e tij</string>
     <string name="profile_avatar_category_all">Të gjitha</string>
     <string name="profile_avatar_category_supporter">Mbështetës</string>
@@ -1366,30 +1216,17 @@
     <string name="profile_add_new">Shto profil</string>
     <string name="profile_cancel">Anulo</string>
     <string name="profile_save">Ruaj</string>
-    <string name="profile_pin_title">Bllokimi i profilit me PIN</string>
-    <string name="profile_pin_enabled_subtitle">Ky profil kërkon një PIN 4-shifror para ndërrimit.</string>
-    <string name="profile_pin_disabled_subtitle">Cakto një PIN 4-shifror për ta bllokuar këtë profil.</string>
     <string name="profile_pin_set">Cakto PIN</string>
     <string name="profile_pin_change">Ndrysho PIN</string>
     <string name="profile_pin_remove">Hiq PIN-in</string>
-    <string name="profile_pin_set_title">Cakto PIN-in e profilit</string>
-    <string name="profile_pin_set_subtitle">Shkruaj një PIN 4-shifror dhe konfirmoje.</string>
     <string name="profile_pin_enter">Shkruaj PIN-in 4-shifror</string>
-    <string name="profile_pin_confirm">Konfirmo PIN-in 4-shifror</string>
-    <string name="profile_pin_mismatch">Vlerat e PIN-it nuk përputhen.</string>
-    <string name="profile_pin_save">Ruaj PIN-in</string>
-    <string name="profile_pin_unlock_title">Zhblloko %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Shkruaj PIN-in 4-shifror për të vazhduar.</string>
     <string name="profile_pin_verifying">Duke verifikuar…</string>
-    <string name="profile_pin_unlock_action">Zhblloko</string>
     <string name="profile_pin_overlay_unlock_heading">Shkruaj PIN-in për të hyrë te %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Krijo një PIN 4-shifror për %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Konfirmo PIN-in e ri.</string>
     <string name="profile_pin_overlay_unlock_support">Përdor telekomandën ose tastierën për të shkruar 4 shifra.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Kërkohet kontroll sigurie.</string>
     <string name="profile_pin_overlay_change_verify_heading">Shkruaj PIN-in aktual për të ndryshuar PIN-in e %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Shkruaj PIN-in aktual 4-shifror para se të caktosh një të ri.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Kërkohet kontroll sigurie.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Shkruaj PIN-in aktual për të hequr bllokimin e %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Shkruaj PIN-in aktual 4-shifror për ta hequr këtë bllokim.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Shkruaj PIN-in aktual për të fshirë %1$s.</string>
@@ -1419,7 +1256,6 @@
     <string name="addon_error_invalid_scheme">URL-ja e shtesës duhet të fillojë me http ose https</string>
     <string name="addon_installed_section">Instaluar</string>
     <string name="addon_empty">Nuk ka shtesa të instaluara. Shtoni një për të filluar.</string>
-    <string name="addon_remove">Hiq</string>
     <string name="addon_delete_confirm_title">Të fshihet shtesa?</string>
     <string name="addon_delete_confirm_message">Je i sigurt që dëshiron ta fshish?</string>
     <string name="addon_delete_no">Jo</string>
@@ -1470,8 +1306,6 @@
     <string name="debrid_missing_api_key">Shto një çelës API Debrid te Cilësimet.</string>
     <string name="debrid_not_cached">Nuk është në cache në këtë shërbim.</string>
     <string name="debrid_resolution_failed">Nuk mund të zgjidhej ky transmetim Debrid.</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">Transmetim P2P</string>
     <string name="p2p_consent_body">Ky transmetim përdor teknologjinë peer-to-peer (P2P). Duke aktivizuar P2P, pranon dhe konfirmon se:\n\n\u2022 Adresa jote IP do të jetë e dukshme për pjesëmarrësit e tjerë në rrjet\n\u2022 Je vetëm ti përgjegjës për përmbajtjen që qasesh\n\u2022 Konfirmon se ke të drejtën ligjore për ta transmetuar këtë përmbajtje në juridiksionin tënd\n\u2022 Movies nuk hoston, shpërndan apo kontrollon asnjë përmbajtje P2P\n\u2022 Movies nuk mban përgjegjësi për pasoja ligjore që mund të lindin nga përdorimi yt i transmetimit P2P\n\nKëtë veçori e përdor tërësisht me rrezikun tënd. P2P mund të çaktivizohet në çdo kohë te Cilësimet.</string>
     <string name="p2p_consent_enable">Aktivizo P2P</string>
@@ -1480,9 +1314,6 @@
     <string name="settings_p2p_subtitle">Lejo transmetimet peer-to-peer (torrent)</string>
     <string name="settings_p2p_hide_stats_title">Fshih statistikat e torrentit</string>
     <string name="settings_p2p_hide_stats_subtitle">Fshih buffer-in, seed-et, peer-at dhe shpejtësinë e shkarkimit gjatë ngarkimit dhe riprodhimit</string>
-    <string name="p2p_download_title">Duke shkarkuar motorin P2P</string>
-    <string name="p2p_download_subtitle">Ky është një shkarkim njëherësh që kërkohet për transmetimin P2P.</string>
-    <string name="stream_type_external">I jashtëm</string>
     <string name="stream_player_picker_title">Cili luajtës duhet të përdoret?</string>
     <string name="stream_player_internal">I brendshëm</string>
     <string name="stream_player_external">I jashtëm</string>
@@ -1492,15 +1323,12 @@
     <string name="player_loading_preparing">Duke përgatitur transmetimin…</string>
     <string name="player_loading_detecting_format">Duke zbuluar formatin e transmetimit…</string>
     <string name="external_player_loading_skip_segments">Duke ngarkuar segmentet e hyrjes/daljes…</string>
-    <string name="player_loading_subtitles">Duke marrë titrat…</string>
     <string name="player_loading_subtitles_from">Duke marrë titrat nga %1$d shtesa…</string>
     <string name="player_loading_subtitles_progress">Duke marrë titrat… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Titrat: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Duke ndërtuar luajtësin…</string>
     <string name="player_loading_starting">Duke nisur transmetimin…</string>
     <string name="player_loading_buffering">Duke bërë buffer…</string>
-    <string name="player_loading_fallback_pcm_audio">Inicializimi i pistës audio dështoi - duke kaluar në audio PCM…</string>
-    <string name="player_loading_fallback_hevc_decoder">Inicializimi i dekoderit dështoi - duke kaluar te dekoderi HEVC…</string>
     <string name="player_engine_switching_title">Duke ndërruar motorin e luajtësit</string>
     <string name="player_engine_switching_message">Nisja dështoi. Duke kaluar te %1$s…</string>
     <string name="player_engine_switching_manual_message">Duke kaluar te %1$s...</string>
@@ -1544,10 +1372,6 @@
         <item quantity="other">Ende duke u ngarkuar pas %1$d sekondash</item>
     </plurals>
     <string name="player_speed_title">Shpejtësia e riprodhimit</string>
-    <string name="player_more_actions_title">Më shumë veprime</string>
-    <string name="player_more_speed">Shpejtësia e riprodhimit</string>
-    <string name="player_more_aspect_ratio">Raporti i pamjes</string>
-    <string name="player_more_open_external">Hap në luajtës të jashtëm</string>
     <string name="player_error_no_stream_url">Nuk u dha URL transmetimi</string>
     <string name="stream_info_section_source">BURIMI</string>
     <string name="stream_info_section_file">SKEDARI</string>
@@ -1569,13 +1393,11 @@
     <string name="stream_info_subtitle_source_embedded">I integruar</string>
     <string name="stream_info_player_engine">Motori i luajtësit</string>
     <string name="sources_title">Burimet</string>
-    <string name="sources_reload">Ringarko</string>
     <string name="sources_close">Mbyll</string>
     <string name="sources_playing">Duke luajtur</string>
     <string name="sources_no_streams">Nuk u gjetën transmetime</string>
     <string name="episodes_panel_close">Mbyll</string>
     <string name="episodes_panel_back">Kthehu</string>
-    <string name="episodes_panel_reload">Ringarko</string>
     <string name="episodes_panel_no_streams">Nuk u gjetën transmetime</string>
     <string name="episodes_panel_no_episodes">Nuk ka episode të disponueshme</string>
     <string name="episodes_panel_title">Episodet</string>
@@ -1590,8 +1412,6 @@
     <string name="player_aspect_mode_slight_zoom">Zmadhim i lehtë</string>
     <string name="player_aspect_mode_cinema_zoom">Zmadhim kinematik</string>
     <string name="audio_dialog_title">Audio</string>
-    <string name="audio_dialog_tab_tracks">Audio</string>
-    <string name="audio_dialog_tab_mix">Përzierje</string>
     <string name="audio_delay_label">Vonesa e audios</string>
     <string name="audio_delay_range">Diapazoni: %1$.2fs deri %2$.2fs</string>
     <string name="audio_mix_label">Përforcimi (PCM)</string>
@@ -1608,31 +1428,18 @@
     <string name="audio_maintain_original_audio_on_downmix_title">Ruaj audion origjinale gjatë downmix</string>
     <string name="audio_maintain_original_audio_on_downmix_subtitle">Kur çaktivizohet, normalizimi i downmix mund të ulë volumin e përgjithshëm.</string>
     <string name="subtitle_dialog_title">Titrat</string>
-    <string name="subtitle_no_builtin">Nuk ka titra të integruar të disponueshëm</string>
     <string name="subtitle_loading_addon">Duke ngarkuar titrat nga shtesat\u2026</string>
     <string name="subtitle_no_addon">Nuk ka titra të disponueshëm nga shtesat</string>
     <string name="subtitle_text_color">Ngjyra e tekstit</string>
     <string name="subtitle_outline_color">Ngjyra e konturit</string>
     <string name="subtitle_reset_defaults">Rivendos parazgjedhjet</string>
-    <string name="subtitle_tab_builtin">I integruar</string>
-    <string name="subtitle_tab_addons">Shtesa</string>
     <string name="subtitle_tab_languages">Gjuhët</string>
-    <string name="subtitle_tab_style">Stili</string>
     <string name="subtitle_tab_delay">Vonesa</string>
     <string name="subtitle_delay_reset">Rivendos</string>
     <string name="subtitle_none">Asnjë</string>
     <string name="subtitle_built_in">I integruar</string>
-    <string name="subtitle_all">Të gjitha</string>
-    <string name="subtitle_section_core">Bërthama</string>
-    <string name="subtitle_section_advanced">Të avancuara</string>
-    <string name="subtitle_font_size">Madhësia e fontit</string>
     <string name="subtitle_bold">Trashë</string>
-    <string name="subtitle_outline">Konturi</string>
-    <string name="subtitle_bottom_offset">Zhvendosja nga fundi</string>
-    <string name="subtitle_on">Aktiv</string>
-    <string name="subtitle_off">Joaktiv</string>
     <string name="subtitle_style_title">Stili i titrave</string>
-    <string name="subtitle_style_customize">Personalizo</string>
     <string name="subtitle_style_color">Ngjyra</string>
     <string name="subtitle_style_reset">Rivendos</string>
     <string name="subtitle_style_font_size">Madhësia e fontit</string>
@@ -1645,8 +1452,6 @@
     <string name="subtitle_style_on">Aktiv</string>
     <string name="subtitle_style_off">Joaktiv</string>
     <string name="subtitle_style_weight">Trashësia</string>
-    <string name="panel_failed_load_streams">Ngarkimi i transmetimeve dështoi</string>
-    <string name="panel_failed_load_episodes">Ngarkimi i episodeve dështoi</string>
     <string name="pause_you_are_watching">Po shikon</string>
     <string name="pause_cast_label">Aktorët</string>
     <string name="pause_back_to_details">Kthehu te detajet</string>
@@ -1676,7 +1481,6 @@
     <string name="skip_generic">Kapërce</string>
     <string name="display_mode_refresh">Rifresko</string>
     <string name="display_mode_resolution">Rezolucioni</string>
-    <string name="search_keyboard_hint">Shtyp U krye në tastierë për të kërkuar</string>
     <string name="search_placeholder">Kërko filma dhe seriale</string>
     <string name="search_start_title">Fillo kërkimin</string>
     <string name="search_start_subtitle">Shkruaj të paktën 2 karaktere</string>
@@ -1690,7 +1494,6 @@
     <string name="search_no_results_title">Nuk ka rezultate</string>
     <string name="search_no_results_subtitle">Provo të kërkosh me fjalë kyçe të tjera</string>
     <string name="search_error_no_catalogs">Nuk u gjetën katalogë të kërkueshëm në shtesat e instaluara</string>
-    <string name="library_syncing">Duke sinkronizuar bibliotekën Trakt\u2026</string>
     <string name="library_title">Biblioteka</string>
     <string name="library_filter_list">Lista</string>
     <string name="library_filter_type">Lloji</string>
@@ -1728,14 +1531,12 @@
     <string name="genre_soap">Telenovelë</string>
     <string name="genre_talk">Talk show</string>
     <string name="genre_war_politics">Luftë dhe Politikë</string>
-    <string name="library_sort_trakt_order">Renditja Trakt</string>
     <string name="library_sort_provider_order">Renditja e ofruesit</string>
     <string name="library_sort_added_desc">Shtuar ↓</string>
     <string name="library_sort_added_asc">Shtuar ↑</string>
     <string name="library_sort_title_asc">Titulli A-Z</string>
     <string name="library_sort_title_desc">Titulli Z-A</string>
     <string name="library_manage_lists">Menaxho listat</string>
-    <string name="library_manage_trakt_lists">Menaxho listat Trakt</string>
     <string name="library_no_lists">Ende nuk ka lista personale.</string>
     <string name="library_list_create">Krijo</string>
     <string name="library_list_edit">Redakto</string>
@@ -1749,10 +1550,7 @@
     <string name="library_list_privacy">Privatësia</string>
     <string name="library_delete_title">Të fshihet kjo listë?</string>
     <string name="library_delete_subtitle">Kjo heq listën dhe të gjithë artikujt e saj nga Trakt.</string>
-    <string name="library_delete_confirm">Fshi</string>
     <string name="library_source_local">LOKAL</string>
-    <string name="library_source_nuvio">NUVIO</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">Ruajtur</string>
     <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Lista e shikimit</string>
@@ -1771,18 +1569,13 @@
     <string name="library_list_edit_dialog_title">Redakto listën</string>
     <string name="library_sync_btn">Sinkronizo</string>
     <string name="library_syncing_btn">Duke sinkronizuar\u2026</string>
-    <string name="cloud_library_connect_action">Lidh llogarinë</string>
     <string name="cloud_library_connect_message">Lidh një llogari te cilësimet e Shërbimeve të lidhura për të shfletuar skedarë të luajtshëm nga biblioteka jote cloud.</string>
     <string name="cloud_library_connect_title">Nuk ka llogari cloud të lidhur</string>
-    <string name="cloud_library_disabled_action">Hap Shërbimet e lidhura</string>
     <string name="cloud_library_disabled_message">Aktivizo Bibliotekën cloud te cilësimet e Shërbimeve të lidhura për të shfletuar skedarë nga llogaritë e lidhura.</string>
     <string name="cloud_library_disabled_title">Biblioteka cloud është joaktive</string>
     <string name="cloud_library_empty_message">Asnjë skedar cloud i luajtshëm nuk përputhet me filtrat aktualë.</string>
     <string name="cloud_library_empty_title">Ende nuk ka asgjë këtu</string>
     <string name="cloud_library_file_picker_title">Zgjidh një skedar për ta luajtur</string>
-    <string name="cloud_library_load_failed">Nuk mund të ngarkohet biblioteka cloud e %1$s</string>
-    <string name="cloud_library_no_files_message">Ky artikull nuk ofron skedar video të luajtshëm.</string>
-    <string name="cloud_library_no_files_title">Nuk ka skedarë të luajtshëm</string>
     <string name="cloud_library_no_playable_files">Nuk ka skedarë të luajtshëm</string>
     <string name="cloud_library_one_playable_file">1 skedar i luajtshëm</string>
     <string name="cloud_library_opening">Duke hapur\u2026</string>
@@ -1818,17 +1611,6 @@
     <string name="account_sign_out">Dil nga llogaria</string>
     <string name="account_sign_out_confirm_title">Të dalësh nga llogaria?</string>
     <string name="account_sign_out_confirm_subtitle">Do të duhet të hysh përsëri për të sinkronizuar bibliotekën, progresin e shikimit, shtesat dhe shtojcat në këtë pajisje.</string>
-    <string name="account_error_signin_required">Hyr fillimisht me një llogari.</string>
-    <string name="account_signin_create_title">Hyr / Krijo llogari</string>
-    <string name="account_signin_create_desc">Përdor emailin dhe fjalëkalimin për të krijuar ose për t’u kyçur në llogari.</string>
-    <string name="account_generate_sync_desc">Krijo një kod në këtë pajisje që pajisjet e tjera të mund të lidhen me të.</string>
-    <string name="account_enter_sync_desc">Lidh këtë pajisje me një pajisje tjetër duke përdorur një kod sinkronizimi.</string>
-    <string name="account_signed_in_as">I kyçur si</string>
-    <string name="account_generate_sync_signed_in_desc">Krijo një kod që pajisjet e tjera të mund të sinkronizohen me këtë llogari.</string>
-    <string name="account_unknown_device">Pajisje e panjohur</string>
-    <string name="auth_signin_title">Hyr</string>
-    <string name="auth_signin_tv_disabled">Futja e emailit/fjalëkalimit në TV është çaktivizuar. Vazhdo me hyrjen QR.</string>
-    <string name="auth_signin_qr_btn">Vazhdo me QR</string>
     <string name="auth_email_hint">Hyr drejtpërdrejt me llogarinë në serverin tënd të vetë-hostuar.</string>
     <string name="auth_email_instruction">Shkruaj emailin dhe fjalëkalimin për të vazhduar.</string>
     <string name="auth_email_placeholder">Adresa e emailit</string>
@@ -1875,13 +1657,10 @@
     <string name="custom_server_save_failed">Nuk mund të ruhej konfigurimi i serverit.</string>
     <string name="custom_server_session_clear_failed">Nuk mund të pastrohej në mënyrë të sigurt sesioni aktual. Serveri nuk u ndryshua.</string>
     <string name="custom_server_restart_failed">Serveri u ruajt, por aplikacioni nuk mundi të rinisej automatikisht. Riniseni manualisht.</string>
-    <string name="auth_qr_title">Hyr me QR</string>
     <string name="auth_qr_tagline">Shiko bibliotekën tënde, kudo</string>
     <string name="auth_qr_finishing">Duke përfunduar hyrjen\u2026</string>
-    <string name="auth_qr_code_label">Kodi: %1$s</string>
     <string name="auth_qr_expires">Skadon pas %1$s</string>
     <string name="auth_qr_scan_instruction">Skano QR-në, miratoje në shfletues, pastaj kthehu këtu.</string>
-    <string name="auth_qr_code_display">Kodi: %1$s</string>
     <string name="auth_qr_refresh">Rifresko QR-në</string>
     <string name="auth_qr_continue_without_account">Vazhdo pa llogari</string>
     <string name="auth_qr_connected">Llogaria jote është lidhur në këtë TV.</string>
@@ -1891,31 +1670,10 @@
     <string name="auth_qr_please_wait">Ju lutemi prisni\u2026</string>
     <string name="auth_qr_continue">Vazhdo</string>
     <string name="auth_qr_back">Kthehu</string>
-    <string name="auth_qr_terms_prefix">Duke u regjistruar / kyçur, pajtohem me</string>
-    <string name="auth_qr_terms_link">Kushtet</string>
-    <string name="sync_generate_title">Gjenero kod sinkronizimi</string>
-    <string name="sync_generate_subtitle">Krijo një PIN për të mbrojtur kodin e sinkronizimit. Ndaje kodin me pajisjet e tjera.</string>
-    <string name="sync_generate_code_label">Kodi yt i sinkronizimit</string>
-    <string name="sync_generate_instruction">Shkruaj këtë kod dhe PIN-in në pajisjen tjetër për t’i lidhur.</string>
-    <string name="sync_generate_done">U krye</string>
-    <string name="sync_generate_pin_label">Zgjidh një PIN (4-8 karaktere)</string>
-    <string name="sync_generate_pin_placeholder">Shkruaj PIN-in</string>
-    <string name="sync_generate_generating">Duke gjeneruar\u2026</string>
-    <string name="sync_generate_code_btn">Gjenero kodin</string>
-    <string name="sync_claim_title">Lidh pajisjen</string>
-    <string name="sync_claim_subtitle">Shkruaj kodin e sinkronizimit dhe PIN-in nga pajisja tjetër për ta lidhur këtë pajisje.</string>
-    <string name="sync_claim_success">Pajisja u lidh me sukses! Shtesat dhe shtojcat tani do të sinkronizohen.</string>
-    <string name="sync_claim_done">U krye</string>
-    <string name="sync_claim_code_label">Kodi i sinkronizimit</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Shkruaj PIN-in</string>
-    <string name="sync_claim_linking">Duke lidhur\u2026</string>
     <string name="plugin_readonly_notice">Përdor shtojcat e profilit kryesor dhe nuk mund të ndryshohet</string>
     <string name="plugin_repositories_section">Depot (%1$d)</string>
     <string name="plugin_providers_section">Ofruesit (%1$d)</string>
     <string name="plugin_title">Shtojcat</string>
-    <string name="plugin_subtitle">Menaxho scraper-at lokalë dhe ofruesit</string>
     <string name="plugin_enable_plugins_title">Aktivizo globalisht ofruesit e shtojcave</string>
     <string name="plugin_enable_plugins_subtitle">Përdor ofruesit e shtojcave gjatë zbulimit të transmetimeve</string>
     <string name="plugin_group_by_repository_title">Grupo ofruesit e shtojcave sipas depos</string>
@@ -1946,8 +1704,6 @@
     <string name="plugin_test_results">Rezultatet e testit (%1$d transmetime)</string>
     <string name="plugin_and_more">... dhe %1$d të tjera</string>
     <string name="plugin_providers_count">%1$d ofrues</string>
-    <string name="plugin_enabled">Aktivizuar</string>
-    <string name="plugin_disabled">Çaktivizuar</string>
     <string name="plugin_no_repos">Ende nuk janë shtuar depo.\nShto një depo për të filluar.</string>
     <string name="plugin_error_invalid_url">Ju lutemi shkruani një URL të vlefshme</string>
     <string name="plugin_error_add_repo">Shtimi i depos dështoi: %1$s</string>
@@ -1980,7 +1736,6 @@
     <string name="layout_selection_continue">Vazhdo</string>
     <string name="update_title">Përditësimi i aplikacionit</string>
     <string name="update_available">Përditësim i disponueshëm</string>
-    <string name="update_downloading">Duke shkarkuar përditësimin</string>
     <string name="update_download">Shkarkimi</string>
     <string name="update_downloading_ellipsis">Duke shkarkuar…</string>
     <string name="update_downloading_progress">Duke shkarkuar %1$d%%</string>
@@ -1990,13 +1745,6 @@
     <string name="update_latest_version">Po përdor versionin më të fundit.</string>
     <string name="update_unknown_sources">Lejo instalimet nga burime të panjohura për të vazhduar.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Llogaria</string>
-    <string name="account_sign_in_description">Hyr për të sinkronizuar bibliotekën, progresin e shikimit, shtesat dhe shtojcat në të gjitha pajisjet. Sinkronizimi i bibliotekës përdor Movies Sync kur Trakt nuk është i lidhur, ndërsa progresi i shikimit mund të përdorë Trakt ose Movies Sync.</string>
-    <string name="account_sync_code_title">Kodi i sinkronizimit</string>
-    <string name="account_sync_code_description">Sinkronizo ndërmjet pajisjeve pa krijuar llogari.</string>
-    <string name="account_linked_devices">Pajisjet e lidhura (%1$d)</string>
-    <string name="account_no_linked_devices">Nuk ka pajisje të lidhura</string>
-    <string name="account_unlink">Shkëput</string>
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Duke ngarkuar vlerësimet e episodeve...</string>
     <string name="ratings_unavailable">Vlerësimet e episodeve nuk janë të disponueshme.</string>
@@ -2018,30 +1766,19 @@
     <!-- AddonManagerScreen -->
     <!-- PluginScreen -->
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Redakto profilin %1$d</string>
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Passthrough i audios (TrueHD, DTS, AC-3, etj.) është automatik. Kur lidhet me një marrës AV ose soundbar të përputhshëm përmes HDMI, audio pa humbje dërgohet siç është pa dekodim.</string>
-    <string name="audio_dv_title">DV7 - Rezervë HEVC</string>
-    <string name="audio_dv_sub">Harto Dolby Vision Profile 7 në HEVC standard për pajisjet pa mbështetje harduerike DV</string>
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Faqja kryesore</string>
     <string name="nav_discover">Zbulo</string>
     <string name="nav_search">Kërko</string>
     <string name="nav_library">Biblioteka</string>
-    <string name="nav_addons">Shtesa</string>
-    <string name="nav_movies">Filma</string>
-    <string name="nav_series">Seriale</string>
     <string name="nav_settings">Cilësimet</string>
     <string name="action_select">Zgjidh</string>
-    <string name="settings_rounded_ui">Ndërfaqe e rrumbullakosur</string>
-    <string name="cd_expand_sidebar">Zgjero shiritin anësor</string>
-    <string name="update_checking">Duke kontrolluar për përditësime…</string>
     <string name="update_download_complete">Shkarkimi përfundoi. Gati për instalim.</string>
-    <string name="update_up_to_date">Sistemi është i përditësuar. Ndryshimet më të fundit:</string>
     <string name="update_close">Mbyll</string>
     <string name="update_open_settings">Hap Cilësimet</string>
     <string name="update_install">Instalo</string>
-    <string name="update_ignore">Shpërfill</string>
     <!-- Update flow errors -->
     <string name="update_error_check_failed">Kontrolli për përditësime dështoi</string>
     <string name="update_error_download_failed">Shkarkimi dështoi</string>
@@ -2095,7 +1832,6 @@
     <!-- Account errors -->
     <!-- Search errors -->
     <!-- Home errors -->
-    <string name="home_error_no_addons">Nuk ka shtesa të instaluara</string>
     <string name="home_error_no_catalog_addons">Nuk ka shtesa katalogu të instaluara</string>
     <!-- Player errors -->
     <string name="player_error_failed_start_torrent">Nisja e torrentit dështoi: %1$s</string>
@@ -2115,7 +1851,6 @@
     <string name="cd_stream_info">Informacioni i transmetimit</string>
     <string name="cd_more_actions">Më shumë veprime</string>
     <string name="cd_close_more_actions">Mbyll veprimet shtesë</string>
-    <string name="cd_back">Kthehu</string>
     <string name="cd_next_episode_thumbnail">Miniatura e episodit tjetër</string>
     <string name="cd_current">Aktual</string>
     <string name="cd_loading_backdrop">Duke ngarkuar sfondin</string>
@@ -2130,7 +1865,6 @@
     <string name="cd_remove">Hiq</string>
     <string name="cd_preview">Pamje paraprake</string>
     <string name="cd_test">Testo</string>
-    <string name="cd_unlink">Shkëput</string>
     <string name="cd_nuvio_logo">Movies</string>
     <string name="cd_trakt_logo">Logoja e Trakt</string>
     <string name="cd_trakt_qr">QR-ja e aktivizimit Trakt</string>
@@ -2138,7 +1872,6 @@
     <string name="cd_open_discover">Hap Zbulo</string>
     <string name="cd_clear_search">Pastro kërkimin</string>
     <string name="cd_voice_search">Kërkimi me zë</string>
-    <string name="cd_donation_qr">Kodi QR i donacionit</string>
     <string name="cd_contributor_qr">Kodi QR për mbështetjen e kontribuesit</string>
     <string name="cd_expand">Zgjero %1$s</string>
     <string name="cd_collapse">Palos %1$s</string>
@@ -2218,7 +1951,6 @@
     <string name="collections_editor_choose_emoji">Zgjidh emoji</string>
     <string name="collections_editor_back">Kthehu</string>
     <string name="collections_editor_edit_collection">Redakto koleksionin</string>
-    <string name="collections_editor_catalog_count">%1$d katalog(ë)</string>
     <string name="collections_editor_source_count">%1$d burim(e)</string>
     <string name="collections_editor_sources">Burimet</string>
     <string name="collections_editor_source">Burimi</string>
@@ -2248,7 +1980,6 @@
     <string name="collections_editor_tmdb_collection_id">ID-ja e koleksionit</string>
     <string name="collections_editor_tmdb_company_search">Emri, ID-ja ose URL-ja e kompanisë së produksionit</string>
     <string name="collections_editor_tmdb_display_title">Titulli i shfaqjes</string>
-    <string name="collections_editor_tmdb_title_optional">Titulli (opsional)</string>
     <string name="collections_editor_tmdb_search">Kërko</string>
     <string name="collections_editor_add_source">Shto burim</string>
     <string name="collections_editor_save_source">Ruaj burimin</string>
@@ -2396,7 +2127,6 @@
     <string name="collections_card_subtitle">Grupo katalogët në dosje në ekranin kryesor</string>
     <string name="collections_tab_all">Të gjitha</string>
     <string name="collections_tab_combined">I kombinuar</string>
-    <string name="collection_editor_remove_cd">Hiq</string>
     <string name="collection_editor_choice_both">Të dyja</string>
     <string name="collection_editor_resolved_trakt_list">Lista Trakt u zgjidh</string>
     <string name="collection_editor_trakt_search_placeholder">Kërko titullin, URL-në Trakt ose ID-në e listës</string>
@@ -2477,7 +2207,6 @@
     <string name="player_error_stream_rate_limited">\n\nShumë kërkesa drejt burimit të transmetimit. Prit pak dhe provo përsëri.</string>
     <string name="player_error_stream_unavailable">\n\nServeri i transmetimit nuk është aktualisht i disponueshëm. Provo një burim tjetër.</string>
     <string name="player_error_source_invalid_content">Gabim burimi: Burimi i transmetimit ktheu përmbajtje të pavlefshme ose të paluajtshme. Lidhja mund të ketë skaduar ose serveri mund të ketë kthyer një faqe gabimi në vend të videos.\n\nProvo një burim tjetër. [%1$s]</string>
-    <string name="player_error_decoder">Gabim dekoderi</string>
     <string name="player_error_unsupported_format">Ky transmetim përdor një format që pajisja jote mund të mos e mbështesë. Provo një burim tjetër. [%1$s]</string>
     <string name="player_error_initialize_failed">Inicializimi i luajtësit dështoi</string>
     <string name="player_error_mpv_surface_failed">Inicializimi i sipërfaqes libmpv dështoi</string>
@@ -2510,7 +2239,6 @@
     <string name="library_synced">Biblioteka u sinkronizua</string>
     <string name="library_error_refresh_failed">Rifreskimi i bibliotekës dështoi</string>
     <string name="library_list_created">Lista u krijua</string>
-    <string name="library_error_invalid_list">Listë e pavlefshme</string>
     <string name="library_list_updated">Lista u përditësua</string>
     <string name="library_error_save_list_failed">Ruajtja e listës dështoi</string>
     <string name="library_list_deleted">Lista u fshi</string>
@@ -2519,12 +2247,7 @@
     <string name="library_error_reorder_lists_failed">Riorganizimi i listave dështoi</string>
     <string name="library_list_fallback_title">Lista</string>
     <!-- Library privacy display labels (mapped from API value, not used as a key) -->
-    <string name="library_privacy_private">Private</string>
-    <string name="library_privacy_link">Lidhje</string>
-    <string name="library_privacy_friends">Miqtë</string>
-    <string name="library_privacy_public">Publike</string>
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">Kërkohet autentifikimi në Trakt</string>
     <string name="trakt_library_error_request_failed">Kërkesa Trakt dështoi</string>
     <string name="trakt_library_error_create_list_failed">Krijimi i listës dështoi</string>
     <string name="trakt_library_error_update_list_failed">Përditësimi i listës dështoi</string>
@@ -2541,18 +2264,13 @@
     <string name="trakt_library_error_auth_expired">Autentifikimi Trakt ka skaduar</string>
     <string name="trakt_library_error_list_not_found">Lista Trakt nuk u gjet</string>
     <string name="trakt_library_error_list_limit_reached">U arrit kufiri i listave Trakt. Kërkohet përmirësim i planit.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">ID të pamjaftueshme Trakt për të shënuar si të shikuar</string>
     <string name="trakt_error_request_failed">Kërkesa Trakt dështoi</string>
-    <string name="simkl_account_title">Llogaria Simkl</string>
     <string name="simkl_description">Lidh Simkl për të sinkronizuar listat, historikun e shikimit, progresin e riprodhimit dhe scrobble-t.</string>
-    <string name="simkl_connect">Lidh Simkl</string>
-    <string name="simkl_disconnect">Shkëput Simkl</string>
     <string name="simkl_disconnect_title">Të shkëputet Simkl?</string>
     <string name="simkl_disconnect_subtitle">Kjo heq llogarinë Simkl dhe të dhënat Simkl në cache nga ky profil.</string>
     <string name="simkl_connected_as">Lidhur si %1$s</string>
     <string name="simkl_user_fallback">Përdorues Simkl</string>
     <string name="simkl_awaiting_instruction">Hap faqen e verifikimit Simkl dhe shkruaj këtë kod.</string>
-    <string name="simkl_code_expires">Kodi skadon pas %1$s</string>
     <string name="simkl_sync_now">Sinkronizo tani</string>
     <string name="simkl_visit">Vizito Simkl</string>
     <string name="simkl_sync_info_action">Si funksionon sinkronizimi</string>
@@ -2570,8 +2288,6 @@
     <string name="simkl_status_disconnected">U shkëput nga Simkl</string>
     <string name="simkl_status_syncing">Duke sinkronizuar Simkl…</string>
     <string name="simkl_status_synced">Sinkronizimi Simkl përfundoi</string>
-    <string name="simkl_watch_progress_selected">Simkl u zgjodh për Vazhdo shikimin</string>
-    <string name="simkl_library_source_selected">Simkl u zgjodh për Bibliotekën</string>
     <string name="simkl_error_code_expired">Kodi Simkl ka skaduar. Fillo përsëri.</string>
     <string name="simkl_error_authorization_revoked">Autorizimi Simkl u anulua. Lidhu përsëri.</string>
     <string name="simkl_error_network">Nuk mund të arrihet Simkl. Provo përsëri.</string>
@@ -2600,13 +2316,10 @@
     <string name="stream_embedded_group">Transmetime të integruara</string>
     <string name="stream_embedded_fallback_name">Transmetim i integruar</string>
     <string name="stream_quality_unknown">E panjohur</string>
-    <string name="stream_addon_unknown">E panjohur</string>
-    <string name="tmdb_unknown_entity">E panjohur</string>
     <string name="web_tmdb_company_fallback">Kompania TMDB %1$d</string>
     <string name="web_tmdb_collection_fallback">Koleksioni TMDB %1$d</string>
     <string name="web_error_invalid_request_body">Trup kërkese i pavlefshëm</string>
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">Anglisht</string>
     <!-- Supporters / contributors / sponsors errors -->
     <string name="supporters_error_load">Nuk mund të ngarkohen mbështetësit.</string>
     <string name="contributors_error_load">Nuk mund të ngarkohen kontribuesit.</string>
@@ -2614,7 +2327,6 @@
     <string name="contributors_error_api_not_configured">API-ja e kontribuesve nuk është konfiguruar.</string>
     <string name="contributors_error_api_http">Gabim i API-së së kontribuesve: %1$d</string>
     <string name="supporters_error_api_http">Gabim i API-së së donacioneve: %1$d</string>
-    <string name="sponsors_error_api_http">Gabim i API-së së sponsorëve: %1$d</string>
     <!-- Contributor role badges -->
     <string name="contributor_role_translator">Përkthyes</string>
     <string name="contributor_role_maintainer">Mirëmbajtës</string>
@@ -2627,18 +2339,12 @@
     <!-- Torrent service / TorrServer binary errors -->
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">Duke nisur motorin P2P…</string>
-    <string name="player_torrent_rebuffer_status">%1$s në buffer</string>
     <string name="player_stream_error_invalid_external_url">URL e jashtme e pavlefshme</string>
     <string name="player_stream_error_open_external_link_failed">Nuk mund të hapet lidhja e jashtme</string>
     <string name="player_stream_error_invalid_url">URL transmetimi e pavlefshme</string>
     <string name="player_stream_error_missing_content_type">Mungon lloji i përmbajtjes</string>
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">nuk ktheu metadata për këtë id</string>
-    <string name="meta_error_detail_addon_unreachable">nuk mundi të arrinte serverin e shtesës</string>
-    <string name="meta_error_detail_addon_connection_failed">lidhja me shtesën dështoi</string>
-    <string name="meta_error_detail_addon_timeout">kërkesa e shtesës tejkaloi kohën e pritjes</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">shtesa përdor një lidhje të pasigurt HTTP të bllokuar nga Android</string>
-    <string name="meta_error_detail_addon_request_failed">kërkesa e shtesës dështoi</string>
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">nuk ktheu transmetime për këtë id</string>
     <string name="stream_error_detail_addon_unreachable">nuk mundi të arrinte serverin e shtesës</string>
@@ -2659,8 +2365,6 @@
     <string name="trakt_related_error_request_failed">Kërkesa e lidhur me Trakt dështoi</string>
     <string name="trakt_comments_error_request_failed">Kërkesa për komentet Trakt dështoi</string>
     <string name="trakt_library_error_fetch_list_items">Marrja e artikujve të listës dështoi</string>
-    <string name="watchlist_removed">U hoq nga lista e shikimit</string>
-    <string name="watchlist_added">U shtua në listën e shikimit</string>
     <!-- Debrid: filter rule rows (title + subtitle pairs) -->
     <string name="debrid_picker_preferred_resolutions_title">Rezolucionet e preferuara</string>
     <string name="debrid_picker_preferred_resolutions_subtitle">Rendit rezolucionet e zgjedhura të parat, sipas renditjes së parazgjedhur.</string>
@@ -2865,13 +2569,11 @@
     <string name="stream_test_card_title">Nis testin e shpejtësisë për transmetimin e luajtur së fundi</string>
     <string name="stream_test_server_label">Serveri: %1$s</string>
     <string name="stream_test_no_stream">Nuk është regjistruar riprodhim. Luaj një video për të kryer teste diagnostikuese në host-in e saj.</string>
-    <string name="stream_test_btn_start">Fillo testin</string>
     <string name="stream_test_btn_measuring_baseline">Duke matur bazën...</string>
     <string name="stream_test_btn_measuring_parallel1">Duke matur paralelisht (1 lidhje)...</string>
     <string name="stream_test_btn_measuring_parallel4">Duke matur paralelisht (4 lidhje)...</string>
     <string name="stream_test_btn_measuring_parallel8">Duke matur paralelisht (8 lidhje)...</string>
     <string name="stream_test_btn_measuring_parallel16">Duke matur paralelisht (16 lidhje)...</string>
-    <string name="stream_test_btn_run_again">Nis përsëri</string>
     <string name="stream_test_btn_running">Duke ekzekutuar...</string>
     <string name="stream_test_label_baseline">Lidhje standarde e vetme (bazë)</string>
     <string name="stream_test_label_parallel1">Lidhje paralele (1 lidhje)</string>

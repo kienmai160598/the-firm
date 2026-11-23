@@ -1,7 +1,6 @@
 package com.kien.movies.ui.components
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.BringIntoViewSpec
@@ -51,11 +50,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -76,7 +73,6 @@ import com.kien.movies.ui.theme.boxRowTitle
 import com.kien.movies.ui.theme.rememberBodyFloor
 import com.kien.movies.ui.theme.rememberMetaFloor
 import com.kien.movies.ui.util.contentTextDirection
-import com.kien.movies.ui.util.formatAddonTypeLabel
 import com.kien.movies.ui.util.localizedContentType
 
 @OptIn(
@@ -233,7 +229,6 @@ fun CatalogRowSection(
     }
 
     val latestOnItemClick by rememberUpdatedState(onItemClick)
-    val latestOnSeeAll by rememberUpdatedState(onSeeAll)
     val latestOnItemFocus by rememberUpdatedState(onItemFocus)
     val latestIsItemWatched by rememberUpdatedState(isItemWatched)
     val latestOnItemLongPress by rememberUpdatedState(onItemLongPress)

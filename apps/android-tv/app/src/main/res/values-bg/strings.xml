@@ -146,7 +146,6 @@
     <string name="cw_percent_watched">%1$d%% гледани</string>
     <string name="cw_hours_min_left">Остават %1$dh %2$dm</string>
     <string name="cw_min_left">Остава %1$dm</string>
-    <string name="cw_almost_done">Почти готово</string>
     <string name="cw_airs_date">Ще се излъчи на %1$s</string>
     <string name="cw_airs_today">Излъчва се днес</string>
     <string name="cw_airs_tomorrow">Излъчва се утре</string>
@@ -176,7 +175,6 @@
     <string name="hero_director">Режисьор: %1$s</string>
     <string name="hero_writer">Автор: %1$s</string>
     <string name="hero_play">Учаватват</string>
-    <string name="hero_play_episode">Пусни Сезон %1$d еп. %2$d</string>
     <string name="hero_add_to_library">Добавяне към библиотеката</string>
     <string name="hero_remove_from_library">Премахване от библиотеката</string>
     <string name="hero_mark_watched">Маркирай като гледано</string>
@@ -185,7 +183,6 @@
     <string name="hero_press_back_trailer">Натиснете назад, за да излезете от трейлъра</string>
     <string name="hero_synopsis_read_more">Прочетете още</string>
     <string name="hero_synopsis_dismiss_hint">Натиснете назад, за да затворите</string>
-    <string name="cd_rating">Рейтинг</string>
     
     <string name="episodes_season">Сезон %1$d</string>
     <string name="episodes_specials">Специални епизоди</string>
@@ -247,10 +244,8 @@
     <string name="detail_section_production">Продукция</string>
     <string name="detail_comments_empty">Все още няма налични отзиви за Trakt.</string>
     <string name="detail_comments_error">Не можах да заредя отзивите за Trakt в момента.</string>
-    <string name="detail_trailer_loading">Зареждане на трейлъра...</string>
     <string name="detail_trailer_error">Трейлърът не можа да се зареди в момента.</string>
     <string name="detail_comments_spoiler_hidden">Преглед на спойлера. Натиснете OK, за да го разкриете.</string>
-    <string name="detail_comments_reveal_spoiler">Разкриване на спойлер</string>
     <string name="detail_comments_reveal_spoiler_hint">Натиснете OK, за да разкриете спойлера.</string>
     <string name="detail_comments_back_hint">Кликнете назад, за да затворите</string>
     <string name="detail_comments_badge_review">Отзив</string>
@@ -425,10 +420,7 @@
     <string name="update_channel_dialog_subtitle">Изберете типа актуализации, които искате да получавате</string>
     <string name="update_channel_stable_description">Предназначено за ежедневна употреба.</string>
     <string name="update_channel_beta_description">Ранни актуализации, които може да съдържат грешки, да нарушават функции или да се държат неочаквано.</string>
-    <string name="about_privacy_policy">Политика за поверителност</string>
-    <string name="about_privacy_policy_subtitle">Вижте нашата политика за поверителност</string>
     <string name="support_nuvio_name">Поддръжка на Movies</string>
-    <string name="about_supporters_contributors">Подкрепете Movies</string>
     <string name="about_supporters_contributors_subtitle">Подкрепете проекта и вижте заслугите на общността</string>
     <string name="about_licenses_attributions">Лицензи и посочване на авторството</string>
     <string name="about_licenses_attributions_subtitle">Източници на данни, благодарности и лицензи за Android</string>
@@ -472,11 +464,8 @@
     <string name="settings_content_discovery_subtitle">Добавки, плъгини, каталози и източници за откриване</string>
     <string name="settings_content_discovery_addons_subtitle">Управление на добавки, подреждане в каталога и колекции</string>
     <string name="settings_content_discovery_plugins_subtitle">Управление на хранилища и доставчици на стрийминг</string>
-    <string name="settings_plugins">Плъгини</string>
-    <string name="settings_plugins_subtitle">Хранилища и доставчици</string>
     <string name="settings_integration">Интеграции</string>
     <string name="settings_playback">Възпроизвеждане</string>
-    <string name="settings_trakt_subtitle">Отваряне на екрана за връзка с Trakt</string>
     <string name="settings_tracking_title">Проследяване</string>
     <string name="settings_tracking_description">Свържете доставчици на проследяване и изберете кой от тях захранва вашата библиотека и „Продължете да гледате“.</string>
     <string name="tracking_accounts_title">Профили</string>
@@ -504,8 +493,6 @@
     <string name="tracking_trakt_progress_required">Налично, когато Trakt е източникът за напредък при гледане</string>
     <string name="trakt_name">Тракт</string>
     <string name="simkl_name">Симкл</string>
-    <string name="settings_network">Скорост на мрежата</string>
-    <string name="settings_network_subtitle">Диагностика на латентността и изтеглянията</string>
     <string name="settings_advanced">Разширени</string>
     <string name="settings_advanced_subtitle">Производителност, навигация, кеш и диагностика</string>
     <string name="experience_mode_essential">Основно</string>
@@ -613,19 +600,10 @@
     <string name="advanced_section_dv_diagnostics" translatable="false">ДВ диагностика</string>
     <string name="advanced_fast_horizontal_navigation">Бърза хоризонтална навигация</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Увеличете скоростта на повторение на D-pad в редове, като същевременно запазите активирано ограничаване на повторението.</string>
-    <string name="advanced_nuvio_performance_mode">Нативна памет на ExoPlayer</string>
-    <string name="advanced_nuvio_performance_mode_subtitle">Активира високопроизводителен вграден алокатор, памет извън купчината и мрежови оптимизации за по-плавно възпроизвеждане</string>
-    <string name="buffer_device_ram_info">RAM памет на устройството: %s</string>
-    <string name="buffer_safe_limit_info">Препоръчителен безопасен лимит: %d MB</string>
-    <string name="buffer_safe_status">Безопасно: В рамките на препоръчителния лимит за вашето устройство.</string>
-    <string name="buffer_unsafe_warning">Предупреждение: Превишава препоръчителния безопасен лимит (%1$d MB) за вашето %2$s устройство. Може да причини сривове на приложението.</string>
-    <string name="buffer_auto_limit_active">Автоматично мащабиран безопасен лимит: %d MB</string>
     <string name="advanced_nuvio_focus_scroll">Превъртане на фокуса с Movies</string>
     <string name="advanced_nuvio_focus_scroll_subtitle">Използвайте персонализираната анимация и позициониране на глобалния фокус при превъртане на Movies.</string>
     <string name="advanced_rgb565">Декодиране на RGB565 изображения</string>
     <string name="advanced_rgb565_subtitle">Използвайте 16-битов цвят с по-малко памет за допустими непрозрачни изображения. Промяната на това рестартира приложението.</string>
-    <string name="advanced_memory_only_vertical_scroll">Вертикално скролиране само с памет</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Пропускане на заявки за дискови и мрежови образи при вертикално превъртане на началните редове.</string>
     <string name="advanced_compose_highlighter">Маркер за ново съобщение</string>
     <string name="advanced_compose_highlighter_subtitle">Flash рамки около прекомпозираните елементи на потребителския интерфейс за отстраняване на грешки в производителността.</string>
     <string name="advanced_clear_cw_cache">Изчистване на кеша за продължаване на гледането</string>
@@ -637,7 +615,6 @@
     <string name="advanced_confirm_exit_subtitle">Напълно затваряне на приложението и освобождаване на памет при излизане. Изисква се двукратно натискане на бутона „Назад“ за потвърждение.</string>
     <string name="confirm_exit_toast">Натиснете отново бутона за изход</string>
     <string name="settings_debug">Отстраняване на грешки</string>
-    <string name="settings_plugins_section_subtitle">Управление на хранилища, доставчици и състояния на плъгини</string>
     <string name="settings_account_section_subtitle">Състояние на акаунта и синхронизацията</string>
     <string name="account_stat_addons">добавки</string>
     <string name="account_stat_plugins">плъгини</string>
@@ -663,18 +640,6 @@
     <string name="action_back">Назад</string>
     <string name="action_close">Затвори</string>
     
-    <string name="supporters_contributors_title">Подкрепете Movies</string>
-    <string name="supporters_contributors_subtitle">Хората, които подкрепят Movies, и сътрудниците, които го изграждат в телевизионни и мобилни устройства.</string>
-    <string name="supporters_contributors_supporters_copy">Поддръжниците и дарителите помагат за развитието на проекта, финансират инфраструктурата и осигуряват място за амбициозни функции.</string>
-    <string name="supporters_contributors_donate_copy">Movies ще остане безплатен и с отворен код. Ако искате да подкрепите проекта, можете да помогнете за покриване на времето и инфраструктурата, които стоят зад него.</string>
-    <string name="supporters_contributors_donation_progress_title">Сървър и поддръжка този месец</string>
-    <string name="supporters_contributors_donation_progress_complete">Покрито. Допълнителна подкрепа вече отива за разработка.</string>
-    <string name="supporters_contributors_donation_progress_remaining">След 100%, допълнителната подкрепа отива за разработка.</string>
-    <string name="supporters_contributors_loading_donation_progress">Зареждане на напредъка на финансирането...</string>
-    <string name="supporters_contributors_donate_button">Подкрепете Movies</string>
-    <string name="supporters_contributors_qr_title">Сканирайте, за да подкрепите</string>
-    <string name="supporters_contributors_qr_subtitle">Отворете връзката на телефона си, за да подкрепите Movies.</string>
-    <string name="supporters_contributors_qr_hint">Насочете камерата си към QR кода или използвайте бутона по-долу.</string>
     <string name="supporters_contributors_back_button">Обратно към подробностите</string>
     <string name="supporter_membership_title">Членство за поддръжници на Movies</string>
     <string name="supporter_membership_description">Подкрепата за Movies помага за покриване на инфраструктурата и текущото развитие, като същевременно основното изживяване остава безплатно за всички.</string>
@@ -702,7 +667,6 @@
     <string name="supporters_loading">Зареждане на поддръжници…</string>
     <string name="supporters_empty">Все още не са намерени поддръжници.</string>
     <string name="supporters_error_title">Не можаха да се заредят поддръжниците</string>
-    <string name="supporters_no_message">Няма споделено съобщение.</string>
     <string name="supporters_level_supporter">Поддръжник</string>
     <string name="supporters_level_supporter_plus">Поддръжник+</string>
     <string name="supporters_since">Подкрепяме Movies от %1$s</string>
@@ -717,7 +681,6 @@
     <string name="contributors_loading">Зареждане на сътрудници от GitHub…</string>
     <string name="contributors_empty">Все още не са намерени сътрудници.</string>
     <string name="contributors_error_title">Не можаха да се заредят сътрудниците</string>
-    <string name="contributors_total_contributions">Общо %1$d приноса</string>
     <string name="contributors_open_github">Отваряне на профил в GitHub</string>
     <string name="contributors_show_kofi_qr">Показване на Ko-fi QR код</string>
     <string name="contributors_hide_kofi_qr">Скриване на Ko-fi QR кода</string>
@@ -809,7 +772,6 @@
     <string name="playback_true_black_letterbox_sub">Оставете лентите около картината неоцветени, за да остане HDR истински черен. Изключете тази опция, ако върху лентите се появява ярка линия.</string>
     <string name="playback_exo_chapters_title">Показване на глави</string>
     <string name="playback_exo_chapters_sub">Чете главите на MKV файловете, за да ги маркира в лентата за напредък и да прескача между тях.</string>
-    <string name="audio_trailer_section">Трейлър</string>
     <string name="audio_autoplay_trailers">Автоматично пускане на трейлъри</string>
     <string name="audio_autoplay_trailers_sub">Автоматично възпроизвеждане на трейлъри на екраните с подробности и след възпроизвеждане</string>
     <string name="audio_trailer_delay">Забавяне на трейлъра</string>
@@ -889,7 +851,6 @@
     <string name="audio_decoder_prefer_app_desc">Използвайте FFmpeg декодери, когато са налични. По-добра поддръжка на формати, но по-високо натоварване на процесора.</string>
     <string name="audio_decoder_controls">Контролира дали за аудио и видео се използват хардуерни или софтуерни (FFmpeg) декодери</string>
     
-    <string name="sub_section">Субтитри</string>
     <string name="sub_not_set">Не е зададено</string>
     <string name="sub_forced_lang">Принудително</string>
     <string name="sub_preferred_lang">Предпочитан език</string>
@@ -900,7 +861,6 @@
     <string name="sub_show_only_preferred_languages_desc">Скриване на всички други езици на субтитрите от списъка за избор</string>
     <string name="sub_strip_sdh">Стриптизиране на субтитри SDH</string>
     <string name="sub_strip_sdh_desc">Скриване на звуковите описания и етикетите на високоговорителите от текстовите субтитри</string>
-    <string name="sub_organization">Организация на субтитрите</string>
     <string name="sub_size">Размер</string>
     <string name="sub_vertical_offset">Вертикално отместване</string>
     <string name="sub_bold">Удебелен шрифт</string>
@@ -917,15 +877,8 @@
     <string name="sub_advanced_section">Разширено рендиране на субтитри</string>
     <string name="sub_libass">Използване на libass за субтитри ASS/SSA</string>
     <string name="sub_libass_sub">Разширено ASS/SSA рендиране (стилове, позициониране, анимации)</string>
-    <string name="sub_libass_mode">Режим на рендериране на Libass</string>
     <string name="sub_libass_render_scale">Разделителна способност на рендирането на субтитрите</string>
     <string name="sub_libass_render_scale_sub">По-ниската резолюция подобрява производителността при тежък набор на текст, но за сметка на остротата</string>
-    <string name="sub_org_none">Няма (ред по подразбиране)</string>
-    <string name="sub_org_by_lang">По език</string>
-    <string name="sub_org_by_addon">От добавка</string>
-    <string name="sub_org_none_desc">Показване на субтитрите в реда на резултатите от добавките по подразбиране.</string>
-    <string name="sub_org_by_lang_desc">Групиране на субтитри по език.</string>
-    <string name="sub_org_by_addon_desc">Групиране на субтитрите по източник на добавката.</string>
     
     <string name="autoplay_preload_next_episode">Предварително зареждане на източници за следващия епизод</string>
     <string name="autoplay_preload_next_episode_sub">Започнете търсене на източници във фонов режим, преди да се появи бутонът за следващ епизод.</string>
@@ -960,7 +913,6 @@
     <string name="autoplay_threshold_pct_title">Процент на прага</string>
     <string name="autoplay_threshold_pct_sub">Резервен режим, когато няма времеви печат за завършване.</string>
     <string name="autoplay_threshold_min_title">Праг минути</string>
-    <string name="autoplay_threshold_min_sub">Резервна функция, когато няма времеви печат за завършване.</string>
     <string name="autoplay_scope_all">Всички източници</string>
     <string name="autoplay_scope_addons">Само инсталирани добавки</string>
     <string name="autoplay_scope_plugins">Само активирани плъгини</string>
@@ -1000,8 +952,6 @@
     <string name="layout_section_home_desc">Изберете структура и източник на героя.</string>
     <string name="layout_landscape_posters">Режим на пейзажен плакат</string>
     <string name="layout_landscape_posters_sub">Използвайте пейзажни картички навсякъде.</string>
-    <string name="layout_preview_row">Показване на реда за предварителен преглед</string>
-    <string name="layout_preview_row_sub">Показване на частичен преглед на реда по-долу в оформлението „Модерен дом“.</string>
     <string name="layout_hero_catalogs">Каталози на герои</string>
     <string name="layout_hero_catalogs_sub">Изберете един или повече каталога за геройско съдържание.</string>
     <string name="layout_section_content">Начално съдържание</string>
@@ -1155,8 +1105,6 @@
     <string name="layout_preset_balanced">Балансиран</string>
     <string name="layout_preset_comfort">Комфорт</string>
     <string name="layout_preset_large">Голям</string>
-    <string name="layout_memory_only_scroll">Вертикално превъртане само в паметта</string>
-    <string name="layout_memory_only_scroll_sub">Пропускане на зареждането на нови изображения при вертикално превъртане.</string>
     <string name="layout_preset_sharp">Остър</string>
     <string name="layout_preset_subtle">Фино</string>
     <string name="layout_preset_classic">Класически</string>
@@ -1229,31 +1177,12 @@
     <string name="mdblist_enable_title">Активиране на оценките от MDBList</string>
     <string name="mdblist_enable_subtitle">Извличане на оценки от външни доставчици в екрана с подробности за метаданните</string>
     <string name="mdblist_api_key_title">API ключ</string>
-    <string name="mdblist_api_key_subtitle">Изисква се за извличане на оценки от MDBList</string>
     <string name="mdblist_ratings_credentials_subtitle">Използвайте вашия MDBList акаунт, свързан в Tracking, или въведете отделен API ключ за оценки.</string>
     <string name="mdblist_ratings_connected_account">Използване на свързан акаунт</string>
     <string name="mdblist_ratings_key_override_subtitle">API ключът отменя свързания ви акаунт за оценки. Изчистете го, за да използвате отново свързания акаунт.</string>
-    <string name="mdblist_trakt_title">Тракт</string>
-    <string name="mdblist_trakt_subtitle">Показване на резултата от Trakt</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Показване на IMDb резултата (и скриване на реда по подразбиране за IMDb, когато е наличен)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Показване на TMDB резултата</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Показване на резултата от Letterboxd</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Покажи оценката на критиката</string>
-    <string name="mdblist_audience_title">Рейтинг на аудиторията</string>
-    <string name="mdblist_audience_subtitle">Показване на оценката на аудиторията</string>
-    <string name="mdblist_metacritic_title">Метакритик</string>
-    <string name="mdblist_metacritic_subtitle">Показване на оценката от Metacritic</string>
-    <string name="mdblist_mal_title">Моят списък с аниме</string>
-    <string name="mdblist_mal_subtitle">Показване на оценката на MyAnimeList</string>
     <string name="mdblist_show_on_hero_title">Използване на оценки за герой</string>
     <string name="mdblist_show_on_hero_subtitle">Показване на оценките от MDBList в карусела на героите (модерни и класически/мрежови)</string>
-    <string name="mdblist_rating_order_title">Ред на оценяване</string>
     <string name="mdblist_dialog_title">Ключ за API на MDBList</string>
-    <string name="mdblist_dialog_subtitle">Въведете вашия API ключ, за да получите външни оценки</string>
     <string name="mdblist_dialog_placeholder">Въведете API ключ на MDBList</string>
     <string name="mdblist_not_set">Не е зададено</string>
     <string name="mdblist_invalid_api_key">Невалиден API ключ на MDBList</string>
@@ -1278,25 +1207,11 @@
     <string name="debrid_section_instant_playback">Подготовка на линк</string>
     <string name="debrid_section_filters">Филтри и сортиране</string>
     <string name="debrid_section_formatting">Форматиране</string>
-    <string name="debrid_provider_title">Доставчик</string>
-    <string name="debrid_provider_subtitle">Допълнителни доставчици ще бъдат добавени по-късно</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Свържете вашия Torbox акаунт.</string>
     <string name="debrid_provider_description">Свържете вашия %1$s акаунт.</string>
     <string name="debrid_provider_device_description">Свържете вашия %1$s акаунт в браузъра.</string>
     <string name="debrid_api_key_dialog_title">API ключ за %1$s</string>
     <string name="debrid_api_key_dialog_subtitle">Въведете вашия %1$s API ключ.</string>
     <string name="debrid_api_key_dialog_placeholder">Въведете API ключ %1$s</string>
-    <string name="debrid_dialog_title">API ключ на Torbox</string>
-    <string name="debrid_dialog_subtitle">Въведете вашия Torbox API ключ.</string>
-    <string name="debrid_dialog_placeholder">Въведете ключа за Torbox API</string>
-    <string name="debrid_real_debrid_api_key_title">API токен на Real-Debrid</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Изисква се за локално разрешаване на връзка Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_title">API токен на Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Въведете вашия Real-Debrid API токен за директно дебитиране</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Въведете токен за API на Real-Debrid</string>
     <string name="debrid_not_set">Не е зададено</string>
     <string name="debrid_connected">Свързан</string>
     <string name="debrid_connect_provider">Свързване с %1$s</string>
@@ -1305,14 +1220,11 @@
     <string name="debrid_device_auth_connected">%1$s е свързано с това устройство.</string>
     <string name="debrid_device_auth_starting">Стартиране на защитено влизане...</string>
     <string name="debrid_device_auth_instructions">Сканирайте QR кода и въведете този код, за да одобрите Movies.</string>
-    <string name="debrid_device_auth_code_copied">Кодът е копиран.</string>
     <string name="debrid_device_auth_waiting">Изчаква се одобрение...</string>
     <string name="debrid_device_auth_failed">Не можа да започне влизането.</string>
     <string name="debrid_device_auth_missing_configuration">Този метод за влизане не е конфигуриран в тази компилация.</string>
     <string name="debrid_device_auth_expired">Този код е с изтекъл срок на валидност. Опитайте отново.</string>
     <string name="debrid_key_invalid">Не можа да се валидира този API ключ.</string>
-    <string name="debrid_invalid_torbox_api_key">Не можа да се валидира този API ключ.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Не можа да се валидира този API ключ.</string>
     <string name="debrid_prepare_instant_playback">Подготовка на връзки</string>
     <string name="debrid_prepare_instant_playback_description">Разрешаване на възпроизводимите връзки преди започване на възпроизвеждането.</string>
     <string name="debrid_prepare_stream_count">Връзки за подготовка</string>
@@ -1331,29 +1243,6 @@
     <string name="debrid_stream_sort_smallest">Първо най-малките</string>
     <string name="debrid_stream_sort_best_audio">Първо най-доброто аудио</string>
     <string name="debrid_stream_sort_language">Първо езикът</string>
-    <string name="debrid_stream_sort_default">Първоначален ред</string>
-    <string name="debrid_stream_sort_quality">Първо най-добро качество</string>
-    <string name="debrid_stream_sort_size_desc">Първо най-големите</string>
-    <string name="debrid_stream_sort_size_asc">Първо най-малките</string>
-    <string name="debrid_stream_min_quality_title">Минимално качество</string>
-    <string name="debrid_stream_min_quality_subtitle">Скриване на източниците под избраната резолюция.</string>
-    <string name="debrid_stream_min_quality_any">Всяко качество</string>
-    <string name="debrid_stream_min_quality_720">720p и по-високо</string>
-    <string name="debrid_stream_min_quality_1080">1080p и по-висока</string>
-    <string name="debrid_stream_min_quality_2160">Само 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Показване, скриване или изискване на източници на Dolby Vision.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Показване, скриване или изискване на HDR източници.</string>
-    <string name="debrid_stream_feature_any">Всеки</string>
-    <string name="debrid_stream_feature_exclude">Скриване</string>
-    <string name="debrid_stream_feature_only">Само</string>
-    <string name="debrid_stream_codec_title">Кодек</string>
-    <string name="debrid_stream_codec_subtitle">Филтриране на източници по видео кодек.</string>
-    <string name="debrid_stream_codec_any">Всеки кодек</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
     
     <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
     <string name="debrid_stream_per_resolution_limit_title">Ограничение на резолюция</string>
@@ -1412,11 +1301,9 @@
     <string name="settings_stream_badge_position_bottom">Долу</string>
     <string name="settings_stream_badge_urls_title">URL адреси на значки на Fusion</string>
     <string name="settings_stream_badge_urls_description">Импортирайте до %1$d JSON URL адреса за значки за поточно предаване в стил Fusion. Всеки URL адрес може да бъде актуализиран или изтрит отделно.</string>
-    <string name="settings_stream_badge_urls_search_description">Управление на импортирани JSON URL адреси за значки за поточно предаване в стил Fusion.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL адреси, %3$d активни Fusion значки</string>
     <string name="settings_fusion_badges_empty">Няма импортирани URL адреси на значки на Fusion.</string>
     <string name="settings_fusion_badge_url_label">JSON URL адрес на Fusion badge</string>
-    <string name="settings_fusion_badge_urls_imported">%1$d/%2$d Fusion URL адреси са импортирани</string>
     <string name="settings_fusion_badge_url_active">Активно</string>
     <string name="settings_fusion_badge_url_inactive">Неактивен</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d активирани значки, %3$d групи</string>
@@ -1479,14 +1366,12 @@
     
     <string name="trakt_description">Синхронизирайте списъка си за наблюдение, напредъка на гледането, продължаването на гледането, Scrobble-ите и личните списъци с Trakt.</string>
     <string name="trakt_connected_as">Свързан като %1$s</string>
-    <string name="trakt_account_login">Вход в акаунта</string>
     <string name="trakt_awaiting_instruction">Отидете на trakt.tv/activate и въведете този код:</string>
     <string name="trakt_waiting_approval">Изчаква се одобрение…</string>
     <string name="qr_login_approved">Входът е одобрен. Влизането се завършва…</string>
     <string name="qr_login_pending">Изчаква се одобрение на телефона ви…</string>
     <string name="qr_login_expired">Валидността на QR кода за вход е изтекла. Генерирайте нов код.</string>
     <string name="qr_login_preparing">Подготовка на QR вход...</string>
-    <string name="qr_login_device_auth_failed">Удостоверяването на устройството не бе успешно</string>
     <string name="qr_login_scan_prompt">Сканирайте QR кода и влезте на телефона си</string>
     <string name="qr_login_start_failed">Неуспешно стартиране на вход с QR код</string>
     <string name="qr_login_signing_in">Влизането ви в профила...</string>
@@ -1494,38 +1379,20 @@
     <string name="qr_login_exchange_failed">Влизането с QR код не можа да бъде завършено</string>
     <string name="trakt_code_expires">Кодът изтича след %1$s</string>
     <string name="trakt_token_refreshes">Токенът за достъп до Trakt се обновява в %1$s</string>
-    <string name="trakt_login_instruction">Натиснете „Вход“, за да стартирате удостоверяването на устройството Trakt. Тук ще се появи QR код.</string>
     <string name="trakt_missing_credentials">Липсва TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET в local.properties.</string>
     <string name="trakt_watch_progress_title">Наблюдение на напредъка</string>
     <string name="trakt_watch_progress_subtitle">Изберете кои сили на източника на прогрес да се възобновят и да продължите да гледате</string>
     <string name="trakt_watch_progress_dialog_title">Наблюдение на напредъка</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Изберете дали за възобновяване и продължаване на гледането да се използва Trakt или Movies Sync, докато скробълингът в Trakt остава активен.</string>
-    <string name="trakt_watch_progress_source_trakt">Тракт</string>
     <string name="trakt_watch_progress_source_nuvio">Синхронизиране с Movies</string>
     <string name="trakt_library_source_title">Източник на библиотеката</string>
     <string name="trakt_library_source_subtitle">Изберете кой източник Movies чете за вашата библиотека</string>
     <string name="trakt_library_source_dialog_title">Източник на библиотеката</string>
-    <string name="trakt_library_source_dialog_subtitle">Изберете къде да запазвате и управлявате библиотечните си елементи</string>
-    <string name="trakt_library_source_trakt">Тракт</string>
     <string name="trakt_library_source_nuvio">Библиотека Movies</string>
-    <string name="trakt_library_source_trakt_selected">Библиотеката на Trakt е избрана</string>
-    <string name="trakt_library_source_nuvio_selected">Избрана е библиотека Movies</string>
-    <string name="trakt_setting_on">Включено</string>
     <string name="trakt_setting_off">Изключено</string>
-    <string name="trakt_watch_progress_trakt_selected">Източникът на напредъка при гледане е зададен на Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">Източникът на напредъка на гледане е зададен на Movies Sync</string>
     <string name="trakt_continue_watching_window">Прозорец за продължаване на гледането</string>
     <string name="trakt_continue_watching_subtitle">Историята на тракта се взема предвид за продължаване на гледането</string>
-    <string name="trakt_unaired_next_up">Неизлъчени следващи епизоди</string>
-    <string name="trakt_unaired_next_up_subtitle">Показване на предстоящите епизоди преди излъчването им</string>
-    <string name="trakt_unaired_shown">Показано</string>
-    <string name="trakt_unaired_hidden">Скрито</string>
-    <string name="trakt_unaired_now_shown">Неизлъчените епизоди на „Следващо“ вече се показват</string>
-    <string name="trakt_unaired_now_hidden">Неизлъчваните епизоди на „Следващо“ вече са скрити</string>
     <string name="trakt_comments_title">Коментари</string>
     <string name="trakt_comments_subtitle">Показване на отзиви за Trakt на страници с метаданни</string>
-    <string name="trakt_comments_dialog_title">Коментари</string>
-    <string name="trakt_comments_dialog_subtitle">Изберете дали страниците с метаданни да показват отзиви в Trakt, когато акаунтът ви е свързан.</string>
     <string name="trakt_comments_now_shown">Вече се показват рецензии за Trakt на страниците с метаданни</string>
     <string name="trakt_comments_now_hidden">Отзивите за Trakt на страниците с метаданни вече са скрити</string>
     <string name="trakt_more_like_this_source_title">Още подобни източници</string>
@@ -1543,15 +1410,8 @@
     <string name="trakt_disconnect">Изключване</string>
     <string name="trakt_disconnect_title">Да се прекъсне ли връзката с Trakt?</string>
     <string name="trakt_disconnect_subtitle">Това ще прекъсне връзката на вашия Trakt акаунт с Movies.</string>
-    <string name="trakt_login">Вход</string>
-    <string name="trakt_retry">Повторен опит</string>
-    <string name="trakt_back">Назад</string>
     <string name="trakt_cw_window_title">Прозорец за продължаване на гледането</string>
     <string name="trakt_cw_window_subtitle">Изберете колко активност в Trakt да се показва в „Продължи гледането“.</string>
-    <string name="trakt_unaired_dialog_title">Неизлъчени следващи епизоди</string>
-    <string name="trakt_unaired_dialog_subtitle">Изберете дали „Продължи гледането“ да включва предстоящи епизоди преди излизането.</string>
-    <string name="trakt_show_unaired">Показване на неизлъчени епизоди</string>
-    <string name="trakt_hide_unaired">Скриване на неизлъчени епизоди</string>
     <string name="trakt_all_history">Цялата история</string>
     <string name="trakt_days_format">%1$d дни</string>
     
@@ -1601,23 +1461,13 @@
     <string name="profile_manage_title">Управление на профили</string>
     <string name="profile_manage_subtitle">Изберете профил за редактиране, превключване или създаване на нов</string>
     <string name="profile_manage_hint">Изберете профил за управление</string>
-    <string name="profile_primary_label">Основен</string>
-    <string name="profile_shares_primary">Споделя основни %1$s</string>
     <string name="profile_edit_label">Редактиране</string>
     <string name="profile_edit_header">Редактиране на профил</string>
-    <string name="profile_add">Добавяне на профил</string>
     <string name="profile_create_title">Създаване на профил</string>
-    <string name="profile_edit_title">Редактиране на профил %1$s</string>
     <string name="profile_name_placeholder">Име на профила</string>
-    <string name="profile_avatar_color">Цвят на аватара</string>
-    <string name="profile_use_primary_addons">Използване на добавките на основния профил</string>
-    <string name="profile_use_primary_plugins">Използване на плъгините на основния профил</string>
     <string name="profile_creating">Създаване\u2026</string>
     <string name="profile_create_btn">Създаване</string>
-    <string name="profile_confirm">Потвърди</string>
     <string name="profile_delete">Изтриване</string>
-    <string name="profile_addons">добавки</string>
-    <string name="profile_plugins">плъгини</string>
     <string name="profile_choose_avatar">Избор на аватар</string>
     <string name="profile_custom_avatar_web_panel_note">URL адресите за персонализирани аватари могат да бъдат конфигурирани от уеб панела на Movies.</string>
     <string name="profile_editor_tab_avatar">Аватар</string>
@@ -1626,7 +1476,6 @@
     <string name="profile_background_member_note">Персонализираните URL адреси за фон могат да бъдат конфигурирани от уеб панела на Movies.</string>
     <string name="profile_background_normal">Нормален</string>
     <string name="profile_background_custom">Персонализирано</string>
-    <string name="profile_avatar_none_selected">Няма избран аватар</string>
     <string name="profile_avatar_focus_hint">Фокусирайте аватар, за да видите името му</string>
     <string name="profile_avatar_category_all">Всички</string>
     <string name="profile_avatar_category_supporter">Поддръжник</string>
@@ -1660,30 +1509,17 @@
     <string name="profile_copy_settings_created_success">Профилът е създаден с настройки от %1$s.</string>
     <string name="profile_copy_settings_created_error">Профилът е създаден, но настройките не можаха да бъдат копирани. Можете да опитате отново от „Опции на профила“.</string>
     <string name="profile_create_error">Не можа да се създаде профил. Опитайте отново.</string>
-    <string name="profile_pin_title">Заключване на профил с ПИН</string>
-    <string name="profile_pin_enabled_subtitle">Този профил изисква 4-цифрен ПИН код преди превключване.</string>
-    <string name="profile_pin_disabled_subtitle">Задайте 4-цифрен ПИН код, за да заключите този профил.</string>
     <string name="profile_pin_set">Задаване на ПИН код</string>
     <string name="profile_pin_change">Промяна на ПИН кода</string>
     <string name="profile_pin_remove">Премахване на ПИН код</string>
-    <string name="profile_pin_set_title">Задаване на ПИН код за профил</string>
-    <string name="profile_pin_set_subtitle">Въведете 4-цифрен ПИН код и го потвърдете.</string>
     <string name="profile_pin_enter">Въведете 4-цифрен ПИН код</string>
-    <string name="profile_pin_confirm">Потвърдете 4-цифрения ПИН</string>
-    <string name="profile_pin_mismatch">Стойностите на ПИН кода не съвпадат.</string>
-    <string name="profile_pin_save">Запазване на ПИН кода</string>
-    <string name="profile_pin_unlock_title">Отключи %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Въведете 4-цифрения ПИН код, за да продължите.</string>
     <string name="profile_pin_verifying">Проверка…</string>
-    <string name="profile_pin_unlock_action">Отключване</string>
     <string name="profile_pin_overlay_unlock_heading">Въведете своя ПИН код за достъп до %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Създайте 4-цифрен ПИН за %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Потвърдете новия си ПИН код.</string>
     <string name="profile_pin_overlay_unlock_support">Използвайте дистанционното или клавиатурата си, за да въведете 4 цифри.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Изисква се проверка за сигурност.</string>
     <string name="profile_pin_overlay_change_verify_heading">Въведете текущия си ПИН код, за да го промените за %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Въведете текущия 4-цифрен ПИН код, преди да зададете нов.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Изисква се проверка за сигурност.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Въведете текущия ПИН код, за да премахнете заключването за %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Въведете текущия 4-цифрен ПИН код, за да премахнете тази ключалка.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Въведете текущия ПИН код, за да изтриете %1$s.</string>
@@ -1715,7 +1551,6 @@
     <string name="addon_error_invalid_scheme">URL адресът на добавката трябва да започва с http или https</string>
     <string name="addon_installed_section">Инсталирано</string>
     <string name="addon_empty">Няма инсталирани добавки. Добавете една, за да започнете.</string>
-    <string name="addon_remove">Премахване</string>
     <string name="addon_delete_confirm_title">Да се изтрие ли добавката?</string>
     <string name="addon_delete_confirm_message">Сигурни ли сте, че искате да го изтриете?</string>
     <string name="addon_delete_no">Не</string>
@@ -1771,8 +1606,6 @@
     <string name="debrid_resolution_failed">Не можа да се разреши този Debrid източник.</string>
     <string name="youtube_resolving_stream">Зареждане на YouTube видео</string>
     <string name="youtube_resolution_failed">Не можа да се зареди това видео в YouTube.</string>
-    <string name="stream_type_torrent">Торент</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P стрийминг</string>
     <string name="p2p_consent_body">Този източник използва технология peer-to-peer (P2P). С активирането на P2P, вие потвърждавате и се съгласявате, че:\n\n\u2022 Вашият IP адрес ще бъде видим за други потребители в мрежата\n\u2022 Вие носите пълна отговорност за съдържанието, до което осъществявате достъп\n\u2022 Вие потвърждавате, че имате законното право да стриймвате това съдържание във вашата юрисдикция\n\u2022 Movies не хоства, не разпространява и не контролира никакво P2P съдържание\n\u2022 Movies не носи отговорност за каквито и да е правни последици, произтичащи от използването на P2P стрийминг от ваша страна\n\nВие използвате тази функция изцяло на ваш собствен риск. P2P може да бъде деактивиран по всяко време в Настройки.</string>
     <string name="p2p_consent_enable">Активиране на P2P</string>
@@ -1801,9 +1634,6 @@
     <string name="settings_p2p_clear_cache_playback_active">Спрете P2P възпроизвеждането преди изчистване на кеша</string>
     <string name="settings_p2p_clear_cache_done">Изчистени са %1$s неактивни торент данни</string>
     <string name="settings_p2p_clear_cache_failed">Не можа да се изчисти кешът на торентите</string>
-    <string name="p2p_download_title">Изтегляне на P2P Engine</string>
-    <string name="p2p_download_subtitle">Това е еднократно изтегляне, необходимо за P2P стрийминг.</string>
-    <string name="stream_type_external">Външен</string>
     <string name="stream_player_picker_title">Какъв плейър трябва да се използва?</string>
     <string name="stream_player_internal">Вътрешен</string>
     <string name="stream_player_external">Външен</string>
@@ -1814,15 +1644,12 @@
     <string name="player_loading_preparing">Подготовка на източника…</string>
     <string name="player_loading_detecting_format">Откриване на формат на източника…</string>
     <string name="external_player_loading_skip_segments">Зареждане на интро/аутро сегменти…</string>
-    <string name="player_loading_subtitles">Извличане на субтитри…</string>
     <string name="player_loading_subtitles_from">Извличане на субтитри от %1$d добавки…</string>
     <string name="player_loading_subtitles_progress">Извличане на субтитри… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Субтитри: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Строителство на играч…</string>
     <string name="player_loading_starting">Стартиране на стрийма…</string>
     <string name="player_loading_buffering">Буфериране…</string>
-    <string name="player_loading_fallback_pcm_audio">Инициализацията на аудио записа е неуспешна - превключване към PCM аудио…</string>
-    <string name="player_loading_fallback_hevc_decoder">Инициализацията на декодера е неуспешна - превключване към HEVC декодер…</string>
     <string name="player_engine_switching_title">Превключване на плейър енджин</string>
     <string name="player_engine_switching_message">Стартирането не бе успешно. Превключване към %1$s…</string>
     <string name="player_engine_switching_manual_message">Превключване към %1$s...</string>
@@ -1871,10 +1698,6 @@
             <item quantity="other">Все още се зарежда след %1$d секунди</item>
         </plurals>
     <string name="player_speed_title">Скорост на възпроизвеждане</string>
-    <string name="player_more_actions_title">Още действия</string>
-    <string name="player_more_speed">Скорост на възпроизвеждане</string>
-    <string name="player_more_aspect_ratio">Съотношение на страните</string>
-    <string name="player_more_open_external">Отваряне във външен плейър</string>
     <string name="player_error_no_stream_url">Не е предоставен URL адрес на източника</string>
     
     
@@ -1901,14 +1724,12 @@
     <string name="stream_info_player_engine">Плейър енджин</string>
     
     <string name="sources_title">Източници</string>
-    <string name="sources_reload">Презареждане</string>
     <string name="sources_close">Затвори</string>
     <string name="sources_playing">Възпроизвежда се</string>
     <string name="sources_no_streams">Няма намерени източници</string>
     
     <string name="episodes_panel_close">Затвори</string>
     <string name="episodes_panel_back">Назад</string>
-    <string name="episodes_panel_reload">Презареждане</string>
     <string name="episodes_panel_no_streams">Няма намерени потоци</string>
     <string name="episodes_panel_no_episodes">Няма налични епизоди</string>
     <string name="episodes_panel_title">Епизоди</string>
@@ -1924,8 +1745,6 @@
     <string name="player_aspect_mode_cinema_zoom">Увеличение в кино режим</string>
     
     <string name="audio_dialog_title">Аудио</string>
-    <string name="audio_dialog_tab_tracks">Аудио</string>
-    <string name="audio_dialog_tab_mix">Микс</string>
     <string name="audio_delay_label">Забавяне на звука</string>
     <string name="audio_delay_range">Диапазон: %1$.2fs до %2$.2fs</string>
     <string name="audio_mix_label">Усилване (PCM)</string>
@@ -1943,31 +1762,18 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">Когато е деактивирано, нормализирането на понижаването на звука може да намали общата сила на звука.</string>
     
     <string name="subtitle_dialog_title">Субтитри</string>
-    <string name="subtitle_no_builtin">Няма вградени субтитри</string>
     <string name="subtitle_loading_addon">Зареждане на субтитри от добавки\u2026</string>
     <string name="subtitle_no_addon">Няма налични субтитри за добавката</string>
     <string name="subtitle_text_color">Цвят на текста</string>
     <string name="subtitle_outline_color">Цвят на контура</string>
     <string name="subtitle_reset_defaults">Нулиране на настройките по подразбиране</string>
-    <string name="subtitle_tab_builtin">Вграден</string>
-    <string name="subtitle_tab_addons">Добавки</string>
     <string name="subtitle_tab_languages">Езици</string>
-    <string name="subtitle_tab_style">Стил</string>
     <string name="subtitle_tab_delay">Забавяне</string>
     <string name="subtitle_delay_reset">Нулиране</string>
     <string name="subtitle_none">Няма</string>
     <string name="subtitle_built_in">Вграден</string>
-    <string name="subtitle_all">Всички</string>
-    <string name="subtitle_section_core">Ядро</string>
-    <string name="subtitle_section_advanced">Разширени</string>
-    <string name="subtitle_font_size">Размер на шрифта</string>
     <string name="subtitle_bold">Удебелен шрифт</string>
-    <string name="subtitle_outline">Структура</string>
-    <string name="subtitle_bottom_offset">Долно отместване</string>
-    <string name="subtitle_on">Включено</string>
-    <string name="subtitle_off">Изключено</string>
     <string name="subtitle_style_title">Стил на субтитрите</string>
-    <string name="subtitle_style_customize">Персонализиране</string>
     <string name="subtitle_style_color">Цвят</string>
     <string name="subtitle_style_reset">Нулиране</string>
     <string name="subtitle_style_font_size">Размер на шрифта</string>
@@ -1983,8 +1789,6 @@
     <string name="subtitle_style_on">Включено</string>
     <string name="subtitle_style_off">Изключено</string>
     <string name="subtitle_style_weight">Тегло</string>
-    <string name="panel_failed_load_streams">Зареждането на потоци не бе успешно</string>
-    <string name="panel_failed_load_episodes">Зареждането на епизодите не бе успешно</string>
     
     <string name="pause_you_are_watching">Вие гледате</string>
     <string name="pause_cast_label">Предаване</string>
@@ -2027,7 +1831,6 @@
     <string name="display_mode_resolution">Разделителна способност</string>
     
     
-    <string name="search_keyboard_hint">Натиснете „Готово“ на клавиатурата, за да търсите</string>
     <string name="search_placeholder">Търсене на филми и сериали</string>
     <string name="search_start_title">Започнете търсенето</string>
     <string name="search_start_subtitle">Въведете поне 2 символа</string>
@@ -2043,7 +1846,6 @@
     <string name="search_no_results_subtitle">Опитайте да търсите с други ключови думи</string>
     <string name="search_error_no_catalogs">Няма намерени каталози за търсене в инсталираните добавки</string>
     
-    <string name="library_syncing">Синхронизиране на библиотеката Trakt\u2026</string>
     <string name="library_title">Библиотека</string>
     <string name="library_filter_list">Списък</string>
     <string name="library_filter_type">Тип</string>
@@ -2096,7 +1898,6 @@
     <string name="genre_sporting_event">Спортно събитие</string>
     <string name="genre_superhero">Супергерой</string>
     <string name="genre_suspense">Съспенс</string>
-    <string name="library_sort_trakt_order">Поръчка на трактат</string>
     <string name="library_sort_provider_order">Поредба на доставчика</string>
     <string name="library_sort_added_desc">Добавено ↓</string>
     <string name="library_sort_added_asc">Добавено ↑</string>
@@ -2106,7 +1907,6 @@
     <string name="library_sort_title_desc">Заглавие ZA</string>
     <string name="library_error_sort_failed">Не можа да се зареди редът на сортиране. Показване на реда на доставчиците.</string>
     <string name="library_manage_lists">Управление на списъци</string>
-    <string name="library_manage_trakt_lists">Управление на списъци с Trakt</string>
     <string name="library_no_lists">Все още няма лични списъци.</string>
     <string name="library_list_create">Създаване</string>
     <string name="library_list_edit">Редактиране</string>
@@ -2120,10 +1920,7 @@
     <string name="library_list_privacy">Поверителност</string>
     <string name="library_delete_title">Да се изтрие ли този списък?</string>
     <string name="library_delete_subtitle">Това премахва списъка и всички елементи от списъка от Trakt.</string>
-    <string name="library_delete_confirm">Изтриване</string>
     <string name="library_source_local">ЛОКАЛЕН</string>
-    <string name="library_source_nuvio">НУВИО</string>
-    <string name="library_source_trakt">ТРАКТ</string>
     <string name="library_source_saved">Запазено</string>
     <string name="library_source_cloud">Облак</string>
     <string name="library_watchlist">Списък за наблюдение</string>
@@ -2142,18 +1939,13 @@
     <string name="library_list_edit_dialog_title">Редактиране на списък</string>
     <string name="library_sync_btn">Синхронизиране</string>
     <string name="library_syncing_btn">Синхронизиране\u2026</string>
-    <string name="cloud_library_connect_action">Свързване на акаунт</string>
     <string name="cloud_library_connect_message">Свържете акаунт в настройките на „Свързани услуги“, за да преглеждате файлове, които могат да се възпроизвеждат, от вашата облачна библиотека.</string>
     <string name="cloud_library_connect_title">Няма свързан облачен акаунт</string>
-    <string name="cloud_library_disabled_action">Отваряне на свързани услуги</string>
     <string name="cloud_library_disabled_message">Включете облачната библиотека в настройките на „Свързани услуги“, за да преглеждате файлове от свързани акаунти.</string>
     <string name="cloud_library_disabled_title">Облачната библиотека е изключена</string>
     <string name="cloud_library_empty_message">Няма възпроизвеждаеми облачни файлове, които да съответстват на текущите филтри.</string>
     <string name="cloud_library_empty_title">Тук все още няма нищо</string>
     <string name="cloud_library_file_picker_title">Изберете файл за възпроизвеждане</string>
-    <string name="cloud_library_load_failed">Не можа да се зареди %1$s облачна библиотека</string>
-    <string name="cloud_library_no_files_message">Този елемент не предоставя видеофайл, който може да се възпроизвежда.</string>
-    <string name="cloud_library_no_files_title">Няма файлове за възпроизвеждане</string>
     <string name="cloud_library_no_playable_files">Няма файлове за възпроизвеждане</string>
     <string name="cloud_library_one_playable_file">1 файл за възпроизвеждане</string>
     <string name="cloud_library_opening">Отваряне\u2026</string>
@@ -2191,18 +1983,7 @@
     <string name="account_sign_out">Изход</string>
     <string name="account_sign_out_confirm_title">Излизане?</string>
     <string name="account_sign_out_confirm_subtitle">Ще трябва да влезете отново, за да синхронизирате библиотеката, да гледате напредъка, добавките и плъгините на това устройство.</string>
-    <string name="account_error_signin_required">Първо влезте с акаунт.</string>
-    <string name="account_signin_create_title">Вход / Създаване на акаунт</string>
-    <string name="account_signin_create_desc">Използвайте имейл и парола, за да създадете или влезете в профила си.</string>
-    <string name="account_generate_sync_desc">Създайте код на това устройство, за да могат други устройства да се свържат с него.</string>
-    <string name="account_enter_sync_desc">Свържете това устройство с друго устройство, използвайки код за синхронизация.</string>
-    <string name="account_signed_in_as">Влезли сте като</string>
-    <string name="account_generate_sync_signed_in_desc">Създайте код, за да могат други устройства да се синхронизират с този акаунт.</string>
-    <string name="account_unknown_device">Неизвестно устройство</string>
     
-    <string name="auth_signin_title">Вход</string>
-    <string name="auth_signin_tv_disabled">Въвеждането на имейл/парола на телевизора е деактивирано. Продължете с влизане с QR код.</string>
-    <string name="auth_signin_qr_btn">Продължете с QR</string>
     <string name="auth_email_hint">Влезте директно с акаунта на вашия самостоятелно хостван сървър.</string>
     <string name="auth_email_instruction">Въведете имейл адреса и паролата си, за да продължите.</string>
     <string name="auth_email_placeholder">Имейл адрес</string>
@@ -2250,13 +2031,10 @@
     <string name="custom_server_session_clear_failed">Не можах безопасно да изчистя текущата сесия. Сървърът не беше променен.</string>
     <string name="custom_server_restart_failed">Сървърът беше запазен, но приложението не можа да се рестартира автоматично. Рестартирайте го ръчно.</string>
     
-    <string name="auth_qr_title">Вход с QR код</string>
     <string name="auth_qr_tagline">Гледайте библиотеката си, където и да е</string>
     <string name="auth_qr_finishing">Влизането се завършва\u2026</string>
-    <string name="auth_qr_code_label">Код: %1$s</string>
     <string name="auth_qr_expires">Изтича след %1$s</string>
     <string name="auth_qr_scan_instruction">Сканирайте QR кода или въведете краткия код в браузъра си.</string>
-    <string name="auth_qr_code_display">Код: %1$s</string>
     <string name="auth_qr_manual_instruction">Или отидете на %1$s и въведете</string>
     <string name="auth_qr_refresh">Обновяване на QR код</string>
     <string name="auth_qr_continue_without_account">Продължи без акаунт</string>
@@ -2267,34 +2045,13 @@
     <string name="auth_qr_please_wait">Моля, изчакайте\u2026</string>
     <string name="auth_qr_continue">Продължи</string>
     <string name="auth_qr_back">Назад</string>
-    <string name="auth_qr_terms_prefix">С регистрацията / влизането си, приемам</string>
-    <string name="auth_qr_terms_link">Условия</string>
     
-    <string name="sync_generate_title">Генериране на код за синхронизация</string>
-    <string name="sync_generate_subtitle">Създайте ПИН код, за да защитите кода си за синхронизация. Споделете кода с другите си устройства.</string>
-    <string name="sync_generate_code_label">Вашият код за синхронизация</string>
-    <string name="sync_generate_instruction">Въведете този код и вашия ПИН код на другото си устройство, за да ги свържете.</string>
-    <string name="sync_generate_done">Готово</string>
-    <string name="sync_generate_pin_label">Изберете ПИН код (4-8 знака)</string>
-    <string name="sync_generate_pin_placeholder">Въведете ПИН код</string>
-    <string name="sync_generate_generating">Генериране\u2026</string>
-    <string name="sync_generate_code_btn">Генериране на код</string>
     
-    <string name="sync_claim_title">Свързване на устройство</string>
-    <string name="sync_claim_subtitle">Въведете кода за синхронизация и ПИН кода от другото си устройство, за да свържете това устройство.</string>
-    <string name="sync_claim_success">Устройството е свързано успешно! Вашите добавки и плъгини вече ще се синхронизират.</string>
-    <string name="sync_claim_done">Готово</string>
-    <string name="sync_claim_code_label">Код за синхронизация</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">ПИН</string>
-    <string name="sync_claim_pin_placeholder">Въведете ПИН код</string>
-    <string name="sync_claim_linking">Свързване\u2026</string>
     
     <string name="plugin_readonly_notice">Използват се плъгините на основния профил и не могат да бъдат променяни</string>
     <string name="plugin_repositories_section">Хранилища (%1$d)</string>
     <string name="plugin_providers_section">Доставчици (%1$d)</string>
     <string name="plugin_title">Плъгини</string>
-    <string name="plugin_subtitle">Управление на локални скрепери и доставчици</string>
     <string name="plugin_enable_plugins_title">Активиране на доставчиците на плъгини глобално</string>
     <string name="plugin_enable_plugins_subtitle">Използване на доставчици на плъгини по време на откриване на поточно предаване</string>
     <string name="plugin_group_by_repository_title">Групиране на доставчиците на плъгини по хранилище</string>
@@ -2325,8 +2082,6 @@
     <string name="plugin_test_results">Резултати от теста (%1$d източника)</string>
     <string name="plugin_and_more">... и още %1$d</string>
     <string name="plugin_providers_count">%1$d доставчици</string>
-    <string name="plugin_enabled">Активирано</string>
-    <string name="plugin_disabled">Деактивиран</string>
     <string name="plugin_no_repos">Все още няма добавени хранилища.\nДобавете хранилище, за да започнете.</string>
     <string name="plugin_error_invalid_url">Моля, въведете валиден URL адрес</string>
     <string name="plugin_error_add_repo">Неуспешно добавяне на хранилище: %1$s</string>
@@ -2364,7 +2119,6 @@
     
     <string name="update_title">Актуализация на приложението</string>
     <string name="update_available">Налична е актуализация</string>
-    <string name="update_downloading">Изтегляне на актуализация</string>
     <string name="update_download">Изтегляне</string>
     <string name="update_downloading_ellipsis">Изтегляне…</string>
     <string name="update_downloading_progress">Изтегляне на %1$d%%</string>
@@ -2374,13 +2128,6 @@
     <string name="update_latest_version">Използвате най-новата версия.</string>
     <string name="update_unknown_sources">Разрешаване на инсталиранията от неизвестни източници.</string>
 <!-- AccountScreen --> 
-    <string name="account_title">Акаунт</string>
-    <string name="account_sign_in_description">Влезте, за да синхронизирате библиотеката си, напредъка си в гледането, добавките и плъгините на различни устройства. Синхронизирането на библиотеката използва Movies Sync, когато Trakt не е свързан, а напредъкът в гледането може да използва Trakt или Movies Sync.</string>
-    <string name="account_sync_code_title">Код за синхронизация</string>
-    <string name="account_sync_code_description">Синхронизирайте между устройства без създаване на акаунт.</string>
-    <string name="account_linked_devices">Свързани устройства (%1$d)</string>
-    <string name="account_no_linked_devices">Няма свързани устройства</string>
-    <string name="account_unlink">Прекратяване на връзката</string>
 
 <!-- EpisodeRatingsSection --> 
     <string name="ratings_loading">Зареждане на оценките на епизодите...</string>
@@ -2407,35 +2154,24 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent --> 
-    <string name="profile_edit_title_id">Редактиране на профил %1$d</string>
 
 <!-- PlaybackAudioSettings --> 
     <string name="audio_passthrough_info">Преминаването на аудио (TrueHD, DTS, AC-3 и др.) е автоматично. Когато е свързан към съвместим AV приемник или саундбар чрез HDMI, звукът без загуби се изпраща такъв, какъвто е, без декодиране.</string>
-    <string name="audio_dv_title">DV7 - резервен HEVC</string>
-    <string name="audio_dv_sub">Съпоставяне на Dolby Vision Profile 7 със стандартен HEVC за устройства без хардуерна DV поддръжка</string>
 
 <!-- SidebarNavigation / MainActivity --> 
     <string name="nav_home">Начало</string>
     <string name="nav_discover">Открийте</string>
     <string name="nav_search">Търсене</string>
     <string name="nav_library">Библиотека</string>
-    <string name="nav_addons">Добавки</string>
-    <string name="nav_movies">Филми</string>
-    <string name="nav_series">Серия</string>
     <string name="nav_settings">Настройки</string>
     <string name="action_select">Избери</string>
-    <string name="settings_rounded_ui">Заоблен потребителски интерфейс</string>
-    <string name="cd_expand_sidebar">Разгъване на страничната лента</string>
     
-    <string name="update_checking">Проверка за актуализации…</string>
     <string name="update_waiting_for_stable">Ще получите следващата стабилна версия, когато стане достъпна</string>
     <string name="update_download_complete">Изтеглянето е завършено. Готово за инсталиране.</string>
     <string name="update_installed_automatically">Актуализира се автоматично, докато устройството е било неактивно</string>
-    <string name="update_up_to_date">Системата е актуална. Последни промени:</string>
     <string name="update_close">Затвори</string>
     <string name="update_open_settings">Отваряне на настройките</string>
     <string name="update_install">Инсталиране</string>
-    <string name="update_ignore">Игнориране</string>
 
 <!-- Update flow errors --> 
     <string name="update_error_check_failed">Проверката за актуализации е неуспешна</string>
@@ -2503,7 +2239,6 @@
     <!-- Search errors -->
 
     <!-- Home errors --> 
-    <string name="home_error_no_addons">Няма инсталирани добавки</string>
     <string name="home_error_no_catalog_addons">Няма инсталирани добавки за каталог</string>
 
 <!-- Player errors --> 
@@ -2531,7 +2266,6 @@
     <string name="cd_stream_info">Информация за източника</string>
     <string name="cd_more_actions">Още действия</string>
     <string name="cd_close_more_actions">Затваряне на още действия</string>
-    <string name="cd_back">Назад</string>
     <string name="cd_next_episode_thumbnail">Миниатюра на следващия епизод</string>
     <string name="cd_current">Текущ</string>
     <string name="cd_loading_backdrop">Зареждане на фона</string>
@@ -2552,7 +2286,6 @@
     <string name="cd_emoji_option">Емотикон %1$s</string>
     <string name="cd_trailer_controls">Управление на трейлъра</string>
     <string name="cd_seek_bar">Лента за търсене</string>
-    <string name="cd_unlink">Прекратяване на връзката</string>
     <string name="cd_nuvio_logo">Movies</string>
     <string name="cd_trakt_logo">Лого на Trakt</string>
     <string name="cd_trakt_qr">QR код за активиране на Trakt</string>
@@ -2560,7 +2293,6 @@
     <string name="cd_open_discover">Отваряне на Discover</string>
     <string name="cd_clear_search">Изчистване на търсенето</string>
     <string name="cd_voice_search">Гласово търсене</string>
-    <string name="cd_donation_qr">QR код за дарение</string>
     <string name="cd_contributor_qr">QR код за поддръжка на сътрудници</string>
     <string name="cd_expand">Разгъване на %1$s</string>
     <string name="cd_collapse">Свиване на %1$s</string>
@@ -2643,7 +2375,6 @@
     <string name="collections_editor_choose_emoji">Избор на емоджи</string>
     <string name="collections_editor_back">Назад</string>
     <string name="collections_editor_edit_collection">Редактиране на колекцията</string>
-    <string name="collections_editor_catalog_count">%1$d каталог(а)</string>
     <string name="collections_editor_source_count">%1$d източник(а)</string>
     <string name="collections_editor_sources">Източници</string>
     <string name="collections_editor_source">Източник</string>
@@ -2674,7 +2405,6 @@
     <string name="collections_editor_tmdb_collection_id">Идентификационен номер на колекцията</string>
     <string name="collections_editor_tmdb_company_search">Име, идентификационен номер или URL адрес на продуцентската компания</string>
     <string name="collections_editor_tmdb_display_title">Заглавие за показване</string>
-    <string name="collections_editor_tmdb_title_optional">Заглавие (по избор)</string>
     <string name="collections_editor_tmdb_search">Търсене</string>
     <string name="collections_editor_add_source">Добавяне на източник</string>
     <string name="collections_editor_save_source">Запазване на изходния код</string>
@@ -2822,7 +2552,6 @@
     <string name="collections_card_subtitle">Групирайте каталозите в папки на началния си екран</string>
     <string name="collections_tab_all">Всички</string>
     <string name="collections_tab_combined">Комбинирано</string>
-    <string name="collection_editor_remove_cd">Премахване</string>
     <string name="collection_editor_choice_both">И двете</string>
     <string name="collection_editor_resolved_trakt_list">Решен списък с трактати</string>
     <string name="collection_editor_trakt_search_placeholder">Търсене по заглавие, URL адрес на Trakt или идентификатор на списък</string>
@@ -2912,7 +2641,6 @@
     <string name="player_error_stream_rate_limited">\n\nТвърде много заявки към източника на източника. Изчакайте малко и опитайте отново.</string>
     <string name="player_error_stream_unavailable">\n\nСтрийм сървърът в момента не е наличен. Опитайте с друг източник.</string>
     <string name="player_error_source_invalid_content">Грешка в източника: Източникът на източника върна невалидно или невъзпроизводимо съдържание. Връзката може да е изтекла или сървърът да е върнал страница за грешка вместо видео.\n\nОпитайте с друг източник. [%1$s]</string>
-    <string name="player_error_decoder">Грешка в декодера</string>
     <string name="player_error_unsupported_format">Този източник използва формат, който вашето устройство може да не поддържа. Опитайте с друг източник. [%1$s]</string>
     <string name="player_error_initialize_failed">Инициализирането на играча не бе успешно</string>
     <string name="player_error_mpv_surface_failed">Неуспешно инициализиране на libmpv повърхността</string>
@@ -2947,7 +2675,6 @@
     <string name="library_synced">Библиотеката е синхронизирана</string>
     <string name="library_error_refresh_failed">Неуспешно обновяване на библиотеката</string>
     <string name="library_list_created">Списъкът е създаден</string>
-    <string name="library_error_invalid_list">Невалиден списък</string>
     <string name="library_list_updated">Списъкът е актуализиран</string>
     <string name="library_error_save_list_failed">Запазването на списъка не бе успешно</string>
     <string name="library_list_deleted">Списъкът е изтрит</string>
@@ -2956,13 +2683,8 @@
     <string name="library_error_reorder_lists_failed">Пренареждането на списъците не бе успешно</string>
     <string name="library_list_fallback_title">Списък</string>
 <!-- Library privacy display labels (mapped from API value, not used as a key) --> 
-    <string name="library_privacy_private">Лично</string>
-    <string name="library_privacy_link">Връзка</string>
-    <string name="library_privacy_friends">Приятели</string>
-    <string name="library_privacy_public">Публичен</string>
 
 <!-- Trakt errors --> 
-    <string name="trakt_error_auth_required">Изисква се удостоверяване чрез Trakt</string>
     <string name="trakt_library_error_request_failed">Заявката за Trakt е неуспешна</string>
     <string name="trakt_library_error_create_list_failed">Създаването на списък не бе успешно</string>
     <string name="trakt_library_error_update_list_failed">Неуспешно актуализиране на списъка</string>
@@ -2981,16 +2703,12 @@
     <string name="trakt_library_error_list_limit_reached">Достигнат е лимитът на списъка с трактати. Необходимо е надграждане.</string>
     
     <string name="trakt_error_request_failed">Заявката в Trakt е неуспешна</string>
-    <string name="simkl_account_title">Simkl акаунт</string>
     <string name="simkl_description">Свържете Simkl за синхронизиране на списъци, история на гледане, напредък на възпроизвеждане и Scrobbles.</string>
-    <string name="simkl_connect">Свързване със Simkl</string>
-    <string name="simkl_disconnect">Изключване на Simkl</string>
     <string name="simkl_disconnect_title">Да прекъсна ли Simkl?</string>
     <string name="simkl_disconnect_subtitle">Това премахва Simkl акаунта и кешираните Simkl данни от този профил.</string>
     <string name="simkl_connected_as">Свързан като %1$s</string>
     <string name="simkl_user_fallback">Потребител на Simkl</string>
     <string name="simkl_awaiting_instruction">Отворете страницата за потвърждение на Simkl и въведете този код.</string>
-    <string name="simkl_code_expires">Кодът изтича след %1$s</string>
     <string name="simkl_sync_now">Синхронизирай сега</string>
     <string name="simkl_visit">Посетете Simkl</string>
     <string name="simkl_sync_info_action">Как работи синхронизирането</string>
@@ -3008,8 +2726,6 @@
     <string name="simkl_status_disconnected">Връзката със Simkl е прекъсната</string>
     <string name="simkl_status_syncing">Синхронизиране на Simkl…</string>
     <string name="simkl_status_synced">Синхронизирането на Simkl е завършено</string>
-    <string name="simkl_watch_progress_selected">Simkl е избран за продължаване на гледането</string>
-    <string name="simkl_library_source_selected">Simkl е избран за библиотека</string>
     <string name="simkl_error_code_expired">Simkl кодът е изтекъл. Започнете отново.</string>
     <string name="simkl_error_authorization_revoked">Авторизацията на Simkl беше отменена. Свържете се отново.</string>
     <string name="simkl_error_network">Не е възможно да се свържете със Simkl. Опитайте отново.</string>
@@ -3041,14 +2757,11 @@
     <string name="stream_embedded_group">Вградени потоци</string>
     <string name="stream_embedded_fallback_name">Вграждане на източник</string>
     <string name="stream_quality_unknown">Неизвестно</string>
-    <string name="stream_addon_unknown">Неизвестен</string>
-    <string name="tmdb_unknown_entity">Неизвестен</string>
     <string name="web_tmdb_company_fallback">TMDB компания %1$d</string>
     <string name="web_tmdb_collection_fallback">TMDB колекция %1$d</string>
     <string name="web_error_invalid_request_body">Невалидно тяло на заявката</string>
 
 <!-- Subtitle preferred language fallback --> 
-    <string name="language_english">Английски</string>
 
 <!-- Supporters / contributors / sponsors errors --> 
     <string name="supporters_error_load">Не може да се заредят поддръжниците.</string>
@@ -3057,7 +2770,6 @@
     <string name="contributors_error_api_not_configured">API на сътрудниците не е конфигуриран.</string>
     <string name="contributors_error_api_http">Грешка в API на сътрудниците: %1$d</string>
     <string name="supporters_error_api_http">Грешка в API за дарения: %1$d</string>
-    <string name="sponsors_error_api_http">Грешка в API на спонсорите: %1$d</string>
 
 <!-- Contributor role badges --> 
     <string name="contributor_role_translator">Преводач</string>
@@ -3076,7 +2788,6 @@
 
 <!-- Player runtime: stream / external link errors --> 
     <string name="player_torrent_starting_engine">Стартиране на P2P двигателя…</string>
-    <string name="player_torrent_rebuffer_status">%1$s буфериран</string>
     <string name="player_stream_error_invalid_external_url">Невалиден външен URL адрес</string>
     <string name="player_stream_error_open_external_link_failed">Не може да се отвори външна връзка</string>
     <string name="player_stream_error_invalid_url">Невалиден URL адрес на източника</string>
@@ -3084,11 +2795,6 @@
 
 <!-- Meta repository: addon detail error fragments --> 
     <string name="meta_error_detail_no_metadata_for_id">не върна метаданни за този идентификатор</string>
-    <string name="meta_error_detail_addon_unreachable">не можа да се свърже със сървъра на добавката</string>
-    <string name="meta_error_detail_addon_connection_failed">връзката с добавката е неуспешна</string>
-    <string name="meta_error_detail_addon_timeout">времето за изчакване на заявката за добавка изтече</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">добавката използва несигурна HTTP връзка, блокирана от Android</string>
-    <string name="meta_error_detail_addon_request_failed">заявката за добавката е неуспешна</string>
 
 <!-- Stream repository: addon detail error fragments + fetch --> 
     <string name="stream_error_detail_no_streams_for_id">не върна потоци за този идентификатор</string>
@@ -3115,8 +2821,6 @@
     <string name="trakt_comments_error_request_failed">Заявката за коментари в Trakt е неуспешна</string>
     <string name="trakt_library_error_fetch_list_items">Неуспешно извличане на елементи от списъка</string>
     
-    <string name="watchlist_removed">Премахнато от списъка за наблюдение</string>
-    <string name="watchlist_added">Добавено към списъка за наблюдение</string>
 
 <!-- Debrid: filter rule rows (title + subtitle pairs) --> 
     <string name="debrid_picker_preferred_resolutions_title">Предпочитани резолюции</string>
@@ -3342,13 +3046,11 @@
     <string name="stream_test_card_title">Изпълнете тест за скоростта на последно възпроизведен източник</string>
     <string name="stream_test_server_label">Сървър: %1$s</string>
     <string name="stream_test_no_stream">Няма записано възпроизвеждане. Пуснете видеоклипа, за да изпълните диагностични тестове на неговия хост.</string>
-    <string name="stream_test_btn_start">Стартиране на теста</string>
     <string name="stream_test_btn_measuring_baseline">Измерване на базовата линия...</string>
     <string name="stream_test_btn_measuring_parallel1">Паралелно измерване (1 връзка)...</string>
     <string name="stream_test_btn_measuring_parallel4">Паралелно измерване (4 връзки)...</string>
     <string name="stream_test_btn_measuring_parallel8">Паралелно измерване (8 връзки)...</string>
     <string name="stream_test_btn_measuring_parallel16">Паралелно измерване (16 връзки)...</string>
-    <string name="stream_test_btn_run_again">Изпълни отново</string>
     <string name="stream_test_btn_running">Изпълнява се...</string>
     <string name="stream_test_label_baseline">Стандартна единична връзка (базова)</string>
     <string name="stream_test_label_parallel1">Паралелно свързване (1 връзка)</string>

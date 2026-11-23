@@ -286,10 +286,6 @@ class ProfileSelectionViewModel @Inject constructor(
         }
     }
 
-    fun isProfilePinEnabled(profileId: Int): Boolean {
-        return profilePinEnabled.value[profileId] == true
-    }
-
     fun setProfilePin(
         profileId: Int,
         pin: String,

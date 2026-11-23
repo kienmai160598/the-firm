@@ -5,7 +5,6 @@ import androidx.media3.common.C
 import androidx.media3.common.NuvioEngineConfig
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.DefaultLoadControl
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.upstream.DefaultAllocator
@@ -52,9 +51,7 @@ object MoviesExoPlayerPerformanceHelper {
 
     // Mirrors ARENA_CHUNK_SIZE in the forked DefaultAllocatorNative, whose pool covers 512 of them.
     const val NATIVE_ARENA_CHUNK_SIZE = 64 * 1024
-    const val NATIVE_ARENA_POOL_BYTES = 512 * NATIVE_ARENA_CHUNK_SIZE
     const val DEFAULT_MOVIES_TARGET_BUFFER_MB = 175
-    const val DEFAULT_MOVIES_TARGET_BUFFER_BYTES = DEFAULT_MOVIES_TARGET_BUFFER_MB * 1024 * 1024
     const val DEFAULT_MOVIES_MIN_BUFFER_MS = 15_000
     const val DEFAULT_MOVIES_MAX_BUFFER_MS = 45_000
 
@@ -212,14 +209,6 @@ object MoviesExoPlayerPerformanceHelper {
             cachedDevicePhysicalRamBytes = ram
         }
         return ram
-    }
-
-    /**
-     * Gets the total physical memory of the device in GB.
-     */
-    fun getDevicePhysicalRamGb(context: Context): Double {
-        val totalBytes = getDevicePhysicalRamBytes(context)
-        return totalBytes.toDouble() / (1024.0 * 1024.0 * 1024.0)
     }
 
     /**
@@ -427,15 +416,6 @@ object MoviesExoPlayerPerformanceHelper {
         .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
 
     // ─── Audio Renderer ───────────────────────────────────────────────────────
-
-    /**
-     * Returns `true` when the audio renderer should bypass the codec for a
-     * non-PCM format that the sink supports directly. Only active when
-     * performance mode is enabled.
-     */
-    fun shouldBypassForNonPcmFormat(): Boolean {
-        return enabled
-    }
 
     // ─── Memory Logging ───────────────────────────────────────────────────────
 

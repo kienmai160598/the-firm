@@ -1,7 +1,6 @@
 package com.kien.movies.ui.screens.player
 
 import android.util.Log
-import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.kien.movies.core.player.OpenSubtitlesHasher
@@ -11,7 +10,6 @@ import com.kien.movies.data.repository.SkipInterval
 import com.kien.movies.domain.model.Subtitle
 import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.enabledAddons
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -890,9 +888,6 @@ internal fun PlayerRuntimeController.cancelStallWatchdog() {
     stallWatchdogJob?.cancel()
     stallWatchdogJob = null
 }
-
-/** Tiny skip past the buffered edge to force Media3 to cancel the in-flight Range request. */
-private val STALL_WATCHDOG_SKIP_PAST_BUFFERED_MS = PlayerStallWatchdogPolicy.SKIP_PAST_BUFFERED_MS
 
 /** Re-seeks past the buffered edge when bufferedPosition stops advancing during buffering. */
 internal fun PlayerRuntimeController.maybeScheduleStallWatchdog() {

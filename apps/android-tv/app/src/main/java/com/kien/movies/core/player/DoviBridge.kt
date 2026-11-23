@@ -192,18 +192,6 @@ object DoviBridge {
 
     fun getConversionSuccessCount(): Long = conversionSuccessCount.get()
 
-    fun convertDv7RpuToDv81(payload: ByteArray, mode: Int = 1): ByteArray? {
-        if (!isAvailable() || payload.isEmpty()) return null
-        conversionCallCount.incrementAndGet()
-        val converted = runCatching { nativeConvertDv7RpuToDv81(payload, mode) }
-            .onFailure { Log.w(TAG, "Conversion failed: ${it.message}") }
-            .getOrNull()
-        if (converted != null && converted.isNotEmpty()) {
-            conversionSuccessCount.incrementAndGet()
-        }
-        return converted
-    }
-
     // Reusable output buffer for the non-allocating path. Sized for typical RPU NALs; grows on
     // demand if the native side reports a larger required size (see negative-return contract
     // in [convertDv7RpuToDv81NonAllocating]). Read by the transformer on the same thread that made

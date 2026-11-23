@@ -63,13 +63,6 @@ interface TmdbApi {
         @Query("language") language: String? = null
     ): Response<TmdbCreditsResponse>
 
-    @GET("tv/{tv_id}/credits")
-    suspend fun getTvCredits(
-        @Path("tv_id") tvId: Int,
-        @Query("api_key") apiKey: String,
-        @Query("language") language: String? = null
-    ): Response<TmdbCreditsResponse>
-
     @GET("tv/{tv_id}/aggregate_credits")
     suspend fun getTvAggregateCredits(
         @Path("tv_id") tvId: Int,

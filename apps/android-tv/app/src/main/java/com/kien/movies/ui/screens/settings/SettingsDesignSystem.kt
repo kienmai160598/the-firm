@@ -27,12 +27,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -73,8 +71,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Card
-import androidx.tv.material3.CardBorder
-import androidx.tv.material3.CardColors
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -83,7 +79,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.domain.model.SettingsUiStyle
-import com.kien.movies.ui.components.BrandWordmark
 import com.kien.movies.ui.components.FocusMarqueeText
 import com.kien.movies.ui.components.MoviesDialog
 import com.kien.movies.ui.components.expressive.M3eShapes
@@ -91,18 +86,14 @@ import com.kien.movies.ui.components.expressive.MoviesButton
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.MoviesCard
 import com.kien.movies.ui.components.expressive.moviesCardBorder
-import com.kien.movies.ui.components.expressive.moviesCardColors
 import com.kien.movies.ui.screens.detail.requestFocusAfterFrames
 import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
 import com.kien.movies.ui.theme.MoviesComponents
-import com.kien.movies.ui.theme.MoviesRadii
 import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.tvControlHeight
 import com.kien.movies.ui.util.rememberRawSvgPainter
 
-internal val SettingsContainerRadius = MoviesComponents.tokens.settings.containerRadius
-internal val SettingsPillRadius = MoviesRadii.tokens.full
 internal val SettingsSecondaryCardRadius = MoviesComponents.tokens.settings.secondaryCardRadius
 internal val SettingsRailItemHeight = MoviesComponents.tokens.settings.railItemHeight
 
@@ -137,10 +128,6 @@ internal fun isFlatSettingsStyle(): Boolean = MoviesTheme.settingsUiStyle != Set
 
 @Composable
 @androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsFocusFillColor(): Color = MoviesTheme.colors.TextPrimary.copy(alpha = 0.1f)
-
-@Composable
-@androidx.compose.runtime.ReadOnlyComposable
 internal fun settingsHeaderInset(): Dp = when (MoviesTheme.settingsUiStyle) {
     SettingsUiStyle.CLASSIC -> 0.dp
     SettingsUiStyle.ZEN -> MoviesTheme.spacing.md
@@ -154,22 +141,6 @@ internal fun settingsRowShape(): RoundedCornerShape = when (MoviesTheme.settings
     SettingsUiStyle.ZEN -> SettingsZenRowShape
     SettingsUiStyle.HORIZON -> SettingsHorizonRowShape
 }
-
-@Composable
-@androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsTallRowShape(): RoundedCornerShape = if (isFlatSettingsStyle()) {
-    settingsRowShape()
-} else {
-    RoundedCornerShape(
-        SettingsSecondaryCardRadius
-    )
-}
-
-@Composable
-internal fun settingsRowColors(): CardColors = moviesCardColors()
-
-@Composable
-internal fun settingsRowBorder(): CardBorder = moviesCardBorder()
 
 internal object SettingsTestTags {
     const val ROW_ICON = "settings_row_icon"
@@ -220,92 +191,6 @@ internal fun SettingsStandaloneScaffold(
                 content()
             }
         }
-    }
-}
-
-@Composable
-internal fun SettingsBrandPanel(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier,
-    showBuiltInHeader: Boolean = true
-) {
-    val titleColor = if (showBuiltInHeader) MoviesTheme.colors.TextPrimary else Color.Transparent
-    val subtitleColor = if (showBuiltInHeader) MoviesTheme.colors.TextSecondary else Color.Transparent
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(SettingsContainerRadius))
-            .background(MoviesTheme.colors.BackgroundElevated)
-            .border(
-                width = MoviesTheme.spacing.hairline,
-                color = MoviesTheme.colors.Border,
-                shape = RoundedCornerShape(SettingsContainerRadius)
-            )
-            .padding(26.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(MoviesTheme.colors.BackgroundCard),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = null,
-                    tint = titleColor
-                )
-            }
-            Spacer(modifier = Modifier.width(MoviesTheme.spacing.md))
-            Text(
-                text = stringResource(R.string.nav_settings),
-                style = MaterialTheme.typography.titleLarge,
-                color = titleColor
-            )
-        }
-
-        Spacer(modifier = Modifier.height(26.dp))
-
-        BrandWordmark(
-            contentDescription = stringResource(R.string.cd_nuvio_logo),
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(72.dp),
-            contentScale = ContentScale.Fit
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = titleColor,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.height(MoviesTheme.spacing.sm))
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
-            color = subtitleColor,
-            maxLines = 4,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Text(
-            text = stringResource(R.string.settings_rounded_ui),
-            style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 1.2.sp,
-            color = subtitleColor
-        )
     }
 }
 

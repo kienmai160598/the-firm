@@ -133,27 +133,6 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         mpv.command("loadfile", url, "replace", LOADFILE_DEFAULT_INDEX, options)
     }
 
-    fun setMediaUsingLoadfile(url: String, headers: Map<String, String>) {
-        ensureInitialized()
-        val requestKey = buildMediaRequestKey(url = url, headers = headers)
-        applyHeaders(headers)
-        markMediaRequested(url)
-        pendingInitialMediaUrl = null
-        pendingInitialStartOption = null
-        if (holder.surface?.isValid == true) {
-            ensureSurfaceAttachedIfAlreadyAvailable()
-            mpv.command("loadfile", url, "replace")
-            deferredLoadUntilSurface = false
-        } else {
-            playFile(url)
-            deferredLoadUntilSurface = true
-        }
-        hasQueuedInitialMedia = true
-        lastMediaRequestKey = requestKey
-        applyDefaultTrackSelectionForNewLoad()
-        scheduleAspectModeRefresh(resetRetryCount = true)
-    }
-
     private fun ensureSurfaceAttachedIfAlreadyAvailable() {
         if (!initialized) return
         val currentHolder = holder
@@ -960,30 +939,6 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
         return String.format(Locale.US, "#%08X", color)
     }
 
-    private fun applyCoverAspectScale() {
-        val viewAspect = if (width > 0 && height > 0) {
-            width.toFloat() / height.toFloat()
-        } else {
-            0f
-        }
-        val videoAspect = readVideoAspectRatio()
-
-        if (videoAspect != null && videoAspect > 0f && viewAspect > 0f) {
-            if (videoAspect > viewAspect) {
-                scaleX = 1.0f
-                scaleY = videoAspect / viewAspect
-            } else {
-                scaleX = viewAspect / videoAspect
-                scaleY = 1.0f
-            }
-            return
-        }
-
-        // Fallback to a visible zoom when video metadata/aspect is unavailable.
-        scaleX = MPV_COVER_FALLBACK_SCALE
-        scaleY = MPV_COVER_FALLBACK_SCALE
-    }
-
     private fun readVideoAspectRatio(): Float? {
         if (!initialized) return null
 
@@ -1019,7 +974,6 @@ class MoviesMpvSurfaceView @JvmOverloads constructor(
 
         /** `loadfile` insertion index; only meaningful for insert-at flags, -1 is mpv's default. */
         private const val LOADFILE_DEFAULT_INDEX = "-1"
-        private const val MPV_COVER_FALLBACK_SCALE = 1.15f
         private const val MPV_MAX_VOLUME_PERCENT = 400.0
         private const val ASPECT_RETRY_DELAY_MS = 120L
         private const val MAX_ASPECT_RETRY_COUNT = 10

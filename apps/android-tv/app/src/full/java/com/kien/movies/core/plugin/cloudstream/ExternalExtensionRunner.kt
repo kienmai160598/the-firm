@@ -200,15 +200,6 @@ class ExternalExtensionRunner @Inject constructor(
         val links = mutableListOf<ExtractorLink>()
         val subtitles = mutableListOf<SubtitleFile>()
 
-        // Instrument loadExtractor to log each call's result
-        data class ExtractorCall(
-            val url: String,
-            var matched: Boolean = false,
-            var linkCount: Int = 0,
-            var error: String? = null
-        )
-        val extractorCalls = mutableListOf<ExtractorCall>()
-
         val success = try {
             api.loadLinks(
                 data = data,
