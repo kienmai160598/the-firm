@@ -364,7 +364,8 @@ estimate from a screenshot.
   quickjs, ui. Different: `lib-decoder-ffmpeg-release.aar` (app copy 3.8 MB is the downmix
   build, core copy 9.2 MB) and `lib-datasource-release.aar` (177,533 against 177,480 bytes).
   Only in the old app: `lib-decoder-iamf`, `nextlib-mediainfo-local`. The new app links the old
-  app's copies of the two that differ, and drops iamf, mediainfo, quickjs and `lib-ui`.
+  app's downmix FFmpeg decoder and core's `lib-datasource-release.aar` (A2: the old app's copy
+  was not kept), and drops iamf, mediainfo, quickjs and `lib-ui`.
 - UI: one custom Compose player that copies `MpvPlayerScreen.swift`, `MpvTransportBar.swift` and
   `MpvPanels.swift`: title block, three round buttons (Subtitles, Audio, Info), transport bar,
   panels. Not the media3 `PlayerView` controls.
@@ -608,14 +609,24 @@ Verified on 2026-11-23:
 - `adb reverse tcp:8765 tcp:8765` is accepted over network adb.
 - Library versions listed in section 2.
 
+Verified in slice A2 (2026-11-23):
+
+- The filtered Android bridge compiles: the same 526 core common files as tvOS, `shared/tv-api`,
+  123 of the 171 `androidMain` and `androidPlaystore` files; `excluded-android.txt` has 48
+  entries. Three bridge stubs replace excluded actuals whose common expects are included
+  (downloads downloader and live status, episode release notifications).
+- The Android KMP plugin ignores a source set `exclude`, so the bridge copies the included core
+  files into `build/upstream-src/` with one `Sync` task per source set.
+- The bridge compiles against the Jetpack Compose runtime and `ui-graphics` of BOM 2026.11.01;
+  the `box` runtime classpath resolves no alpha or beta artifact.
+- The app lives in the `shared/` Gradle build; the distribution check is met with
+  `-Pnuvio.android.distribution=full` (the bridge itself uses the playstore sources).
+- A fetch from the box through `adb reverse`: the round trip installs the test addon from
+  `127.0.0.1:8765`.
+- `lib-datasource-release.aar`: core's copy (the old app's copy was not kept in A0). The FFmpeg
+  decoder is the app's downmix copy only; the box APK's `libffmpegJNI.so` matches it.
+
 Not verified:
 
-- That the filtered Android bridge compiles, and how long its exclusion list is (31 of 162
-  `androidMain` files match the UI rules; compiler cascades will add more).
-- That the app can live in the `shared/` Gradle build with the distribution check in core.
-- A fetch from the box through `adb reverse` (the box has no `curl`).
 - That the downmix FFmpeg decoder AAR needs the forked media3 and not stock 1.8.0.
-- Which `lib-datasource-release.aar` copy is the right one.
 - Drawer, menu, focus restore and lazy list APIs of tv-material 1.1.0 and the current Compose BOM.
-- That the bridge can compile against the Jetpack Compose runtime of the app's BOM while core
-  was written against Compose Multiplatform 1.13.0-beta01.
