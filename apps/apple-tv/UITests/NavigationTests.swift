@@ -15,6 +15,9 @@ final class NavigationTests: XCTestCase {
         tv.launch(withTestAddon: false)
         XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
         tv.focusHero()
+        tv.screenshot("home-hero")
+        let heroHeight = tv.heroButton.frame.height
+        XCTAssertTrue((66...76).contains(heroHeight), "Hero button height \(heroHeight)")
         let firstTitle = heroTitle
         tv.remote.press(.right)
         XCTAssertTrue(waitForHeroTitle("value != %@", firstTitle), "Right kept the item")
@@ -96,6 +99,7 @@ final class NavigationTests: XCTestCase {
         let card = tv.focusedLabel
         tv.remote.press(.select)
         XCTAssertTrue(playButton.waitForExistence(timeout: 30))
+        tv.screenshot("details-movie")
         tv.select(playButton)
         XCTAssertTrue(tv.app.staticTexts["Streams"].waitForExistence(timeout: 30))
         XCTAssertTrue(tv.app.staticTexts["Playback unavailable"].waitForExistence(timeout: 30))
