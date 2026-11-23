@@ -179,13 +179,15 @@ the-firm/
             values/strings.xml  app name
           kotlin/com/kien/movies/
             MoviesApp.kt        Application: TvRuntime.init off the main thread, TvosHome.start
-            MainActivity.kt     setContent { RootScreen() }, semantics pruning
-            shell/              RootScreen, RootTabs (sidebar), Router, AppRoute, RouteLink,
-                                PlaceholderScreen
+            MainActivity.kt     waits on runtimeState, then setContent { RootScreen() }
+            DependencySmoke.kt  compile only references to every library the slices need (A3)
+            shell/              RootScreen, RootTabs (sidebar), Router, AppRoute (with RootTab),
+                                RouteViewModelStores, ShellViewModel, WindowBackground,
+                                PlaceholderScreen (A3; no RouteLink: screens call router.open)
             design/             Tokens, Theme, CardShape, CardFocus, GlassStyle (flat fills),
-                                Backdrop, ArtworkImage, MetadataLine, DpadThrottle,
-                                SemanticsPruning
-            bridge/             BridgeFlows (observe callbacks as Flow)
+                                Backdrop, ArtworkImage, MetadataLine (A3); DpadThrottle,
+                                SemanticsPruning (added by A4, the Home slice)
+            bridge/             BridgeFlows (observe callbacks as Flow, one shots as suspend)
             home/               HomeScreen, HomeViewModel, HomeHero, HomeStatus, CatalogRow,
                                 ContinueWatchingRow, PosterCard, RowNeighbor
             details/            DetailsScreen, DetailsViewModel, DetailsHero, DetailsInfoSection,
@@ -202,7 +204,9 @@ the-firm/
                                 PlayerMediaInfo, PlaybackAdvisoryBanner, StartupDeadline,
                                 StallWatchdog
             torrent/            TorrentSession, TorrentCacheBudget
-            debug/              DebugLaunch, StreamsDebugFixture (debug source set only)
+            debug/              DebugLaunch: src/debug reads the intent extras, src/box is a twin
+                                with every option off (A3). StreamsDebugFixture lives in
+                                streams/, used only when DebugLaunch.usesStreamFixture
         src/test/kotlin/com/kien/movies/
                                 RowNeighborTest, PlayerStateTest, HoldScrubTest,
                                 StartupDeadlineTest, StallWatchdogTest, TorrentCacheBudgetTest,
@@ -245,8 +249,11 @@ tvOS files with no Android counterpart in v1: `PlaybackPreflight`, `PlayerView`,
 by `HoldScrub`), `MpvDisplayMatch` (later: frame rate match).
 
 AAR rule: exactly one copy of each AAR on the app's classpath. The bridge links what core's
-Android actuals need from `shared/core/libs` (engine and media3 fork); `app/libs` holds only the
-downmix FFmpeg decoder. A2 decides which `lib-datasource-release.aar` copy wins.
+Android actuals need from `shared/core/libs` (engine and media3 fork); its media3 AARs are `api`
+so the app's player compiles against the same copy (A3). The app links `lib-ui-release.aar`
+from `shared/core/libs` once, for `SubtitleView` (A3), plus `recyclerview` that the AAR needs at
+run time; `app/libs` holds only the downmix FFmpeg decoder. A2 decides which
+`lib-datasource-release.aar` copy wins.
 
 ### Data and state
 
@@ -259,9 +266,14 @@ downmix FFmpeg decoder. A2 decides which `lib-datasource-release.aar` copy wins.
   `stateIn(viewModelScope, WhileSubscribed(5_000), initial)`. Screens use
   `collectAsStateWithLifecycle`.
 - App owned state:
-  - `AppRoute`: `Details(type, id)`, `Streams(target, resumesDirectly)`. `Router` is a list back
-    stack with `open(route)`, as in `Router.swift`. The player is a full screen cover over
-    Streams, not a route.
+  - `AppRoute`: `Tab(RootTab)`, `Details(type, id)`, `Streams(target, resumesDirectly)`.
+    `Router` is a list back stack with `open(route)`, as in `Router.swift`; the bottom entry is
+    always a tab root and `selectTab` replaces the stack. Each entry has an id, its own saved
+    state slot and its own ViewModel store (cleared on pop; tab roots keep theirs). The router
+    lives in an Activity ViewModel, so it survives a configuration change; a process restart
+    starts at Home. The player is a full screen cover over Streams, not a route: the seam is
+    `player/PlaybackRequest.kt` (`PlaybackRequest`, `StreamNotice`) and
+    `PlaybackScreen(request, onFailure, onExit)`.
   - Stream row: `Idle -> Checking -> Playing -> Idle`, `Idle -> TorrentStarting(step, peers,
     buffer) -> Playing`, any state `-> Notice(title, message)`. A press is ignored while another
     row is not `Idle`.
@@ -320,7 +332,15 @@ estimate from a screenshot.
 - Home is a `LazyColumn` of `LazyRow`s. Each row remembers its last focused card
   (`focusRestorer`), each lazy list has stable `key` and `contentType`.
 - Back returns to the same card on every level (Streams, Details, Home), then opens the sidebar,
-  then leaves to the launcher. No exit dialog.
+  then leaves to the launcher. No exit dialog. The shell's order (A3): a screen's own Back
+  handler first (player, dialog); pop while deeper than a tab root; at a tab root with focus in
+  the content, focus the sidebar on the selected tab; sidebar focused on another tab, select
+  Home; sidebar focused on Home, leave. That is one press more than tvOS from a tab other than
+  Home (tvOS leaves from any tab's sidebar), as Android's TV navigation guide asks; tvOS keeps
+  its behaviour.
+- The shell saves which element had focus before every stack change and gives it back when the
+  entry returns, through the entry's saved state. A screen only adds `focusRestorer` inside its
+  own rows.
 - Up and down move between rows, left and right inside a row. Fix a missing straight path by
   moving the control, not with a custom focus jump.
 - Import check on every screen: `androidx.tv.material3.*`, never `androidx.compose.material3.*`
@@ -365,7 +385,8 @@ estimate from a screenshot.
   build, core copy 9.2 MB) and `lib-datasource-release.aar` (177,533 against 177,480 bytes).
   Only in the old app: `lib-decoder-iamf`, `nextlib-mediainfo-local`. The new app links the old
   app's downmix FFmpeg decoder and core's `lib-datasource-release.aar` (A2: the old app's copy
-  was not kept), and drops iamf, mediainfo, quickjs and `lib-ui`.
+  was not kept), and drops iamf, mediainfo and quickjs. `lib-ui` was dropped in A2 and linked
+  again in A3, for `SubtitleView` and `AspectRatioFrameLayout`, not for `PlayerView`.
 - UI: one custom Compose player that copies `MpvPlayerScreen.swift`, `MpvTransportBar.swift` and
   `MpvPanels.swift`: title block, three round buttons (Subtitles, Audio, Info), transport bar,
   panels. Not the media3 `PlayerView` controls.
@@ -444,7 +465,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | Id | Criterion |
 |---|---|
 | N1 | Launch puts focus on the hero button of Home |
-| N2 | The sidebar reaches Home, Search, Library, Addons, Settings; Back on the sidebar leaves to the launcher |
+| N2 | The sidebar reaches Home, Search, Library, Addons, Settings; Back on the sidebar of another tab selects Home, Back on the Home sidebar leaves to the launcher (Android; tvOS leaves from any tab, see section 4) |
 | N3 | Left from the hero opens the sidebar, down reaches the first row |
 | N4 | Poster, then Details, then Streams; Back returns to the same card at each step |
 | N5 | Library and Settings show a placeholder that holds focus |
@@ -626,7 +647,22 @@ Verified in slice A2 (2026-11-23):
 - `lib-datasource-release.aar`: core's copy (the old app's copy was not kept in A0). The FFmpeg
   decoder is the app's downmix copy only; the box APK's `libffmpegJNI.so` matches it.
 
+Verified in slice A3 (2026-11-23):
+
+- `make check` passes: 21 app unit tests (Router, per entry ViewModel stores, Home row state,
+  dependency smoke with zxing and NanoHTTPD), ktlint, the runtime init guard.
+- `make android-tv` builds the `box` APK with R8 (`minifyBoxWithR8`), 12.3 MB. Each native
+  library is in it once, `libffmpegJNI.so` included; R8 reports no duplicate classes, so each
+  media3 AAR is linked once (bridge `api`, `lib-ui` from `core/libs` in the app).
+- The `box` runtime classpath resolves no alpha, beta or rc artifact; Coil 3.6.3 asks for
+  Compose 1.11.0-rc01 and gets the BOM's 1.13.0.
+- The UI tests `n2_everyTabReachable`, `n5_backExits`, `n2_backFromStreamsLeavesTheApp` and
+  `n4_backReturnsToTheSameHomeRow` compile (`:androidTvApp:assembleDebugAndroidTest`).
+- `make apple-tv-sim` builds (the catalog and the bridge build file changed in `shared/`).
+
 Not verified:
 
 - That the downmix FFmpeg decoder AAR needs the forked media3 and not stock 1.8.0.
 - Drawer, menu, focus restore and lazy list APIs of tv-material 1.1.0 and the current Compose BOM.
+  A3 compiles the drawer, `focusRestorer` and the shell's Back order but has not run them: the
+  box was unreachable, so no UI test, focus walk or four edge screenshot ran.

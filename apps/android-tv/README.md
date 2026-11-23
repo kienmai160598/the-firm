@@ -14,6 +14,13 @@ Build and install (the app is a project of the `shared/` Gradle build):
   test addon served from `apps/apple-tv/TestAddon` on `127.0.0.1:8765`.
 - `make lint`, `make format`: ktlint over the app and bridge sources.
 
+The app (slice A3): `shell/` holds the sidebar, the router and the per screen state; `design/`
+the tokens and shared parts mirrored from tvOS; `bridge/` the flow wrappers over the `Tvos*`
+API; one package per feature. Who may edit what while the feature slices run in parallel is in
+`OWNERS-WAVE.md`. Debug builds take launch options as intent extras (the table is in
+`app/src/debug/kotlin/com/kien/movies/debug/DebugLaunch.kt`), e.g.
+`adb shell am start -n com.kien.movies.next/com.kien.movies.MainActivity -e MoviesDebugRoute tab/addons`.
+
 Also here:
 
 - `box/install.sh`: installs an APK on the Mi Box and applies its baseline profile.
