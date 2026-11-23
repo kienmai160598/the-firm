@@ -11,6 +11,27 @@ struct MpvTouchSample: Equatable {
 struct MpvTouchMove: Equatable {
     let delta: Float
     let velocity: Float
+    var isPanStart = false
+}
+
+struct MpvPanContext: Equatable {
+    let isPaused: Bool
+    let isOnSurface: Bool
+    let durationSeconds: Int
+}
+
+enum MpvPanResponse: Equatable {
+    case scrub
+    case revealControls
+    case ignore
+
+    init(_ context: MpvPanContext) {
+        switch (context.isOnSurface, context.isPaused, context.durationSeconds > 0) {
+        case (true, true, true): self = .scrub
+        case (true, false, _): self = .revealControls
+        default: self = .ignore
+        }
+    }
 }
 
 struct MpvTouchTravel {
@@ -50,7 +71,7 @@ struct MpvTouchTravel {
         guard horizontal >= Self.deadZone, horizontal > vertical else { return nil }
         isPanning = true
         last = sample
-        return MpvTouchMove(delta: 0, velocity: 0)
+        return MpvTouchMove(delta: 0, velocity: 0, isPanStart: true)
     }
 }
 

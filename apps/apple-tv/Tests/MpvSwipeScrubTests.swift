@@ -11,7 +11,7 @@ final class MpvSwipeScrubTests: XCTestCase {
 
         XCTAssertNil(touch)
         XCTAssertNil(jitter)
-        XCTAssertEqual(lock, MpvTouchMove(delta: 0, velocity: 0))
+        XCTAssertEqual(lock, MpvTouchMove(delta: 0, velocity: 0, isPanStart: true))
         XCTAssertTrue(travel.isPanning)
     }
 
@@ -34,6 +34,18 @@ final class MpvSwipeScrubTests: XCTestCase {
         XCTAssertNil(vertical)
         XCTAssertNil(lifted)
         XCTAssertFalse(travel.isPanning)
+    }
+
+    func testPanScrubsOnlyWhilePausedAndOnlyRevealsControlsWhilePlaying() {
+        let paused = MpvPanContext(isPaused: true, isOnSurface: true, durationSeconds: 600)
+        let playing = MpvPanContext(isPaused: false, isOnSurface: true, durationSeconds: 600)
+        let inMenu = MpvPanContext(isPaused: true, isOnSurface: false, durationSeconds: 600)
+        let unknownLength = MpvPanContext(isPaused: true, isOnSurface: true, durationSeconds: 0)
+
+        XCTAssertEqual(MpvPanResponse(paused), .scrub)
+        XCTAssertEqual(MpvPanResponse(playing), .revealControls)
+        XCTAssertEqual(MpvPanResponse(inMenu), .ignore)
+        XCTAssertEqual(MpvPanResponse(unknownLength), .ignore)
     }
 
     func testSlowSwipeMovesSecondsAndFastSwipeMovesMinutes() {

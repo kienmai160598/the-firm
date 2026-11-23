@@ -20,8 +20,9 @@ final class MpvTouchScrubber {
     private static let stepSeconds = 10
 
     let preview = MpvScrubPreview()
-    var canScrub: () -> Bool = { false }
+    var panContext: () -> MpvPanContext? = { nil }
     var onScrubStart: () -> Void = {}
+    var onRevealControls: () -> Void = {}
     private let clock: MpvPlaybackClock
     private let touchpad = MpvTouchpad()
     private var session: MpvScrubSession?
@@ -42,8 +43,9 @@ final class MpvTouchScrubber {
 
     func stop() {
         touchpad.stop()
-        canScrub = { false }
+        panContext = { nil }
         onScrubStart = {}
+        onRevealControls = {}
         cancel()
     }
 
@@ -65,14 +67,23 @@ final class MpvTouchScrubber {
     }
 
     private func follow(_ move: MpvTouchMove) {
-        guard var current = session ?? begin() else { return }
+        guard var current = session ?? begin(on: move) else { return }
         current.apply(move)
         session = current
         preview.show(current.shownSeconds)
     }
 
-    private func begin() -> MpvScrubSession? {
-        guard clock.durationSeconds > 0, canScrub() else { return nil }
+    private func begin(on move: MpvTouchMove) -> MpvScrubSession? {
+        guard let context = panContext() else { return nil }
+        switch MpvPanResponse(context) {
+        case .scrub:
+            break
+        case .revealControls:
+            if move.isPanStart { onRevealControls() }
+            return nil
+        case .ignore:
+            return nil
+        }
         onScrubStart()
         return MpvScrubSession(
             originSeconds: clock.positionSeconds,

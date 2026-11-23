@@ -67,7 +67,6 @@ struct MpvPlayerScreen: View {
     @State private var hideTask: Task<Void, Never>?
     @State private var skip: MpvSkip?
     @State private var skipClearTask: Task<Void, Never>?
-    @State private var resumesAfterScrub = false
 
     init(request: PlaybackRequest, onFailure: @escaping (StreamNotice) -> Void) {
         target = request.target
@@ -249,14 +248,19 @@ struct MpvPlayerScreen: View {
 
     private func startTouchScrubbing() {
         let scrubber = controller.scrubber
-        scrubber.canScrub = { focus == .surface && panel == nil }
+        scrubber.panContext = {
+            MpvPanContext(
+                isPaused: controller.isPaused,
+                isOnSurface: focus == .surface && panel == nil,
+                durationSeconds: controller.clock.durationSeconds
+            )
+        }
         scrubber.onScrubStart = beginTouchScrub
+        scrubber.onRevealControls = showControls
         scrubber.start()
     }
 
     private func beginTouchScrub() {
-        resumesAfterScrub = !controller.isPaused
-        controller.setPaused(true)
         isScrubbing = true
         showControls()
     }
@@ -270,12 +274,11 @@ struct MpvPlayerScreen: View {
 
     private func cancelScrub() {
         controller.scrubber.cancel()
-        endScrub(resuming: resumesAfterScrub)
+        endScrub(resuming: false)
     }
 
     private func endScrub(resuming: Bool) {
         isScrubbing = false
-        resumesAfterScrub = false
         if resuming { controller.setPaused(false) }
         showControls()
     }
