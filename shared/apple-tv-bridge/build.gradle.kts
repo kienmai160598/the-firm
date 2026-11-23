@@ -133,6 +133,7 @@ kotlin {
             kotlin.srcDir(upstreamSrc.resolve("commonMain/kotlin"))
             kotlin.srcDir(upstreamRuntimeConfig)
             kotlin.srcDir(generateEnglishResShim.map { task -> task.outputDir })
+            kotlin.srcDir(rootProject.file("tv-api/src/commonMain/kotlin"))
             kotlin.exclude(isExcluded)
             dependencies {
                 implementation(libs.compose.runtime)
@@ -160,7 +161,8 @@ kotlin {
                 implementation(libs.ktor.client.darwin)
             }
         }
-        tvosTest {
+        commonTest {
+            kotlin.srcDir(rootProject.file("tv-api/src/commonTest/kotlin"))
             dependencies {
                 implementation(kotlin("test"))
             }
