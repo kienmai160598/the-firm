@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,25 +27,25 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.Palette
-import com.kien.movies.design.TextStyles
+import com.kien.movies.streams.PlatterOverBlack
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvShapes
+import com.kien.movies.streams.TvType
 import kotlinx.coroutines.flow.StateFlow
 
 /** Playback position for the bar, in whole seconds (tvOS MpvPlaybackClock.swift). */
@@ -78,7 +77,7 @@ private val PlayheadRise = 5.dp // 10 pt
 private val SkipBadgeSize = 32.dp // 64 pt
 private val SkipRise = 20.dp // 40 pt
 private val PauseIconSize = 15.dp // 30 pt
-private val LabelStyle = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum") // 26 pt
+private val LabelStyle = TvType.caption2.copy(fontFeatureSettings = "tnum") // AVKit time labels, Caption 2
 private const val SCRUB_ANIMATION_MILLIS = 200
 
 /**
@@ -108,17 +107,17 @@ fun TransportBar(
                     val height = (RestHeight + (ScrubHeight - RestHeight) * trackHeight).toPx()
                     val top = (size.height - height) / 2
                     val radius = CornerRadius(height / 2)
-                    drawRoundRect(Palette.frostRaised, Offset(0f, top), Size(size.width, height), radius)
-                    drawRoundRect(Color.White.copy(alpha = BUFFERED_ALPHA), Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
-                    val playedAlpha = if (isScrubbing) PLAYED_SCRUB_ALPHA else PLAYED_ALPHA
-                    drawRoundRect(Color.White.copy(alpha = playedAlpha), Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
+                    drawRoundRect(TrackFill, Offset(0f, top), Size(size.width, height), radius)
+                    drawRoundRect(BufferedFill, Offset(0f, top), Size(size.width * current.fraction(current.bufferedSeconds), height), radius)
+                    val playedFill = if (isScrubbing) PlayedScrubFill else PlayedFill
+                    drawRoundRect(playedFill, Offset(0f, top), Size(size.width * current.fraction(current.positionSeconds), height), radius)
                 }
                 if (isScrubbing || previewSeconds != null) {
                     Box(
                         modifier = Modifier
                             .offset(x = playheadX - PlayheadWidth / 2, y = -PlayheadRise / 2)
                             .size(PlayheadWidth, TrackSlot + PlayheadRise)
-                            .background(Color.White, RoundedCornerShape(percent = 50))
+                            .background(Color.White, TvShapes.pill)
                     )
                 }
                 // Qualified: inside the Column, the ColumnScope overload would be picked.
@@ -179,12 +178,15 @@ private fun SkipBadgeIcon(badge: SkipBadge) {
             contentDescription = null,
             modifier = Modifier.size(SkipBadgeSize).graphicsLayer { scaleX = if (badge.isForward) -1f else 1f }
         )
-        Text(text = "${badge.seconds}", style = TextStyles.badge, modifier = Modifier.offset(y = SkipNumberDrop))
+        Text(text = "${badge.seconds}", style = TvType.overline, modifier = Modifier.offset(y = SkipNumberDrop))
     }
 }
 
 private val SkipNumberDrop = 2.dp
-private const val BUFFERED_ALPHA = 0.3f
-private const val PLAYED_ALPHA = 0.9f
-private const val PLAYED_SCRUB_ALPHA = 0.55f
+
+// Opaque fills (composited over black) so the bar adds no translucent layer over video on the box.
+private val TrackFill = PlatterOverBlack
+private val BufferedFill = TvColors.textTertiary.compositeOver(Color.Black)
+private val PlayedFill = Color.White.copy(alpha = 0.9f).compositeOver(Color.Black)
+private val PlayedScrubFill = Color.White.copy(alpha = 0.55f).compositeOver(Color.Black)
 private const val SKIP_START_SCALE = 0.7f

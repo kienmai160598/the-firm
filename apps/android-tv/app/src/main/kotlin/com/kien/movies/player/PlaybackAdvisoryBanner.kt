@@ -25,13 +25,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
-import com.kien.movies.design.Spacing
+import com.kien.movies.streams.TvGrid
+import com.kien.movies.streams.TvType
 import com.nuvio.tvos.rules.PlaybackAdvisory
 import kotlinx.coroutines.delay
 
@@ -48,8 +46,8 @@ private val RatingBorder = 1.dp // 2 pt
 private val RatingCorner = 3.dp // 6 pt
 private val SlideFrom = 8.dp // 16 pt
 private val TextShadow = Shadow(color = Color.Black.copy(alpha = 0.6f), blurRadius = 10f)
-private val RatingStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.SemiBold, shadow = TextShadow) // 24 pt
-private val GenreStyle = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium, shadow = TextShadow) // 26 pt
+private val RatingStyle = TvType.overline.copy(shadow = TextShadow)
+private val GenreStyle = TvType.caption1.copy(shadow = TextShadow)
 
 /**
  * The rating and genres, top left, once for 6 s after playback starts (tvOS
@@ -71,7 +69,7 @@ fun PlaybackAdvisoryBanner(advisory: PlaybackAdvisory, hasPlaybackStarted: Boole
         visible = isShown,
         enter = fadeIn(tween(FADE_MILLIS)) + slideInHorizontally(tween(FADE_MILLIS)) { -slide },
         exit = fadeOut(tween(FADE_MILLIS)) + slideOutHorizontally(tween(FADE_MILLIS)) { -slide },
-        modifier = modifier.padding(start = Spacing.screenHorizontal, top = TopInset)
+        modifier = modifier.padding(start = TvGrid.sideMargin, top = TopInset)
     ) {
         val description = listOfNotNull(advisory.ageRating?.let { "Rated $it" }, advisory.genreLine).joinToString(", ")
         Row(

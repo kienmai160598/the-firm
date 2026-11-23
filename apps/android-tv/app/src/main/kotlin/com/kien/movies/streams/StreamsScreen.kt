@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,12 +31,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
-import com.kien.movies.design.Backdrop
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.GlassStyle
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
 import com.kien.movies.player.PlaybackRequest
 import com.kien.movies.player.PlaybackScreen
 import com.kien.movies.player.StreamNotice
@@ -45,7 +39,7 @@ import com.kien.movies.shell.Router
 
 /**
  * Streams (tvOS StreamsView.swift): header, then loading, empty or the groups as addons answer,
- * over the receded backdrop. A press checks the resume point, asks Resume or Start Over when
+ * on the flat Details background (docs/tv-look-spec.md, section 2 Colour; no backdrop). A press checks the resume point, asks Resume or Start Over when
  * there is one (S5), and presents the player as a full screen cover in this entry, as tvOS does
  * with fullScreenCover. A stream that cannot play opens the info sheet (S4).
  *
@@ -65,7 +59,9 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (playback == null) {
-            viewModel.target.backdropUrl?.let { url -> Backdrop(url = url, isReceded = true) }
+            // lead: drop this fill once the window background of pushed routes is the spec's
+            // Details colour; it replaces the receded backdrop, so it adds no extra pass.
+            Box(modifier = Modifier.fillMaxSize().background(TvColors.details))
             StreamsPage(
                 viewModel = viewModel,
                 state = state,
@@ -115,7 +111,7 @@ private fun StreamsPage(
         StreamsHeader(
             target = viewModel.target,
             resume = state.directResume,
-            modifier = Modifier.padding(start = HEADER_START, end = Spacing.screenHorizontal, top = Spacing.screenVertical)
+            modifier = Modifier.padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvInsets.verticalMargin)
         )
         // No cross fade between the bodies (tvOS fades 0.35 s): during a fade both bodies are
         // composed, and the focus request below could land in the one that is leaving.
@@ -167,7 +163,8 @@ private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer:
         Column(
             modifier = Modifier
                 .width(DIALOG_WIDTH)
-                .background(Palette.homeBackground, RoundedCornerShape(CardSize.cornerRadius))
+                .background(DialogPanelFill, TvShapes.panel)
+                .glassEdge(TvShapes.panel)
                 .padding(DIALOG_PADDING)
                 .testTag(STREAMS_RESUME_DIALOG_TAG),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -175,8 +172,8 @@ private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer:
         ) {
             Text(
                 text = title,
-                style = TextStyles.shelfHeader,
-                color = Palette.textSecondary,
+                style = TvType.headline,
+                color = TvColors.textPrimary,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -199,14 +196,16 @@ private fun StreamsResumeDialog(title: String, pending: PendingResume, onAnswer:
 private fun DialogButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
-        colors = GlassStyle.buttonColors(),
-        scale = GlassStyle.buttonScale(),
-        shape = GlassStyle.buttonShape(),
-        modifier = modifier.fillMaxWidth()
+        colors = TvGlass.buttonColors(),
+        scale = TvGlass.buttonScale(),
+        shape = TvGlass.pillShape(),
+        border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
+        modifier = modifier.fillMaxWidth().height(TvControls.pillHeight)
     ) {
         Text(
             text = text,
-            style = TextStyles.button,
+            style = TvType.bodyEmphasized,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -219,8 +218,10 @@ const val STREAMS_RESUME_DIALOG_TAG = "streams-resume-dialog"
 const val STREAMS_RESUME_TAG = "streams-resume"
 const val STREAMS_START_OVER_TAG = "streams-start-over"
 
-// tvOS literals, pt / 2. The header sits at the 48 dp floor plus tvOS's 32 pt header padding.
-private val HEADER_START = Spacing.screenHorizontal + 16.dp
+/** Dialog panels are opaque: the dialog window already dims what is behind them once. */
+internal val DialogPanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
+
+// tvOS literals, pt / 2.
 private val PAGE_GAP = 18.dp // VStack spacing 36
 private val DIALOG_WIDTH = 320.dp
 private val DIALOG_PADDING = 24.dp

@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,12 +45,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
@@ -75,12 +79,13 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.GlassStyle
 import com.kien.movies.design.Motion
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
-import com.kien.movies.design.darkGlassPanel
+import com.kien.movies.streams.PlatterOverBlack
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvControls
+import com.kien.movies.streams.TvGlass
+import com.kien.movies.streams.TvGrid
+import com.kien.movies.streams.TvType
 import com.nuvio.tvos.TvosStreamTarget
 import com.nuvio.tvos.rules.PlaybackAdvisory
 import kotlinx.coroutines.delay
@@ -123,12 +128,24 @@ private const val SKIP_SHOWN_MILLIS = 1_000L
 private const val INFO_REFRESH_MILLIS = 1_000L
 private const val CONTROLS_ANIMATION_MILLIS = 400
 private val BottomInset = 48.dp // 96 pt
-private val ControlsGap = 12.dp // 34 pt, inside the bar's own panel
-private val ControlsPadding = 16.dp
+private val ControlsGap = 12.dp
 private val PanelGap = 12.dp // 24 pt
-private val ButtonGap = 10.dp // 20 pt
-private val ButtonIcon = 20.dp // 40 pt
-private val TitleGap = 5.dp // 10 pt
+private val ButtonGap = 13.dp // spec: 26 pt between the hero's buttons
+private val TitleGap = 4.dp
+
+// The one scrim band under the controls: the Backdrop's leading shade stops turned upright (black
+// 0.9 at the bottom, 0.55 at 45%, clear at 80%), tall enough that the title sits in the dark part.
+private val ScrimBandHeight = 180.dp
+private val ScrimBand = Brush.verticalGradient(
+    0f to Color.Transparent,
+    0.2f to Color.Transparent,
+    0.55f to Color.Black.copy(alpha = 0.55f),
+    1f to Color.Black.copy(alpha = 0.9f)
+)
+
+// Circle buttons sit on the band: opaque fills (the platter and the tertiary white composited over
+// black), so the band stays the only translucent layer over the video.
+private val OpenControlFill = TvColors.textTertiary.compositeOver(Color.Black)
 private val InfoRowGap = 20.dp // 40 pt
 private val ControlsRise = 14.dp // 28 pt
 private val SpinnerSize = 24.dp // ProgressView scaled 1.6
@@ -136,8 +153,8 @@ private val SpinnerStroke = 3.dp
 
 /**
  * The player (tvOS MpvPlayerScreen.swift): video, spinner, the controls (title, three round
- * buttons, transport bar) on one small panel at the bottom, menus above the buttons and the
- * advisory banner. Owns the remote: see [PlayerContent].
+ * buttons, transport bar) on one scrim band at the bottom, AVKit style, menus above the buttons
+ * as opaque platters, and the advisory banner. Owns the remote: see [PlayerContent].
  */
 @Composable
 fun PlayerScreen(request: PlaybackRequest, onFailure: (StreamNotice) -> Unit, onExit: () -> Unit) {
@@ -381,51 +398,57 @@ private fun PlayerContent(controller: PlayerController, state: PlayerState, targ
             exit = fadeOut(tween(CONTROLS_ANIMATION_MILLIS)) + slideOutVertically(tween(CONTROLS_ANIMATION_MILLIS)) { it / CONTROLS_RISE_SHARE },
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            Column(
-                horizontalAlignment = Alignment.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = Spacing.screenHorizontal, end = Spacing.screenHorizontal, bottom = BottomInset)
-            ) {
-                when (val open = panel) {
-                    is PlayerPanel.Tracks -> TrackMenu(kind = open.kind, options = trackOptions, onSelect = { option ->
-                        controller.select(open.kind, option)
-                        closePanel()
-                    })
-
-                    PlayerPanel.Info -> InfoMenu(source = controller.source, rows = infoRows)
-
-                    null -> Unit
-                }
-                if (panel != null) Spacer(modifier = Modifier.size(PanelGap))
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(ControlsGap),
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .darkGlassPanel()
-                        .padding(ControlsPadding)
-                        .testTag(PLAYER_CONTROLS_TAG)
+                        .height(ScrimBandHeight)
+                        .drawBehind { drawRect(ScrimBand) }
+                )
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, bottom = BottomInset)
                 ) {
-                    AnimatedVisibility(visible = !isScrubbing, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
-                        InfoRow(
-                            target = target,
-                            panel = panel,
-                            controlFocus = controlFocus,
-                            onOpen = ::open,
-                            onDown = { surfaceFocus.requestFocus() },
-                            onControlFocused = { control ->
-                                if (panel != null && panel?.control != control) panel = null
-                                interaction++
-                            }
+                    when (val open = panel) {
+                        is PlayerPanel.Tracks -> TrackMenu(kind = open.kind, options = trackOptions, onSelect = { option ->
+                            controller.select(open.kind, option)
+                            closePanel()
+                        })
+
+                        PlayerPanel.Info -> InfoMenu(source = controller.source, rows = infoRows)
+
+                        null -> Unit
+                    }
+                    if (panel != null) Spacer(modifier = Modifier.size(PanelGap))
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(ControlsGap),
+                        modifier = Modifier.fillMaxWidth().testTag(PLAYER_CONTROLS_TAG)
+                    ) {
+                        AnimatedVisibility(visible = !isScrubbing, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
+                            InfoRow(
+                                target = target,
+                                panel = panel,
+                                controlFocus = controlFocus,
+                                onOpen = ::open,
+                                onDown = { surfaceFocus.requestFocus() },
+                                onControlFocused = { control ->
+                                    if (panel != null && panel?.control != control) panel = null
+                                    interaction++
+                                }
+                            )
+                        }
+                        TransportBar(
+                            clock = controller.clock,
+                            previewSeconds = preview,
+                            isPausedByViewer = state.isPausedByViewer,
+                            isScrubbing = isScrubbing,
+                            skip = skip
                         )
                     }
-                    TransportBar(
-                        clock = controller.clock,
-                        previewSeconds = preview,
-                        isPausedByViewer = state.isPausedByViewer,
-                        isScrubbing = isScrubbing,
-                        skip = skip
-                    )
                 }
             }
         }
@@ -445,9 +468,9 @@ private fun InfoRow(
     Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(TitleGap), modifier = Modifier.weight(1f)) {
             target.subtitle?.let { episodeLine ->
-                Text(text = episodeLine, style = TextStyles.small, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(text = episodeLine, style = TvType.caption1, color = TvColors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Text(text = target.title, style = TextStyles.playerTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = target.title, style = TvType.headline, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Spacer(modifier = Modifier.width(InfoRowGap))
         // Down goes back to the video (tvOS focus engine); 2D search finds nothing below, the
@@ -466,24 +489,26 @@ private fun InfoRow(
                 IconButton(
                     onClick = { onOpen(control) },
                     enabled = !isTrackMenuOpen || isOpen,
-                    shape = GlassStyle.circleButtonShape(),
-                    scale = IconButtonDefaults.scale(focusedScale = com.kien.movies.design.Focus.buttonScale),
+                    shape = TvGlass.circleShape(),
+                    scale = TvGlass.circleScale(),
+                    border = TvGlass.circleBorder(),
                     colors = IconButtonDefaults.colors(
-                        containerColor = if (isOpen) Palette.frostStrong else Palette.frostRest,
-                        contentColor = Palette.textPrimary,
-                        focusedContainerColor = Palette.focusedContainer,
-                        focusedContentColor = Palette.focusedContent,
-                        pressedContainerColor = Palette.focusedContainer,
-                        pressedContentColor = Palette.focusedContent,
-                        disabledContainerColor = Palette.frostRest,
-                        disabledContentColor = Palette.textTertiary
+                        containerColor = if (isOpen) OpenControlFill else PlatterOverBlack,
+                        contentColor = TvColors.textPrimary,
+                        focusedContainerColor = TvColors.focusedFill,
+                        focusedContentColor = TvColors.focusedContent,
+                        pressedContainerColor = TvColors.focusedFill,
+                        pressedContentColor = TvColors.focusedContent,
+                        disabledContainerColor = PlatterOverBlack,
+                        disabledContentColor = TvColors.textTertiary
                     ),
                     modifier = Modifier
+                        .size(TvControls.circle)
                         .focusRequester(controlFocus.getValue(control))
                         .onFocusChanged { if (it.isFocused) onControlFocused(control) }
                         .testTag(playerControlTag(control))
                 ) {
-                    Icon(painter = painterResource(control.icon), contentDescription = control.label, modifier = Modifier.size(ButtonIcon))
+                    Icon(painter = painterResource(control.icon), contentDescription = control.label, modifier = Modifier.size(TvControls.glyph))
                 }
             }
         }

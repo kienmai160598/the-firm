@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -31,20 +30,19 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.Palette
-import com.kien.movies.design.darkGlassPanel
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvShapes
+import com.kien.movies.streams.TvType
+import com.kien.movies.streams.glassEdge
 
 const val PLAYER_TRACK_MENU_TAG = "player-track-menu"
 const val PLAYER_INFO_MENU_TAG = "player-info-menu"
@@ -57,7 +55,6 @@ private val TrackMenuWidth = 280.dp // 560 pt
 private val InfoMenuWidth = 320.dp // 640 pt
 private val MaxListHeight = 260.dp // 520 pt
 private val PanelPadding = 7.dp // 14 pt
-private val PanelCorner = 22.dp // 44 pt
 private val RowInset = 12.dp // 24 pt
 private val RowLeading = 7.dp // 14 pt
 private val RowVertical = 8.dp // 16 pt
@@ -69,11 +66,14 @@ private val HeaderTop = 5.dp // 10 pt
 private val HeaderBottom = 3.dp // 6 pt
 private val SeparatorVertical = 5.dp // 10 pt
 private val SeparatorHeight = 1.dp
-private val RowFont = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 17.sp) // 26 pt
-private val DetailFont = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Normal, lineHeight = 16.sp) // 20 pt, 12 sp floor
-private val HeaderFont = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, lineHeight = 16.sp) // 23 pt
+private val RowFont = TvType.caption1
+private val DetailFont = TvType.caption2
+private val HeaderFont = TvType.caption1.copy(fontWeight = TvType.bodyEmphasized.fontWeight)
 private const val PRESSED_SCALE = 0.97f
-private const val DETAIL_ALPHA = 0.6f
+private val DETAIL_ALPHA = TvColors.textSecondary.alpha
+
+/** Opaque, so a menu over the video is one layer even where it meets the controls' scrim band. */
+private val PanelFill = TvColors.sidebarPanel.copy(alpha = 1f)
 
 /**
  * The audio or subtitle menu (tvOS MpvTrackMenu). Opens with the selected row focused; focus stays
@@ -135,7 +135,7 @@ fun InfoMenu(source: String, rows: List<InfoRow>, modifier: Modifier = Modifier)
                 .padding(horizontal = RowInset, vertical = SeparatorVertical)
                 .fillMaxWidth()
                 .height(SeparatorHeight)
-                .background(Palette.frostRaised)
+                .background(TvColors.glassEdge)
         )
         MenuHeader("Playback")
         rows.forEach { row ->
@@ -143,7 +143,7 @@ fun InfoMenu(source: String, rows: List<InfoRow>, modifier: Modifier = Modifier)
                 horizontalArrangement = Arrangement.spacedBy(RowInset),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = RowInset, vertical = InfoRowVertical)
             ) {
-                Text(text = row.label, style = RowFont, color = Palette.textSecondary)
+                Text(text = row.label, style = RowFont, color = TvColors.textSecondary)
                 Spacer(modifier = Modifier.weight(1f))
                 Text(text = row.value, style = RowFont, textAlign = TextAlign.End)
             }
@@ -155,15 +155,15 @@ fun InfoMenu(source: String, rows: List<InfoRow>, modifier: Modifier = Modifier)
 private fun TrackRow(option: TrackOption, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(percent = 50)),
+        shape = ClickableSurfaceDefaults.shape(TvShapes.pill),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f, pressedScale = PRESSED_SCALE),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.Transparent,
-            contentColor = Palette.textPrimary,
-            focusedContainerColor = Palette.focusedContainer,
-            focusedContentColor = Palette.focusedContent,
-            pressedContainerColor = Palette.focusedContainer,
-            pressedContentColor = Palette.focusedContent
+            contentColor = TvColors.textPrimary,
+            focusedContainerColor = TvColors.focusedFill,
+            focusedContentColor = TvColors.focusedContent,
+            pressedContainerColor = TvColors.focusedFill,
+            pressedContentColor = TvColors.focusedContent
         ),
         modifier = modifier.fillMaxWidth().testTag(playerOptionTag(option.id))
     ) {
@@ -187,13 +187,14 @@ private fun TrackRow(option: TrackOption, onClick: () -> Unit, modifier: Modifie
     }
 }
 
-/** One translucent panel over the video (tvOS darkGlassPanel), never stacked on the controls bar. */
+/** A platter over the video: opaque near black panel, panel corner and the glass edge. */
 @Composable
 private fun MenuPanel(width: Dp, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = modifier
             .width(width)
-            .darkGlassPanel(PanelCorner)
+            .background(PanelFill, TvShapes.panel)
+            .glassEdge(TvShapes.panel)
             .padding(PanelPadding),
         content = content
     )
@@ -204,7 +205,7 @@ private fun MenuHeader(title: String) {
     Text(
         text = title,
         style = HeaderFont,
-        color = Palette.textSecondary,
+        color = TvColors.textSecondary,
         modifier = Modifier.padding(start = RowInset, end = RowInset, top = HeaderTop, bottom = HeaderBottom)
     )
 }

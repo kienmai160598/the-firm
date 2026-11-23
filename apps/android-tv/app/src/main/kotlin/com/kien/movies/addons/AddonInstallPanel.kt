@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,19 +39,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
-import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.Focus
-import com.kien.movies.design.GlassStyle
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvControls
+import com.kien.movies.streams.TvGlass
+import com.kien.movies.streams.TvShapes
+import com.kien.movies.streams.TvType
+import com.kien.movies.streams.glassEdge
 
 /**
  * The left column of Addons (tvOS AddonInstallPanel.swift): what addons are, a manifest URL field,
@@ -78,42 +75,40 @@ fun AddonInstallPanel(
         modifier = modifier.verticalScroll(rememberScrollState()).focusGroup(),
         verticalArrangement = Arrangement.spacedBy(PANEL_SPACING)
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_tab_addons),
-            contentDescription = null,
-            tint = Palette.textSecondary,
-            modifier = Modifier.size(SYMBOL_SIZE)
-        )
-        Text(text = "Addons", style = MaterialTheme.typography.headlineSmall)
-        Text(text = EXPLANATION, style = CALLOUT, color = Palette.textSecondary)
-        Text(text = "Add an addon", style = HEADLINE, modifier = Modifier.padding(top = HEADER_TOP))
+        // The collapsed nav pill names the tab, so the column starts with its section title.
+        SectionTitle("Add an addon", spacingAfter = PANEL_SPACING)
+        Text(text = EXPLANATION, style = TvType.caption2, color = TvColors.textSecondary)
         ManifestUrlField(value = manifestUrl, onValueChange = { manifestUrl = it }, onSubmit = install, focusRequester = fieldFocus)
         Button(
             onClick = install,
             enabled = !state.isInstalling && manifestUrl.isNotBlank(),
-            colors = GlassStyle.prominentButtonColors(),
-            scale = GlassStyle.buttonScale(),
-            shape = GlassStyle.buttonShape(),
-            modifier = Modifier.testTag(INSTALL_BUTTON_TAG)
+            colors = TvGlass.buttonColors(),
+            scale = TvGlass.buttonScale(),
+            shape = TvGlass.pillShape(),
+            border = TvGlass.buttonBorder(),
+            contentPadding = TvGlass.pillPadding,
+            modifier = Modifier.height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG)
         ) {
             if (state.isInstalling) {
-                Text(text = "Installing", style = TextStyles.button)
+                Text(text = "Installing", style = TvType.bodyEmphasized)
             } else {
-                Icon(painter = painterResource(R.drawable.ic_addons_plus), contentDescription = null, modifier = Modifier.size(BUTTON_ICON))
-                Spacer(Modifier.size(Spacing.textGap))
-                Text(text = "Install", style = TextStyles.button)
+                Icon(painter = painterResource(R.drawable.ic_addons_plus), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
+                Spacer(Modifier.size(GLYPH_GAP))
+                Text(text = "Install", style = TvType.bodyEmphasized)
             }
         }
         Button(
             onClick = onAddFromPhone,
-            colors = GlassStyle.buttonColors(),
-            scale = GlassStyle.buttonScale(),
-            shape = GlassStyle.buttonShape(),
-            modifier = Modifier.focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG)
+            colors = TvGlass.buttonColors(),
+            scale = TvGlass.buttonScale(),
+            shape = TvGlass.pillShape(),
+            border = TvGlass.buttonBorder(),
+            contentPadding = TvGlass.pillPadding,
+            modifier = Modifier.height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG)
         ) {
-            Icon(painter = painterResource(R.drawable.ic_addons_phone), contentDescription = null, modifier = Modifier.size(BUTTON_ICON))
-            Spacer(Modifier.size(Spacing.textGap))
-            Text(text = "Add from phone", style = TextStyles.button)
+            Icon(painter = painterResource(R.drawable.ic_addons_phone), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
+            Spacer(Modifier.size(GLYPH_GAP))
+            Text(text = "Add from phone", style = TvType.bodyEmphasized)
         }
         StatusLine(state.installStatus)
     }
@@ -142,8 +137,8 @@ private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onS
                 value = value,
                 onValueChange = onValueChange,
                 singleLine = true,
-                textStyle = TextStyles.body.copy(color = Palette.textPrimary),
-                cursorBrush = SolidColor(Palette.textPrimary),
+                textStyle = TvType.caption1.copy(color = TvColors.textPrimary),
+                cursorBrush = SolidColor(TvColors.textPrimary),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done, autoCorrectEnabled = false),
                 keyboardActions = KeyboardActions(onDone = {
                     stopEditing()
@@ -172,19 +167,15 @@ private fun ManifestUrlField(value: String, onValueChange: (String) -> Unit, onS
         } else {
             Surface(
                 onClick = { isEditing = true },
-                colors = ClickableSurfaceDefaults.colors(
-                    containerColor = Palette.frostRest,
-                    contentColor = Palette.textPrimary,
-                    focusedContainerColor = Palette.focusedContainer,
-                    focusedContentColor = Palette.focusedContent
-                ),
-                scale = ClickableSurfaceDefaults.scale(focusedScale = Focus.buttonScale),
-                shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(CardSize.cornerRadius)),
+                colors = TvGlass.surfaceColors(),
+                scale = TvGlass.surfaceScale(),
+                shape = TvGlass.surfaceShape(TvShapes.pill),
+                border = TvGlass.surfaceBorder(TvShapes.pill),
                 modifier = Modifier.fillMaxWidth().height(FIELD_HEIGHT).testTag(URL_SURFACE_TAG)
             ) {
                 Text(
                     text = value.ifEmpty { PLACEHOLDER },
-                    style = TextStyles.body,
+                    style = TvType.caption1,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = LocalContentColor.current.copy(alpha = if (value.isEmpty()) PLACEHOLDER_ALPHA else 1f),
@@ -206,11 +197,12 @@ private fun FieldFrame(isPlaceholder: Boolean, field: @Composable () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(FIELD_HEIGHT)
-            .background(Palette.frostRaised, RoundedCornerShape(CardSize.cornerRadius))
+            .background(TvColors.platter, TvShapes.pill)
+            .glassEdge(TvShapes.pill)
             .padding(horizontal = FIELD_PADDING),
         contentAlignment = Alignment.CenterStart
     ) {
-        if (isPlaceholder) Text(text = PLACEHOLDER, style = TextStyles.body, color = Palette.textTertiary)
+        if (isPlaceholder) Text(text = PLACEHOLDER, style = TvType.caption1, color = TvColors.textTertiary)
         field()
     }
 }
@@ -218,17 +210,17 @@ private fun FieldFrame(isPlaceholder: Boolean, field: @Composable () -> Unit) {
 @Composable
 private fun StatusLine(status: AddonInstallStatus?) {
     when (status) {
-        is AddonInstallStatus.Installed -> Row(horizontalArrangement = Arrangement.spacedBy(Spacing.textGap), verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.ic_addons_check), contentDescription = null, tint = Palette.textSecondary, modifier = Modifier.size(STATUS_ICON))
-            Text(text = "Installed ${status.name}", style = CALLOUT, color = Palette.textSecondary)
+        is AddonInstallStatus.Installed -> Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
+            Icon(painter = painterResource(R.drawable.ic_addons_check), contentDescription = null, tint = TvColors.textSecondary, modifier = Modifier.size(STATUS_ICON))
+            Text(text = "Installed ${status.name}", style = TvType.caption1, color = TvColors.textSecondary)
         }
 
-        is AddonInstallStatus.Failed -> Column(verticalArrangement = Arrangement.spacedBy(Spacing.textGapSmall)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.textGap), verticalAlignment = Alignment.CenterVertically) {
+        is AddonInstallStatus.Failed -> Column(verticalArrangement = Arrangement.spacedBy(STATUS_GAP)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
                 Icon(painter = painterResource(R.drawable.ic_addons_warning), contentDescription = null, tint = ERROR_RED, modifier = Modifier.size(STATUS_ICON))
-                Text(text = INSTALL_FAILED, style = CALLOUT, color = ERROR_RED)
+                Text(text = INSTALL_FAILED, style = TvType.caption1, color = ERROR_RED)
             }
-            Text(text = status.message, style = TextStyles.small, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = status.message, style = TvType.caption2, color = TvColors.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
 
         AddonInstallStatus.Installing, null -> Unit
@@ -243,11 +235,10 @@ const val INSTALL_FAILED = "Couldn't add this addon"
 
 private const val EXPLANATION = "Addons bring the catalogs, streams and subtitles you see in the app."
 private const val PLACEHOLDER = "Manifest URL"
-private const val PLACEHOLDER_ALPHA = 0.45f
-private val PANEL_SPACING = 14.dp
-private val HEADER_TOP = 10.dp
-private val SYMBOL_SIZE = 48.dp
-private val BUTTON_ICON = 18.dp
+private val PLACEHOLDER_ALPHA = TvColors.textTertiary.alpha
+private val PANEL_SPACING = 12.dp
+private val GLYPH_GAP = 8.dp
+private val STATUS_GAP = 4.dp
 private val STATUS_ICON = 16.dp
-private val FIELD_HEIGHT = 40.dp
+private val FIELD_HEIGHT = TvControls.pillHeight
 private val FIELD_PADDING = 14.dp

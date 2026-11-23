@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -28,13 +29,12 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
-import com.kien.movies.addons.CALLOUT
 import com.kien.movies.addons.ERROR_RED
-import com.kien.movies.addons.HEADLINE
-import com.kien.movies.design.GlassStyle
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
+import com.kien.movies.addons.SectionTitle
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvControls
+import com.kien.movies.streams.TvGlass
+import com.kien.movies.streams.TvType
 import com.nuvio.tvos.phone.AddonInstallOutcome
 import com.nuvio.tvos.phone.AddonPairingLimits
 import com.nuvio.tvos.phone.AddonPairingPhase
@@ -112,23 +112,25 @@ fun PhoneAddonPanel(
 
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()).focusGroup(),
-        verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge)
+        verticalArrangement = Arrangement.spacedBy(PANEL_SPACING)
     ) {
-        Text(text = "Add from phone", style = HEADLINE)
+        SectionTitle("Add from phone", spacingAfter = PANEL_SPACING)
         when (val current = setup) {
-            PhoneAddonSetup.Starting -> Text(text = "Starting", style = CALLOUT, color = Palette.textSecondary)
+            PhoneAddonSetup.Starting -> Text(text = "Starting", style = TvType.caption1, color = TvColors.textSecondary)
             PhoneAddonSetup.NoNetwork -> Problem(NO_NETWORK, onRetry = { attempt++ })
             PhoneAddonSetup.NoFreePort -> Problem(NO_FREE_PORT, onRetry = { attempt++ })
             is PhoneAddonSetup.Running -> RunningServer(current.server)
         }
         Button(
             onClick = onClose,
-            colors = GlassStyle.buttonColors(),
-            scale = GlassStyle.buttonScale(),
-            shape = GlassStyle.buttonShape(),
-            modifier = Modifier.focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG)
+            colors = TvGlass.buttonColors(),
+            scale = TvGlass.buttonScale(),
+            shape = TvGlass.pillShape(),
+            border = TvGlass.buttonBorder(),
+            contentPadding = TvGlass.pillPadding,
+            modifier = Modifier.height(TvControls.pillHeight).focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG)
         ) {
-            Text(text = "Close", style = TextStyles.button)
+            Text(text = "Close", style = TvType.bodyEmphasized)
         }
     }
 }
@@ -137,14 +139,14 @@ fun PhoneAddonPanel(
 private fun RunningServer(server: PhoneAddonServer) {
     val session by server.session.collectAsStateWithLifecycle()
     val address = remember(server) { server.address }
-    Text(text = "Scan the code with a phone on the same network as the TV.", style = TextStyles.small, color = Palette.textSecondary)
+    Text(text = "Scan the code with a phone on the same network as the TV.", style = TvType.caption2, color = TvColors.textSecondary)
     QrCodeImage(content = address, minSide = QR_MIN_SIDE, modifier = Modifier.testTag(PHONE_QR_TAG))
-    Text(text = address, style = TextStyles.small, color = Palette.textSecondary, modifier = Modifier.testTag(PHONE_ADDRESS_TAG))
+    Text(text = address, style = TvType.caption2, color = TvColors.textSecondary, modifier = Modifier.testTag(PHONE_ADDRESS_TAG))
     when (val phase = session.phase) {
         AddonPairingPhase.Off, AddonPairingPhase.Waiting -> Waiting()
 
         is AddonPairingPhase.Proposed -> {
-            Text(text = "Confirm on the TV", style = CALLOUT)
+            Text(text = "Confirm on the TV", style = TvType.caption1)
             PhoneAddonDialog(
                 proposal = phase.proposal,
                 onInstall = { server.confirm(phase.proposal.id) },
@@ -152,7 +154,7 @@ private fun RunningServer(server: PhoneAddonServer) {
             )
         }
 
-        is AddonPairingPhase.Installing -> Text(text = "Installing", style = CALLOUT)
+        is AddonPairingPhase.Installing -> Text(text = "Installing", style = TvType.caption1)
 
         is AddonPairingPhase.Done -> {
             Outcomes(phase.outcomes)
@@ -163,16 +165,16 @@ private fun RunningServer(server: PhoneAddonServer) {
 
 @Composable
 private fun Waiting() {
-    Text(text = "Waiting for your phone", style = CALLOUT, modifier = Modifier.testTag(PHONE_WAITING_TAG))
+    Text(text = "Waiting for your phone", style = TvType.caption1, modifier = Modifier.testTag(PHONE_WAITING_TAG))
 }
 
 @Composable
 private fun Outcomes(outcomes: List<AddonInstallOutcome>) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.textGapSmall)) {
+    Column(verticalArrangement = Arrangement.spacedBy(OUTCOME_GAP)) {
         outcomes.forEach { outcome ->
             when (outcome) {
-                is AddonInstallOutcome.Installed -> Text(text = "Installed ${outcome.name}", style = TextStyles.small, color = Palette.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                is AddonInstallOutcome.Failed -> Text(text = "Couldn't add ${outcome.url}: ${outcome.message}", style = TextStyles.small, color = ERROR_RED, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                is AddonInstallOutcome.Installed -> Text(text = "Installed ${outcome.name}", style = TvType.caption2, color = TvColors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                is AddonInstallOutcome.Failed -> Text(text = "Couldn't add ${outcome.url}: ${outcome.message}", style = TvType.caption2, color = ERROR_RED, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -180,9 +182,17 @@ private fun Outcomes(outcomes: List<AddonInstallOutcome>) {
 
 @Composable
 private fun Problem(message: String, onRetry: () -> Unit) {
-    Text(text = message, style = CALLOUT, color = Palette.textSecondary, modifier = Modifier.testTag(PHONE_PROBLEM_TAG))
-    Button(onClick = onRetry, colors = GlassStyle.buttonColors(), scale = GlassStyle.buttonScale(), shape = GlassStyle.buttonShape()) {
-        Text(text = "Try Again", style = TextStyles.button)
+    Text(text = message, style = TvType.caption1, color = TvColors.textSecondary, modifier = Modifier.testTag(PHONE_PROBLEM_TAG))
+    Button(
+        onClick = onRetry,
+        colors = TvGlass.buttonColors(),
+        scale = TvGlass.buttonScale(),
+        shape = TvGlass.pillShape(),
+        border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
+        modifier = Modifier.height(TvControls.pillHeight)
+    ) {
+        Text(text = "Try Again", style = TvType.bodyEmphasized)
     }
 }
 
@@ -201,4 +211,6 @@ val NO_FREE_PORT = "Ports ${AddonPairingLimits.FIRST_PORT} to ${AddonPairingLimi
 
 /** At least 180 dp so a phone reads it across the room (5b). */
 private val QR_MIN_SIDE = 180.dp
+private val PANEL_SPACING = 12.dp
+private val OUTCOME_GAP = 4.dp
 private const val IDLE_CHECK_MS = 15_000L

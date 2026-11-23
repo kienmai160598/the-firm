@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -23,15 +23,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.GlassStyle
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
+import com.kien.movies.streams.DialogPanelFill
+import com.kien.movies.streams.TvColors
+import com.kien.movies.streams.TvControls
+import com.kien.movies.streams.TvGlass
+import com.kien.movies.streams.TvShapes
+import com.kien.movies.streams.TvType
+import com.kien.movies.streams.glassEdge
 
 /**
  * The confirmation dialogs of Addons (tvOS `confirmationDialog` and `alert`): a title, an optional
- * message and buttons, on one opaque panel. tv-material 1.1.0 has no dialog, so this is a Compose
+ * message and capsule buttons, on one opaque panel with the glass edge. tv-material 1.1.0 has no dialog, so this is a Compose
  * `Dialog` window; it owns Back (dismiss) while it is open. The window dims what is behind it
  * once, as tvOS does.
  */
@@ -48,14 +50,15 @@ fun AddonDialog(
         Column(
             modifier = modifier
                 .width(width)
-                .background(Palette.drawerPanel, RoundedCornerShape(CardSize.cornerRadius))
+                .background(DialogPanelFill, TvShapes.panel)
+                .glassEdge(TvShapes.panel)
                 .padding(DIALOG_PADDING),
-            verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge),
+            verticalArrangement = Arrangement.spacedBy(DIALOG_GAP),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = title, style = TextStyles.shelfHeader, color = Palette.textPrimary, textAlign = TextAlign.Center)
+            Text(text = title, style = TvType.headline, color = TvColors.textPrimary, textAlign = TextAlign.Center)
             if (message != null) {
-                Text(text = message, style = TextStyles.small, color = Palette.textSecondary, textAlign = TextAlign.Center)
+                Text(text = message, style = TvType.caption2, color = TvColors.textSecondary, textAlign = TextAlign.Center)
             }
             content()
         }
@@ -68,15 +71,18 @@ fun AddonDialogButton(label: String, onClick: () -> Unit, modifier: Modifier = M
     val requester = remember { FocusRequester() }
     Button(
         onClick = onClick,
-        colors = GlassStyle.buttonColors(),
-        scale = GlassStyle.buttonScale(),
-        shape = GlassStyle.buttonShape(),
+        colors = TvGlass.buttonColors(),
+        scale = TvGlass.buttonScale(),
+        shape = TvGlass.pillShape(),
+        border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
         modifier = modifier
             .fillMaxWidth()
+            .height(TvControls.pillHeight)
             .focusRequester(requester)
             .testTag(dialogButtonTag(label))
     ) {
-        Text(text = label, style = TextStyles.button, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+        Text(text = label, style = TvType.bodyEmphasized, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
     }
     if (focusFirst) {
         LaunchedEffect(Unit) {
@@ -91,3 +97,4 @@ fun dialogButtonTag(label: String): String = "addon-dialog-$label"
 
 private val DIALOG_WIDTH = 300.dp
 private val DIALOG_PADDING = 24.dp
+private val DIALOG_GAP = 12.dp
