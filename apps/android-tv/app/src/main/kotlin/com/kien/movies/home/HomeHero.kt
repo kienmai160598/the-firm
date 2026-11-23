@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -48,6 +50,7 @@ import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -66,18 +69,22 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.transformations
 import com.kien.movies.R
 import com.kien.movies.design.BakedScrim
 import com.kien.movies.design.ImdbBadge
 import com.kien.movies.design.Motion
 import com.kien.movies.design.ScrimLayer
 import com.kien.movies.design.TextStyles
+import com.kien.movies.design.TrimTransparentEdges
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvShapes
 import com.kien.movies.design.TvType
 import com.kien.movies.design.rememberBakedImage
 import com.kien.movies.shell.AppRoute
+import com.kien.movies.shell.LocalNavPillState
 import com.kien.movies.shell.RootTab
 import kotlinx.coroutines.delay
 
@@ -306,15 +313,30 @@ private fun HeroTitle(name: String, logoUrl: String?) {
         }
         if (logoUrl != null) {
             AsyncImage(
-                model = rememberSizedImage(logoUrl, LOGO_MAX),
+                model = rememberLogoRequest(logoUrl),
                 contentDescription = name,
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.BottomStart,
                 onSuccess = { showsLogo = true },
                 onError = { showsLogo = false },
-                modifier = Modifier.sizeIn(maxWidth = LOGO_MAX.width, maxHeight = LOGO_MAX.height)
+                modifier = Modifier.size(LOGO_MAX)
             )
         }
+    }
+}
+
+/**
+ * The logo with its transparent margin trimmed, decoded at twice the logo box so a logo whose ink
+ * is small on its canvas stays sharp once the trimmed ink is fitted to the box.
+ */
+@Composable
+private fun rememberLogoRequest(url: String): ImageRequest {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    return remember(url, density) {
+        val widthPx = with(density) { (LOGO_MAX.width * LOGO_DECODE_FACTOR).roundToPx() }
+        val heightPx = with(density) { (LOGO_MAX.height * LOGO_DECODE_FACTOR).roundToPx() }
+        ImageRequest.Builder(context).data(url).size(widthPx, heightPx).transformations(TrimTransparentEdges).build()
     }
 }
 
@@ -343,10 +365,12 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
         HeroMode.Loading -> HERO_PLACEHOLDER_TAG
         HeroMode.Status -> HOME_STATUS_TAG
     }
+    val pillFocus = LocalNavPillState.current.focusRequester
     Button(
         onClick = onClick,
         modifier = modifier
             .size(PRIMARY_SIZE)
+            .focusProperties { up = pillFocus }
             .testTag(tag)
             .semantics {
                 if (mode == HeroMode.Loading) contentDescription = LOADING_LABEL
@@ -371,7 +395,7 @@ private fun HeroButton(mode: HeroMode, itemName: String?, onClick: () -> Unit, o
         scale = ButtonDefaults.scale(focusedScale = PRIMARY_FOCUS_SCALE),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
         border = ButtonDefaults.border(border = glassBorder, focusedBorder = Border.None, pressedBorder = Border.None),
-        contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+        contentPadding = PaddingValues(horizontal = PRIMARY_PADDING)
     ) {
         val labelColor = if (mode == HeroMode.Loading) LocalContentColor.current.copy(alpha = REDACTED_ALPHA) else LocalContentColor.current
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -441,10 +465,12 @@ private val BUTTONS_TOP = 353.dp
 private val BUTTON_ROW_HEIGHT = 34.dp
 private val PRIMARY_SIZE = DpSize(148.dp, 32.dp)
 private val PLAY_ICON = 14.dp
+private val PRIMARY_PADDING = 12.dp
 private val OVERVIEW_TO_BUTTONS = 18.5.dp
 private val META_TO_OVERVIEW = 27.5.dp
 private val LOGO_TO_META = 22.5.dp
 private val LOGO_MAX = DpSize(210.dp, 62.dp)
+private const val LOGO_DECODE_FACTOR = 2
 private val OVERVIEW_WIDTH = 280.dp
 private val META_GAP = 8.dp
 
