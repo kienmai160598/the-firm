@@ -1528,7 +1528,6 @@ internal fun PlayerRuntimeController.loadStreamsForEpisode(
 
         val targetChanged = requestKey != episodeStreamsCacheRequestKey
         episodeStreamsCacheRequestKey = requestKey
-        val previousAddonFilter = _uiState.value.episodeSelectedAddonFilter
         _uiState.update {
             it.copy(
                 showEpisodeStreams = autoPlaySettings == null,

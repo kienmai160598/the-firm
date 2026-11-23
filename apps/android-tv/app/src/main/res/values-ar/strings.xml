@@ -1566,10 +1566,6 @@
     <string name="player_go_back">رجوع</string>
     <string name="player_switch_to_mpv">التبديل إلى مشغّل MPV</string>
     <string name="player_speed_title">سرعة التشغيل</string>
-    <string name="player_more_actions_title">إجراءات إضافية</string>
-    <string name="player_more_speed">سرعة التشغيل</string>
-    <string name="player_more_aspect_ratio">نسبة العرض إلى الارتفاع</string>
-    <string name="player_more_open_external">فتح في مشغل خارجي</string>
     <string name="player_error_no_stream_url">لا يوجد رابط للمصدر</string>
 
     <!-- StreamInfoOverlay -->

@@ -1721,10 +1721,6 @@
         <item quantity="other">%1$d秒経過してもまだ読み込み中です</item>
     </plurals>
     <string name="player_speed_title">再生速度</string>
-    <string name="player_more_actions_title">その他の操作</string>
-    <string name="player_more_speed">再生速度</string>
-    <string name="player_more_aspect_ratio">アスペクト比</string>
-    <string name="player_more_open_external">外部プレーヤーで開く</string>
     <string name="player_error_no_stream_url">ストリームURLが指定されていません</string>
 
     

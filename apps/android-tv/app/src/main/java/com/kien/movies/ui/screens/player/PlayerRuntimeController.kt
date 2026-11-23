@@ -124,7 +124,6 @@ class PlayerRuntimeController(
         internal const val TAG = "PlayerViewModel"
         internal const val SWITCH_TRACE_TAG = "SwitchTrace"
         internal const val SWITCH_TRACE_ENABLED = false
-        internal const val TRACK_FRAME_RATE_GRACE_MS = 1500L
         internal const val FIRST_FRAME_TIMEOUT_MS = 12_000L
 
         // Stall watchdog: re-seeks past the buffered edge if bufferedPosition stops
@@ -463,7 +462,6 @@ class PlayerRuntimeController(
     internal var watchProgressSaveJob: Job? = null
     internal var seekProgressSyncJob: Job? = null
     internal var frameRateProbeJob: Job? = null
-    internal var frameRateProbeToken: Long = 0L
     internal val afrPreflightGate = AfrPreflightGate()
     internal var hideAspectRatioIndicatorJob: Job? = null
     internal var hideStreamSourceIndicatorJob: Job? = null
@@ -652,7 +650,6 @@ class PlayerRuntimeController(
         navigationArgs.audioDelayMs ?: 0,
         navigationArgs.audioDelayLanguage
     )
-    internal var hasAppliedRememberedAudioSelection: Boolean = false
     internal var hasInitializedAudioAmplificationForSession: Boolean = false
     internal var hasInitializedCenterMixForSession: Boolean = false
     internal var rememberAudioDelayPerDeviceEnabled: Boolean = false
@@ -671,16 +668,9 @@ class PlayerRuntimeController(
     internal var seekBufferingUiDeferred: Boolean = false
     internal val seekBufferingUiDelayMs = 1000L
 
-    internal var lastVodTelemetryRefreshTimeMs: Long = 0L
-    internal var cachedVodCacheLogState: String = "vod=warming"
     internal var bufferLogsEnabled: Boolean = false
-    internal var lastProgressUiUpdateUptimeMs: Long = 0L
-    internal var lastSkipIntervalEvaluationUptimeMs: Long = 0L
-    internal var lastNextEpisodeEvaluationUptimeMs: Long = 0L
-    internal var bufferLogJob: Job? = null
     internal val gainAudioProcessor = GainAudioProcessor()
     internal val nightModeAudioProcessor = NightModeAudioProcessor()
-    internal var loudnessEnhancer: LoudnessEnhancer? = null
     internal var trackSelector: DefaultTrackSelector? = null
     internal var currentMediaSession: MediaSession? = null
     internal var mpvMediaSessionPlayer: MpvMediaSessionPlayer? = null

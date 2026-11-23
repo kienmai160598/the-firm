@@ -1041,10 +1041,6 @@
     <string name="player_error_title">Napaka pri predvajanju</string>
     <string name="player_go_back">Nazaj</string>
     <string name="player_speed_title">Hitrost predvajanja</string>
-    <string name="player_more_actions_title">Več dejanj</string>
-    <string name="player_more_speed">Hitrost predvajanja</string>
-    <string name="player_more_aspect_ratio">Razmerje stranic</string>
-    <string name="player_more_open_external">Odpri v zunanjem predvajalniku</string>										   
 	<!-- StreamInfoOverlay -->						  
 	<string name="stream_info_section_source">VIR</string>
     <string name="stream_info_section_file">DATOTEKA</string>

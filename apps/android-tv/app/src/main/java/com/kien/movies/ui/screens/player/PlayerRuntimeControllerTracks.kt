@@ -531,10 +531,6 @@ private fun Tracks.hasSelectedAssSsaTextTrack(): Boolean {
     return false
 }
 
-// Profile 7 only: it's the profile AUTO conversion rewrites. DV5/DV8 don't convert, so they
-// shouldn't trigger a libass-drop reload.
-private val DV_PROFILE_7_CODEC = Regex("^(dvhe|dvh1|dvav|dva1)\\.0?7\\.")
-
 private val DV_CODEC_PREFIX = Regex("^(dvhe|dvh1|dvav|dva1|dav1)\\.")
 
 /**
@@ -580,17 +576,6 @@ internal fun Format.hevcSpsColorTransfer(): Int? {
         }
     }
     return null
-}
-
-private fun Tracks.hasDolbyVisionProfile7VideoTrack(): Boolean {
-    groups.forEach { trackGroup ->
-        if (trackGroup.type != C.TRACK_TYPE_VIDEO) return@forEach
-        for (index in 0 until trackGroup.length) {
-            val codec = trackGroup.getTrackFormat(index).codecs?.lowercase(Locale.US).orEmpty()
-            if (DV_PROFILE_7_CODEC.containsMatchIn(codec)) return true
-        }
-    }
-    return false
 }
 
 // Profiles that the DolbyVisionExtractorsFactory actually converts (7 always, 5 when enabled).
@@ -2108,79 +2093,6 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
         maybeRunAutomaticSubtitleSync(addonMatch) // AutoSync hook
     } else {
         Log.d(PlayerRuntimeController.TAG, "AUTO_SUB no addon match for targets=$targets")
-    }
-}
-
-internal fun PlayerRuntimeController.startFrameRateProbe(
-    url: String,
-    headers: Map<String, String>,
-    frameRateMatchingEnabled: Boolean,
-    preserveCurrentDetection: Boolean = false,
-    allowAmbiguousTrackOverride: Boolean = false
-) {
-    frameRateProbeJob?.cancel()
-    _uiState.update { state ->
-        if (!preserveCurrentDetection) {
-            state.clearFrameRateDetection().copy(afrProbeRunning = false)
-        } else {
-            state.copy(afrProbeRunning = false)
-        }
-    }
-    if (!frameRateMatchingEnabled) return
-
-    val token = ++frameRateProbeToken
-    frameRateProbeJob = scope.launch(Dispatchers.IO) {
-        try {
-            delay(PlayerRuntimeController.TRACK_FRAME_RATE_GRACE_MS)
-            if (!isActive) return@launch
-            val stateSnapshot = withContext(Dispatchers.Main) { _uiState.value }
-            val trackAlreadySet = stateSnapshot.detectedFrameRateSource == FrameRateSource.TRACK &&
-                stateSnapshot.detectedFrameRate > 0f
-            if (trackAlreadySet) {
-                if (!allowAmbiguousTrackOverride) return@launch
-
-                val trackRaw = if (stateSnapshot.detectedFrameRateRaw > 0f) {
-                    stateSnapshot.detectedFrameRateRaw
-                } else {
-                    stateSnapshot.detectedFrameRate
-                }
-                if (!PlayerFrameRateHeuristics.isAmbiguousCinema24(trackRaw)) return@launch
-            }
-
-            withContext(Dispatchers.Main) {
-                if (token == frameRateProbeToken) {
-                    _uiState.update { it.copy(afrProbeRunning = true) }
-                }
-            }
-
-            val detection = FrameRateUtils.detectFrameRateFromSource(context, url, headers)
-                ?: return@launch
-            if (!isActive) return@launch
-            withContext(Dispatchers.Main) {
-                if (token == frameRateProbeToken) {
-                    val state = _uiState.value
-                    val shouldApplyInitial = state.detectedFrameRate <= 0f
-                    val shouldOverrideAmbiguousTrack = allowAmbiguousTrackOverride &&
-                        PlayerFrameRateHeuristics.shouldProbeOverrideTrack(state, detection)
-
-                    if (shouldApplyInitial || shouldOverrideAmbiguousTrack) {
-                        _uiState.update {
-                            it.copy(
-                                detectedFrameRateRaw = detection.raw,
-                                detectedFrameRate = detection.snapped,
-                                detectedFrameRateSource = FrameRateSource.PROBE
-                            )
-                        }
-                    }
-                }
-            }
-        } finally {
-            withContext(NonCancellable + Dispatchers.Main) {
-                if (token == frameRateProbeToken) {
-                    _uiState.update { it.copy(afrProbeRunning = false) }
-                }
-            }
-        }
     }
 }
 

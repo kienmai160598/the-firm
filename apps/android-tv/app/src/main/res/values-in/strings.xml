@@ -1191,10 +1191,6 @@
     <string name="player_error_title">Error Pemutaran</string>
     <string name="player_go_back">Kembali</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
-    <string name="player_more_actions_title">Aksi Lainnya</string>
-    <string name="player_more_speed">Kecepatan Pemutaran</string>
-    <string name="player_more_aspect_ratio">Rasio Aspek</string>
-    <string name="player_more_open_external">Buka di Pemutar Eksternal</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">SUMBER</string>

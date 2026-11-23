@@ -1887,8 +1887,6 @@ internal object AutomaticSubtitleSync {
         .sortedBy { it.key.lowercase() }
         .map { (key, value) -> key.lowercase() to value }
 
-    private fun fmt(value: Double): String = "%.4f".format(value)
-
     private data class ParsedSubtitleCacheKey(
         val url: String,
         val headers: List<Pair<String, String>>

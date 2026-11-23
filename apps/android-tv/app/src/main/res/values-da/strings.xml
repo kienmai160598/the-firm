@@ -1255,10 +1255,6 @@
     <string name="player_error_title">Afspilningsfejl</string>
     <string name="player_go_back">Gå tilbage</string>
     <string name="player_speed_title">Afspilningshastighed</string>
-    <string name="player_more_actions_title">Flere handlinger</string>
-    <string name="player_more_speed">Afspilningshastighed</string>
-    <string name="player_more_aspect_ratio">Billedformat</string>
-    <string name="player_more_open_external">Åbn i ekstern afspiller</string>
     <string name="player_error_no_stream_url">Ingen stream-URL angivet</string>
 
 

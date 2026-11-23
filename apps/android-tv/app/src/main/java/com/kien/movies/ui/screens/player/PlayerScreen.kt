@@ -4685,62 +4685,6 @@ private fun SpeedSelectionDialog(
 }
 
 @Composable
-private fun MoreActionsDialog(
-    onPlaybackSpeed: () -> Unit,
-    onToggleAspectRatio: () -> Unit,
-    onOpenInExternalPlayer: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .width(360.dp)
-                .clip(PlayerSurfaceStyle.cardShape())
-                .background(MoviesTheme.colors.BackgroundElevated)
-        ) {
-            Column(
-                modifier = Modifier.padding(MoviesTheme.spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.player_more_actions_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MoviesTheme.colors.TextPrimary,
-                    modifier = Modifier.padding(bottom = MoviesTheme.spacing.sm)
-                )
-
-                MoreActionItem(
-                    text = stringResource(R.string.player_more_speed),
-                    onClick = onPlaybackSpeed
-                )
-                MoreActionItem(
-                    text = stringResource(R.string.player_more_aspect_ratio),
-                    onClick = onToggleAspectRatio
-                )
-                MoreActionItem(
-                    text = stringResource(R.string.player_more_open_external),
-                    onClick = onOpenInExternalPlayer
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MoreActionItem(text: String, onClick: () -> Unit) {
-    MoviesCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(horizontal = MoviesTheme.spacing.lg, vertical = 14.dp)
-        )
-    }
-}
-
-@Composable
 private fun SpeedItem(
     modifier: Modifier = Modifier,
     speed: Float,

@@ -1249,10 +1249,6 @@
     <string name="player_error_title">Помилка відтворення</string>
     <string name="player_go_back">Назад</string>
     <string name="player_speed_title">Швидкість відтворення</string>
-    <string name="player_more_actions_title">Додаткові дії</string>
-    <string name="player_more_speed">Швидкість відтворення</string>
-    <string name="player_more_aspect_ratio">Співвідношення сторін</string>
-    <string name="player_more_open_external">Відкрити у зовнішньому плеєрі</string>
     <string name="player_error_no_stream_url">URL потоку не надано</string>
 
 

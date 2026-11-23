@@ -1782,10 +1782,6 @@
         <item quantity="other">Ainda a carregar após %1$d segundos</item>
     </plurals>
     <string name="player_speed_title">Velocidade de reprodução</string>
-    <string name="player_more_actions_title">Mais ações</string>
-    <string name="player_more_speed">Velocidade de reprodução</string>
-    <string name="player_more_aspect_ratio">Formato de imagem</string>
-    <string name="player_more_open_external">Abrir num leitor externo</string>
     <string name="player_error_no_stream_url">Nenhum URL de transmissão fornecido</string>
 
 

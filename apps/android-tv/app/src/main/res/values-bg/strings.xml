@@ -1698,10 +1698,6 @@
             <item quantity="other">Все още се зарежда след %1$d секунди</item>
         </plurals>
     <string name="player_speed_title">Скорост на възпроизвеждане</string>
-    <string name="player_more_actions_title">Още действия</string>
-    <string name="player_more_speed">Скорост на възпроизвеждане</string>
-    <string name="player_more_aspect_ratio">Съотношение на страните</string>
-    <string name="player_more_open_external">Отваряне във външен плейър</string>
     <string name="player_error_no_stream_url">Не е предоставен URL адрес на източника</string>
     
     

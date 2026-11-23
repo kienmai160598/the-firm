@@ -18,19 +18,3 @@ internal fun AutoSyncCandidateScope.searchAfterSelectedFailed(
     // Nothing in the video to compare with: other subtitles cannot fit either.
     outcome != AutoSyncAnalysisOutcome.NO_SUBTITLE_TRACKS &&
     outcome != AutoSyncAnalysisOutcome.NO_USABLE_REFERENCE
-
-internal fun decideAutoSyncStart(enabled: Boolean): AutoSyncStartAction = if (enabled) AutoSyncStartAction.RUN else AutoSyncStartAction.ATTACH_ORIGINAL
-
-internal enum class AutoSyncStartAction {
-    RUN,
-    ATTACH_ORIGINAL
-}
-
-internal fun AutoSyncCandidateScope.alternativeCandidates(
-    candidates: List<AutoSyncSubtitleCandidate>
-): List<AutoSyncSubtitleCandidate> = if (this == AutoSyncCandidateScope.STARTUP_SEARCH) candidates else emptyList()
-
-internal val AutoSyncCandidateScope.usesAlternativeProvider: Boolean
-    get() = this == AutoSyncCandidateScope.STARTUP_SEARCH
-
-internal fun shouldRestoreOriginalSubtitle(activeSidecarSubtitleKey: String?): Boolean = activeSidecarSubtitleKey == null

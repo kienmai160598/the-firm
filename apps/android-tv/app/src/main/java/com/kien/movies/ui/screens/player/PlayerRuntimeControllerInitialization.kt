@@ -92,7 +92,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 private const val MPV_AFR_SETTLE_DELAY_MS = 2_000L
-private const val AUDIO_DELAY_REFRESH_DEBOUNCE_MS = 120L
 private const val PLAYER_RELEASE_TIMEOUT_MS = 3000L
 private const val PLAYER_REBUILD_SETTLE_DELAY_MS = 120L
 private const val ADAPTIVE_QUALITY_INCREASE_MIN_DURATION_MS = 2_000
@@ -3048,15 +3047,6 @@ private fun createDolbyVisionFallbackCodecSelector(
     return MediaCodecSelector.DEFAULT
 }
 
-private fun describeExtensionRendererMode(mode: Int): String {
-    return when (mode) {
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF -> "off"
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON -> "on"
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER -> "prefer"
-        else -> mode.toString()
-    }
-}
-
 private fun DefaultRenderersFactory.applyMapDv7ToHevcIfSupported(
     enabled: Boolean
 ): DefaultRenderersFactory {
@@ -3151,8 +3141,6 @@ private fun PlayerRuntimeController.recordFirstFrameDiagnostics(
     val sourceProfile = DolbyVisionConversionStats.getLastSourceProfile()
         ?: parseDvProfileFromCodecString(currentVideoTrackCodecs)
     val conversionMode = DolbyVisionConversionStats.getLastSelectedConversionMode()
-    val conversionAttempted =
-        hasAttemptedDv7ToDv81ForCurrentPlayback || conversionCalls > 0 || signalingRewrites > 0
     if (pendingSeekTelemetryAwaitingFirstFrame && pendingSeekTelemetryRequestedAtMs > 0L) {
         pendingSeekTelemetryRequestedAtMs = 0L
         pendingSeekTelemetryTargetMs = -1L

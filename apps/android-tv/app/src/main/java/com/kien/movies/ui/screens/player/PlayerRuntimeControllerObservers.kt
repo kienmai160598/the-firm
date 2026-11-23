@@ -891,9 +891,6 @@ internal fun PlayerRuntimeController.cancelStallWatchdog() {
     stallWatchdogJob = null
 }
 
-/** Tiny skip past the buffered edge to force Media3 to cancel the in-flight Range request. */
-private val STALL_WATCHDOG_SKIP_PAST_BUFFERED_MS = PlayerStallWatchdogPolicy.SKIP_PAST_BUFFERED_MS
-
 /** Re-seeks past the buffered edge when bufferedPosition stops advancing during buffering. */
 internal fun PlayerRuntimeController.maybeScheduleStallWatchdog() {
     if (stallWatchdogJob?.isActive == true) return
