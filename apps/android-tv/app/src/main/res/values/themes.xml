@@ -5,5 +5,5 @@
         <item name="android:windowBackground">@color/window_background</item>
         <item name="android:windowNoTitle">true</item>
     </style>
-    <color name="window_background">#FF000000</color>
+    <color name="window_background">#FF24282E</color>
 </resources>
