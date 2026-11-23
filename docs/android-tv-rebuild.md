@@ -475,7 +475,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | N5 | Library and Settings show a placeholder that holds focus |
 | H1 | Hero shows up to 6 items of the first row that have a backdrop; arrows change the item; it advances every 8 s only while unfocused |
 | H2 | Catalog rows scroll sideways with the next card partly visible |
-| H3 | Loading, empty and error states are laid out and focusable |
+| H3 | Loading, empty and error states are laid out and focusable. Android: the empty and error status holds an "Open Addons" button so focus has a target; tvOS has no button there and could get the same |
 | H4 | A Continue Watching card resumes without asking |
 | H5 | Removing a card moves focus to its neighbour and the card stays gone after relaunch |
 | H6 | Finishing an episode shows Next Up on Home and on Details |
@@ -523,7 +523,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | A1 Shared API folder | Move the `Tvos*` API and mappings from `apple-tv-bridge/src/tvosMain` to `shared/tv-api`. No behaviour change | none | `make shared-test` and `make apple-tv-sim` pass, UI tests unchanged |
 | A2 Android bridge and bare app | `:androidTvShared` with its exclusion list and `TvRuntime.init`; `:androidTvApp` with a leanback manifest, banner, `box` build type; one Activity that lists Home row titles as text. `make lint`, `make format` and `make android-tv-test` point at the new sources. Timebox it (suggested: two working days); if the exclusion list does not close, take the fallback in section 9 | X1 partly | Round trip in two instrumentation runs with `adb shell am force-stop` between them: run one installs the test addon and saves progress, run two reads both back. `:androidTvApp:dependencies` for the `box` build shows no alpha or beta Compose artifact. `make android-tv`, `make box-install`, row titles visible on the box. Init guard script in `make check` |
 | A3 Shell | Tokens, theme, `Router`, `AppRoute`, sidebar with five tabs, placeholders, debug launch extras that mirror `DebugLaunch.swift` | N2, N5 | UI test: every tab reachable, Back exits. Screenshot check of the four edges |
-| A4 Home rows | `HomeViewModel`, `CatalogRow`, `PosterCard`, `HomeStatus`, focus restore per row, semantics pruning, key throttle | H2, H3 | UI test for states and focus; first `measure.sh` run of the new Home recorded |
+| A4 Home rows | `HomeViewModel`, `CatalogRow`, `PosterCard`, `HomeStatus`, focus restore per row (`HomeFocusMemory`: the shell restores one focus level only), semantics pruning, key throttle | H2, H3 | UI test for states and focus; first `measure.sh` run of the new Home recorded |
 | A5 Hero and Continue Watching | `HomeHero`, page indicator, `ContinueWatchingRow`, Upcoming row, remove with neighbour focus | N1, N3, H1, H4 partly, H5 | Port `RowNeighborTests`; UI tests from `NavigationTests` and `ContinueWatchingTests`; `measure.sh` against the gate |
 | A6 Details | `DetailsViewModel`, hero, play action, resume bar, season picker, episode shelf, cast, information, backdrop | D1 to D5 | UI tests for resume label, season focus, states; `measure.sh` details numbers |
 | A7 Streams | `StreamsViewModel`, header, group list, rows, `StreamFeatures`, empty and loading views, info sheet, resume dialog | N4, S1 to S5 | Port `StreamFeaturesTests`; UI test for Back restoring the card |

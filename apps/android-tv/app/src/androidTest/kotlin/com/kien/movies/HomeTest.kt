@@ -1,0 +1,140 @@
+package com.kien.movies
+
+import android.view.KeyEvent
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onRoot
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.kien.movies.home.CONTINUE_WATCHING_CARD_TAG
+import com.kien.movies.home.HERO_BUTTON_TAG
+import com.kien.movies.home.HERO_PLACEHOLDER_TAG
+import com.kien.movies.home.HOME_STATUS_TAG
+import com.kien.movies.home.POSTER_CARD_TAG
+import com.kien.movies.shell.RootTab
+import com.kien.movies.shell.tabTag
+import com.kien.movies.support.TvRobot
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * Home's ACs (docs/android-tv-rebuild.md, section 6), from apps/apple-tv/UITests/NavigationTests.
+ * Catalogs come from the default addon over the network: a test that needs the featured hero is
+ * skipped when Home ends on its status instead.
+ */
+@RunWith(AndroidJUnit4::class)
+class HomeTest {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private val tv = TvRobot(compose)
+
+    @After
+    fun closeApp() = tv.close()
+
+    /** N1: launch puts focus on the hero button of Home, not in the sidebar. */
+    @Test
+    fun n1_launchFocusesTheHeroButton() {
+        launchUntilHomeLoaded()
+
+        tv.assertFocusedTag(HERO_BUTTON_TAG)
+    }
+
+    /** H3: from the first frame, loading and then loaded or status, one Home element has focus. */
+    @Test
+    fun h3_everyHomeStateHoldsFocus() {
+        tv.launch()
+        tv.awaitFocus(heroSlot, TvRobot.DEFAULT_TIMEOUT_MS)
+
+        tv.await(hasTestTag(HERO_BUTTON_TAG) or hasTestTag(HOME_STATUS_TAG) or hasTestTag(POSTER_CARD_TAG))
+
+        tv.awaitFocus(heroSlot or hasTestTag(POSTER_CARD_TAG) or hasTestTag(CONTINUE_WATCHING_CARD_TAG))
+    }
+
+    /** H1: right and left on the hero button change the featured item and come back. */
+    @Test
+    fun h1_heroArrowsChangeTheItem() {
+        launchUntilHomeLoaded()
+        tv.assertFocusedTag(HERO_BUTTON_TAG)
+        val first = focused().stateDescription
+        tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
+        val second = focused().stateDescription
+        assumeTrue("The hero has one item", second != first)
+
+        tv.press(KeyEvent.KEYCODE_DPAD_LEFT)
+
+        tv.assertFocusedTag(HERO_BUTTON_TAG)
+        assertEquals(first, focused().stateDescription)
+    }
+
+    /** N3: left from the first hero item opens the sidebar; right comes back; down reaches the first row. */
+    @Test
+    fun n3_leftFromTheHeroOpensTheSidebarAndDownReachesTheFirstRow() {
+        launchUntilHomeLoaded()
+        tv.assertFocusedTag(HERO_BUTTON_TAG)
+        val item = focused().stateDescription
+
+        tv.press(KeyEvent.KEYCODE_DPAD_LEFT)
+        tv.assertFocusedTag(tabTag(RootTab.Home))
+        tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
+        tv.assertFocusedTag(HERO_BUTTON_TAG)
+        assertEquals("Right from the sidebar changed the item", item, focused().stateDescription)
+
+        tv.down()
+
+        tv.awaitFocus(hasTestTag(POSTER_CARD_TAG) or hasTestTag(CONTINUE_WATCHING_CARD_TAG))
+    }
+
+    /** H2: a catalog row scrolls sideways with the next card partly visible, and keeps its card. */
+    @Test
+    fun h2_rowFocusRestoresAndTheNextCardShowsPartly() {
+        launchUntilHomeLoaded()
+        repeat(MAX_ROWS) { if (!focusedHas(POSTER_CARD_TAG)) tv.down() }
+        tv.awaitFocus(hasTestTag(POSTER_CARD_TAG))
+        repeat(3) { tv.press(KeyEvent.KEYCODE_DPAD_RIGHT) }
+        val card = focused()
+        val screenWidth = compose.onRoot().fetchSemanticsNode().size.width
+
+        val rowCards = compose.onAllNodes(hasTestTag(POSTER_CARD_TAG)).fetchSemanticsNodes()
+            .filter { node -> node.boundsInRoot.top == card.boundsInRoot.top }
+        tv.down()
+        tv.press(KeyEvent.KEYCODE_DPAD_UP)
+
+        assertTrue("No card cut by the right edge", rowCards.any { node -> node.boundsInRoot.left < screenWidth && node.boundsInRoot.right > screenWidth })
+        tv.awaitFocus(hasTestTag(POSTER_CARD_TAG))
+        assertNotEquals(null, card.contentDescription)
+        assertEquals(card.contentDescription, focused().contentDescription)
+    }
+
+    private val heroSlot: SemanticsMatcher = hasTestTag(HERO_PLACEHOLDER_TAG) or hasTestTag(HERO_BUTTON_TAG) or hasTestTag(HOME_STATUS_TAG)
+
+    private fun launchUntilHomeLoaded() {
+        tv.launch()
+        tv.await(hasTestTag(HERO_BUTTON_TAG) or hasTestTag(HOME_STATUS_TAG))
+        assumeTrue("Home has no featured row (no network?)", compose.onAllNodes(hasTestTag(HERO_BUTTON_TAG)).fetchSemanticsNodes().isNotEmpty())
+    }
+
+    private fun focused(): SemanticsNode = compose.onNode(isFocused()).fetchSemanticsNode()
+
+    private fun focusedHas(tag: String): Boolean = compose.onAllNodes(isFocused() and hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+
+    private val SemanticsNode.stateDescription: String?
+        get() = config.getOrNull(SemanticsProperties.StateDescription)
+
+    private val SemanticsNode.contentDescription: String?
+        get() = config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString()
+
+    private companion object {
+        const val MAX_ROWS = 4
+    }
+}
