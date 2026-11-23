@@ -148,7 +148,6 @@
     <string name="cw_percent_watched">%1$d%% נצפה</string>
     <string name="cw_hours_min_left">נותרו %1$d ש׳ %2$d דק׳</string>
     <string name="cw_min_left">נותרו %1$d דק׳</string>
-    <string name="cw_almost_done">כמעט סיימת</string>
     <string name="cw_airs_date">שידור ב-%1$s</string>
     <string name="cw_airs_today">עולה היום</string>
     <string name="cw_airs_tomorrow">עולה מחר</string>
@@ -180,7 +179,6 @@
     <string name="hero_director">בימוי: %1$s</string>
     <string name="hero_writer">כתיבה: %1$s</string>
     <string name="hero_play">הפעלה</string>
-    <string name="hero_play_episode">הפעלת S%1$d, E%2$d</string>
     <string name="hero_add_to_library">הוספה לספרייה</string>
     <string name="hero_remove_from_library">הסרה מהספרייה</string>
     <string name="hero_mark_watched">סימון כנצפה</string>
@@ -189,7 +187,6 @@
     <string name="hero_press_back_trailer">יש ללחוץ חזרה כדי לצאת מהטריילר</string>
     <string name="hero_synopsis_read_more">להמשיך לקרוא</string>
     <string name="hero_synopsis_dismiss_hint">יש ללחוץ חזרה כדי לסגור</string>
-    <string name="cd_rating">דירוג</string>
 
     <string name="episodes_season">עונה %1$d</string>
     <string name="episodes_specials">מיוחדים</string>
@@ -251,10 +248,8 @@
     <string name="detail_section_production">הפקה</string>
     <string name="detail_comments_empty">אין עדיין ביקורות מ-Trakt.</string>
     <string name="detail_comments_error">לא ניתן לטעון כרגע ביקורות מ-Trakt.</string>
-    <string name="detail_trailer_loading">טוען טריילר…</string>
     <string name="detail_trailer_error">לא ניתן לטעון טריילר כרגע. תסתפקו בדימיון.</string>
     <string name="detail_comments_spoiler_hidden">הביקורת מכילה ספוילר. יש ללחוץ על אישור כדי לחשוף.</string>
-    <string name="detail_comments_reveal_spoiler">חשיפת הספוילר</string>
     <string name="detail_comments_reveal_spoiler_hint">יש ללחוץ על אישור כדי לחשוף את הספוילר.</string>
     <string name="detail_comments_back_hint">יש ללחוץ חזרה כדי לסגור</string>
     <string name="detail_comments_badge_review">ביקורת</string>
@@ -430,10 +425,7 @@
     <string name="update_channel_dialog_subtitle">בחירת סוג העדכונים הרצוי לקבלה</string>
     <string name="update_channel_stable_description">מיועד לשימוש יומיומי.</string>
     <string name="update_channel_beta_description">עדכונים מוקדמים שעלולים לכלול תקלות, לפגוע בתכונות או להתנהג בצורה לא צפויה.</string>
-    <string name="about_privacy_policy">מדיניות פרטיות</string>
-    <string name="about_privacy_policy_subtitle">צפייה במדיניות הפרטיות שלנו</string>
     <string name="support_nuvio_name">תמיכה ב-Movies</string>
-    <string name="about_supporters_contributors">תומכים ותורמים</string>
     <string name="about_supporters_contributors_subtitle">הכרה ציבורית וקרדיטים לפרויקט</string>
     <string name="about_licenses_attributions">רישיונות וקרדיטים</string>
     <string name="about_licenses_attributions_subtitle">מקורות מידע, תודות ורישיונות Android</string>
@@ -477,11 +469,8 @@
     <string name="settings_content_discovery_subtitle">תוספים, פלאגינים, קטלוגים ומקורות גילוי</string>
     <string name="settings_content_discovery_addons_subtitle">ניהול תוספים, סדר קטלוג ואוספים</string>
     <string name="settings_content_discovery_plugins_subtitle">ניהול מאגרים וספקי מקורות</string>
-    <string name="settings_plugins">פלאגינים</string>
-    <string name="settings_plugins_subtitle">מאגרים וספקים</string>
     <string name="settings_integration">אינטגרציות</string>
     <string name="settings_playback">הפעלה</string>
-    <string name="settings_trakt_subtitle">פתיחת מסך החיבור ל-Trakt</string>
     <string name="settings_tracking_title">מעקב</string>
     <string name="settings_tracking_description">יש לחבר ספקי מעקב ולבחור איזה מהם מפעיל את הספרייה והמשך הצפייה שלך.</string>
     <string name="tracking_accounts_title">חשבונות</string>
@@ -509,8 +498,6 @@
     <string name="tracking_trakt_progress_required">זמין כאשר Trakt הוא מקור התקדמות הצפייה</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">מהירות רשת</string>
-    <string name="settings_network_subtitle">אבחון זמן תגובה ומהירות הורדה</string>
     <string name="settings_advanced">מתקדם</string>
     <string name="settings_advanced_subtitle">הפעלת אבחון מהירות רשת</string>
     <string name="experience_mode_essential">בסיסי</string>
@@ -618,19 +605,10 @@
     <string name="advanced_section_dv_diagnostics">אבחון DV</string>
     <string name="advanced_fast_horizontal_navigation">ניווט אופקי מהיר</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">הגברת מהירות הניווט בלחיצה ממושכת על מקשי הכיוון בשורות התוכן.</string>
-    <string name="advanced_nuvio_performance_mode">זיכרון נייטיבי של ExoPlayer</string>
-    <string name="advanced_nuvio_performance_mode_subtitle">מפעיל הקצאת זיכרון נייטיבית בביצועים גבוהים, זיכרון מחוץ לערימה ואופטימיזציות רשת להפעלה חלקה יותר</string>
-    <string name="buffer_device_ram_info">זיכרון RAM של המכשיר: %s</string>
-    <string name="buffer_safe_limit_info">מגבלה בטוחה מומלצת: %d MB</string>
-    <string name="buffer_safe_status">בטוח: בתוך המגבלה המומלצת עבור המכשיר שלך.</string>
-    <string name="buffer_unsafe_warning">אזהרה: חורג מהמגבלה הבטוחה המומלצת (%1$d MB) עבור מכשיר %2$s שלך. עלול לגרום לקריסות באפליקציה.</string>
-    <string name="buffer_auto_limit_active">מגבלה בטוחה בקנה מידה אוטומטי: %d MB</string>
     <string name="advanced_nuvio_focus_scroll">גלילת מיקוד של Movies</string>
     <string name="advanced_nuvio_focus_scroll_subtitle">שימוש באנימציית גלילת המיקוד הגלובלית המותאמת אישית של Movies ובמיקום שלה.</string>
     <string name="advanced_rgb565">פענוח תמונות RGB565</string>
     <string name="advanced_rgb565_subtitle">שימוש בצבע 16-סיביות בעל צריכת זיכרון נמוכה יותר עבור תמונות אטומות מתאימות. שינוי הגדרה זו מפעיל מחדש את האפליקציה.</string>
-    <string name="advanced_memory_only_vertical_scroll">גלילה אנכית מהזיכרון בלבד</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">דילוג על בקשות תמונה מהדיסק ומהרשת בעת גלילה אנכית בשורות דף הבית.</string>
     <string name="advanced_compose_highlighter">מדגיש Compose</string>
     <string name="advanced_compose_highlighter_subtitle">הבהב מסגרות סביב רכיבי ממשק המורכבים מחדש לצורך ניפוי ביצועים.</string>
     <string name="advanced_clear_cw_cache">ניקוי מטמון \"המשך צפייה\"</string>
@@ -642,7 +620,6 @@
     <string name="advanced_confirm_exit_subtitle">יציאה מהאפליקציה לחלוטין ושחרור זיכרון ביציאה. דורש לחיצה כפולה על חזרה כדי לאשר.</string>
     <string name="confirm_exit_toast">יש ללחוץ שוב על חזרה כדי לצאת</string>
     <string name="settings_debug">ניפוי שגיאות</string>
-    <string name="settings_plugins_section_subtitle">ניהול מאגרים, ספקים ומצבי פלאגינים</string>
     <string name="settings_account_section_subtitle">חשבון וסטטוס סנכרון</string>
     <string name="account_stat_addons">תוספים</string>
     <string name="account_stat_plugins">פלאגינים</string>
@@ -668,18 +645,6 @@
     <string name="action_back">חזרה</string>
     <string name="action_close">סגירה</string>
 
-    <string name="supporters_contributors_title">תומכים ותורמים</string>
-    <string name="supporters_contributors_subtitle">האנשים שתומכים ב-Movies והתורמים הבונים אותו בטלוויזיה ובנייד.</string>
-    <string name="supporters_contributors_supporters_copy">תומכים ותורמים עוזרים לשמור את הפרויקט בתנועה, מממנים תשתיות ומאפשרים פיצ׳רים שאפתניים.</string>
-    <string name="supporters_contributors_donate_copy">Movies יישאר חינמי וקוד פתוח. תמיכה בפרויקט מסייעת לכסות את הזמן והתשתית שמאחוריו.</string>
-    <string name="supporters_contributors_donation_progress_title">שרת ותחזוקה לחודש זה</string>
-    <string name="supporters_contributors_donation_progress_complete">מכוסה. תמיכה נוספת תלך כעת לפיתוח.</string>
-    <string name="supporters_contributors_donation_progress_remaining">לאחר 100%, תמיכה נוספת הולכת לפיתוח.</string>
-    <string name="supporters_contributors_loading_donation_progress">טוען התקדמות מימון…</string>
-    <string name="supporters_contributors_donate_button">תרומה ל-Movies</string>
-    <string name="supporters_contributors_qr_title">סריקה לתרומה</string>
-    <string name="supporters_contributors_qr_subtitle">יש לפתוח את הקישור בטלפון כדי לתמוך ב-Movies.</string>
-    <string name="supporters_contributors_qr_hint">יש לכוון את המצלמה לקוד ה-QR או להשתמש בכפתור למטה.</string>
     <string name="supporters_contributors_back_button">חזרה לפרטים</string>
     <string name="supporter_membership_title">מנויים תומכי Movies</string>
     <string name="supporter_membership_description">תמיכה ב-Movies מסייעת לכסות תשתית ופיתוח מתמשך, תוך שמירה על החוויה המרכזית חינמית לכולם.</string>
@@ -707,7 +672,6 @@
     <string name="supporters_loading">טוען תומכים…</string>
     <string name="supporters_empty">עדיין לא נמצאו תומכים.</string>
     <string name="supporters_error_title">לא ניתן לטעון תומכים</string>
-    <string name="supporters_no_message">לא שותפה הודעה.</string>
     <string name="supporters_level_supporter">תומך</string>
     <string name="supporters_level_supporter_plus">תומך+</string>
     <string name="supporters_since">תומך ב-Movies מאז %1$s</string>
@@ -722,7 +686,6 @@
     <string name="contributors_loading">טוען תורמי GitHub…</string>
     <string name="contributors_empty">עדיין לא נמצאו תורמים.</string>
     <string name="contributors_error_title">לא ניתן לטעון תורמים</string>
-    <string name="contributors_total_contributions">%1$d תרומות סה״כ</string>
     <string name="contributors_open_github">פתיחת פרופיל GitHub</string>
     <string name="contributors_show_kofi_qr">הצגת קוד QR של Ko-fi</string>
     <string name="contributors_hide_kofi_qr">הסתרת קוד QR של Ko-fi</string>
@@ -828,7 +791,6 @@
     <string name="playback_exo_chapters_sub">קריאת המקטעים של קובצי MKV כדי לסמן אותם בסרגל ההתקדמות ולדלג ביניהם.</string>
     <string name="playback_chapter_title_title">הצגת שם המקטע</string>
     <string name="playback_chapter_title_sub">הצגת שם המקטע הנוכחי מעל סרגל ההתקדמות.</string>
-    <string name="audio_trailer_section">טריילר</string>
     <string name="audio_autoplay_trailers">הפעלה אוטומטית של טריילרים</string>
     <string name="audio_autoplay_trailers_sub">הפעלת טריילרים אוטומטית במסך הפרטים לאחר תקופת חוסר פעילות</string>
     <string name="audio_trailer_delay">עיכוב לפני הפעלת הטריילר</string>
@@ -919,7 +881,6 @@
     <string name="audio_decoder_prefer_app_desc">שימוש במפענחי FFmpeg כשזמינים. תמיכה טובה יותר בפורמטים אך שימוש גבוה יותר במעבד.</string>
     <string name="audio_decoder_controls">קובע אם מפענחי חומרה או תוכנה (FFmpeg) ישמשו לשמע ולווידאו</string>
 
-    <string name="sub_section">כתוביות</string>
     <string name="sub_not_set">לא הוגדר</string>
     <string name="sub_forced_lang">כפוי</string>
     <string name="sub_preferred_lang">שפה מועדפת</string>
@@ -930,7 +891,6 @@
     <string name="sub_show_only_preferred_languages_desc">הסתרת כל שאר שפות הכתוביות מרשימת הבחירה</string>
     <string name="sub_strip_sdh">הסרת כתוביות SDH</string>
     <string name="sub_strip_sdh_desc">הסתרת תיאורי קול ותוויות דוברים מכתוביות טקסט</string>
-    <string name="sub_organization">ארגון כתוביות</string>
     <string name="sub_size">גודל</string>
     <string name="sub_vertical_offset">מרווח אנכי</string>
     <string name="sub_bold">מודגש</string>
@@ -971,7 +931,6 @@
     <string name="sub_advanced_section">הצגת כתוביות מתקדמת</string>
     <string name="sub_libass">שימוש ב-libass לכתוביות ASS/SSA</string>
     <string name="sub_libass_sub">ניסיוני: תמיכה בכתוביות עם עיצוב מיוחד, כמו אנימציות ומיקום משתנה על המסך</string>
-    <string name="sub_libass_mode">אופן הצגת הכתוביות המעוצבות</string>
     <string name="sub_libass_render_scale">רזולוציית עיבוד כתוביות</string>
     <string name="sub_libass_render_scale_sub">רזולוציה נמוכה יותר משפרת ביצועים בכתוביות מורכבות, במחיר של חדות נמוכה יותר</string>
     <string name="sub_libass_render_mode">מצב עיבוד ASS</string>
@@ -981,12 +940,6 @@
     <string name="sub_libass_render_mode_video_effect_sub">מצייר כתוביות ישירות על כל פריים של הווידאו. תזמון מדויק לפריים בכל החומרה. תוכן HDR עובר מיפוי גוונים ל-SDR.</string>
     <string name="sub_libass_render_mode_overlay">שכבת-על</string>
     <string name="sub_libass_render_mode_overlay_sub">מעבד כתוביות על שכבת משטח נפרדת. שומר על פלט HDR. תזמון הכתוביות עשוי לא להיות מדויק לחלוטין בחלק מהמכשירים.</string>
-    <string name="sub_org_none">ללא (סדר ברירת מחדל)</string>
-    <string name="sub_org_by_lang">לפי שפה</string>
-    <string name="sub_org_by_addon">לפי תוסף</string>
-    <string name="sub_org_none_desc">הצגת כתוביות בסדר ברירת המחדל של התוסף.</string>
-    <string name="sub_org_by_lang_desc">קיבוץ כתוביות לפי שפה.</string>
-    <string name="sub_org_by_addon_desc">קיבוץ כתוביות לפי מקור התוסף.</string>
 
     <string name="autoplay_preload_next_episode">טעינה מוקדמת של מקורות עבור הפרק הבא</string>
     <string name="autoplay_preload_next_episode_sub">התחלת חיפוש מקורות ברקע לפני הופעת הכפתור למעבר לפרק הבא.</string>
@@ -1021,7 +974,6 @@
     <string name="autoplay_threshold_pct_title">אחוז סף</string>
     <string name="autoplay_threshold_pct_sub">משמש כגיבוי כאשר אין חותמת זמן של סיום (outro).</string>
     <string name="autoplay_threshold_min_title">דקות סף</string>
-    <string name="autoplay_threshold_min_sub">חלופה כאשר אין חותמת זמן outro.</string>
     <string name="autoplay_scope_all">כל המקורות</string>
     <string name="autoplay_scope_addons">תוספים מותקנים בלבד</string>
     <string name="autoplay_scope_plugins">פלאגינים מופעלים בלבד</string>
@@ -1061,8 +1013,6 @@
     <string name="layout_section_home_desc">הגדרות מסך הבית הכללי.</string>
     <string name="layout_landscape_posters">פוסטרים לרוחב</string>
     <string name="layout_landscape_posters_sub">מעבר בין כרטיסים לאורך ולרוחב בתצוגה המודרנית.</string>
-    <string name="layout_preview_row">הצגת שורת תצוגה מקדימה</string>
-    <string name="layout_preview_row_sub">הצגת תצוגה מקדימה חלקית של השורה הבאה בפריסת הבית המודרני.</string>
     <string name="layout_hero_catalogs">קטלוגי הבאנר הראשי</string>
     <string name="layout_hero_catalogs_sub">בחירת קטלוג אחד או יותר לתוכן הבאנר הראשי.</string>
     <string name="layout_section_content">תוכן הבית</string>
@@ -1224,8 +1174,6 @@
     <string name="layout_preset_balanced">מאוזן</string>
     <string name="layout_preset_comfort">נוח</string>
     <string name="layout_preset_large">גדול</string>
-    <string name="layout_memory_only_scroll">גלילה אנכית מהזיכרון בלבד</string>
-    <string name="layout_memory_only_scroll_sub">דילוג על טעינת תמונות חדשות בעת גלילה אנכית.</string>
     <string name="layout_preset_sharp">חד</string>
     <string name="layout_preset_subtle">עדין</string>
     <string name="layout_preset_classic">קלאסי</string>
@@ -1307,31 +1255,12 @@
     <string name="mdblist_enable_title">אפשור דירוגי MDBList</string>
     <string name="mdblist_enable_subtitle">משיכת דירוגים מספקים חיצוניים במסך הפרטים</string>
     <string name="mdblist_api_key_title">מפתח API</string>
-    <string name="mdblist_api_key_subtitle">נדרש לאחזור דירוגים מ-MDBList</string>
     <string name="mdblist_ratings_credentials_subtitle">ניתן להשתמש בחשבון ה-MDBList המחובר במעקב, או להזין מפתח API נפרד לדירוגים.</string>
     <string name="mdblist_ratings_connected_account">בשימוש: החשבון המחובר</string>
     <string name="mdblist_ratings_key_override_subtitle">מפתח API עוקף את החשבון המחובר לצורך דירוגים. יש לנקות אותו כדי לחזור לשימוש בחשבון המחובר.</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">הצגת ציון Trakt</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">הצגת ציון IMDb (והסתרת שורת IMDb המובנית כשזמין)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">הצגת ציון TMDB</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">הצגת ציון Letterboxd</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">הצגת ציון מבקרים</string>
-    <string name="mdblist_audience_title">ציון קהל</string>
-    <string name="mdblist_audience_subtitle">הצגת ציון קהל</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">הצגת ציון Metacritic</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">הצגת ציון MyAnimeList</string>
     <string name="mdblist_show_on_hero_title">הצגת דירוגים בבאנר הראשי</string>
     <string name="mdblist_show_on_hero_subtitle">הצגת דירוגי MDBList בקרוסלת הבאנר הראשי (מודרני וקלאסי/רשת)</string>
-    <string name="mdblist_rating_order_title">סדר דירוגים</string>
     <string name="mdblist_dialog_title">מפתח API של MDBList</string>
-    <string name="mdblist_dialog_subtitle">הזנת מפתח ה-API לאחזור דירוגים חיצוניים</string>
     <string name="mdblist_dialog_placeholder">מפתח API של MDBList</string>
     <string name="mdblist_not_set">לא הוגדר</string>
     <string name="mdblist_invalid_api_key">מפתח API של MDBList לא תקין</string>
@@ -1356,25 +1285,11 @@
     <string name="debrid_section_instant_playback">הכנת קישורים</string>
     <string name="debrid_section_filters">סינון ומיון</string>
     <string name="debrid_section_formatting">עיצוב</string>
-    <string name="debrid_provider_title">ספק</string>
-    <string name="debrid_provider_subtitle">ספקים נוספים יתווספו בעתיד</string>
-    <string name="debrid_provider_torbox">TorBox</string>
-    <string name="debrid_provider_available">TorBox</string>
-    <string name="debrid_api_key_title">TorBox</string>
-    <string name="debrid_api_key_subtitle">חיבור חשבון ה-TorBox שלך.</string>
     <string name="debrid_provider_description">חיבור חשבון ה-%1$s.</string>
     <string name="debrid_provider_device_description">קישור חשבון ה-%1$s בדפדפן.</string>
     <string name="debrid_api_key_dialog_title">מפתח API של %1$s</string>
     <string name="debrid_api_key_dialog_subtitle">הזנת מפתח ה-API של %1$s.</string>
     <string name="debrid_api_key_dialog_placeholder">מפתח API של %1$s</string>
-    <string name="debrid_dialog_title">מפתח API של TorBox</string>
-    <string name="debrid_dialog_subtitle">הזנת מפתח ה-API של TorBox.</string>
-    <string name="debrid_dialog_placeholder">מפתח API של TorBox</string>
-    <string name="debrid_real_debrid_api_key_title">טוקן API של Real-Debrid</string>
-    <string name="debrid_real_debrid_api_key_subtitle">נדרש לפיענוח מקומי של קישורי Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_title">טוקן API של Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_subtitle">הזנת טוקן ה-API של Real-Debrid עבור Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">טוקן API של Real-Debrid</string>
     <string name="debrid_not_set">לא הוגדר</string>
     <string name="debrid_connected">מחובר</string>
     <string name="debrid_connect_provider">חיבור %1$s</string>
@@ -1383,14 +1298,11 @@
     <string name="debrid_device_auth_connected">%1$s מחובר במכשיר זה.</string>
     <string name="debrid_device_auth_starting">מתחיל התחברות מאובטחת…</string>
     <string name="debrid_device_auth_instructions">יש לסרוק את קוד ה-QR ולהזין קוד זה כדי לאשר את Movies.</string>
-    <string name="debrid_device_auth_code_copied">הקוד הועתק.</string>
     <string name="debrid_device_auth_waiting">ממתין לאישור…</string>
     <string name="debrid_device_auth_failed">לא ניתן להתחיל את תהליך ההתחברות.</string>
     <string name="debrid_device_auth_missing_configuration">שיטת התחברות זו אינה מוגדרת בגרסה זו.</string>
     <string name="debrid_device_auth_expired">הקוד פג תוקף. כדאי לנסות שוב.</string>
     <string name="debrid_key_invalid">לא ניתן לאמת מפתח API זה.</string>
-    <string name="debrid_invalid_torbox_api_key">לא ניתן לאמת מפתח API זה.</string>
-    <string name="debrid_invalid_real_debrid_api_key">לא ניתן לאמת מפתח API זה.</string>
     <string name="debrid_prepare_instant_playback">הכנת קישורים</string>
     <string name="debrid_prepare_instant_playback_description">פענוח קישורים ניתנים להפעלה עוד לפני תחילת ההפעלה.</string>
     <string name="debrid_prepare_stream_count">קישורים להכנה</string>
@@ -1409,29 +1321,6 @@
     <string name="debrid_stream_sort_smallest">הקטן ביותר קודם</string>
     <string name="debrid_stream_sort_best_audio">השמע הטוב ביותר קודם</string>
     <string name="debrid_stream_sort_language">שפה תחילה</string>
-    <string name="debrid_stream_sort_default">סדר מקורי</string>
-    <string name="debrid_stream_sort_quality">האיכות הטובה ביותר קודם</string>
-    <string name="debrid_stream_sort_size_desc">הגדול ביותר קודם</string>
-    <string name="debrid_stream_sort_size_asc">הקטן ביותר קודם</string>
-    <string name="debrid_stream_min_quality_title">איכות מינימלית</string>
-    <string name="debrid_stream_min_quality_subtitle">הסתרת מקורות מתחת לרזולוציה הנבחרת.</string>
-    <string name="debrid_stream_min_quality_any">כל איכות</string>
-    <string name="debrid_stream_min_quality_720">720p ומעלה</string>
-    <string name="debrid_stream_min_quality_1080">1080p ומעלה</string>
-    <string name="debrid_stream_min_quality_2160">4K בלבד</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">הצגה, הסתרה או דרישה של מקורות Dolby Vision.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">הצגה, הסתרה, או דרישה של מקורות HDR.</string>
-    <string name="debrid_stream_feature_any">הכול</string>
-    <string name="debrid_stream_feature_exclude">הסתרה</string>
-    <string name="debrid_stream_feature_only">רק</string>
-    <string name="debrid_stream_codec_title">קודק</string>
-    <string name="debrid_stream_codec_subtitle">סינון מקורות לפי קודק וידאו.</string>
-    <string name="debrid_stream_codec_any">כל קודק</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
     <string name="debrid_stream_per_resolution_limit_title">הגבלה לפי רזולוציה</string>
@@ -1490,11 +1379,9 @@
     <string name="settings_stream_badge_position_bottom">למטה</string>
     <string name="settings_stream_badge_urls_title">כתובות URL של תגי Fusion</string>
     <string name="settings_stream_badge_urls_description">ייבוא עד %1$d כתובות URL של JSON לתגי מקור בסגנון Fusion. כל כתובת ניתנת לעדכון או מחיקה בנפרד.</string>
-    <string name="settings_stream_badge_urls_search_description">ניהול כתובות URL מיובאות של JSON לתגי מקור בסגנון Fusion.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d כתובות, %3$d תגי Fusion פעילים</string>
     <string name="settings_fusion_badges_empty">לא יובאו כתובות תג Fusion.</string>
     <string name="settings_fusion_badge_url_label">כתובת JSON של תג Fusion</string>
-    <string name="settings_fusion_badge_urls_imported">%1$d/%2$d כתובות Fusion יובאו</string>
     <string name="settings_fusion_badge_url_active">פעיל</string>
     <string name="settings_fusion_badge_url_inactive">לא פעיל</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d תגים מופעלים, %3$d קבוצות</string>
@@ -1557,14 +1444,12 @@
 
     <string name="trakt_description">סנכרון רשימת הצפייה, ההתקדמות, המשך הצפייה, הסקרובלינג והרשימות האישיות עם Trakt.</string>
     <string name="trakt_connected_as">מחוברים בתור %1$s</string>
-    <string name="trakt_account_login">התחברות לחשבון</string>
     <string name="trakt_awaiting_instruction">יש לעבור אל trakt.tv/activate ולהזין את הקוד:</string>
     <string name="trakt_waiting_approval">ממתין לאישור…</string>
     <string name="qr_login_approved">ההתחברות אושרה. מסיים כניסה…</string>
     <string name="qr_login_pending">ממתין לאישור בטלפון שלך…</string>
     <string name="qr_login_expired">פג תוקף קוד ה-QR. יש ללחוץ על \"רענון קוד QR\".</string>
     <string name="qr_login_preparing">מכין כניסה עם קוד QR…</string>
-    <string name="qr_login_device_auth_failed">אימות המכשיר נכשל</string>
     <string name="qr_login_scan_prompt">יש לסרוק קוד QR ולהתחבר בטלפון</string>
     <string name="qr_login_start_failed">לא ניתן היה להתחיל התחברות באמצעות קוד QR</string>
     <string name="qr_login_signing_in">מחבר אותך…</string>
@@ -1572,38 +1457,20 @@
     <string name="qr_login_exchange_failed">לא ניתן היה להשלים כניסה באמצעות QR</string>
     <string name="trakt_code_expires">הקוד יפוג בעוד %1$s</string>
     <string name="trakt_token_refreshes">אסימון גישה Trakt יתחדש בעוד %1$s</string>
-    <string name="trakt_login_instruction">יש ללחוץ על \"התחברות\" להתחלת אימות מכשיר Trakt.</string>
     <string name="trakt_missing_credentials">חסר TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET ב-local.properties.</string>
     <string name="trakt_watch_progress_title">התקדמות צפייה</string>
     <string name="trakt_watch_progress_subtitle">בחירת מקור ההתקדמות שמנהל את חידוש הצפייה ואת המשך הצפייה</string>
     <string name="trakt_watch_progress_dialog_title">התקדמות צפייה</string>
-    <string name="trakt_watch_progress_dialog_subtitle">בחירת מקום לשמירת התקדמות הצפייה: ב-Trakt או בשרת של Movies.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_nuvio">Movies Sync</string>
     <string name="trakt_library_source_title">מקור ספרייה</string>
     <string name="trakt_library_source_subtitle">בחירת הספרייה שתשמש לשמירה וצפייה באוסף שלך</string>
     <string name="trakt_library_source_dialog_title">מקור ספרייה</string>
-    <string name="trakt_library_source_dialog_subtitle">בחירת המקום לשמירה ולניהול של פריטי הספרייה שלך</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_nuvio">ספריית Movies</string>
-    <string name="trakt_library_source_trakt_selected">ספריית Trakt נבחרה</string>
-    <string name="trakt_library_source_nuvio_selected">ספריית Movies נבחרה</string>
-    <string name="trakt_setting_on">פעיל</string>
     <string name="trakt_setting_off">כבוי</string>
-    <string name="trakt_watch_progress_trakt_selected">מקור התקדמות צפייה הוגדר ל-Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">מקור התקדמות צפייה הוגדר ל-Movies Sync</string>
     <string name="trakt_continue_watching_window">חלון \"המשך בצפייה\"</string>
     <string name="trakt_continue_watching_subtitle">היסטוריית Trakt הנחשבת להמשך צפייה</string>
-    <string name="trakt_unaired_next_up">פרקים הבאים שטרם שודרו</string>
-    <string name="trakt_unaired_next_up_subtitle">הצגת פרקים קרובים לפני שידורם</string>
-    <string name="trakt_unaired_shown">מוצג</string>
-    <string name="trakt_unaired_hidden">מוסתר</string>
-    <string name="trakt_unaired_now_shown">הפרקים הבאים שטרם שודרו מוצגים כעת</string>
-    <string name="trakt_unaired_now_hidden">הפרקים הבאים שטרם שודרו מוסתרים כעת</string>
     <string name="trakt_comments_title">תגובות</string>
     <string name="trakt_comments_subtitle">הצגת ביקורות Trakt בעמודי הפרטים</string>
-    <string name="trakt_comments_dialog_title">תגובות</string>
-    <string name="trakt_comments_dialog_subtitle">בחירה אם עמודי הפרטים יציגו ביקורות Trakt כאשר החשבון שלך מחובר.</string>
     <string name="trakt_comments_now_shown">ביקורות Trakt בעמודי הפרטים מוצגות כעת</string>
     <string name="trakt_comments_now_hidden">ביקורות Trakt בעמודי הפרטים מוסתרות כעת</string>
     <string name="trakt_more_like_this_source_title">מקור \"עוד כמו זה\"</string>
@@ -1621,15 +1488,8 @@
     <string name="trakt_disconnect">ניתוק</string>
     <string name="trakt_disconnect_title">לנתק Trakt?</string>
     <string name="trakt_disconnect_subtitle">פעולה זו תנתק את חשבון Trakt שלך מ-Movies.</string>
-    <string name="trakt_login">התחברות</string>
-    <string name="trakt_retry">ניסיון נוסף</string>
-    <string name="trakt_back">חזרה</string>
     <string name="trakt_cw_window_title">חלון המשך צפייה</string>
     <string name="trakt_cw_window_subtitle">בחירת היקף פעילות ה-Trakt שתופיע בהמשך צפייה.</string>
-    <string name="trakt_unaired_dialog_title">פרקים הבאים שטרם שודרו</string>
-    <string name="trakt_unaired_dialog_subtitle">בחירה אם המשך צפייה יכלול פרקים קרובים לפני יציאתם.</string>
-    <string name="trakt_show_unaired">הצגת פרקים שטרם שודרו</string>
-    <string name="trakt_hide_unaired">הסתרת פרקים שטרם שודרו</string>
     <string name="trakt_all_history">כל ההיסטוריה</string>
     <string name="trakt_days_format">%1$d ימים</string>
 
@@ -1679,23 +1539,13 @@
     <string name="profile_manage_title">ניהול פרופילים</string>
     <string name="profile_manage_subtitle">בחירת פרופיל לעריכה או להחלפה, או יצירת פרופיל חדש</string>
     <string name="profile_manage_hint">בחירת פרופיל לניהול</string>
-    <string name="profile_primary_label">ראשי</string>
-    <string name="profile_shares_primary">משתף את %1$s של הראשי</string>
     <string name="profile_edit_label">עריכה</string>
     <string name="profile_edit_header">עריכת פרופיל</string>
-    <string name="profile_add">הוספת פרופיל</string>
     <string name="profile_create_title">יצירת פרופיל</string>
-    <string name="profile_edit_title">עריכת פרופיל %1$s</string>
     <string name="profile_name_placeholder">שם פרופיל</string>
-    <string name="profile_avatar_color">צבע אווטאר</string>
-    <string name="profile_use_primary_addons">שימוש בתוספים של הפרופיל הראשי</string>
-    <string name="profile_use_primary_plugins">שימוש בפלאגינים של הפרופיל הראשי</string>
     <string name="profile_creating">יוצר…</string>
     <string name="profile_create_btn">יצירה</string>
-    <string name="profile_confirm">אישור</string>
     <string name="profile_delete">מחיקה</string>
-    <string name="profile_addons">תוספים</string>
-    <string name="profile_plugins">פלאגינים</string>
     <string name="profile_choose_avatar">בחירת אווטאר</string>
     <string name="profile_custom_avatar_web_panel_note">ניתן להגדיר כתובות אווטאר מותאמות אישית מלוח הבקרה המקוון של Movies.</string>
     <string name="profile_editor_tab_avatar">אווטאר</string>
@@ -1704,7 +1554,6 @@
     <string name="profile_background_member_note">ניתן להגדיר כתובות רקע מותאמות אישית מלוח הבקרה המקוון של Movies.</string>
     <string name="profile_background_normal">רגיל</string>
     <string name="profile_background_custom">מותאם אישית</string>
-    <string name="profile_avatar_none_selected">לא נבחר אווטאר</string>
     <string name="profile_avatar_focus_hint">התמקדות באווטאר מציגה את שמו.</string>
     <string name="profile_avatar_category_all">הכול</string>
     <string name="profile_avatar_category_supporter">תומך</string>
@@ -1738,30 +1587,17 @@
     <string name="profile_copy_settings_created_success">הפרופיל נוצר עם הגדרות מ-%1$s.</string>
     <string name="profile_copy_settings_created_error">הפרופיל נוצר, אך לא ניתן היה להעתיק את ההגדרות. אפשר לנסות שוב מתוך \"אפשרויות הפרופיל\" בהגדרות.</string>
     <string name="profile_create_error">לא ניתן היה ליצור פרופיל. כדאי לנסות שוב.</string>
-    <string name="profile_pin_title">נעילת סיסמה לפרופיל</string>
-    <string name="profile_pin_enabled_subtitle">פרופיל זה דורש סיסמה בת 4 ספרות לפני החלפה.</string>
-    <string name="profile_pin_disabled_subtitle">הגדרת סיסמה בת 4 ספרות כדי לנעול פרופיל זה.</string>
     <string name="profile_pin_set">הגדרת סיסמה</string>
     <string name="profile_pin_change">שינוי סיסמה</string>
     <string name="profile_pin_remove">הסרת סיסמה</string>
-    <string name="profile_pin_set_title">הגדרת סיסמה לפרופיל</string>
-    <string name="profile_pin_set_subtitle">יש להזין סיסמה בת 4 ספרות ולאשר אותה</string>
     <string name="profile_pin_enter">הזנת סיסמה בת 4 ספרות</string>
-    <string name="profile_pin_confirm">אישור סיסמה בת 4 ספרות</string>
-    <string name="profile_pin_mismatch">ערכי הסיסמה אינם תואמים.</string>
-    <string name="profile_pin_save">שמירת סיסמה</string>
-    <string name="profile_pin_unlock_title">ביטול נעילה של %1$s</string>
-    <string name="profile_pin_unlock_subtitle">יש להזין את הסיסמה בת 4 הספרות כדי להמשיך.</string>
     <string name="profile_pin_verifying">מאמת…</string>
-    <string name="profile_pin_unlock_action">ביטול נעילה</string>
     <string name="profile_pin_overlay_unlock_heading">יש להזין את הסיסמה כדי לגשת אל %1$s.</string>
     <string name="profile_pin_overlay_set_heading">יצירת סיסמה בת 4 ספרות עבור %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">יש לאשר את הסיסמה החדשה.</string>
     <string name="profile_pin_overlay_unlock_support">יש להשתמש בשלט או במקלדת כדי להזין 4 ספרות.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">נדרשת בדיקת אבטחה.</string>
     <string name="profile_pin_overlay_change_verify_heading">יש להזין סיסמה נוכחית כדי לשנות סיסמה עבור %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות לפני הגדרת סיסמה חדשה.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">נדרשת בדיקת אבטחה.</string>
     <string name="profile_pin_overlay_remove_verify_heading">יש להזין סיסמה נוכחית כדי להסיר נעילה עבור %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות כדי להסיר נעילה זו.</string>
     <string name="profile_pin_overlay_delete_verify_heading">יש להזין סיסמה כדי למחוק את %1$s.</string>
@@ -1793,7 +1629,6 @@
     <string name="addon_error_invalid_scheme">כתובת התוסף חייבת להתחיל ב-http או https</string>
     <string name="addon_installed_section">מותקן</string>
     <string name="addon_empty">אין תוספים מותקנים. יש להוסיף אחד כדי להתחיל.</string>
-    <string name="addon_remove">הסרה</string>
     <string name="addon_delete_confirm_title">למחוק את התוסף?</string>
     <string name="addon_delete_confirm_message">פעולה זו תמחק את התוסף לצמיתות. להמשיך?</string>
     <string name="addon_delete_no">לא</string>
@@ -1849,8 +1684,6 @@
     <string name="debrid_resolution_failed">לא ניתן היה לפענח את מקור ה-Debrid הזה.</string>
     <string name="youtube_resolving_stream">טוען סרטון YouTube…</string>
     <string name="youtube_resolution_failed">לא ניתן היה לטעון את סרטון ה-YouTube הזה.</string>
-    <string name="stream_type_torrent">טורנט</string>
-    <string name="stream_type_youtube">יוטיוב</string>
     <string name="p2p_consent_title">P2P סטרימינג</string>
     <string name="p2p_consent_body">This stream uses peer-to-peer (P2P) technology. By enabling P2P, you acknowledge and agree that:\n\n\u2022 Your IP address will be visible to other peers in the network\n\u2022 You are solely responsible for the content you access\n\u2022 You confirm you have the legal right to stream this content in your jurisdiction\n\u2022 Movies does not host, distribute, or control any P2P content\n\u2022 Movies bears no liability for any legal consequences arising from your use of P2P streaming\n\nYou use this feature entirely at your own risk. P2P can be disabled anytime in Settings.</string>
     <string name="p2p_consent_enable">P2P הפעלת</string>
@@ -1879,9 +1712,6 @@
     <string name="settings_p2p_clear_cache_playback_active">יש לעצור הפעלת P2P לפני ניקוי המטמון</string>
     <string name="settings_p2p_clear_cache_done">נוקו %1$s של נתוני טורנט לא פעילים</string>
     <string name="settings_p2p_clear_cache_failed">לא ניתן היה לנקות את מטמון הטורנט</string>
-    <string name="p2p_download_title">מוריד מנוע P2P</string>
-    <string name="p2p_download_subtitle">זוהי הורדה חד-פעמית הנדרשת עבור סטרימינג P2P.</string>
-    <string name="stream_type_external">חיצוני</string>
     <string name="stream_player_picker_title">באיזה נגן להשתמש?</string>
     <string name="stream_player_internal">פנימי</string>
     <string name="stream_player_external">חיצוני</string>
@@ -1892,15 +1722,12 @@
     <string name="player_loading_preparing">בהכנה…</string>
     <string name="player_loading_detecting_format">מזהה פורמט…</string>
     <string name="external_player_loading_skip_segments">טוען קטעי פתיחה/סיום…</string>
-    <string name="player_loading_subtitles">מושך כתוביות…</string>
     <string name="player_loading_subtitles_from">מושך כתוביות מ-%1$d תוספים…</string>
     <string name="player_loading_subtitles_progress">מושך כתוביות… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">כתוביות: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">מכין את הנגן…</string>
     <string name="player_loading_starting">מתחיל…</string>
     <string name="player_loading_buffering">טוען…</string>
-    <string name="player_loading_fallback_pcm_audio">לא ניתן היה לאתחל את ערוץ השמע – מחליף לשמע PCM…</string>
-    <string name="player_loading_fallback_hevc_decoder">לא ניתן היה לאתחל את המפענח – מחליף למפענח HEVC…</string>
     <string name="player_engine_switching_title">מחליף מנוע הפעלה</string>
     <string name="player_engine_switching_message">האתחול נכשל. מחליף ל-%1$s…</string>
     <string name="player_engine_switching_manual_message">מחליף ל-%1$s…</string>
@@ -1980,14 +1807,12 @@
     <string name="stream_info_player_engine">מנוע נגן</string>
 
     <string name="sources_title">מקורות</string>
-    <string name="sources_reload">טעינה מחדש</string>
     <string name="sources_close">סגירה</string>
     <string name="sources_playing">מנגן</string>
     <string name="sources_no_streams">לא נמצאו מקורות. לכו לקולנוע.</string>
 
     <string name="episodes_panel_close">סגירה</string>
     <string name="episodes_panel_back">חזרה</string>
-    <string name="episodes_panel_reload">טעינה מחדש</string>
     <string name="episodes_panel_no_streams">לא נמצאו מקורות. לכו לקולנוע.</string>
     <string name="episodes_panel_no_episodes">אין פרקים זמינים</string>
     <string name="episodes_panel_title">פרקים</string>
@@ -2003,8 +1828,6 @@
     <string name="player_aspect_mode_cinema_zoom">זום קולנוע</string>
 
     <string name="audio_dialog_title">שמע</string>
-    <string name="audio_dialog_tab_tracks">שמע</string>
-    <string name="audio_dialog_tab_mix">מיקס</string>
     <string name="audio_delay_label">השהיית שמע</string>
     <string name="audio_delay_range">טווח: ‎%1$.2f שנ׳ עד ‎%2$.2f שנ׳</string>
     <string name="audio_mix_label">הגברה (PCM)</string>
@@ -2028,31 +1851,18 @@
     <string name="audio_downmix_lfe_level_full">100%</string>
 
     <string name="subtitle_dialog_title">כתוביות</string>
-    <string name="subtitle_no_builtin">אין כתוביות מובנות זמינות</string>
     <string name="subtitle_loading_addon">הכתוביות מהתוספים נטענות…</string>
     <string name="subtitle_no_addon">אין כתוביות תוסף זמינות</string>
     <string name="subtitle_text_color">צבע טקסט</string>
     <string name="subtitle_outline_color">צבע קו מתאר</string>
     <string name="subtitle_reset_defaults">איפוס לברירות מחדל</string>
-    <string name="subtitle_tab_builtin">מובנות</string>
-    <string name="subtitle_tab_addons">תוספים</string>
     <string name="subtitle_tab_languages">שפות:</string>
-    <string name="subtitle_tab_style">סגנון</string>
     <string name="subtitle_tab_delay">עיכוב</string>
     <string name="subtitle_delay_reset">איפוס</string>
     <string name="subtitle_none">ללא כתוביות</string>
     <string name="subtitle_built_in">כתוביות מובנות</string>
-    <string name="subtitle_all">הכול</string>
-    <string name="subtitle_section_core">בסיסי</string>
-    <string name="subtitle_section_advanced">מתקדם</string>
-    <string name="subtitle_font_size">גודל גופן</string>
     <string name="subtitle_bold">מודגש</string>
-    <string name="subtitle_outline">קו מתאר</string>
-    <string name="subtitle_bottom_offset">מרווח תחתון</string>
-    <string name="subtitle_on">פועל</string>
-    <string name="subtitle_off">כבוי</string>
     <string name="subtitle_style_title">סגנון כתוביות</string>
-    <string name="subtitle_style_customize">התאמה אישית</string>
     <string name="subtitle_style_color">צבע</string>
     <string name="subtitle_style_reset">איפוס</string>
     <string name="subtitle_style_font_size">גודל גופן</string>
@@ -2068,8 +1878,6 @@
     <string name="subtitle_style_on">פועל</string>
     <string name="subtitle_style_off">כבוי</string>
     <string name="subtitle_style_weight">עובי גופן</string>
-    <string name="panel_failed_load_streams">טעינת מקורות נכשלה</string>
-    <string name="panel_failed_load_episodes">טעינת פרקים נכשלה</string>
 
     <string name="pause_you_are_watching">על המסך עכשיו</string>
     <string name="pause_cast_label">שחקנים</string>
@@ -2112,7 +1920,6 @@
     <string name="display_mode_resolution">רזולוציה</string>
 
 
-    <string name="search_keyboard_hint">יש ללחוץ על סיום במקלדת לחיפוש</string>
     <string name="search_placeholder">חיפוש סרט או סדרה</string>
     <string name="search_start_title">להתחיל לחפש</string>
     <string name="search_start_subtitle">יש להקליד לפחות 2 תווים</string>
@@ -2128,7 +1935,6 @@
     <string name="search_no_results_subtitle">כדאי לנסות לחפש במילים אחרות</string>
     <string name="search_error_no_catalogs">אף אחד מהתוספים המותקנים לא תומך בחיפוש.</string>
 
-    <string name="library_syncing">מסנכרן ספריית Trakt…</string>
     <string name="library_title">ספרייה</string>
     <string name="library_filter_list">רשימה</string>
     <string name="library_filter_type">סוג</string>
@@ -2181,7 +1987,6 @@
     <string name="genre_sporting_event">אירוע ספורט</string>
     <string name="genre_superhero">גיבור-על</string>
     <string name="genre_suspense">מתח</string>
-    <string name="library_sort_trakt_order">סדר Trakt</string>
     <string name="library_sort_provider_order">לפי סדר ספק</string>
     <string name="library_sort_added_desc">התווסף ↓</string>
     <string name="library_sort_added_asc">התווסף ↑</string>
@@ -2191,7 +1996,6 @@
     <string name="library_sort_title_desc">כותרת ת׳-א׳</string>
     <string name="library_error_sort_failed">לא ניתן היה לטעון את סדר המיון. מוצג סדר הספק.</string>
     <string name="library_manage_lists">ניהול רשימות</string>
-    <string name="library_manage_trakt_lists">ניהול רשימות Trakt</string>
     <string name="library_no_lists">אין רשימות אישיות עדיין.</string>
     <string name="library_list_create">יצירה</string>
     <string name="library_list_edit">עריכה</string>
@@ -2205,10 +2009,7 @@
     <string name="library_list_privacy">פרטיות</string>
     <string name="library_delete_title">למחוק רשימה זו?</string>
     <string name="library_delete_subtitle">פעולה זו תסיר את הרשימה וכל הפריטים שבה מ-Trakt.</string>
-    <string name="library_delete_confirm">מחיקה</string>
     <string name="library_source_local">מקומי</string>
-    <string name="library_source_nuvio">NUVIO</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">נשמר</string>
     <string name="library_source_cloud">ענן</string>
     <string name="library_watchlist">רשימת צפייה</string>
@@ -2227,18 +2028,13 @@
     <string name="library_list_edit_dialog_title">עריכת רשימה</string>
     <string name="library_sync_btn">סנכרון</string>
     <string name="library_syncing_btn">מסנכרן…</string>
-    <string name="cloud_library_connect_action">חיבור חשבון</string>
     <string name="cloud_library_connect_message">יש לחבר חשבון בהגדרות השירותים המחוברים כדי לעיין בקבצים הניתנים לצפייה מספריית הענן שלך.</string>
     <string name="cloud_library_connect_title">אין חשבון ענן מחובר</string>
-    <string name="cloud_library_disabled_action">פתיחת שירותים מחוברים</string>
     <string name="cloud_library_disabled_message">הפעלת ספריית ענן בהגדרות השירותים המחוברים כדי לעיין בקבצים מחשבונות מחוברים.</string>
     <string name="cloud_library_disabled_title">ספריית הענן כבויה</string>
     <string name="cloud_library_empty_message">אין קבצי ענן הניתנים להפעלה התואמים לסינון הנוכחי.</string>
     <string name="cloud_library_empty_title">אין כאן עדיין כלום</string>
     <string name="cloud_library_file_picker_title">בחירת קובץ להפעלה</string>
-    <string name="cloud_library_load_failed">לא ניתן היה לטעון את ספריית הענן של %1$s</string>
-    <string name="cloud_library_no_files_message">פריט זה לא חושף קובץ וידאו הניתן להפעלה.</string>
-    <string name="cloud_library_no_files_title">אין קבצים שניתנים להפעלה</string>
     <string name="cloud_library_no_playable_files">אין קבצים שניתנים להפעלה</string>
     <string name="cloud_library_one_playable_file">קובץ אחד שניתן להפעיל</string>
     <string name="cloud_library_opening">פותח…</string>
@@ -2277,17 +2073,7 @@
     <string name="account_sign_out_confirm_title">להתנתק?</string>
     <string name="account_sign_out_confirm_subtitle">יהיה צורך להתחבר מחדש כדי לסנכרן את הספרייה, התקדמות הצפייה, התוספים והפלאגינים במכשיר זה.</string>
     <string name="account_error_signin_required">יש להתחבר עם חשבון תחילה.</string>
-    <string name="account_signin_create_title">התחברות / יצירת חשבון</string>
-    <string name="account_signin_create_desc">יש להשתמש באימייל וסיסמה כדי ליצור חשבון או להתחבר אליו.</string>
-    <string name="account_generate_sync_desc">יש ליצור קוד במכשיר זה כדי שמכשירים אחרים יוכלו להתחבר אליו.</string>
-    <string name="account_enter_sync_desc">יש לחבר מכשיר זה למכשיר אחר באמצעות קוד סנכרון.</string>
-    <string name="account_signed_in_as">מחוברים בתור</string>
-    <string name="account_generate_sync_signed_in_desc">יצירת קוד כדי שמכשירים אחרים יוכלו להסתנכרן עם החשבון הזה.</string>
-    <string name="account_unknown_device">מכשיר לא ידוע</string>
 
-    <string name="auth_signin_title">התחברות</string>
-    <string name="auth_signin_tv_disabled">הזנת אימייל/סיסמה בטלוויזיה מושבתת. יש להמשיך עם כניסת קוד QR.</string>
-    <string name="auth_signin_qr_btn">המשך עם קוד QR</string>
     <string name="auth_email_hint">יש להתחבר ישירות עם החשבון בשרת שלך.</string>
     <string name="auth_email_instruction">יש להזין את האימייל והסיסמה שלך כדי להמשיך.</string>
     <string name="auth_email_placeholder">כתובת אימייל</string>
@@ -2335,13 +2121,10 @@
     <string name="custom_server_session_clear_failed">לא ניתן לנקות בבטחה את ההתחברות הנוכחית. השרת לא שונה.</string>
     <string name="custom_server_restart_failed">השרת נשמר, אך לא ניתן היה להפעיל מחדש את האפליקציה באופן אוטומטי. יש להפעיל אותה מחדש באופן ידני.</string>
 
-    <string name="auth_qr_title">התחברות עם קוד QR</string>
     <string name="auth_qr_tagline">צפייה בספרייה שלך, בכל מקום</string>
     <string name="auth_qr_finishing">מסיים כניסה…</string>
-    <string name="auth_qr_code_label">קוד: %1$s</string>
     <string name="auth_qr_expires">יפוג בעוד %1$s</string>
     <string name="auth_qr_scan_instruction">יש לסרוק את קוד ה-QR או להזין את הקוד הקצר בדפדפן.</string>
-    <string name="auth_qr_code_display">קוד: %1$s</string>
     <string name="auth_qr_manual_instruction">אפשר גם לגשת אל %1$s ולהזין</string>
     <string name="auth_qr_refresh">רענון קוד QR</string>
     <string name="auth_qr_continue_without_account">המשך ללא חשבון</string>
@@ -2352,34 +2135,13 @@
     <string name="auth_qr_please_wait">בהמתנה…</string>
     <string name="auth_qr_continue">המשך</string>
     <string name="auth_qr_back">חזרה</string>
-    <string name="auth_qr_terms_prefix">בהרשמה / התחברות, ניתנת הסכמה ל</string>
-    <string name="auth_qr_terms_link">תנאי השימוש</string>
 
-    <string name="sync_generate_title">יצירת קוד סנכרון</string>
-    <string name="sync_generate_subtitle">יש ליצור סיסמה להגנה על קוד הסנכרון. ניתן לשתף את הקוד עם המכשירים האחרים.</string>
-    <string name="sync_generate_code_label">קוד הסנכרון שלך</string>
-    <string name="sync_generate_instruction">יש להזין קוד זה ואת הסיסמה שלך במכשיר האחר כדי לקשר אותם.</string>
-    <string name="sync_generate_done">סיום</string>
-    <string name="sync_generate_pin_label">בחירת סיסמה (4-8 תווים)</string>
-    <string name="sync_generate_pin_placeholder">סיסמה</string>
-    <string name="sync_generate_generating">יוצר…</string>
-    <string name="sync_generate_code_btn">יצירת קוד</string>
 
-    <string name="sync_claim_title">קישור מכשיר</string>
-    <string name="sync_claim_subtitle">הזנת קוד הסנכרון והסיסמה מהמכשיר האחר שלך, לקישור מכשיר זה.</string>
-    <string name="sync_claim_success">המכשיר קושר בהצלחה! התוספים והפלאגינים שלך יסונכרנו עכשיו.</string>
-    <string name="sync_claim_done">סיום</string>
-    <string name="sync_claim_code_label">קוד סנכרון</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">סיסמה</string>
-    <string name="sync_claim_pin_placeholder">סיסמה</string>
-    <string name="sync_claim_linking">מקשר…</string>
 
     <string name="plugin_readonly_notice">הפרופיל משתמש בפלאגינים של הפרופיל הראשי ולא ניתן לשנותם</string>
     <string name="plugin_repositories_section">מאגרים (%1$d)</string>
     <string name="plugin_providers_section">ספקים (%1$d)</string>
     <string name="plugin_title">פלאגינים</string>
-    <string name="plugin_subtitle">ניהול scrapers וספקים מקומיים</string>
     <string name="plugin_enable_plugins_title">הפעלת ספקי פלאגינים גלובלית</string>
     <string name="plugin_enable_plugins_subtitle">שימוש בספקי פלאגינים בעת חיפוש מקורות</string>
     <string name="plugin_group_by_repository_title">קיבוץ ספקי פלאגינים לפי מאגר</string>
@@ -2410,8 +2172,6 @@
     <string name="plugin_test_results">תוצאות בדיקה (%1$d מקורות)</string>
     <string name="plugin_and_more">ועוד %1$d…</string>
     <string name="plugin_providers_count">%1$d ספקים</string>
-    <string name="plugin_enabled">מופעל</string>
-    <string name="plugin_disabled">מושבת</string>
     <string name="plugin_no_repos">לא נוספו מאגרים עדיין.\nיש להוסיף מאגר כדי להתחיל.</string>
     <string name="plugin_error_invalid_url">יש להזין כתובת URL תקינה</string>
     <string name="plugin_error_add_repo">הוספת המאגר נכשלה: %1$s</string>
@@ -2449,7 +2209,6 @@
 
     <string name="update_title">עדכון אפליקציה</string>
     <string name="update_available">עדכון זמין</string>
-    <string name="update_downloading">מוריד עדכון</string>
     <string name="update_download">הורדה</string>
     <string name="update_downloading_ellipsis">מוריד…</string>
     <string name="update_downloading_progress">מוריד %1$d%%</string>
@@ -2459,13 +2218,6 @@
     <string name="update_latest_version">הגרסה המותקנת אצלך היא העדכנית ביותר.</string>
     <string name="update_unknown_sources">יש לאפשר התקנות ממקורות לא ידועים כדי להמשיך.</string>
     <!-- AccountScreen -->
-    <string name="account_title">חשבון</string>
-    <string name="account_sign_in_description">התחברות לסנכרון הספרייה, התקדמות הצפייה, התוספים והפלאגינים בין מכשירים. סנכרון הספרייה משתמש ב-Movies Sync כאשר Trakt לא מחובר, והתקדמות הצפייה יכולה להשתמש ב-Trakt או ב-Movies Sync.</string>
-    <string name="account_sync_code_title">קוד סנכרון</string>
-    <string name="account_sync_code_description">סנכרון בין מכשירים ללא יצירת חשבון.</string>
-    <string name="account_linked_devices">מכשירים מקושרים (%1$d)</string>
-    <string name="account_no_linked_devices">אין מכשירים מקושרים</string>
-    <string name="account_unlink">ביטול קישור</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">טוען דירוגי פרקים…</string>
@@ -2492,35 +2244,25 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">עריכת פרופיל %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">העברת שמע (Passthrough) של TrueHD, DTS, AC-3 ועוד מתבצעת אוטומטית. כשהמכשיר מחובר בחיבור HDMI למקלט AV או לסאונדבר תואם, השמע ללא אובדן נשלח כפי שהוא, ללא פענוח.</string>
-    <string name="audio_dv_title">DV7 - חלופת HEVC</string>
-    <string name="audio_dv_sub">המרת פרופיל 7 של Dolby Vision ל-HEVC סטנדרטי במכשירים ללא תמיכת חומרה ב-DV</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">בית</string>
     <string name="nav_discover">גילוי</string>
     <string name="nav_search">חיפוש</string>
     <string name="nav_library">ספרייה</string>
-    <string name="nav_addons">תוספים</string>
-    <string name="nav_movies">סרטים</string>
-    <string name="nav_series">סדרות</string>
     <string name="nav_settings">הגדרות</string>
     <string name="action_select">בחירה</string>
     <string name="settings_rounded_ui">ממשק מעוגל</string>
-    <string name="cd_expand_sidebar">הרחבת סרגל צד</string>
 
-    <string name="update_checking">בודק עדכונים…</string>
     <string name="update_waiting_for_stable">הגרסה היציבה הבאה תתקבל כשתהיה זמינה</string>
     <string name="update_download_complete">ההורדה הושלמה. מוכן להתקנה.</string>
     <string name="update_installed_automatically">עודכן אוטומטית כשהמכשיר היה במצב סרק</string>
-    <string name="update_up_to_date">ברשותך הגרסה העדכנית ביותר. שינויים אחרונים:</string>
     <string name="update_close">סגירה</string>
     <string name="update_open_settings">פתיחת הגדרות</string>
     <string name="update_install">התקנה</string>
-    <string name="update_ignore">התעלמות</string>
 
     <!-- Update flow errors -->
     <string name="update_error_check_failed">בדיקת העדכון נכשלה</string>
@@ -2588,7 +2330,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">אין תוספים מותקנים.</string>
     <string name="home_error_no_catalog_addons">אין תוספי קטלוג מותקנים.</string>
 
     <!-- Player errors -->
@@ -2616,7 +2357,6 @@
     <string name="cd_stream_info">מידע על המקור</string>
     <string name="cd_more_actions">פעולות נוספות</string>
     <string name="cd_close_more_actions">סגירת פעולות נוספות</string>
-    <string name="cd_back">חזרה</string>
     <string name="cd_next_episode_thumbnail">Thumbnail של הפרק הבא</string>
     <string name="cd_current">נוכחי</string>
     <string name="cd_loading_backdrop">טוען תמונת רקע</string>
@@ -2637,7 +2377,6 @@
     <string name="cd_emoji_option">אימוג׳י %1$s</string>
     <string name="cd_trailer_controls">פקדי טריילר</string>
     <string name="cd_seek_bar">סרגל הדילוג</string>
-    <string name="cd_unlink">ביטול קישור</string>
     <string name="cd_nuvio_logo">Movies</string>
     <string name="cd_trakt_logo">לוגו Trakt</string>
     <string name="cd_trakt_qr">קוד QR להפעלת Trakt</string>
@@ -2645,7 +2384,6 @@
     <string name="cd_open_discover">פתיחת גילוי</string>
     <string name="cd_clear_search">ניקוי חיפוש</string>
     <string name="cd_voice_search">חיפוש קולי</string>
-    <string name="cd_donation_qr">קוד QR לתרומה</string>
     <string name="cd_contributor_qr">קוד QR לתמיכה בתורם</string>
     <string name="cd_expand">הרחבת %1$s</string>
     <string name="cd_collapse">כיווץ %1$s</string>
@@ -2728,7 +2466,6 @@
     <string name="collections_editor_choose_emoji">בחירת אימוג׳י</string>
     <string name="collections_editor_back">חזרה</string>
     <string name="collections_editor_edit_collection">עריכת אוסף</string>
-    <string name="collections_editor_catalog_count">%1$d קטלוגים</string>
     <string name="collections_editor_source_count">%1$d מקורות</string>
     <string name="collections_editor_sources">מקורות</string>
     <string name="collections_editor_source">מקור</string>
@@ -2759,7 +2496,6 @@
     <string name="collections_editor_tmdb_collection_id">מזהה אוסף</string>
     <string name="collections_editor_tmdb_company_search">שם חברת ההפקה, מזהה או כתובת URL</string>
     <string name="collections_editor_tmdb_display_title">כותרת תצוגה</string>
-    <string name="collections_editor_tmdb_title_optional">כותרת (אופציונלי)</string>
     <string name="collections_editor_tmdb_search">חיפוש</string>
     <string name="collections_editor_add_source">הוספת מקור</string>
     <string name="collections_editor_save_source">שמירת מקור</string>
@@ -2907,7 +2643,6 @@
     <string name="collections_card_subtitle">קיבוץ קטלוגים לתיקיות במסך הבית שלך</string>
     <string name="collections_tab_all">הכול</string>
     <string name="collections_tab_combined">משולב</string>
-    <string name="collection_editor_remove_cd">הסרה</string>
     <string name="collection_editor_choice_both">שניהם</string>
     <string name="collection_editor_resolved_trakt_list">רשימת Trakt שזוהתה</string>
     <string name="collection_editor_trakt_search_placeholder">חיפוש כותרת, כתובת URL של Trakt, או מזהה רשימה</string>
@@ -2997,7 +2732,6 @@
     <string name="player_error_stream_rate_limited">\n\nיותר מדי בקשות למקור. כדאי להמתין רגע ולנסות שוב.</string>
     <string name="player_error_stream_unavailable">\n\nשרת המקור אינו זמין כרגע. כדאי לנסות מקור אחר.</string>
     <string name="player_error_source_invalid_content">שגיאת מקור: המקור החזיר תוכן לא תקין או שלא ניתן להפעיל. ייתכן שפג תוקף הקישור, או שהשרת החזיר דף שגיאה במקום וידאו.\n\nכדאי לנסות מקור אחר. [%1$s]</string>
-    <string name="player_error_decoder">שגיאת מפענח</string>
     <string name="player_error_unsupported_format">המקור הזה משתמש בפורמט שייתכן שהמכשיר אינו תומך בו. כדאי לנסות מקור אחר. [%1$s]</string>
     <string name="player_error_initialize_failed">אתחול הנגן נכשל</string>
     <string name="player_error_mpv_surface_failed">אתחול משטח ה-libmpv נכשל</string>
@@ -3032,7 +2766,6 @@
     <string name="library_synced">הספרייה סונכרנה</string>
     <string name="library_error_refresh_failed">ריענון הספרייה נכשל</string>
     <string name="library_list_created">הרשימה נוצרה</string>
-    <string name="library_error_invalid_list">רשימה לא תקינה</string>
     <string name="library_list_updated">הרשימה עודכנה</string>
     <string name="library_error_save_list_failed">שמירת הרשימה נכשלה</string>
     <string name="library_list_deleted">הרשימה נמחקה</string>
@@ -3041,13 +2774,8 @@
     <string name="library_error_reorder_lists_failed">שינוי סדר הרשימות נכשל</string>
     <string name="library_list_fallback_title">רשימה</string>
     <!-- Library privacy display labels (mapped from API value, not used as a key) -->
-    <string name="library_privacy_private">פרטי</string>
-    <string name="library_privacy_link">קישור</string>
-    <string name="library_privacy_friends">חברים</string>
-    <string name="library_privacy_public">ציבורי</string>
 
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">נדרש אימות Trakt</string>
     <string name="trakt_library_error_request_failed">בקשת Trakt נכשלה</string>
     <string name="trakt_library_error_create_list_failed">נכשל ביצירת רשימה</string>
     <string name="trakt_library_error_update_list_failed">נכשל בעדכון הרשימה</string>
@@ -3064,18 +2792,13 @@
     <string name="trakt_library_error_auth_expired">אימות ה-Trakt פג תוקף</string>
     <string name="trakt_library_error_list_not_found">רשימת Trakt לא נמצאה</string>
     <string name="trakt_library_error_list_limit_reached">הגעת למגבלת רשימות Trakt. נדרש שדרוג.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">אין מספיק מזהי Trakt כדי לסמן כנצפה</string>
     <string name="trakt_error_request_failed">בקשת Trakt נכשלה</string>
-    <string name="simkl_account_title">חשבון Simkl</string>
     <string name="simkl_description">חיבור Simkl לסנכרון רשימות, היסטוריית צפייה, התקדמות צפייה וסקרובלינג.</string>
-    <string name="simkl_connect">חיבור Simkl</string>
-    <string name="simkl_disconnect">ניתוק Simkl</string>
     <string name="simkl_disconnect_title">לנתק את Simkl?</string>
     <string name="simkl_disconnect_subtitle">פעולה זו תסיר את חשבון ה-Simkl ואת נתוני ה-Simkl השמורים בפרופיל זה.</string>
     <string name="simkl_connected_as">מחוברים בתור %1$s</string>
     <string name="simkl_user_fallback">משתמש Simkl</string>
     <string name="simkl_awaiting_instruction">יש לפתוח את דף האימות של Simkl ולהזין קוד זה.</string>
-    <string name="simkl_code_expires">הקוד יפוג בעוד %1$s</string>
     <string name="simkl_sync_now">סנכרון עכשיו</string>
     <string name="simkl_visit">ביקור ב-Simkl</string>
     <string name="simkl_sync_info_action">איך הסנכרון עובד</string>
@@ -3093,8 +2816,6 @@
     <string name="simkl_status_disconnected">מנותק מ-Simkl</string>
     <string name="simkl_status_syncing">מסתנכרן עם Simkl…</string>
     <string name="simkl_status_synced">סנכרון Simkl הושלם</string>
-    <string name="simkl_watch_progress_selected">Simkl נבחר ל\"המשך צפייה\"</string>
-    <string name="simkl_library_source_selected">Simkl נבחר ל\"ספרייה\"</string>
     <string name="simkl_error_code_expired">קוד ה-Simkl פג תוקף. יש להתחיל מחדש.</string>
     <string name="simkl_error_authorization_revoked">האישור ל-Simkl בוטל. יש להתחבר שוב.</string>
     <string name="simkl_error_network">לא ניתן להתחבר ל-Simkl. כדאי לנסות שוב.</string>
@@ -3126,14 +2847,11 @@
     <string name="stream_embedded_group">מקורות מוטמעים</string>
     <string name="stream_embedded_fallback_name">מקור מוטמע</string>
     <string name="stream_quality_unknown">לא ידוע</string>
-    <string name="stream_addon_unknown">לא ידוע</string>
-    <string name="tmdb_unknown_entity">לא ידוע</string>
     <string name="web_tmdb_company_fallback">חברת הפקה TMDB %1$d</string>
     <string name="web_tmdb_collection_fallback">אוסף TMDB %1$d</string>
     <string name="web_error_invalid_request_body">גוף הבקשה לא תקין</string>
 
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">אנגלית</string>
 
     <!-- Supporters / contributors / sponsors errors -->
     <string name="supporters_error_load">לא ניתן לטעון תומכים.</string>
@@ -3142,7 +2860,6 @@
     <string name="contributors_error_api_not_configured">ה-API של התורמים אינו מוגדר.</string>
     <string name="contributors_error_api_http">שגיאת API של תורמים: %1$d</string>
     <string name="supporters_error_api_http">שגיאת API של תרומות: %1$d</string>
-    <string name="sponsors_error_api_http">שגיאת API של נותני חסות: %1$d</string>
 
     <!-- Contributor role badges -->
     <string name="contributor_role_translator">תרגום</string>
@@ -3161,7 +2878,6 @@
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">מפעיל מנוע P2P…</string>
-    <string name="player_torrent_rebuffer_status">%1$s במאגר</string>
     <string name="player_stream_error_invalid_external_url">כתובת חיצונית לא תקינה</string>
     <string name="player_stream_error_open_external_link_failed">לא ניתן לפתוח קישור חיצוני</string>
     <string name="player_stream_error_invalid_url">כתובת מקור לא תקינה</string>
@@ -3169,11 +2885,6 @@
 
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">לא החזיר מטא-דאטה עבור מזהה זה</string>
-    <string name="meta_error_detail_addon_unreachable">לא ניתן היה להגיע לשרת התוסף</string>
-    <string name="meta_error_detail_addon_connection_failed">החיבור לתוסף נכשל</string>
-    <string name="meta_error_detail_addon_timeout">בקשת התוסף חרגה מהזמן המוקצב</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">התוסף משתמש בחיבור HTTP לא מאובטח שנחסם על ידי Android</string>
-    <string name="meta_error_detail_addon_request_failed">בקשת התוסף נכשלה</string>
 
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">לא החזיר מקורות עבור מזהה זה</string>
@@ -3200,8 +2911,6 @@
     <string name="trakt_comments_error_request_failed">בקשת התגובות מ-Trakt נכשלה</string>
     <string name="trakt_library_error_fetch_list_items">משיכת פריטי הרשימה נכשלה</string>
 
-    <string name="watchlist_removed">הוסר מרשימת צפייה</string>
-    <string name="watchlist_added">התווסף לרשימת צפייה</string>
 
     <!-- Debrid: filter rule rows (title + subtitle pairs) -->
     <string name="debrid_picker_preferred_resolutions_title">רזולוציות מועדפות</string>
@@ -3427,13 +3136,11 @@
     <string name="stream_test_card_title">הרצת בדיקת מהירות על המקור האחרון שהופעל</string>
     <string name="stream_test_server_label">שרת: %1$s</string>
     <string name="stream_test_no_stream">לא נרשמה הפעלה. יש להפעיל וידאו כדי להריץ בדיקות אבחון על השרת שלו.</string>
-    <string name="stream_test_btn_start">התחלת בדיקה</string>
     <string name="stream_test_btn_measuring_baseline">מודד קו בסיס…</string>
     <string name="stream_test_btn_measuring_parallel1">מודד מקבילי (‎1 חיבור)…</string>
     <string name="stream_test_btn_measuring_parallel4">מודד מקבילי (‎4 חיבורים)…</string>
     <string name="stream_test_btn_measuring_parallel8">מודד מקבילי (‎8 חיבורים)…</string>
     <string name="stream_test_btn_measuring_parallel16">מודד מקבילי (‎16 חיבורים)…</string>
-    <string name="stream_test_btn_run_again">הרצה חוזרת</string>
     <string name="stream_test_btn_running">פועל…</string>
     <string name="stream_test_label_baseline">חיבור בודד סטנדרטי (קו בסיס)</string>
     <string name="stream_test_label_parallel1">חיבור מקבילי (‎1 חיבור)</string>
