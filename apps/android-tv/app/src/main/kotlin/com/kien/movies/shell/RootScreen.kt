@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.tv.material3.DrawerValue
@@ -27,6 +28,7 @@ import androidx.tv.material3.rememberDrawerState
 import com.kien.movies.addons.AddonsScreen
 import com.kien.movies.design.Palette
 import com.kien.movies.design.RailSize
+import com.kien.movies.design.TvColors
 import com.kien.movies.details.DetailsScreen
 import com.kien.movies.home.HomeScreen
 import com.kien.movies.search.SearchScreen
@@ -89,7 +91,7 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
 
     val route = top.route
     if (route is AppRoute.Tab) {
-        WindowBackground(Palette.homeBackground)
+        WindowBackground(tabBackground(route.tab))
         RootTabs(
             selected = route.tab,
             drawerState = drawerState,
@@ -106,6 +108,9 @@ fun RootScreen(router: Router, stores: RouteViewModelStores, onExit: () -> Unit)
         EntryContent(top, saveableState, stores, contentFocus) { PushedScreen(route, router) }
     }
 }
+
+/** Window colour of a tab root (spec section 2): Home's rows, else the grey slate of Search and Library. */
+private fun tabBackground(tab: RootTab): Color = if (tab == RootTab.Home) TvColors.homeRows else TvColors.searchLibrary
 
 @Composable
 private fun TabRootScreen(tab: RootTab, router: Router) {
