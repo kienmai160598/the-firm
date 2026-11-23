@@ -41,7 +41,7 @@ follows from the column count, which is why it reads as tidy. Measured on `19-de
 |---|---|---|---|
 | 3 | 560 pt | Search result cards (560 x 170) | 275 dp |
 | 4 | 410 pt | Episodes, trailers, bonus content (16:9, 410 x 230) | 201 dp |
-| 5 | 320 pt | Continue Watching (16:9, 320 x 180) | 157 dp |
+| 5 | 320 pt | Continue Watching (16:9 picture 320 x 180, band below inside the card) | 157 dp |
 | 6 | 260 pt | Posters (2:3, 260 x 390), Top 10, cast circles (260), Browse genres | 127 dp |
 
 Rule for both platforms: the code holds the column count and the aspect ratio. The width is
@@ -57,7 +57,7 @@ colour the box can afford (decided in `android-tv-rebuild.md`, box performance r
 
 | Token | Reference | tvOS | Android TV |
 |---|---|---|---|
-| Home rows background | dark slate under the rows once the hero scrolls away | system material over the backdrop | `#1C2228` flat |
+| Home rows background | slate under the rows once the hero scrolls away, measured `#353A3C` (`10-row3.png`) | slate gradient `#253035` top to `#333637` | `#353A3C` flat |
 | Details background | navy, lighter in the centre: `#0B131B` edges, `#263642` centre | gradient as measured | `#141C24` flat |
 | Search and Library background | grey slate `#273137` top to `#35393A` | gradient as measured | `#2E3437` flat |
 | Text primary | white | `.primary` | `#FFFFFF` |
@@ -104,11 +104,11 @@ Bold). Android uses `sp = pt / 2`.
 
 Reference: `01-home.png`, `30-sidebar.png`, `60-lib-hover.png`.
 
-- **Collapsed:** a capsule at x 50, y 52, height 58: "‹", a 40 pt circle with the tab icon, the tab
+- **Collapsed:** a capsule at x 50, y 50 to 110 (height 60): "‹", a 50 pt circle with the tab icon, the tab
   name (Body bold). It floats over the content and is focusable; Up from the top control reaches it.
-- **Open:** a floating panel at x 34, y 34, 348 x 1016 pt, corner 32: profile avatar (50) and name,
+- **Open:** a floating panel at x 34, y 34, 340 x 1016 pt, corner 32: profile avatar (50) and name,
   clock on the right, then one row per tab. Rows are 72 pt tall on a 78 pt pitch; icon at x 80,
-  label at x 120. Focused row: white capsule inset 12 pt from the panel, dark text. Current tab
+  label at x 120. Focused row: white capsule inset 10 pt from the panel, dark text. Current tab
   when focus is elsewhere: grey capsule.
 - **Back** from a tab's content opens the panel; Back on the panel leaves the app (tvOS).
 - tvOS: `TabView` with `.tabViewStyle(.sidebarAdaptable)` draws exactly this on tvOS 27 hardware
@@ -125,12 +125,13 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 - Full bleed backdrop, opaque. On Home it autoplays a muted trailer after a pause (screenshots show
   it black). A bottom left scrim keeps the text readable.
 - Text block at x 80 (Home) or x 160 (Details card), bottom aligned:
-  - Logo image, max 420 x 105 pt (Home, y 400 to 505).
+  - Logo image, max 420 pt wide and up to 123 pt tall (Home, bottom near y 505); trim transparent edges before sizing.
   - Metadata line: 36 to 40 pt provider circle, "Movie · Action · Comedy", rating badge.
   - Overview: Caption 2, max 3 lines on Home, 4 on Details, width 540 to 660 pt.
   - Details only: tech line "2022 · 57m" plus outlined badges (4K, Dolby, CC, SDH, AD), height 22.
-  - Button row, height 68: primary white capsule (306 pt wide on Home), then 64 pt circular
-    buttons (add, info), then a chevron to the next hero item. 26 pt between buttons.
+  - Button row, height 68: primary white capsule (306 pt wide on Home), then 66 pt circular
+    buttons (add, info), then a chevron to the next hero item. 24 pt between buttons (re-measured;
+    first read 64 and 26). Primary is 296 x 64 unfocused and 306 x 68 focused.
   - Caption under the primary button (price), tertiary.
 - Home pager: dots centred at y 868; Left and Right on the chevron change item.
 - Details: "Starring ..." block on the right at x 1350, Caption 2, secondary label then primary names.
@@ -139,7 +140,7 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 
 ### Shelf row
 
-- Title: Callout bold, secondary, at the side margin; its baseline sits 30 pt above the cards.
+- Title: Callout bold, secondary, at the side margin; its baseline sits 22 pt above the cards (re-measured on both platforms; first read 30).
 - Between the bottom of one row's cards and the next title: about 75 pt.
 - Items on the column grid of section 1. Focused item scales about 1.1 from its centre; neighbours
   do not move.
@@ -148,7 +149,7 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 
 | Card | Size | Inside the card | Below the card |
 |---|---|---|---|
-| Continue Watching | 320 x 180 | bottom band: play glyph, progress bar, "S1, E1 · 17m", provider badge | nothing |
+| Continue Watching | 320 x 226 to 228: picture 180 plus a 46 to 48 pt band (re-measured) | band: play glyph, progress bar, "S1, E1 · 17m", provider badge | nothing |
 | Featured 16:9 (trailers, bonus) | 410 x 230 | bottom band over a soft shade: title (Body), "▶ 3m" (Caption 2) | nothing |
 | Episode | 410 x 230 | duration bottom left ("57m", Caption 2) | overline "EPISODE 2", title (Caption 1 bold), description (Caption 2, up to 5 lines), date and rating badge |
 | Poster | 260 x 390 | provider badge top right | focused only: genre caption ("TV Show · Sci-Fi") inside a dark bottom band |
@@ -161,7 +162,7 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 ### Buttons and pills
 
 - Primary: white capsule, dark text, height 68 (Home) or 64 (Details).
-- Secondary: 64 pt circle, glyph only; dark translucent when unfocused (Android: plus the glass edge), white when focused.
+- Secondary: 66 pt circle, glyph only; dark translucent when unfocused (Android: plus the glass edge), white when focused.
 - Season tabs: capsules height 60, Callout; selected tab grey capsule, others plain text.
 - Search suggestions: capsules height 64 with a magnifier glyph.
 
@@ -240,7 +241,15 @@ in sections 1 to 3.
 5. Motion: record the box with `adb shell screenrecord`, step frames with
    `ffmpeg -fps_mode passthrough -vf showinfo`, compare with the tagged values in section 5.
 
-## 8. Open questions
+## 8. Corrections from the build (2026-11-24)
+
+Values the first read got wrong, re-measured by the agents that built each screen on both
+platforms; sections above are already corrected: Home rows background, nav pill and panel sizes,
+logo height, circular button size and gap, row title gap, Continue Watching card height.
+Still to decide: the focused poster in the TV app grows about 1.10 wide and 1.19 tall (it shows its
+caption band), a uniform 1.1 scale leaves top and bottom about 16 pt short.
+
+## 9. Open questions
 
 - Motion of the TV app itself: needs a capture card or a slow motion phone video (section 5).
 - Player chrome, Store, and a Library with content: not captured.
