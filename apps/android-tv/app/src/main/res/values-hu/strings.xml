@@ -2188,7 +2188,6 @@
     <string name="nav_library">Könyvtár</string>
     <string name="nav_settings">Beállítások</string>
     <string name="action_select">Kiválasztás</string>
-    <string name="settings_rounded_ui">Lekerekített felület</string>
 
     <string name="update_waiting_for_stable">A következő stabil verziót akkor kapod meg, amikor megjelenik</string>
     <string name="update_download_complete">A letöltés befejeződött. Telepítésre kész.</string>

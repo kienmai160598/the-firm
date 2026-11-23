@@ -841,7 +841,6 @@
     <string name="nav_search">खोज</string>
     <string name="nav_library">लाइब्रेरी</string>
     <string name="nav_settings">सेटिंग्स</string>
-    <string name="settings_rounded_ui">राउंडेड UI</string>
 
     <string name="update_close">बंद करें</string>
     <string name="update_open_settings">सेटिंग्स खोलें</string>

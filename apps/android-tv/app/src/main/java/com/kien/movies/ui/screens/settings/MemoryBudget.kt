@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.kien.movies.data.local.BufferSettings
-import com.kien.movies.data.local.PlayerSettings
 import com.kien.movies.ui.screens.player.MoviesExoPlayerPerformanceHelper
 
 /**
@@ -199,18 +198,6 @@ object MemoryBudget {
     /** Max buffer size that fits budget given current parallel overhead */
     fun maxBufferMb(parallelOverheadMb: Int): Int = ((budgetMb - parallelOverheadMb) / BUFFER_STEP_MB * BUFFER_STEP_MB)
         .coerceIn(MIN_BUFFER_MB, MAX_BUFFER_MB)
-
-    /** Slider max for target buffer, optionally raised to 2GB when override is on. */
-    fun maxBufferMbWithOverride(parallelOverheadMb: Int, allowLargeTargetBuffer: Boolean): Int {
-        val safeMax = maxBufferMb(parallelOverheadMb)
-        return if (allowLargeTargetBuffer) {
-            PlayerSettings.LARGE_TARGET_BUFFER_MAX_MB
-                .coerceAtMost(MAX_BUFFER_MB)
-                .coerceAtLeast(safeMax)
-        } else {
-            safeMax
-        }
-    }
 
     /**
      * Enforce budget: reduce chunk first, then buffer as last resort.

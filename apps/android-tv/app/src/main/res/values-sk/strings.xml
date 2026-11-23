@@ -1559,7 +1559,6 @@
     <string name="nav_library">Knižnica</string>
     <string name="nav_settings">Nastavenia</string>
     <string name="action_select">Vybrať</string>
-    <string name="settings_rounded_ui">Zaoblené UI</string>
 
     <string name="update_download_complete">Sťahovanie dokončené. Pripravené na inštaláciu.</string>
     <string name="update_close">Zavrieť</string>

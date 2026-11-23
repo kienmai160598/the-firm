@@ -202,10 +202,6 @@ class DebridSettingsViewModel @Inject constructor(
         update { dataStore.setProviderApiKey(providerId, value.trim()) }
     }
 
-    fun validateAndSaveTorboxApiKey(value: String, onSuccess: () -> Unit) {
-        validateAndSaveProviderApiKey(DebridProviders.TORBOX_ID, value, onSuccess)
-    }
-
     fun validateAndSaveProviderApiKey(providerId: String, value: String, onSuccess: () -> Unit) {
         val trimmed = value.trim()
         if (trimmed.isBlank()) {

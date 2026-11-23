@@ -2189,7 +2189,6 @@ Utilizas esta función bajo tu entera responsabilidad. P2P se puede desactivar e
     <string name="nav_library">Biblioteca</string>
     <string name="nav_settings">Ajustes</string>
     <string name="action_select">Seleccionar</string>
-    <string name="settings_rounded_ui">Interfaz redondeada</string>
 
     <string name="update_waiting_for_stable">Recibirás la próxima versión estable cuando esté disponible</string>
     <string name="update_download_complete">Descarga completada. Listo para instalar.</string>

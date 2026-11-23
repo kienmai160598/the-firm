@@ -151,9 +151,6 @@ object MoviesTheme {
     val strokes: MoviesStrokeTokens
         get() = MoviesStrokes.tokens
 
-    val elevations: MoviesElevationTokens
-        get() = MoviesElevations.tokens
-
     val effects: MoviesEffectTokens
         get() = MoviesEffects.tokens
 

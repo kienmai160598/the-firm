@@ -2094,7 +2094,6 @@
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Postavke</string>
     <string name="action_select">Odaberi</string>
-    <string name="settings_rounded_ui">Zaobljeno sučelje</string>
 
     <string name="update_waiting_for_stable">Dobit ćeš sljedeće stabilno izdanje kada postane dostupno</string>
     <string name="update_download_complete">Preuzimanje dovršeno. Spremno za instalaciju.</string>

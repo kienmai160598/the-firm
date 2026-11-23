@@ -1411,7 +1411,6 @@
     <string name="nav_library">நூலகம்</string>
     <string name="nav_settings">அமைப்புகள்</string>
     <string name="action_select">தேர்ந்தெடு</string>
-    <string name="settings_rounded_ui">வட்டமான இடைமுகம்</string>
 
     <string name="update_download_complete">பதிவிறக்கம் முடிந்தது. நிறுவ தயாராக உள்ளது.</string>
     <string name="update_close">மூடு</string>

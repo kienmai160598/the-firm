@@ -1097,7 +1097,6 @@
     <string name="nav_search">Pretraga</string>
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Postavke</string>
-    <string name="settings_rounded_ui">Zaobljeni UI</string>
 
     <string name="update_download_complete">Preuzimanje završeno. Spremno za instalaciju.</string>
     <string name="update_close">Zatvori</string>

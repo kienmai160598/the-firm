@@ -935,7 +935,6 @@
     <string name="nav_search">Søk</string>
     <string name="nav_library">Bibliotek</string>
     <string name="nav_settings">Innstillinger</string>
-    <string name="settings_rounded_ui">Avrundet brukergrensesnitt</string>
 
     <string name="update_download_complete">Nedlasting ferdig. Klar til å installere.</string>
     <string name="update_close">Lukk</string>

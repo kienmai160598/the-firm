@@ -1990,7 +1990,6 @@
   <string name="nav_library">Βιβλιοθήκη</string>
   <string name="nav_settings">Ρυθμίσεις</string>
   <string name="action_select">Επιλογή</string>
-  <string name="settings_rounded_ui">Στρογγυλεμένο UI</string>
   <string name="update_waiting_for_stable">Θα λάβετε την επόμενη σταθερή έκδοση όταν γίνει διαθέσιμη</string>
   <string name="update_download_complete">Η λήψη ολοκληρώθηκε. Έτοιμο για εγκατάσταση.</string>
   <string name="update_installed_automatically">Ενημερώθηκε αυτόματα όταν η συσκευή ήταν σε αδράνεια</string>

@@ -1342,7 +1342,6 @@
     <string name="nav_library">Knjižnica</string>
 	<string name="nav_settings">Nastavitve</string>
 	<string name="action_select">Izberi</string>											
-	<string name="settings_rounded_ui">Zaobljen vmesnik</string>													  
     <string name="update_download_complete">Prenos je končan. Pripravljeno na namestitev.</string>
     <string name="update_close">Zapri</string>
     <string name="update_open_settings">Odpri nastavitve</string>

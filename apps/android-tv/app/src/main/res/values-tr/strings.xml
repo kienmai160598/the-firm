@@ -2275,7 +2275,6 @@
     <string name="nav_library">Kütüphanem</string>
     <string name="nav_settings">Ayarlar</string>
     <string name="action_select">Seç</string>
-    <string name="settings_rounded_ui">Yuvarlak Arayüz</string>
 
     <string name="update_waiting_for_stable">Sonraki kararlı sürüm yayınlandığında alacaksınız</string>
     <string name="update_download_complete">İndirme tamamlandı. Kurulum için hazır.</string>

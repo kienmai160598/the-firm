@@ -1554,7 +1554,6 @@
     <string name="nav_library">Pustaka</string>
     <string name="nav_settings">Pengaturan</string>
     <string name="action_select">Pilih</string>
-    <string name="settings_rounded_ui">UI Membulat</string>
 
     <string name="update_download_complete">Unduhan selesai. Siap dipasang.</string>
     <string name="update_close">Tutup</string>

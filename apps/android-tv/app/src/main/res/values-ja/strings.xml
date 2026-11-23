@@ -2194,7 +2194,6 @@
     <string name="nav_library">ライブラリ</string>
     <string name="nav_settings">設定</string>
     <string name="action_select">選択</string>
-    <string name="settings_rounded_ui">丸みのあるUI</string>
 
     <string name="update_waiting_for_stable">次回の安定版リリースが利用可能になった時点で受け取ります</string>
     <string name="update_download_complete">ダウンロード完了。インストールの準備ができました</string>

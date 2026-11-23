@@ -2043,7 +2043,6 @@
     <string name="nav_library">媒體庫</string>
     <string name="nav_settings">設定</string>
     <string name="action_select">選擇</string>
-    <string name="settings_rounded_ui">圓角 UI</string>
 
     <string name="update_waiting_for_stable">下一個穩定版本發布時您將收到通知</string>
     <string name="update_download_complete">下載完成。準備安裝。</string>

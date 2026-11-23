@@ -2174,7 +2174,6 @@
     <string name="nav_library">Bibliotheek</string>
     <string name="nav_settings">Instellingen</string>
     <string name="action_select">Selecteren</string>
-    <string name="settings_rounded_ui">Afgeronde UI</string>
 
     <string name="update_waiting_for_stable">Je ontvangt de volgende stabiele release zodra die beschikbaar is</string>
     <string name="update_download_complete">Download voltooid. Klaar om te installeren.</string>

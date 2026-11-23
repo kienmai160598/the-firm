@@ -2009,7 +2009,6 @@
     <string name="nav_library">লাইব্রেরি</string>
     <string name="nav_settings">সেটিংস</string>
     <string name="action_select">নির্বাচন করুন</string>
-    <string name="settings_rounded_ui">রাউন্ডেড UI</string>
     <string name="update_waiting_for_stable">আপনি পরবর্তী স্থিতিশীল রিলিজ পাবেন যখন এটি উপলব্ধ হবে</string>
     <string name="update_download_complete">ডাউনলোড সম্পন্ন হয়েছে। ইনস্টল করতে প্রস্তুত।</string>
     <string name="update_close">বন্ধ করুন</string>

@@ -93,9 +93,6 @@ data class MoviesSourceColors(
     val mdblist: Color
 )
 
-@Immutable
-data class MoviesContrastPair(val foreground: Color, val background: Color)
-
 class MoviesColorScheme(
     palette: ThemeColorPalette,
     amoledMode: Boolean = false,
@@ -149,7 +146,6 @@ class MoviesColorScheme(
 
     val Border = palette.outlineVariant
     val BorderFocused = FocusRing
-    val BorderMuted = Border.copy(alpha = 0.58f)
 
     val Scrim = MoviesPrimitives.black.copy(alpha = 0.62f)
     val ImageScrim = MoviesPrimitives.black.copy(alpha = 0.58f)
@@ -239,15 +235,6 @@ class MoviesColorScheme(
         tmdb = MoviesPrimitives.tmdb,
         imdb = MoviesPrimitives.imdb,
         mdblist = MoviesPrimitives.mdblist
-    )
-
-    val contrastPairs = listOf(
-        MoviesContrastPair(TextPrimary, Background),
-        MoviesContrastPair(TextPrimary, BackgroundCard),
-        MoviesContrastPair(TextSecondary, Background),
-        MoviesContrastPair(OnSecondary, Secondary),
-        MoviesContrastPair(FocusContent, FocusBackground),
-        MoviesContrastPair(MoviesPrimitives.white, PlayerOverlay)
     )
 }
 

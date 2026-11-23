@@ -1775,7 +1775,6 @@
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Cilësimet</string>
     <string name="action_select">Zgjidh</string>
-    <string name="settings_rounded_ui">Ndërfaqe e rrumbullakosur</string>
     <string name="update_download_complete">Shkarkimi përfundoi. Gati për instalim.</string>
     <string name="update_close">Mbyll</string>
     <string name="update_open_settings">Hap Cilësimet</string>

@@ -2259,7 +2259,6 @@
     <string name="nav_library">Bibliothèque</string>
     <string name="nav_settings">Paramètres</string>
     <string name="action_select">Sélectionner</string>
-    <string name="settings_rounded_ui">Interface arrondie</string>
 
     <string name="update_waiting_for_stable">Vous recevrez la prochaine version stable dès qu’elle sera disponible</string>
     <string name="update_download_complete">Téléchargement terminé. Prêt à installer.</string>

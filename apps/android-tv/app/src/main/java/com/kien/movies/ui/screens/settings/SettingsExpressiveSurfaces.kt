@@ -3,14 +3,9 @@
 
 package com.kien.movies.ui.screens.settings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonBorder
 import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonScale
@@ -26,7 +21,6 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ClickableSurfaceShape
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.LocalContentColor
 import com.kien.movies.ui.components.expressive.M3eShapes
 import com.kien.movies.ui.components.expressive.MoviesButtonStyle
 import com.kien.movies.ui.components.expressive.moviesButtonBorder
@@ -38,9 +32,7 @@ import com.kien.movies.ui.components.expressive.moviesCardColors
 import com.kien.movies.ui.components.expressive.moviesCardScale
 import com.kien.movies.ui.components.expressive.moviesSurfaceBorder
 import com.kien.movies.ui.components.expressive.moviesSurfaceColors
-import com.kien.movies.ui.theme.ExpressiveColors
 import com.kien.movies.ui.theme.ExpressiveFocus
-import com.kien.movies.ui.theme.MoviesTheme
 import com.kien.movies.ui.theme.TvSizeFloors
 
 // Shared by the settings, account, addon, plugin and TMDB screens for the tv-material Surfaces,
@@ -48,8 +40,6 @@ import com.kien.movies.ui.theme.TvSizeFloors
 // (components/expressive), so a control styled through it looks like a kit control: 12dp cards,
 // capsule buttons and chips, frosted at rest, white on focus, no ring. The receiver or `upstream`
 // argument a call site passes is not read.
-
-private val SelectedOutlineWidth = 2.dp
 
 @Composable
 private fun surfaceShapeInEveryState(shape: Shape): ClickableSurfaceShape = ClickableSurfaceDefaults.shape(
@@ -128,30 +118,9 @@ internal fun CardColors.expressiveControl(
 @Composable
 internal fun ButtonColors.expressiveControl(primary: Boolean = false): ButtonColors = moviesButtonColors(if (primary) MoviesButtonStyle.Primary else MoviesButtonStyle.Secondary)
 
-/** A tv Button that marks a choice: brighter frosted while [selected], white on focus. */
-@Composable
-internal fun ButtonColors.expressiveChoice(selected: Boolean): ButtonColors = moviesButtonColors(if (selected) MoviesButtonStyle.Selected else MoviesButtonStyle.Secondary)
-
 internal fun ButtonShape.expressivePill(): ButtonShape = moviesButtonShape
 
 @Composable
 internal fun ButtonBorder.expressiveRingless(): ButtonBorder = moviesButtonBorder()
 
 internal fun ButtonScale.expressiveControlGrow(): ButtonScale = moviesButtonScale
-
-/**
- * A choice card has no focus ring but keeps its selection readable: an accent outline while
- * [selected], whether focused or not, as M3's selected outlined card.
- */
-@Composable
-internal fun CardBorder.expressiveSelection(selected: Boolean): CardBorder {
-    val outline = if (selected) {
-        Border(
-            border = BorderStroke(SelectedOutlineWidth, MoviesTheme.colors.Secondary),
-            shape = M3eShapes.card
-        )
-    } else {
-        Border.None
-    }
-    return CardDefaults.border(border = outline, focusedBorder = outline, pressedBorder = outline)
-}

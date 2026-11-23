@@ -1708,7 +1708,6 @@
     <string name="nav_library">Knihovna</string>
     <string name="nav_settings">Nastavení</string>
     <string name="action_select">Vybrat</string>
-    <string name="settings_rounded_ui">Zakulacené UI</string>
 
     <string name="update_download_complete">Stahování dokončeno. Připraveno k instalaci.</string>
     <string name="update_close">Zavřít</string>

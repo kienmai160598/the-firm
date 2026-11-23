@@ -2165,7 +2165,6 @@
     <string name="nav_library">Библиотека</string>
     <string name="nav_settings">Настройки</string>
     <string name="action_select">Избери</string>
-    <string name="settings_rounded_ui">Заоблен потребителски интерфейс</string>
     
     <string name="update_waiting_for_stable">Ще получите следващата стабилна версия, когато стане достъпна</string>
     <string name="update_download_complete">Изтеглянето е завършено. Готово за инсталиране.</string>

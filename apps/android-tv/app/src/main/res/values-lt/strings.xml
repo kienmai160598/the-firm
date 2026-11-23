@@ -836,7 +836,6 @@
     <string name="nav_search">Paieška</string>
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Nustatymai</string>
-    <string name="settings_rounded_ui">Suapvalinta sąsaja</string>
 
     <string name="update_close">Uždaryti</string>
     <string name="update_open_settings">Atidaryti nustatymus</string>
