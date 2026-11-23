@@ -34,7 +34,7 @@ internal fun searchRows(sections: List<HomeCatalogSection>): List<TvosRow> {
         val typeLabel = mediaTypeLabel(section.target.contentType)
         val isTypeShared = (sectionsPerType[section.target.contentType] ?: 0) > 1
         section.toTvosRow().copy(
-            title = if (isTypeShared) "$typeLabel · ${section.addonName}" else typeLabel,
+            title = if (isTypeShared) "${section.addonName} $typeLabel" else typeLabel,
         )
     }
 }

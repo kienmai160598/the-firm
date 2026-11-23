@@ -72,7 +72,7 @@ struct MpvPlayerScreen: View {
         target = request.target
         advisory = request.advisory
         source = [request.stream.addonName, request.stream.filename ?? request.stream.name]
-            .joined(separator: " · ")
+            .joined(separator: ", ")
         _controller = StateObject(
             wrappedValue: MpvPlaybackController(request: request, onFailure: onFailure)
         )

@@ -41,7 +41,7 @@ final class PlayerTests: XCTestCase {
         openMkv()
         let embedded = tv.button(containing: "Vietnamese ASS")
         let online = onlineButton(language: "Vietnamese")
-        let loaded = tv.button(containing: "Vietnamese · Nuvio tvOS test films")
+        let loaded = tv.button(containing: "Vietnamese (Nuvio tvOS test films)")
         openMenu("Subtitles")
         XCTAssertTrue(embedded.waitForExistence(timeout: 3))
         tv.focus(online, moving: [.down, .down, .down, .down])

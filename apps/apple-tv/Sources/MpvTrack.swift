@@ -68,7 +68,7 @@ enum MpvTrackKind {
         return MpvTrackOption(
             id: id,
             label: label,
-            detail: details.isEmpty ? nil : details.joined(separator: " · "),
+            detail: details.isEmpty ? nil : details.joined(separator: ", "),
             isSelected: mpv.string(prefix + "selected") == "yes"
         )
     }

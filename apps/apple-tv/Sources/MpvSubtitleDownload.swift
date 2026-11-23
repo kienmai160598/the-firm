@@ -11,14 +11,14 @@ struct MpvSubtitleDownload: Equatable {
     let number: Int
 
     var trackTitle: String {
-        "\(languageLabel) · \(source)"
+        "\(languageLabel) (\(source))"
     }
 
     var option: MpvTrackOption {
         MpvTrackOption(
             id: "online:\(url)",
             label: number > 1 ? "\(languageLabel) \(number)" : languageLabel,
-            detail: "\(source) · Online",
+            detail: "Online from \(source)",
             isSelected: false,
             download: self
         )

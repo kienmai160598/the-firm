@@ -16,13 +16,13 @@ class TvosSearchRowsTest {
 
         val titles = searchRows(sections).map(TvosRow::title)
 
-        assertEquals(listOf("Movies", "Series · Cinemeta", "Series · Anime Kitsu"), titles)
+        assertEquals(listOf("Movies", "Cinemeta Series", "Anime Kitsu Series"), titles)
     }
 
     private fun section(addon: String, type: String) =
         HomeCatalogSection(
             key = "$addon:$type",
-            title = "Popular • $type",
+            title = "Popular $type",
             subtitle = addon,
             addonName = addon,
             target = CatalogTarget.Addon(
