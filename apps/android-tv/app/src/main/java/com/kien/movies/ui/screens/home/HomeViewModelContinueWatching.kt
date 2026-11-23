@@ -15,11 +15,9 @@ import com.kien.movies.domain.model.WatchProgress
 import com.kien.movies.domain.model.countryToLanguageCode
 import com.kien.movies.domain.model.normalizeLanguageCode
 import com.kien.movies.ui.util.parseEpisodeReleaseDate
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -73,105 +71,6 @@ private data class ContinueWatchingSettingsSnapshot(
     val hasLoadedRemoteProgress: Boolean
 )
 
-/**
- * Lightweight projection of [Meta] for CW pipeline caching.
- * Drops cast, crew, trailers, streams, release dates, and other heavy fields
- * that are never read by continue-watching or badge evaluation.
- */
-internal data class CwMetaSummary(
-    val id: String,
-    val name: String,
-    val poster: String?,
-    val backdropUrl: String?,
-    val logo: String?,
-    val description: String?,
-    val genres: List<String>,
-    val releaseInfo: String?,
-    val imdbRating: Float?,
-    val language: String?,
-    val country: String?,
-    val videos: List<CwVideoSummary>
-) {
-    fun watchableEpisodes(): List<CwVideoSummary> {
-        val candidates = videos.filter {
-            it.season != null && it.episode != null &&
-                (it.season ?: 0) > 0
-        }
-        fun isFutureRelease(raw: String?): Boolean = isEpisodeReleaseAired(raw) == false
-        val unavailableSeasons = candidates.groupBy { it.season }
-            .filter { (_, eps) ->
-                val first = eps.minByOrNull { it.episode ?: Int.MAX_VALUE } ?: return@filter false
-                if (first.available == false) return@filter true
-                isFutureRelease(first.released)
-            }.keys
-        return candidates
-            .filter { it.season !in unavailableSeasons }
-            .filter { it.available != false && !isFutureRelease(it.released) }
-    }
-
-    /**
-     * Returns the start-of-day (00:00 UTC) epochMs of the earliest upcoming season's
-     * first episode release date minus 7 days, or null if no upcoming seasons are known.
-     * Subtracts 7 days so revalidation triggers a week before the premiere,
-     * allowing the countdown badge ("Airs in X days") to appear in CW.
-     * Uses start-of-day so revalidation triggers right after midnight, not at
-     * the exact broadcast time.
-     */
-    fun earliestUpcomingSeasonMs(): Long? {
-        val today = java.time.LocalDate.now()
-        val sevenDaysMs = 7L * 24 * 60 * 60 * 1000
-        val candidates = videos.filter { (it.season ?: 0) > 0 }
-        return candidates.groupBy { it.season }
-            .mapNotNull { (_, eps) ->
-                val first =
-                    eps.minByOrNull { it.episode ?: Int.MAX_VALUE } ?: return@mapNotNull null
-                if (first.available == false) return@mapNotNull null
-                val date = parseEpisodeReleaseDate(first.released)
-                if (date == null) return@mapNotNull null
-                if (date.isAfter(today)) {
-                    val premiereMs = date.atStartOfDay(
-                        java.time.ZoneId.systemDefault()
-                    ).toInstant().toEpochMilli()
-                    // Trigger revalidation 7 days before premiere so countdown badge shows up
-                    (premiereMs - sevenDaysMs).coerceAtLeast(System.currentTimeMillis())
-                } else {
-                    null
-                }
-            }
-            .minOrNull()
-    }
-
-    /**
-     * Earliest not-yet-aired episode release instant (mid-season or new season).
-     * Used as a revalidation deadline so currently-airing "caught up" series are
-     * re-checked the day a new episode drops, instead of waiting the default 7-day TTL.
-     */
-    fun earliestUpcomingEpisodeMs(now: Instant = Instant.now()): Long? {
-        return videos
-            .asSequence()
-            .filter { (it.season ?: 0) > 0 && it.available != false }
-            .mapNotNull { video -> parseEpisodeReleaseInstant(video.released) }
-            .filter { it.isAfter(now) }
-            .minOrNull()
-            ?.toEpochMilli()
-    }
-
-    /** Best revalidation deadline: next episode air time, else next-season window. */
-    fun earliestRevalidationMs(now: Instant = Instant.now()): Long? = listOfNotNull(earliestUpcomingEpisodeMs(now), earliestUpcomingSeasonMs()).minOrNull()
-}
-
-internal data class CwVideoSummary(
-    val id: String,
-    val title: String?,
-    val released: String?,
-    val thumbnail: String?,
-    val season: Int?,
-    val episode: Int?,
-    val overview: String?,
-    val available: Boolean? = null,
-    val rating: Double? = null
-)
-
 private fun Meta.toCwSummary(): CwMetaSummary = CwMetaSummary(
     id = id,
     name = name,
@@ -211,17 +110,6 @@ private data class NextUpTmdbData(
     val showDescription: String?,
     val rating: Double?,
     val contentLanguage: String? = null
-)
-
-internal data class NextUpResolution(
-    val season: Int,
-    val episode: Int,
-    val videoId: String,
-    val episodeTitle: String?,
-    val released: String?,
-    val hasAired: Boolean,
-    val airDateLabel: String?,
-    val lastWatched: Long
 )
 
 private data class NextUpReleaseState(
@@ -1919,110 +1807,6 @@ private suspend fun HomeViewModel.enrichVisibleContinueWatchingItems(
     true
 }
 
-private val upcomingReleaseComparator = compareBy<ContinueWatchingItem, LocalDate?>(
-    nullsLast()
-) { item ->
-    parseEpisodeReleaseDate((item as? ContinueWatchingItem.NextUp)?.info?.released)
-}.thenBy(nullsLast()) { item ->
-    parseTimedEpisodeReleaseInstant((item as? ContinueWatchingItem.NextUp)?.info?.released)
-}
-
-private fun parseTimedEpisodeReleaseInstant(raw: String?): Instant? {
-    val value = raw?.trim() ?: return null
-    if (runCatching { DateTimeFormatter.ISO_DATE_TIME.parse(value) }.isFailure) {
-        return runCatching { Instant.parse(value) }.getOrNull()
-    }
-    return parseEpisodeReleaseInstant(value)
-}
-
-internal fun sortContinueWatchingItems(
-    items: List<ContinueWatchingItem>,
-    mode: ContinueWatchingSortMode
-): List<ContinueWatchingItem> {
-    return when (mode) {
-        ContinueWatchingSortMode.DEFAULT, ContinueWatchingSortMode.SPLIT_UPCOMING -> items.sortedByDescending {
-                item
-            ->
-            when (item) {
-                is ContinueWatchingItem.InProgress -> item.progress.lastWatched
-                is ContinueWatchingItem.NextUp -> item.info.sortTimestamp
-            }
-        }
-
-        ContinueWatchingSortMode.STREAMING_STYLE -> {
-            val (released, unreleased) = items.partition { item ->
-                when (item) {
-                    is ContinueWatchingItem.InProgress -> true
-
-                    // in-progress is always released
-                    is ContinueWatchingItem.NextUp -> item.info.hasAired
-                }
-            }
-
-            val sortedReleased = released.sortedByDescending { item ->
-                when (item) {
-                    is ContinueWatchingItem.InProgress -> item.progress.lastWatched
-                    is ContinueWatchingItem.NextUp -> if (item.info.isReleaseAlert) item.info.sortTimestamp else item.info.lastWatched
-                }
-            }
-
-            val sortedUnreleased = unreleased.sortedWith(upcomingReleaseComparator)
-
-            sortedReleased + sortedUnreleased
-        }
-    }
-}
-
-internal fun mergeContinueWatchingItems(
-    inProgressItems: List<ContinueWatchingItem.InProgress>,
-    nextUpItems: List<ContinueWatchingItem.NextUp>,
-    mode: ContinueWatchingSortMode = ContinueWatchingSortMode.DEFAULT
-): List<ContinueWatchingItem> {
-    val allInProgressIds = inProgressItems
-        .asSequence()
-        .map { it.progress }
-        .filter { isSeriesType(it.contentType) }
-        .map { it.contentId }
-        .filter { it.isNotBlank() }
-        .toSet()
-
-    val filteredNextUpItems = nextUpItems.filter { item ->
-        item.info.contentId !in allInProgressIds
-    }
-
-    val combined = inProgressItems + filteredNextUpItems
-
-    val seen = mutableSetOf<String>()
-    val deduplicated = combined.filter { item ->
-        val contentId = when (item) {
-            is ContinueWatchingItem.InProgress -> item.progress.contentId
-            is ContinueWatchingItem.NextUp -> item.info.contentId
-        }
-        contentId.isBlank() || seen.add(contentId)
-    }
-
-    return sortContinueWatchingItems(deduplicated, mode)
-}
-
-/**
- * Splits items into (mainRow, upcomingRow) for [ContinueWatchingSortMode.SPLIT_UPCOMING].
- * Upcoming items are unaired NextUp episodes; everything else stays in the main row.
- * For other modes, all items go into mainRow and upcomingRow is empty.
- */
-internal fun splitUpcomingItems(
-    items: List<ContinueWatchingItem>,
-    mode: ContinueWatchingSortMode
-): Pair<List<ContinueWatchingItem>, List<ContinueWatchingItem>> {
-    if (mode != ContinueWatchingSortMode.SPLIT_UPCOMING) {
-        return items to emptyList()
-    }
-    val (upcoming, main) = items.partition { item ->
-        item is ContinueWatchingItem.NextUp && !item.info.hasAired
-    }
-    val sortedUpcoming = upcoming.sortedWith(upcomingReleaseComparator)
-    return main to sortedUpcoming
-}
-
 private suspend fun HomeViewModel.buildNextUpItem(
     progress: WatchProgress,
     showUnairedNextUp: Boolean,
@@ -2558,100 +2342,6 @@ private fun resolveNextUpVideoFromMeta(
     meta: CwMetaSummary
 ): CwVideoSummary? = resolveNextUpVideoFromMeta(progress, meta, showUnairedNextUp = true)
 
-private const val CW_NEXT_UP_NEW_SEASON_UNAIRED_WINDOW_DAYS = 7
-
-// An episode with no date is no more watchable than one dated ahead, so a missing date counts as unaired and stays under the same setting instead of passing as aired.
-internal fun isNextUpEpisodeUnaired(releaseDate: LocalDate?, today: LocalDate): Boolean = releaseDate == null || releaseDate.isAfter(today)
-
-internal fun resolveNextUpVideoFromMeta(
-    progress: WatchProgress,
-    meta: CwMetaSummary,
-    showUnairedNextUp: Boolean
-): CwVideoSummary? {
-    val episodes = meta.videos
-        .filter { video ->
-            val season = video.season
-            val episode = video.episode
-            season != null && episode != null && season != 0
-        }
-        .sortedWith(
-            compareBy<CwVideoSummary>({ it.season ?: Int.MAX_VALUE }, {
-                it.episode
-                    ?: Int.MAX_VALUE
-            })
-        )
-
-    if (episodes.isEmpty()) return null
-
-    val seedSeason = progress.season
-    val seedEpisode = progress.episode
-    if (seedSeason == null || seedEpisode == null) return null
-
-    var watchedIndex = episodes.indexOfFirst {
-        it.season == seedSeason && it.episode == seedEpisode
-    }
-
-    // Fallback: if the seed wasn't found by season+episode
-    if (watchedIndex < 0) {
-        val videoId = progress.videoId.takeIf { it.isNotBlank() }
-        if (videoId != null) {
-            watchedIndex = episodes.indexOfFirst { it.id == videoId }
-        }
-        if (watchedIndex < 0) {
-            // Index-based fallback: treat the seed as the Nth episode overall
-            val addonSeasons = episodes.mapTo(mutableSetOf()) { it.season }
-            if (seedSeason == 1 && addonSeasons.size > 1 && seedEpisode > 0) {
-                val globalIndex = seedEpisode - 1 // 0-based
-                if (globalIndex in episodes.indices) {
-                    watchedIndex = globalIndex
-                }
-            }
-        }
-    }
-
-    if (watchedIndex < 0) {
-        return null
-    }
-
-    val todayLocal = LocalDate.now(ZoneId.systemDefault())
-    val watchedEpisodeSeason = episodes[watchedIndex].season
-    val nextVideo = episodes.drop(watchedIndex + 1).firstOrNull { video ->
-        if (video.season in progress.excludedNextUpSeasons) return@firstOrNull false
-        val releaseDate = parseEpisodeReleaseDate(video.released)
-        val isSeasonRollover = video.season != watchedEpisodeSeason
-        if (isSeasonRollover) {
-            if (releaseDate == null) {
-                return@firstOrNull false
-            }
-            if (!releaseDate.isAfter(todayLocal)) {
-                return@firstOrNull true
-            }
-            // Match mobile: show unaired next-season episodes within 7-day window
-            if (showUnairedNextUp) {
-                val daysUntil = java.time.temporal.ChronoUnit.DAYS.between(todayLocal, releaseDate)
-                if (daysUntil <= CW_NEXT_UP_NEW_SEASON_UNAIRED_WINDOW_DAYS) {
-                    return@firstOrNull true
-                }
-            }
-            return@firstOrNull false
-        }
-
-        if (!isNextUpEpisodeUnaired(releaseDate, todayLocal)) {
-            return@firstOrNull true
-        }
-        if (releaseDate == null && video.available == false) {
-            return@firstOrNull false
-        }
-        showUnairedNextUp
-    }
-
-    if (nextVideo == null) {
-        return null
-    }
-
-    return nextVideo
-}
-
 private const val CW_META_NEGATIVE_CACHE_TTL_MS = 5 * 60_000L
 
 internal suspend fun HomeViewModel.resolveCwMeta(progress: WatchProgress) = resolveMetaForProgress(progress, cwMetaCache)
@@ -2870,22 +2560,6 @@ private suspend fun HomeViewModel.resolveBadgeEpisodes(
 }
 
 private fun buildLightweightEpisodeVideoId(contentId: String, season: Int, episode: Int): String = "$contentId:$season:$episode"
-
-internal fun buildNextUpSeedCacheKey(progress: WatchProgress, showUnairedNextUp: Boolean): String {
-    return buildString {
-        append(progress.contentId.trim())
-        append("|")
-        append(progress.season ?: -1)
-        append("|")
-        append(progress.episode ?: -1)
-        append("|unaired=")
-        append(showUnairedNextUp)
-        if (progress.excludedNextUpSeasons.isNotEmpty()) {
-            append("|excluded=")
-            append(progress.excludedNextUpSeasons.sorted().joinToString(","))
-        }
-    }
-}
 
 private fun HomeViewModel.persistLocalContinueWatchingMetadata(
     originalItems: List<ContinueWatchingItem>,
@@ -3522,10 +3196,6 @@ private fun String?.normalizeImageUrl(): String? = this
     ?.trim()
     ?.takeIf { it.isNotEmpty() }
 
-internal fun nextUpDismissKey(contentId: String, season: Int?, episode: Int?): String {
-    return contentId.trim()
-}
-
 internal fun HomeViewModel.removeContinueWatchingPipeline(
     contentId: String,
     season: Int? = null,
@@ -3595,47 +3265,3 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
         )
     }
 }
-
-/**
- * The next-up overlay that can stand in for enriching [item] again: one for the same episode that
- * was enriched in this session. An entry restored from the disk snapshot only seeds the first
- * render; reusing it would keep stale data for good, such as an episode description the add-on
- * added after the snapshot was written.
- */
-internal fun reusableNextUpOverlay(
-    overlay: NextUpInfo?,
-    item: NextUpInfo,
-    seededFromDisk: Boolean
-): NextUpInfo? = overlay?.takeIf {
-    !seededFromDisk && it.season == item.season && it.episode == item.episode
-}
-
-/**
- * Keeps what a card showed for its series when the card moves on to another episode.
- *
- * The title, artwork, genres and title ratings belong to the series, so they stay from the card
- * enriched earlier until the new episode is enriched. Without this the card showed the raw progress
- * title (e.g. the Simkl one) between the two. Episode fields are left to the new episode.
- */
-internal fun NextUpInfo.withSeriesFieldsFrom(source: NextUpInfo): NextUpInfo = copy(
-    name = source.name.takeIf { it.isNotBlank() } ?: name,
-    poster = source.poster ?: poster,
-    backdrop = source.backdrop ?: backdrop,
-    logo = source.logo ?: logo,
-    genres = source.genres.ifEmpty { genres },
-    releaseInfo = source.releaseInfo ?: releaseInfo,
-    contentLanguage = source.contentLanguage ?: contentLanguage,
-    mdbListRatings = source.mdbListRatings ?: mdbListRatings
-)
-
-/** [withSeriesFieldsFrom] for a card that was in progress, e.g. an episode marked watched mid-way. */
-internal fun NextUpInfo.withSeriesFieldsFrom(source: ContinueWatchingItem.InProgress): NextUpInfo = copy(
-    name = source.progress.name.takeIf { it.isNotBlank() } ?: name,
-    poster = source.progress.poster ?: poster,
-    backdrop = source.progress.backdrop ?: backdrop,
-    logo = source.progress.logo ?: logo,
-    genres = source.genres.ifEmpty { genres },
-    releaseInfo = source.releaseInfo ?: releaseInfo,
-    contentLanguage = source.contentLanguage ?: contentLanguage,
-    mdbListRatings = source.mdbListRatings ?: mdbListRatings
-)
