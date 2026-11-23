@@ -13,8 +13,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.details.CAST_ROW_TAG
+import com.kien.movies.details.DETAILS_ABOUT_TAG
 import com.kien.movies.details.DETAILS_CONTENT_TAG
 import com.kien.movies.details.DETAILS_ERROR_TAG
+import com.kien.movies.details.DETAILS_INFO_BUTTON_TAG
 import com.kien.movies.details.DETAILS_INFO_TAG
 import com.kien.movies.details.DETAILS_LOADING_TAG
 import com.kien.movies.details.DETAILS_OVERVIEW_TAG
@@ -86,7 +88,7 @@ class DetailsTest {
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
         tv.assertFocusedTag(seasonTag(2))
         tv.select()
-        tv.await(hasText("E1  Seven Thirty-Seven"))
+        tv.await(hasText(SEASON_2_EPISODE_1))
         tv.down()
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
         tv.press(KeyEvent.KEYCODE_DPAD_UP)
@@ -102,7 +104,7 @@ class DetailsTest {
         tv.down()
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
         tv.select()
-        tv.await(hasText("E1  Seven Thirty-Seven"))
+        tv.await(hasText(SEASON_2_EPISODE_1))
         tv.down()
         tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
         val episode = focusedTag()
@@ -114,12 +116,12 @@ class DetailsTest {
 
         tv.assertFocusedTag(episode)
         compose.onNodeWithTag(DETAILS_CONTENT_TAG).assertExists()
-        tv.await(hasText("E1  Seven Thirty-Seven"), TvRobot.FOCUS_TIMEOUT_MS)
+        tv.await(hasText(SEASON_2_EPISODE_1), TvRobot.FOCUS_TIMEOUT_MS)
     }
 
-    /** D4: the D-pad scrolls down to Cast and then to Information. */
+    /** D4: the D-pad scrolls down to Cast, then About, then Information. */
     @Test
-    fun d4_castAndInformationReachableByScrolling() {
+    fun d4_castAboutAndInformationReachableByScrolling() {
         tv.launch(DebugLaunch.ROUTE to BREAKING_BAD)
         tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
         tv.await(hasTestTag(CAST_ROW_TAG))
@@ -127,10 +129,25 @@ class DetailsTest {
         tv.down()
         tv.down()
         tv.assertFocusedTag(castTag(0))
+        tv.down()
+        tv.assertFocusedTag(DETAILS_ABOUT_TAG)
 
         tv.down()
 
         tv.assertFocusedTag(DETAILS_INFO_TAG)
+    }
+
+    /** D4: the info circle next to Play moves focus to About. */
+    @Test
+    fun d4_infoButtonFocusesAbout() {
+        tv.launch(DebugLaunch.ROUTE to BREAKING_BAD)
+        tv.awaitFocus(hasTestTag(DETAILS_PLAY_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.press(KeyEvent.KEYCODE_DPAD_RIGHT)
+        tv.assertFocusedTag(DETAILS_INFO_BUTTON_TAG)
+
+        tv.select()
+
+        tv.assertFocusedTag(DETAILS_ABOUT_TAG)
     }
 
     /** D5: while the details load, the loading state holds focus. */
@@ -165,6 +182,9 @@ class DetailsTest {
         const val TEST_SERIES = "details/series/tvostest-series"
         const val UNKNOWN_TITLE = "details/movie/tt0000000000"
         const val TEST_ADDON_URL = "http://127.0.0.1:8765/manifest.json"
+
+        // The episode title under its "EPISODE 1" overline.
+        const val SEASON_2_EPISODE_1 = "Seven Thirty-Seven"
 
         val TEST_SERIES_EPISODE_1 = TvosStreamTarget(
             type = "series",

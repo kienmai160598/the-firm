@@ -10,12 +10,12 @@ import com.nuvio.tvos.TvosStreamTarget
 
 // Bridge values with defaults, so each test shows only the fields it depends on.
 
-internal fun target(seasonNumber: Int? = null) = TvosStreamTarget(
+internal fun target(seasonNumber: Int? = null, episodeNumber: Int? = null) = TvosStreamTarget(
     type = "series",
     videoId = "show:1:1",
     parentMetaId = "show",
     seasonNumber = seasonNumber,
-    episodeNumber = null,
+    episodeNumber = episodeNumber,
     title = "Show",
     subtitle = null,
     backdropUrl = null,
@@ -38,7 +38,8 @@ internal fun episode(
     isWatched: Boolean = false,
     progressFraction: Float = 0f,
     releaseDate: String? = null,
-    runtime: String? = null
+    runtime: String? = null,
+    episodeNumber: Int? = 1
 ) = TvosEpisode(
     videoId = "show:1:1",
     code = code,
@@ -50,11 +51,12 @@ internal fun episode(
     isReleased = isReleased,
     isWatched = isWatched,
     progressFraction = progressFraction,
-    streamTarget = target(1)
+    streamTarget = target(1, episodeNumber)
 )
 
 internal fun details(
     name: String = "Show",
+    type: String = "series",
     seasons: List<TvosSeason> = emptyList(),
     primaryAction: TvosPlayAction? = null,
     genres: List<String> = emptyList(),
@@ -65,7 +67,7 @@ internal fun details(
     cast: List<TvosCastMember> = emptyList()
 ) = TvosMetaDetails(
     metaId = "show",
-    type = "series",
+    type = type,
     name = name,
     logoUrl = null,
     backdropUrl = null,
