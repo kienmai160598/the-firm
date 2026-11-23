@@ -1,9 +1,0 @@
-package com.kien.movies.domain.deeplink
-
-sealed interface AppDeepLink {
-    data class Meta(val type: String, val id: String) : AppDeepLink
-
-    data class AddonInstall(val manifestUrl: String) : AppDeepLink
-
-    data class Party(val code: String) : AppDeepLink
-}

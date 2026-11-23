@@ -1,32 +1,17 @@
-<div align="center">
+# Movies for Android TV
 
-  <img src="assets/brand/app_logo_wordmark.png" alt="Nuvio" width="300" />
+Being rebuilt from scratch to mirror `apps/apple-tv`, on the Kotlin logic in `shared/`. The plan,
+acceptance criteria, slices and the target folder tree are in `docs/android-tv-rebuild.md`.
 
-  <p>
-    A free, open-source media app for your phone, your desktop, and the TV you already own.
-    <br />
-    Bring your own sources. Nuvio turns them into a library with artwork, ratings, subtitles, and your place saved on every screen.
-  </p>
+What is here before the app lands:
 
-  [Website](https://nuvio.tv) · [GitHub releases](https://github.com/NuvioMedia/NuvioTV/releases/latest) · [Support Nuvio](https://nuvio.tv/support)
+- `box/install.sh`: installs an APK on the Mi Box and applies its baseline profile.
+- `box/perf/measure.sh`: a fixed remote scenario that records jank and memory. The old app's runs
+  are in `box/perf/results/legacy-agp8-movies-1625/` (not in git).
+- `box/legal-test-addon/`: a static addon of openly licensed torrent films for tests.
+- `box/brand/`: renders the launcher icon, banner and wordmarks.
+- `app/libs/lib-decoder-ffmpeg-release.aar`: the Media3 FFmpeg audio decoder with the downmix;
+  its source and licence are in `third_party/ffmpeg-decoder-downmix/`.
 
-</div>
-
-## Get Nuvio TV
-
-- [Android TV on Google Play](https://play.google.com/store/apps/details?id=com.nuvio.app)
-- [Android TV APK](https://github.com/NuvioMedia/NuvioTV/releases/latest)
-
-## Build from source
-
-```bash
-git clone https://github.com/NuvioMedia/NuvioTV.git
-cd NuvioTV
-./gradlew :app:assembleFullDebug
-```
-
-Nuvio TV is built with Kotlin, Jetpack Compose, TV Material 3, and Media3. Development requires Android Studio, a JDK, and the Android SDK.
-
-## License
-
-[GNU General Public License v3.0](./LICENSE)
+The old app is kept under the git tag `android-tv-legacy`. To read it:
+`git worktree add ../the-firm-legacy android-tv-legacy`.
