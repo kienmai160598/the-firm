@@ -21,9 +21,11 @@ apps/
 shared/                Kotlin Multiplatform Gradle build (AGP 9.2, Kotlin 2.4)
   core/                shared logic: models, addons, Trakt, sync, player state (Gradle :composeApp)
   apple-tv-bridge/     builds core for tvOS as a framework the Apple TV app links (Gradle :tvosShared)
+  torrent/             Kotlin API of the new torrent engine (Gradle :torrent)
   Version.xcconfig     version read by core
-engine/                builds the torrent engine (NuvioMedia/nuvio-engine, pinned, plus a tvOS
-                       patch) into nuvio-engine/, which is not committed
+engine/                the new torrent engine (C++20, libtorrent), see docs/engine-rebuild.md.
+                       build.sh still builds the old one (NuvioMedia/nuvio-engine, pinned, plus
+                       a tvOS patch) into nuvio-engine/, which is not committed
 Makefile               one entry point for every build
 ```
 
@@ -38,11 +40,12 @@ when they drift apart. The Android TV app does not use
 ```bash
 make android-tv                              # box APK
 ANDROID_SERIAL=<ip>:5555 make box-install    # install it on the box with its baseline profile
-make engine                                  # torrent engine for Apple TV, once (about 16 minutes)
+make engine                                  # old torrent engine for Apple TV, once (about 16 minutes)
+make engine-next engine-test                 # new torrent engine: xcframework, unit tests
 make apple-tv-sim                            # Apple TV app for the simulator
 make apple-tv-install APPLE_TEAM=<team id> APPLE_TV_DEVICE=<devicectl id>
 make android-tv-test shared-test
-make check                                   # toolchain, layering, ktlint, Android TV unit tests
+make check                                   # toolchain, layering, ktlint, engine and Android TV unit tests
 make format                                  # ktlint --format on the Android TV sources
 ```
 
