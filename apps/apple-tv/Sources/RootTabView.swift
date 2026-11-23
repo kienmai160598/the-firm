@@ -2,18 +2,11 @@ import SwiftUI
 
 struct RootTabView: View {
     @StateObject private var router = Router()
-    @StateObject private var curtain = LaunchCurtain()
 
     var body: some View {
         tabs
             .environmentObject(router)
-            .environmentObject(curtain)
-            .overlay { LaunchCurtainCover(curtain: curtain) }
             .onAppear(perform: openDebugRoute)
-            .onAppear(perform: curtain.liftIfContentNeverTakesFocus)
-            .onChange(of: router.path.isEmpty) { _, isHome in
-                if !isHome { curtain.liftNow() }
-            }
     }
 
     @ViewBuilder
@@ -36,7 +29,6 @@ struct RootTabView: View {
         #if DEBUG
         guard router.path.isEmpty, let route = DebugLaunch.initialRoute else { return }
         router.open(route)
-        curtain.liftNow()
         #endif
     }
 }

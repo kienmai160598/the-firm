@@ -13,7 +13,6 @@ struct HomeHero: View {
     @State private var advanceTask: Task<Void, Never>?
     @State private var hasTakenLaunchFocus = false
     @EnvironmentObject private var router: Router
-    @EnvironmentObject private var curtain: LaunchCurtain
     @FocusState private var focusedId: String?
 
     init(rows: [TvosRow], onFocus: @escaping () -> Void) {
@@ -72,10 +71,7 @@ struct HomeHero: View {
     }
 
     private func follow(_ id: String?) {
-        if id != nil {
-            onFocus()
-            curtain.liftOnceContentHasFocus()
-        }
+        if id != nil { onFocus() }
         if let id, id != currentId {
             withAnimation(.smooth(duration: 0.5)) { currentId = id }
         }
