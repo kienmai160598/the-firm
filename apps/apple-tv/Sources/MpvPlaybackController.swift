@@ -17,13 +17,11 @@ final class MpvPlaybackController: ObservableObject {
     private static let cannotCreate = "The video player could not be created."
     private static let stoppedEarly = "The stream stopped sending data before the end."
 
-    @Published private(set) var positionSeconds = 0
-    @Published private(set) var durationSeconds = 0
     @Published private(set) var isPaused = true
     @Published private(set) var isPausedByViewer = false
     @Published private(set) var isBuffering = true
-    @Published private(set) var bufferedSeconds = 0
 
+    let clock = MpvPlaybackClock()
     let videoLayer: CAMetalLayer = MpvMetalLayer()
     private let request: PlaybackRequest
     private let onFailure: (StreamNotice) -> Void
@@ -228,13 +226,13 @@ final class MpvPlaybackController: ObservableObject {
         switch name {
         case MpvProperty.timePosition:
             currentMs = Self.milliseconds(value)
-            positionSeconds = Int(currentMs / 1000)
+            clock.setPosition(Int(currentMs / 1000))
             markPlayedIfMoving()
         case MpvProperty.duration:
             durationMs = Self.milliseconds(value)
-            durationSeconds = Int(durationMs / 1000)
+            clock.setDuration(Int(durationMs / 1000))
         case MpvProperty.cacheTime:
-            bufferedSeconds = Int(value.isFinite ? max(value, 0) : 0)
+            clock.setBuffered(Int(value.isFinite ? max(value, 0) : 0))
         default:
             break
         }
@@ -243,11 +241,11 @@ final class MpvPlaybackController: ObservableObject {
     private func updateFlag(_ name: String, _ value: Bool) {
         switch name {
         case MpvProperty.pause:
-            isPaused = value
-            isPausedByViewer = value && hasRequestedPlay
+            publish(\.isPaused, value)
+            publish(\.isPausedByViewer, value && hasRequestedPlay)
             if value { save(syncRemote: true, reason: "pause") }
         case MpvProperty.pausedForCache:
-            isBuffering = value
+            publish(\.isBuffering, value)
             markPlayedIfMoving()
         case MpvProperty.endReached:
             updateEnd(value)
@@ -335,6 +333,13 @@ final class MpvPlaybackController: ObservableObject {
 
     private var isNearEnd: Bool {
         durationMs <= 0 || currentMs >= durationMs - Self.endToleranceMs
+    }
+
+    private func publish<Value: Equatable>(
+        _ property: ReferenceWritableKeyPath<MpvPlaybackController, Value>,
+        _ value: Value
+    ) {
+        if self[keyPath: property] != value { self[keyPath: property] = value }
     }
 
     private static func milliseconds(_ seconds: Double) -> Int64 {
