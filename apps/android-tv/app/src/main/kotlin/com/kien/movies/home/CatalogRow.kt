@@ -17,7 +17,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -30,12 +30,12 @@ import com.kien.movies.shell.AppRoute
 
 /** A catalog shelf of posters (tvOS CatalogRowView.swift). */
 @Composable
-fun CatalogRow(row: CatalogRowState, onOpen: (AppRoute) -> Unit, modifier: Modifier = Modifier) {
+fun CatalogRow(row: CatalogRowState, focusMemory: HomeFocusMemory, onOpen: (AppRoute) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(CATALOG_HEADER_GAP)) {
         ShelfHeader(row.title)
-        ShelfRow {
+        ShelfRow(rowKey = row.key, focusMemory = focusMemory) {
             items(row.items, key = PosterItem::metaId, contentType = { POSTER_CONTENT_TYPE }) { item ->
-                PosterCard(item = item, onOpen = onOpen)
+                PosterCard(item = item, onOpen = onOpen, modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, item.metaId), row.key))
             }
         }
     }
@@ -55,17 +55,26 @@ fun ShelfHeader(title: String, modifier: Modifier = Modifier) {
 
 /**
  * The sideways list of a shelf. Cards start where tab content starts and the next card shows
- * partly at the right edge (AC H2). The row remembers its last focused card (focusRestorer), and
+ * partly at the right edge (AC H2). Entering the row focuses its last focused card ([HomeFocusMemory]), and
  * a focused card is scrolled only as far as needed to sit between the rail and the right
  * overscan line, never under the closed rail.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ShelfRow(modifier: Modifier = Modifier, verticalAlignment: Alignment.Vertical = Alignment.Top, content: LazyListScope.() -> Unit) {
+fun ShelfRow(
+    rowKey: String,
+    focusMemory: HomeFocusMemory,
+    modifier: Modifier = Modifier,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    content: LazyListScope.() -> Unit
+) {
     val spec = rememberInsetBringIntoViewSpec(leading = RailSize.contentStart, trailing = Spacing.screenHorizontal)
     CompositionLocalProvider(LocalBringIntoViewSpec provides spec) {
         LazyRow(
-            modifier = modifier.fillMaxWidth().focusRestorer().focusGroup(),
+            modifier = modifier
+                .fillMaxWidth()
+                .focusProperties { onEnter = { focusMemory.restoreRow(rowKey) } }
+                .focusGroup(),
             contentPadding = PaddingValues(
                 start = RailSize.contentStart,
                 end = Spacing.screenHorizontal,

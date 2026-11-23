@@ -28,8 +28,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -89,7 +87,7 @@ fun HomeHero(
     mode: HeroMode,
     items: List<HeroItem>,
     statusMessage: String?,
-    buttonFocus: FocusRequester,
+    focusMemory: HomeFocusMemory,
     onOpen: (AppRoute) -> Unit,
     onFocused: () -> Unit,
     modifier: Modifier = Modifier
@@ -125,7 +123,7 @@ fun HomeHero(
             modifier = Modifier
                 .align(if (mode == HeroMode.Status) Alignment.Center else Alignment.BottomStart)
                 .padding(buttonPadding(mode))
-                .focusRequester(buttonFocus)
+                .rememberedFocus(focusMemory, HERO_FOCUS_KEY)
                 .onFocusChanged { state ->
                     if (state.isFocused && !isFocused) onFocused()
                     isFocused = state.isFocused

@@ -17,11 +17,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -40,9 +41,9 @@ import kotlinx.coroutines.launch
  * catalog shelves, in one vertical list of sideways rows. The hero and the art run to the screen
  * edge under the closed rail; cards and text start at the rail's content line.
  *
- * Focus: the first focus of the screen is the hero's button (AC N1); Back from a pushed screen
- * returns to the element that opened it (the shell restores it), and each row returns to its
- * last focused card. Held arrows are throttled, and the semantics tree is pruned on the box
+ * Focus: entering Home (launch, Back from a pushed screen, right from the sidebar) focuses the
+ * element that had focus last, else the hero's button (AC N1, N4; [HomeFocusMemory]), and each
+ * row returns to its last focused card. Held arrows are throttled, and the semantics tree is pruned on the box
  * while no screen reader can read it (section 4, box performance rules).
  */
 @Composable
@@ -61,7 +62,7 @@ fun HomeScreen(router: Router) {
 private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove: (String) -> Unit) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val heroButton = remember { FocusRequester() }
+    val focusMemory = rememberSaveable(saver = HomeFocusMemory.Saver) { HomeFocusMemory() }
     val homeFocus = remember { FocusRequester() }
     val mode = state.heroMode
     val columnSpec = rememberInsetBringIntoViewSpec(leading = ROW_LEADING_INSET, trailing = ROW_TRAILING_INSET)
@@ -73,7 +74,7 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
             .fillMaxSize()
             .dpadRepeatThrottle()
             .focusRequester(homeFocus)
-            .focusRestorer(if (mode == HeroMode.None) FocusRequester.Default else heroButton)
+            .focusProperties { onEnter = { focusMemory.restore() } }
             .focusGroup()
     ) {
         val heroHeight = maxHeight - Spacing.nextShelfPeek
@@ -89,7 +90,7 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
                             mode = mode,
                             items = state.hero,
                             statusMessage = state.errorMessage,
-                            buttonFocus = heroButton,
+                            focusMemory = focusMemory,
                             onOpen = onOpen,
                             onFocused = { scope.launch { listState.animateScrollToItem(0) } },
                             modifier = Modifier.height(heroHeight)
@@ -97,10 +98,10 @@ private fun HomeContent(state: HomeUiState, onOpen: (AppRoute) -> Unit, onRemove
                     }
                 }
                 items(state.watchingRows, key = WatchingRowState::key, contentType = { WATCHING_ROW_TYPE }) { row ->
-                    ContinueWatchingRow(row = row, onOpen = onOpen, onRemove = onRemove, modifier = Modifier.padding(bottom = Spacing.shelfGap))
+                    ContinueWatchingRow(row = row, focusMemory = focusMemory, onOpen = onOpen, onRemove = onRemove, modifier = Modifier.padding(bottom = Spacing.shelfGap))
                 }
                 items(state.catalogRows, key = CatalogRowState::key, contentType = { CATALOG_ROW_TYPE }) { row ->
-                    CatalogRow(row = row, onOpen = onOpen, modifier = Modifier.padding(bottom = Spacing.shelfGap))
+                    CatalogRow(row = row, focusMemory = focusMemory, onOpen = onOpen, modifier = Modifier.padding(bottom = Spacing.shelfGap))
                 }
             }
         }

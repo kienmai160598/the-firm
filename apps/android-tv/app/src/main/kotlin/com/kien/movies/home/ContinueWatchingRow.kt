@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,26 +59,20 @@ import com.kien.movies.shell.AppRoute
  * neighbour (next, else previous: [RowNeighbor]) before the card leaves the row (AC H5).
  */
 @Composable
-fun ContinueWatchingRow(row: WatchingRowState, onOpen: (AppRoute) -> Unit, onRemove: (key: String) -> Unit, modifier: Modifier = Modifier) {
+fun ContinueWatchingRow(row: WatchingRowState, focusMemory: HomeFocusMemory, onOpen: (AppRoute) -> Unit, onRemove: (key: String) -> Unit, modifier: Modifier = Modifier) {
     var menuFor by remember { mutableStateOf<WatchingCard?>(null) }
     var removalAfterMenuCloses by remember { mutableStateOf<WatchingCard?>(null) }
-    val requesters = remember { mutableMapOf<String, FocusRequester>() }
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(WATCHING_HEADER_GAP)) {
         ShelfHeader(row.title)
-        ShelfRow {
+        ShelfRow(rowKey = row.key, focusMemory = focusMemory) {
             items(row.cards, key = WatchingCard::key, contentType = { WATCHING_CONTENT_TYPE }) { card ->
-                val requester = remember { FocusRequester() }
-                DisposableEffect(card.key) {
-                    requesters[card.key] = requester
-                    onDispose { requesters.remove(card.key) }
-                }
                 ContinueWatchingCard(
                     card = card,
                     onClick = { onOpen(card.route) },
                     onLongClick = { menuFor = card },
-                    modifier = Modifier.focusRequester(requester)
+                    modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, card.key), row.key)
                 )
             }
         }
@@ -102,7 +95,7 @@ fun ContinueWatchingRow(row: WatchingRowState, onOpen: (AppRoute) -> Unit, onRem
         LaunchedEffect(card.key) {
             withFrameNanos {}
             val neighbour = RowNeighbor.key(beside = card.key, keys = row.cards.map(WatchingCard::key))
-            val movedToNeighbour = neighbour?.let(requesters::get)?.requestFocus(FocusDirection.Enter) == true
+            val movedToNeighbour = neighbour?.let { key -> focusMemory.focus(cardFocusKey(row.key, key)) } == true
             if (!movedToNeighbour) {
                 // The last card of the row: the row goes with it, so focus leaves the row first.
                 focusManager.moveFocus(FocusDirection.Down) || focusManager.moveFocus(FocusDirection.Up)
