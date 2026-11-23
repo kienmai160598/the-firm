@@ -57,6 +57,7 @@ struct MpvPlayerScreen: View {
     private let source: String
     @StateObject private var controller: MpvPlaybackController
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reducesMotion
     @FocusState private var focus: MpvFocus?
     @State private var isControlsShown = true
     @State private var isScrubbing = false
@@ -90,7 +91,7 @@ struct MpvPlayerScreen: View {
                 scrim
                     .transition(.opacity)
                 controls
-                    .transition(.opacity.combined(with: .offset(y: Self.controlsRise)))
+                    .transition(rise(Self.controlsRise))
             }
         }
         .ignoresSafeArea()
@@ -140,9 +141,14 @@ struct MpvPlayerScreen: View {
             Spacer(minLength: 0)
             if !isScrubbing {
                 infoRow
-                    .transition(.opacity.combined(with: .offset(y: Self.controlsRise / 2)))
+                    .transition(rise(Self.controlsRise / 2))
             }
-            MpvTransportBar(controller: controller, isScrubbing: isScrubbing, skip: skip)
+            MpvTransportBar(
+                clock: controller.clock,
+                isPausedByViewer: controller.isPausedByViewer,
+                isScrubbing: isScrubbing,
+                skip: skip
+            )
                 .allowsHitTesting(false)
         }
         .padding(.horizontal, Self.horizontalInset)
@@ -168,17 +174,23 @@ struct MpvPlayerScreen: View {
             MpvTrackMenu(kind: kind, options: trackOptions, focus: $focus) { option in
                 choose(option, of: kind)
             }
-            .transition(Self.panelTransition)
+            .transition(panelTransition)
         case .info:
             MpvInfoMenu(source: source, rows: infoRows)
-                .transition(Self.panelTransition)
+                .transition(panelTransition)
         case .none:
             EmptyView()
         }
     }
 
-    private static var panelTransition: AnyTransition {
-        .opacity.combined(with: .scale(scale: 0.85, anchor: .bottomTrailing))
+    private var panelTransition: AnyTransition {
+        guard !reducesMotion else { return .opacity }
+        return .opacity.combined(with: .scale(scale: 0.85, anchor: .bottomTrailing))
+    }
+
+    private func rise(_ distance: CGFloat) -> AnyTransition {
+        guard !reducesMotion else { return .opacity }
+        return .opacity.combined(with: .offset(y: distance))
     }
 
     private var titleBlock: some View {
