@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -46,18 +47,18 @@ fun RootTabs(
 ) {
     ModalNavigationDrawer(
         drawerState = drawerState,
-        scrimBrush = SolidColor(Palette.drawerScrim),
+        scrimBrush = SolidColor(Color(0x80000000)),
         drawerContent = { value ->
             val panel = if (value == DrawerValue.Open) Modifier.background(Palette.drawerPanel) else Modifier
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
                     .then(panel)
-                    .padding(start = RailSize.start, end = DRAWER_END_PADDING, top = Spacing.screenVertical, bottom = Spacing.screenVertical)
+                    .padding(start = 36.dp, end = DRAWER_END_PADDING, top = Spacing.screenVertical, bottom = Spacing.screenVertical)
                     .selectableGroup()
                     .focusProperties { onEnter = { selectedTabFocus.requestFocus() } }
                     .focusGroup(),
-                verticalArrangement = Arrangement.spacedBy(RailSize.itemGap, Alignment.CenterVertically)
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
             ) {
                 RootTab.entries.forEach { tab ->
                     val isSelected = tab == selected

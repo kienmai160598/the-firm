@@ -13,7 +13,7 @@ import androidx.tv.material3.CardShape as TvCardShape
 import androidx.tv.material3.Glow
 
 /**
- * The focus look of every card, as parameters for tv-material's `Card`: scale 1.08 drawn by the
+ * The focus look of every card, as parameters for tv-material's `Card`: scale 1.1 drawn by the
  * card's surface in a graphics layer (the card never changes layout size), one soft shadow, no
  * ring. Use all five together:
  *
@@ -28,7 +28,8 @@ import androidx.tv.material3.Glow
  * ) { ArtworkImage(...) }
  * ```
  *
- * The shadow is a tv-material Glow; its cost on the box is not measured yet (A4 measures it).
+ * The shadow is a tv-material Glow (spec: one soft shadow, 12 dp, black 40%); its cost on the box
+ * is not measured yet.
  */
 object CardFocus {
     fun shape(): TvCardShape = CardDefaults.shape(shape = CardShape.shape)
@@ -49,6 +50,6 @@ object CardFocus {
     fun border(): CardBorder = CardDefaults.border(border = Border.None, focusedBorder = Border.None)
 
     fun glow(): CardGlow = CardDefaults.glow(
-        focusedGlow = Glow(elevationColor = Palette.shadow.copy(alpha = 0.6f), elevation = Focus.shadowElevation)
+        focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)
     )
 }

@@ -7,20 +7,20 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Every size, colour and duration the screens use. Mirrors the literals of apps/apple-tv/Sources
-// with dp = pt / 2 and sp = pt / 2 (docs/android-tv-rebuild.md, section 4). No literal sizes in
-// screens: add a token here (through a request, this folder is frozen for the feature slices).
+// Every size, colour and duration the screens use, dp = pt / 2 and sp = pt / 2. The Apple TV look
+// (docs/tv-look-spec.md) lives in TvTokens.kt: TvGrid, TvColors, TvType, TvShapes. The objects here
+// predate it; their values follow the spec where it names them, so older screens pick up the look.
 
 /** Insets and gaps. The canvas is 960 x 540 dp. */
 object Spacing {
     /** Overscan floor and the side inset of hero and rows (tvOS 80 pt, Android floor 48 dp). */
-    val screenHorizontal = 48.dp
+    val screenHorizontal = TvGrid.sideMargin
 
     /** Overscan floor at the top and bottom. */
     val screenVertical = 27.dp
 
     /** Space between the cards of a shelf (tvOS 40 pt). */
-    val shelfItem = 20.dp
+    val shelfItem = TvGrid.gutter
 
     /** Vertical padding of a shelf's card row, room for the focused scale (tvOS 34 pt). */
     val shelfRowPadding = 17.dp
@@ -45,7 +45,9 @@ object CardSize {
     val poster = DpSize(130.dp, 195.dp)
     val wide = DpSize(200.dp, 112.dp)
     val castPortrait = 90.dp
-    val cornerRadius = 12.dp
+
+    /** Card corner (spec: tvOS 16 pt, Android 8 dp); [TvShapes.card]. */
+    val cornerRadius = 8.dp
     val contentInset = 10.dp
 }
 
@@ -55,57 +57,51 @@ object StreamsSize {
     val resolutionBadge = DpSize(62.dp, 32.dp)
 }
 
-/** The left navigation drawer around the tab roots. */
+/** The navigation drawer around the tab roots (spec section 3, "Navigation"). */
 object RailSize {
-    /** Start of the rail; the item's own 16 dp padding puts the icon inside the 48 dp overscan. */
-    val start = 36.dp
-
-    /** Collapsed item width of tv-material's NavigationDrawerItem (CollapsedDrawerItemWidth). */
-    val collapsedItem = 56.dp
-
-    /** Where tab content starts so nothing sits under the closed rail. */
-    val contentStart = start + collapsedItem + 24.dp
-
-    val itemGap = 4.dp
+    /**
+     * Where tab content starts. The closed drawer is a pill floating over the top left of the
+     * content, not a rail, so content starts at the side margin.
+     */
+    val contentStart = TvGrid.sideMargin
 }
 
-/** Focus look: scale in graphicsLayer, one soft shadow, no ring (section 4). */
+/** Focus look (spec section 2): scale in graphicsLayer, one soft shadow, no ring. */
 object Focus {
-    const val cardScale = 1.08f
+    const val cardScale = 1.1f
     const val buttonScale = 1.05f
     const val animationMillis = 150
+
+    /** One soft shadow, 12 dp blur equivalent, in [TvColors.focusShadow]. */
     val shadowElevation = 12.dp
 }
 
 /** Colours. Flat fills only: no full screen gradient, no blur, no stacked translucent layers. */
 object Palette {
-    /** Window colour of Home and the tab roots (tvOS Home gradient midpoint). */
-    val homeBackground = Color(0xFF24282E)
+    /** Window colour of Home and the tab roots: [TvColors.homeRows]. */
+    val homeBackground = TvColors.homeRows
 
-    /** Window colour of Details and Streams (tvOS Details gradient midpoint). */
-    val detailsBackground = Color(0xFF1B1D22)
+    /** Window colour of Details and Streams: [TvColors.details]. */
+    val detailsBackground = TvColors.details
 
-    /** The open drawer's panel: opaque, so it adds no translucent layer over the scrim. */
-    val drawerPanel = Color(0xFF15171B)
+    /** The open drawer's panel: [TvColors.sidebarPanel]. */
+    val drawerPanel = TvColors.sidebarPanel
 
-    /** Scrim over content while the drawer is open (one layer). */
-    val drawerScrim = Color(0x80000000)
+    val textPrimary = TvColors.textPrimary
+    val textSecondary = TvColors.textSecondary
+    val textTertiary = TvColors.textTertiary
 
-    val textPrimary = Color.White
-    val textSecondary = Color.White.copy(alpha = 0.6f)
-    val textTertiary = Color.White.copy(alpha = 0.45f)
-
-    /** Placeholder behind artwork that has not loaded (tvOS .quaternary). */
-    val artworkPlaceholder = Color(0xFF33373E)
+    /** Placeholder behind artwork that has not loaded. */
+    val artworkPlaceholder = TvColors.artworkPlaceholder
 
     /** Flat frosted fills that replace tvOS glass: rest, raised, strong. */
     val frostRest = Color.White.copy(alpha = 0.14f)
     val frostRaised = Color.White.copy(alpha = 0.22f)
     val frostStrong = Color.White.copy(alpha = 0.30f)
 
-    /** A focused control is solid white with black content. */
-    val focusedContainer = Color.White
-    val focusedContent = Color.Black
+    /** A focused control is solid white with dark content (spec: #EBEBEA, #141414). */
+    val focusedContainer = TvColors.focusedFill
+    val focusedContent = TvColors.focusedContent
 
     val imdbYellow = Color(0xFFF5C518)
     val shadow = Color.Black
