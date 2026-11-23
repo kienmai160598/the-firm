@@ -110,6 +110,7 @@ final class MpvPlaybackController: ObservableObject {
     func seek(toSeconds seconds: Int) {
         guard hasStarted else { return }
         mpv?.command("seek", String(seconds), "absolute")
+        clock.setPosition(seconds)
     }
 
     func liftSubtitles(_ isLifted: Bool) {

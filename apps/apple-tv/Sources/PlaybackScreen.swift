@@ -12,6 +12,7 @@ struct PlaybackScreen: View {
                 .overlay {
                     if let advisory = request.advisory {
                         PlaybackAdvisoryBanner(advisory: advisory, hasPlaybackStarted: true)
+                            .ignoresSafeArea()
                     }
                 }
         case .mpv:

@@ -78,6 +78,9 @@ final class PlayerTests: XCTestCase {
         tv.select(tv.button(beginningWith: "Play"))
         XCTAssertTrue(stream.waitForExistence(timeout: 30))
         tv.select(stream)
+        let advisory = tv.app.descendants(matching: .any)["playback-advisory"]
+        XCTAssertTrue(advisory.waitForExistence(timeout: 15))
+        tv.screenshot("player-avkit-start-advisory")
         tv.watch(seconds: 6)
         tv.pressMenu(untilFocused: stream)
         XCTAssertTrue(tv.pressMenu(until: tv.button(beginningWith: "Resume")))

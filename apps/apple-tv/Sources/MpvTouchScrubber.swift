@@ -42,6 +42,8 @@ final class MpvTouchScrubber {
 
     func stop() {
         touchpad.stop()
+        canScrub = { false }
+        onScrubStart = {}
         cancel()
     }
 
