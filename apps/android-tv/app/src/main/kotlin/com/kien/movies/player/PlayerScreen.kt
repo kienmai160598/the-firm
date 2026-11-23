@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -80,12 +79,12 @@ import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.Motion
-import com.kien.movies.streams.PlatterOverBlack
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvControls
-import com.kien.movies.streams.TvGlass
-import com.kien.movies.streams.TvGrid
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.PlatterOverBlack
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.TvosStreamTarget
 import com.nuvio.tvos.rules.PlaybackAdvisory
 import kotlinx.coroutines.delay

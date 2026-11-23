@@ -49,6 +49,13 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
+import com.kien.movies.design.glassEdgeBorder
+import com.kien.movies.design.rememberInsetBringIntoViewSpec
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.Router
 import com.kien.movies.shell.WindowBackground
@@ -68,7 +75,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(router: Router) {
-    WindowBackground(TvColors.searchBackground)
+    WindowBackground(TvColors.searchLibrary)
     val viewModel = viewModel { SearchViewModel() }
     val content by viewModel.content.collectAsStateWithLifecycle()
     val keyboardFocus = remember { SearchKeyboardFocus() }
@@ -100,7 +107,7 @@ fun SearchScreen(router: Router) {
     // One inset spec for the page and every row in it: a focused child stays inside the side
     // margins (rows) or the margin band at top and bottom (page) with the least scroll, instead
     // of the TV default that pulls every focused child to a pivot line.
-    val scrollSpec = rememberSearchBringIntoViewSpec(inset = TvGrid.margin)
+    val scrollSpec = rememberInsetBringIntoViewSpec(leading = TvGrid.sideMargin)
     CompositionLocalProvider(LocalBringIntoViewSpec provides scrollSpec) {
         LazyColumn(
             state = listState,
@@ -191,7 +198,7 @@ private fun TopResultsGrid(items: List<TvosItem>, onOpen: (TvosItem) -> Unit) {
         rows = GridCells.Fixed(rows),
         state = gridState,
         modifier = Modifier.fillMaxWidth().height(gridHeight(rows)).focusRestorer(),
-        contentPadding = PaddingValues(horizontal = TvGrid.margin),
+        contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
         horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter),
         verticalArrangement = Arrangement.spacedBy(RESULT_ROW_GAP)
     ) {
@@ -214,7 +221,7 @@ private fun LazyListScope.startItems(
             SearchSection(title = RECENT_SEARCHES_TITLE, modifier = Modifier.padding(top = FIRST_SECTION_TOP)) {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth().focusRestorer(),
-                    contentPadding = PaddingValues(horizontal = TvGrid.margin),
+                    contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
                     horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter)
                 ) {
                     items(content.recentSearches, key = { recentQuery -> recentQuery }, contentType = { "recent" }) { recentQuery ->
@@ -243,7 +250,7 @@ private fun LazyListScope.startItems(
 private fun SearchDivider() {
     Box(
         modifier = Modifier
-            .padding(top = DIVIDER_TOP, start = TvGrid.margin, end = TvGrid.margin)
+            .padding(top = DIVIDER_TOP, start = TvGrid.sideMargin, end = TvGrid.sideMargin)
             .fillMaxWidth()
             .height(DIVIDER_HEIGHT)
             .background(DIVIDER_COLOR)
@@ -289,7 +296,7 @@ private fun DialogButton(label: String, onClick: () -> Unit, modifier: Modifier 
         scale = ButtonDefaults.scale(focusedScale = CONTROL_FOCUS_SCALE),
         border = ButtonDefaults.border(border = glassEdgeBorder(TvShapes.pill), focusedBorder = Border.None)
     ) {
-        Text(text = label, style = TvType.body)
+        Text(text = label, style = TvType.bodyEmphasized)
     }
 }
 
@@ -298,7 +305,7 @@ private fun DialogButton(label: String, onClick: () -> Unit, modifier: Modifier 
 private fun SearchStatus(content: SearchContent.Status) {
     val text = if (content.isLoading) LOADING_LABEL else content.message
     Box(
-        modifier = Modifier.fillMaxWidth().heightIn(min = STATUS_MIN_HEIGHT).padding(horizontal = TvGrid.margin),
+        modifier = Modifier.fillMaxWidth().heightIn(min = STATUS_MIN_HEIGHT).padding(horizontal = TvGrid.sideMargin),
         contentAlignment = Alignment.Center
     ) {
         if (text != null) {

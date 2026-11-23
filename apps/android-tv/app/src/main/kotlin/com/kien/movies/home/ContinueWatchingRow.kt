@@ -60,11 +60,11 @@ import coil3.request.transformations
 import com.kien.movies.R
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.CardFocus
-import com.kien.movies.design.GlassStyle
 import com.kien.movies.design.Palette
 import com.kien.movies.design.Spacing
 import com.kien.movies.design.TextStyles
 import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGlass
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
 import com.kien.movies.design.darkGlassPanel
@@ -267,9 +267,9 @@ private fun RemoveDialog(title: String, onRemove: () -> Unit, onDismiss: () -> U
             Text(text = title, style = TextStyles.body, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Button(
                 onClick = onRemove,
-                colors = GlassStyle.buttonColors(),
-                scale = GlassStyle.buttonScale(),
-                shape = GlassStyle.buttonShape(),
+                colors = TvGlass.buttonColors(),
+                scale = TvGlass.buttonScale(),
+                shape = TvGlass.pillShape(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(removeFocus)
@@ -279,9 +279,9 @@ private fun RemoveDialog(title: String, onRemove: () -> Unit, onDismiss: () -> U
             }
             Button(
                 onClick = onDismiss,
-                colors = GlassStyle.buttonColors(),
-                scale = GlassStyle.buttonScale(),
-                shape = GlassStyle.buttonShape(),
+                colors = TvGlass.buttonColors(),
+                scale = TvGlass.buttonScale(),
+                shape = TvGlass.pillShape(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = CANCEL_TITLE)

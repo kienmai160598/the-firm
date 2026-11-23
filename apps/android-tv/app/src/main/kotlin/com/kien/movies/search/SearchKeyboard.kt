@@ -38,6 +38,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
 
 /** Focus handles of the keyboard: the row as a whole (restores the last key), "a", and "123". */
 internal class SearchKeyboardFocus {
@@ -66,7 +68,7 @@ internal fun SearchKeyboard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = TvGrid.margin)
+            .padding(horizontal = TvGrid.sideMargin)
             .focusRequester(focus.row)
             .focusRestorer(focus.firstLetter)
             .focusGroup()
@@ -171,7 +173,7 @@ private val SPACE_TO_LETTERS = 15.5.dp
 private val LETTERS_TO_DELETE = 10.dp
 private val DELETE_ICON = 22.dp
 private val KEYCAP_FILL = Color(0xFF95999C)
-private val KEYCAP_LABEL = TvColors.searchBackground
+private val KEYCAP_LABEL = TvColors.searchLibrary
 
 /** Title 3, 48 pt (x-height 25 pt measured). */
 private val letterStyle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Normal, lineHeight = 28.sp)

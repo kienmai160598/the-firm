@@ -31,6 +31,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvInsets
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
 import com.kien.movies.player.PlaybackRequest
 import com.kien.movies.player.PlaybackScreen
 import com.kien.movies.player.StreamNotice

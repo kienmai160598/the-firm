@@ -30,6 +30,12 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.Focus
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
 
 /**
  * The streams per addon, as they load (tvOS StreamGroupList.swift): addon name, its error when it
@@ -160,7 +166,7 @@ private fun StreamButton(
             .testTag(streamRowTag(row.key)),
         shape = TvGlass.surfaceShape(TvShapes.panel),
         colors = TvGlass.surfaceColors(),
-        scale = TvGlass.surfaceScale(TvControls.wideRowFocusScale),
+        scale = TvGlass.surfaceScale(Focus.wideRowScale),
         border = TvGlass.surfaceBorder(TvShapes.panel)
     ) {
         StreamsRow(row = row, progress = progress)

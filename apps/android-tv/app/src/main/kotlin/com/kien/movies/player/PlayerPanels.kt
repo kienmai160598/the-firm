@@ -39,10 +39,10 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvShapes
-import com.kien.movies.streams.TvType
-import com.kien.movies.streams.glassEdge
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
 
 const val PLAYER_TRACK_MENU_TAG = "player-track-menu"
 const val PLAYER_INFO_MENU_TAG = "player-info-menu"
@@ -68,7 +68,7 @@ private val SeparatorVertical = 5.dp // 10 pt
 private val SeparatorHeight = 1.dp
 private val RowFont = TvType.caption1
 private val DetailFont = TvType.caption2
-private val HeaderFont = TvType.caption1.copy(fontWeight = TvType.bodyEmphasized.fontWeight)
+private val HeaderFont = TvType.caption1Emphasized
 private const val PRESSED_SCALE = 0.97f
 private val DETAIL_ALPHA = TvColors.textSecondary.alpha
 

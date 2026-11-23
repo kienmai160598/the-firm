@@ -34,6 +34,10 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.design.ArtworkImage
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.TvosItem
 import com.nuvio.tvos.TvosRow
 
@@ -51,7 +55,7 @@ internal fun SearchSection(title: String, modifier: Modifier = Modifier, content
             color = TvColors.textSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = TvGrid.margin)
+            modifier = Modifier.padding(horizontal = TvGrid.sideMargin)
         )
         Spacer(Modifier.height(TITLE_TO_ITEMS))
         content()
@@ -64,7 +68,7 @@ internal fun SearchPosterRow(row: TvosRow, onOpen: (TvosItem) -> Unit, modifier:
     SearchSection(title = row.title, modifier = modifier.testTag(searchRowTag(row.key))) {
         LazyRow(
             modifier = Modifier.fillMaxWidth().focusRestorer(),
-            contentPadding = PaddingValues(horizontal = TvGrid.margin),
+            contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
             horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter)
         ) {
             items(row.items, key = { item -> "${item.type}:${item.metaId}" }, contentType = { "poster" }) { item ->

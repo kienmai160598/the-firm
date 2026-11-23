@@ -27,6 +27,11 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
 import com.kien.movies.design.ArtworkImage
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdgeBorder
 import com.nuvio.tvos.TvosItem
 
 /**
@@ -102,7 +107,7 @@ private fun ResultPlatter(
         ) {
             thumb()
             Column(verticalArrangement = Arrangement.spacedBy(TITLE_TO_SUBTITLE)) {
-                Text(text = title, style = TvType.body, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(text = title, style = TvType.bodyEmphasized, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (!subtitle.isNullOrEmpty()) {
                     Text(text = subtitle, style = TvType.caption2, color = TvColors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }

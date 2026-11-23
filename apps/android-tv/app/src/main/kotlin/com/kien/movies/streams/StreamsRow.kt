@@ -29,6 +29,9 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
 
 /**
  * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, up to four

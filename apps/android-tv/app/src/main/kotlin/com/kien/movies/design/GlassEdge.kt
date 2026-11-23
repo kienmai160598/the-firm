@@ -1,9 +1,11 @@
 package com.kien.movies.design
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
 
 /**
  * The light rim Android draws where tvOS shows Liquid Glass (spec section 2, "Glass edge"): a 1 dp
@@ -15,4 +17,10 @@ import androidx.compose.ui.unit.dp
  */
 fun Modifier.glassEdge(shape: Shape, visible: Boolean = true): Modifier = if (visible) border(GLASS_EDGE_WIDTH, TvColors.glassEdge, shape) else this
 
-private val GLASS_EDGE_WIDTH = 1.dp
+/**
+ * The glass edge as a tv-material [Border], for clickable surfaces: drawn inside the surface's
+ * focus scale, so it grows with the control. Pair it with `focusedBorder = Border.None`.
+ */
+fun glassEdgeBorder(shape: Shape): Border = Border(border = BorderStroke(GLASS_EDGE_WIDTH, TvColors.glassEdge), shape = shape)
+
+internal val GLASS_EDGE_WIDTH = 1.dp

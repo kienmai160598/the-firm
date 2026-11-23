@@ -32,6 +32,21 @@ object TvGrid {
         require(columns > 0) { "columns must be positive, was $columns" }
         return (contentWidth - gutter * (columns - 1)) / columns
     }
+
+    /** Distance from the content's left edge to the start of column [index] (0 based) of [columns]. */
+    fun columnStart(columns: Int, index: Int): Dp = (itemWidth(columns) + gutter) * index
+}
+
+/** Vertical insets of the 960 x 540 dp canvas. */
+object TvInsets {
+    /** Top and bottom overscan floor (Android TV guide: 27 dp). */
+    val verticalMargin: Dp = 27.dp
+
+    /**
+     * First content line under the collapsed nav pill on a tab root: the Search field's magnifier
+     * top, 134 pt on 39-search-results.png (the pill spans 50 to 110 pt).
+     */
+    val tabContentTop: Dp = 67.dp
 }
 
 /** Colours of spec section 2, Android column. Flat fills only. */
@@ -90,6 +105,9 @@ object TvType {
     /** Search field text and placeholder: Title 2, 57 pt. */
     val searchField = TextStyle(fontSize = 28.sp, lineHeight = 33.sp, fontWeight = FontWeight.Medium)
 
+    /** Page title of a pushed screen without a hero (Streams): Title 2, 57 pt, bold. */
+    val pageTitle = searchField.copy(fontWeight = FontWeight.Bold)
+
     /** Empty state title: Headline 38 pt bold. */
     val headline = TextStyle(fontSize = 19.sp, lineHeight = 23.sp, fontWeight = FontWeight.Bold)
 
@@ -104,6 +122,9 @@ object TvType {
 
     /** Caption 1, 25 pt: metadata line, sidebar item. Bold for an episode title. */
     val caption1 = TextStyle(fontSize = 13.sp, lineHeight = 16.sp, fontWeight = FontWeight.Medium)
+
+    /** Caption 1 bold: episode title, panel headers. */
+    val caption1Emphasized = caption1.copy(fontWeight = FontWeight.Bold)
 
     /** Caption 2, 23 pt, leading 30: overview, descriptions, subtitles. */
     val caption2 = TextStyle(fontSize = 12.sp, lineHeight = 15.sp, fontWeight = FontWeight.Medium)
@@ -125,4 +146,19 @@ object TvShapes {
 
     /** Buttons, nav pill, season tab, suggestion: a capsule. */
     val pill = RoundedCornerShape(50)
+}
+
+/** Control sizes (spec section 3, Buttons and pills). Focus scales are in [Focus]. */
+object TvControls {
+    /** Primary capsule on Details and in panels and dialogs, 64 pt. */
+    val pillHeight: Dp = 32.dp
+
+    /**
+     * Circular control of the player's transport row, 64 pt. The player is not captured (spec
+     * section 4); the hero's circular buttons are 66 pt (33 dp) and set their own size.
+     */
+    val circle: Dp = 32.dp
+
+    /** Glyph inside a pill or a circle. */
+    val glyph: Dp = 16.dp
 }

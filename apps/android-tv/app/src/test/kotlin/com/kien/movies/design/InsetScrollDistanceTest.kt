@@ -1,4 +1,4 @@
-package com.kien.movies.home
+package com.kien.movies.design
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

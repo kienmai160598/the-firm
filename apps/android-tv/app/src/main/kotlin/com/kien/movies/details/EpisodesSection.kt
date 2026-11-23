@@ -63,8 +63,15 @@ import coil3.request.ImageRequest
 import com.kien.movies.R
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.BakedScrim
+import com.kien.movies.design.Focus
 import com.kien.movies.design.ScrimLayer
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
 import com.kien.movies.design.rememberBakedImage
+import com.kien.movies.design.rememberStartAlignedRowSpec
 import com.nuvio.tvos.TvosEpisode
 import com.nuvio.tvos.TvosSeason
 import com.nuvio.tvos.TvosStreamTarget
@@ -112,7 +119,7 @@ private fun SeasonPicker(seasons: List<TvosSeason>, selectedNumber: Int?, onSele
             .focusGroup()
             .testTag(SEASON_PICKER_TAG)
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = TvGrid.margin),
+            .padding(horizontal = TvGrid.sideMargin),
         horizontalArrangement = Arrangement.spacedBy(SEASON_TAB_GAP)
     ) {
         seasons.forEach { season ->
@@ -146,7 +153,7 @@ private fun SeasonTab(title: String, isSelected: Boolean, onClick: () -> Unit, m
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = ButtonDefaults.scale(focusedScale = TvFocus.controlScale),
+        scale = ButtonDefaults.scale(focusedScale = Focus.buttonScale),
         shape = ButtonDefaults.shape(shape = TvShapes.pill),
         contentPadding = PaddingValues(horizontal = SEASON_TAB_PADDING_H),
         interactionSource = interaction,
@@ -165,7 +172,7 @@ internal fun EpisodeShelf(episodes: List<TvosEpisode>, onOpen: (TvosStreamTarget
     CompositionLocalProvider(LocalBringIntoViewSpec provides rememberStartAlignedRowSpec()) {
         LazyRow(
             modifier = modifier.focusRestorer().focusGroup().testTag(EPISODE_SHELF_TAG),
-            contentPadding = PaddingValues(start = TvGrid.margin, end = TvGrid.margin, bottom = PANEL_LIFT),
+            contentPadding = PaddingValues(start = TvGrid.sideMargin, end = TvGrid.sideMargin, bottom = PANEL_LIFT),
             horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter)
         ) {
             // Addon data does not promise unique video ids, and a repeated lazy key throws.
@@ -194,9 +201,9 @@ private fun EpisodeCard(episode: TvosEpisode, onOpen: (TvosStreamTarget) -> Unit
             onClick = { onOpen(episode.streamTarget) },
             shape = CardDefaults.shape(shape = TvShapes.card),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
-            scale = CardDefaults.scale(focusedScale = TvFocus.cardScale),
+            scale = CardDefaults.scale(focusedScale = Focus.cardScale),
             border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
-            glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = TvFocus.shadowElevation)),
+            glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)),
             interactionSource = interaction,
             modifier = Modifier
                 .size(size)
@@ -250,7 +257,7 @@ private fun EpisodeText(episode: TvosEpisode, focus: () -> Float) {
             .fillMaxWidth()
             .graphicsLayer {
                 val progress = focus()
-                val scale = 1f + (TvFocus.controlScale - 1f) * progress
+                val scale = 1f + (Focus.buttonScale - 1f) * progress
                 scaleX = scale
                 scaleY = scale
                 translationY = PANEL_LIFT.toPx() * progress
@@ -316,7 +323,7 @@ private val unreleasedFilter = ColorFilter.colorMatrix(ColorMatrix().apply { set
 
 // The soft shade under the run time, baked into the thumbnail once (no per frame gradient).
 private val THUMBNAIL_SHADE = BakedScrim(
-    underlay = TvColors.detailsBackground,
+    underlay = TvColors.details,
     layers = listOf(ScrimLayer.vertical(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.5f)))
 )
 
@@ -338,4 +345,4 @@ private val PANEL_PADDING_BOTTOM = 9.dp
 private val PANEL_LIFT = 15.dp
 private val PANEL_CORNER = 12.dp
 private val PANEL_FILL = Color.White.copy(alpha = 0.1f)
-private val EPISODE_TITLE_STYLE = TvType.caption1.copy(fontWeight = FontWeight.Bold)
+private val EPISODE_TITLE_STYLE = TvType.caption1Emphasized

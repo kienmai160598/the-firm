@@ -39,6 +39,11 @@ import androidx.tv.material3.Glow
 import androidx.tv.material3.Text
 import coil3.request.ImageRequest
 import com.kien.movies.design.ArtworkImage
+import com.kien.movies.design.Focus
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
+import com.kien.movies.design.rememberStartAlignedRowSpec
 import com.nuvio.tvos.TvosCastMember
 
 /**
@@ -52,7 +57,7 @@ internal fun CastSection(cast: List<TvosCastMember>, modifier: Modifier = Modifi
         CompositionLocalProvider(LocalBringIntoViewSpec provides rememberStartAlignedRowSpec()) {
             LazyRow(
                 modifier = Modifier.focusRestorer().focusGroup().testTag(CAST_ROW_TAG),
-                contentPadding = PaddingValues(horizontal = TvGrid.margin),
+                contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
                 horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter)
             ) {
                 // tvOS keys cast by position too: names repeat (one person, two roles).
@@ -70,7 +75,7 @@ internal fun CastSection(cast: List<TvosCastMember>, modifier: Modifier = Modifi
  */
 @Composable
 internal fun ShelfHeader(title: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(horizontal = TvGrid.margin)) {
+    Column(modifier = modifier.padding(horizontal = TvGrid.sideMargin)) {
         Text(text = title, style = TvType.rowTitle, color = TvColors.textSecondary, maxLines = 1)
         Spacer(modifier = Modifier.height(SHELF_TITLE_GAP))
     }
@@ -85,9 +90,9 @@ private fun CastCard(member: TvosCastMember, modifier: Modifier = Modifier) {
             onClick = {},
             shape = CardDefaults.shape(shape = CircleShape),
             colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
-            scale = CardDefaults.scale(focusedScale = TvFocus.cardScale),
+            scale = CardDefaults.scale(focusedScale = Focus.cardScale),
             border = CardDefaults.border(border = Border.None, focusedBorder = Border.None, pressedBorder = Border.None),
-            glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = TvFocus.shadowElevation)),
+            glow = CardDefaults.glow(focusedGlow = Glow(elevationColor = TvColors.focusShadow, elevation = Focus.shadowElevation)),
             modifier = modifier
                 .size(side)
                 .semantics { contentDescription = member.name }

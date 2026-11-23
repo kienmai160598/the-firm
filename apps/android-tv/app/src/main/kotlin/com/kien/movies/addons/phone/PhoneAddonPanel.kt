@@ -31,10 +31,10 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.Text
 import com.kien.movies.addons.ERROR_RED
 import com.kien.movies.addons.SectionTitle
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvControls
-import com.kien.movies.streams.TvGlass
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.phone.AddonInstallOutcome
 import com.nuvio.tvos.phone.AddonPairingLimits
 import com.nuvio.tvos.phone.AddonPairingPhase

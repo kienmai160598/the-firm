@@ -33,6 +33,10 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.glassEdgeBorder
 
 /**
  * The suggestion capsules between the keyboard and the divider (39-search-results.png): a
@@ -43,7 +47,7 @@ import com.kien.movies.R
 internal fun SearchSuggestions(suggestions: List<SearchSuggestion>, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
     LazyRow(
         modifier = modifier.focusRestorer().testTag(SEARCH_SUGGESTIONS_TAG),
-        contentPadding = PaddingValues(horizontal = TvGrid.margin),
+        contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
         horizontalArrangement = Arrangement.spacedBy(CAPSULE_GAP)
     ) {
         items(suggestions, key = SearchSuggestion::text, contentType = { "suggestion" }) { suggestion ->

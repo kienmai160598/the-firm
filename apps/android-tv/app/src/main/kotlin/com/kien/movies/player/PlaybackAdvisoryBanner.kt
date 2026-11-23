@@ -28,8 +28,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
-import com.kien.movies.streams.TvGrid
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.rules.PlaybackAdvisory
 import kotlinx.coroutines.delay
 

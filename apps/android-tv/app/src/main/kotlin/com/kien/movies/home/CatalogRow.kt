@@ -15,11 +15,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,6 +25,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.design.TvColors
 import com.kien.movies.design.TvGrid
 import com.kien.movies.design.TvType
+import com.kien.movies.design.rememberInsetBringIntoViewSpec
 import com.kien.movies.shell.AppRoute
 
 /** A catalog shelf of posters on 6 columns (spec sections 1 and 3, "Shelf row"). */
@@ -100,34 +99,6 @@ fun ShelfRow(
             verticalAlignment = verticalAlignment,
             content = content
         )
-    }
-}
-
-/** A [BringIntoViewSpec] that keeps a focused child between [leading] and [trailing] insets. */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun rememberInsetBringIntoViewSpec(leading: Dp, trailing: Dp): BringIntoViewSpec {
-    val density = LocalDensity.current
-    return remember(density, leading, trailing) {
-        val leadingPx = with(density) { leading.toPx() }
-        val trailingPx = with(density) { trailing.toPx() }
-        object : BringIntoViewSpec {
-            override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float = insetScrollDistance(offset, size, containerSize, leadingPx, trailingPx)
-        }
-    }
-}
-
-/**
- * How far to scroll so a child at [offset] with [size] sits inside the container minus the
- * insets: zero when it already does, the least distance otherwise. A child larger than the space
- * is aligned to the leading inset.
- */
-internal fun insetScrollDistance(offset: Float, size: Float, containerSize: Float, leading: Float, trailing: Float): Float {
-    val end = containerSize - trailing
-    return when {
-        offset < leading -> offset - leading
-        offset + size > end -> minOf(offset + size - end, offset - leading)
-        else -> 0f
     }
 }
 

@@ -70,6 +70,12 @@ object RailSize {
 object Focus {
     const val cardScale = 1.1f
     const val buttonScale = 1.05f
+
+    /**
+     * Wide rows (stream list, Addons installed list): 1.05 would push the focused edge past the
+     * 48 dp side margin into the overscan band and eat the 20 dp gutter, so they grow 2%.
+     */
+    const val wideRowScale = 1.02f
     const val animationMillis = 150
 
     /** One soft shadow, 12 dp blur equivalent, in [TvColors.focusShadow]. */

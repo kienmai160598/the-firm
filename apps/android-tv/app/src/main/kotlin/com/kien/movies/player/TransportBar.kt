@@ -42,10 +42,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.streams.PlatterOverBlack
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvShapes
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.PlatterOverBlack
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
 import kotlinx.coroutines.flow.StateFlow
 
 /** Playback position for the bar, in whole seconds (tvOS MpvPlaybackClock.swift). */

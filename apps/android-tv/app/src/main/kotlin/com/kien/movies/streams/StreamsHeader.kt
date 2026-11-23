@@ -13,12 +13,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.TvosResumePoint
 import com.nuvio.tvos.TvosStreamTarget
 
@@ -31,7 +32,7 @@ fun StreamsHeader(target: TvosStreamTarget, resume: TvosResumePoint?, modifier: 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(HEADER_GAP)) {
         Text(
             text = target.title,
-            style = TvType.searchField.copy(fontWeight = FontWeight.Bold),
+            style = TvType.pageTitle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.testTag(STREAMS_TITLE_TAG)

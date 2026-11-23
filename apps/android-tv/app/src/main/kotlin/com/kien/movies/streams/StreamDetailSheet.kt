@@ -34,6 +34,12 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
 import com.kien.movies.player.StreamNotice
 import com.nuvio.tvos.TvosStream
 

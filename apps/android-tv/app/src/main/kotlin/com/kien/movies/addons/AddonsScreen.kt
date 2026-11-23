@@ -35,10 +35,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Text
 import com.kien.movies.addons.phone.PhoneAddonPanel
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvGrid
-import com.kien.movies.streams.TvInsets
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvInsets
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.TvosAddon
 
 /**

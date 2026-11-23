@@ -15,8 +15,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
-import com.kien.movies.search.TvColors
-import com.kien.movies.search.TvType
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvType
 
 /**
  * The empty state (docs/tv-look-spec.md section 3, 61-library.png): a Headline bold title and one
@@ -34,7 +34,7 @@ fun PlaceholderScreen(
     detail: String = COMING_LATER,
     onClick: () -> Unit = {}
 ) {
-    WindowBackground(TvColors.searchBackground)
+    WindowBackground(TvColors.searchLibrary)
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier

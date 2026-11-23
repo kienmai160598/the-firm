@@ -23,13 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvControls
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
 import com.kien.movies.streams.DialogPanelFill
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvControls
-import com.kien.movies.streams.TvGlass
-import com.kien.movies.streams.TvShapes
-import com.kien.movies.streams.TvType
-import com.kien.movies.streams.glassEdge
 
 /**
  * The confirmation dialogs of Addons (tvOS `confirmationDialog` and `alert`): a title, an optional

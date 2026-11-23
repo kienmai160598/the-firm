@@ -41,6 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
 
 /**
  * The search field of tvOS `.searchable` (spec section 3 "Search"): a magnifier and the query in
@@ -61,7 +64,7 @@ internal fun SearchField(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(start = FIELD_ICON_START, end = TvGrid.margin).testTag(SEARCH_FIELD_TAG),
+        modifier = modifier.fillMaxWidth().padding(start = FIELD_ICON_START, end = TvGrid.sideMargin).testTag(SEARCH_FIELD_TAG),
         horizontalArrangement = Arrangement.spacedBy(FIELD_ICON_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -163,5 +166,5 @@ private const val PROMPT = "Shows, Movies, and More"
 // Measured on 38-search.png: magnifier ink 55 pt from 25 pt past the margin, text 120 pt past it.
 // The Material glyph fills 73% of its box, so the box is larger than the ink and starts earlier.
 private val FIELD_ICON = 37.dp
-private val FIELD_ICON_START = TvGrid.margin + 8.dp
+private val FIELD_ICON_START = TvGrid.sideMargin + 8.dp
 private val FIELD_ICON_GAP = 15.dp

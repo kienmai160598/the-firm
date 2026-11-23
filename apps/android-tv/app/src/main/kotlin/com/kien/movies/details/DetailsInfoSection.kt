@@ -21,6 +21,11 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.kien.movies.design.Focus
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.TvosMetaDetails
 
 /**
@@ -33,7 +38,7 @@ internal fun AboutSection(details: TvosMetaDetails, focusRequester: FocusRequest
         ShelfHeader(title = ABOUT_TITLE)
         Platter(
             restingFill = ABOUT_FILL,
-            modifier = Modifier.padding(start = TvGrid.margin).focusRequester(focusRequester).testTag(DETAILS_ABOUT_TAG),
+            modifier = Modifier.padding(start = TvGrid.sideMargin).focusRequester(focusRequester).testTag(DETAILS_ABOUT_TAG),
             width = TvGrid.itemWidth(INFO_COLUMNS),
             contentPadding = ABOUT_PADDING
         ) {
@@ -62,13 +67,13 @@ internal fun DetailsInfoSection(entries: List<InfoEntry>, modifier: Modifier = M
             text = INFO_TITLE,
             style = TvType.headline,
             color = TvColors.textPrimary,
-            modifier = Modifier.padding(horizontal = TvGrid.margin)
+            modifier = Modifier.padding(horizontal = TvGrid.sideMargin)
         )
         Spacer(modifier = Modifier.height(INFO_TITLE_GAP))
         // The platter reaches out by its padding so the text lines up with the title.
         Platter(
             restingFill = Color.Transparent,
-            modifier = Modifier.padding(start = TvGrid.margin - INFO_PADDING).testTag(DETAILS_INFO_TAG),
+            modifier = Modifier.padding(start = TvGrid.sideMargin - INFO_PADDING).testTag(DETAILS_INFO_TAG),
             width = TvGrid.itemWidth(INFO_COLUMNS) + INFO_PADDING * 2,
             contentPadding = INFO_PADDING
         ) {
@@ -104,7 +109,7 @@ private fun Platter(
             pressedContainerColor = TvColors.platter,
             pressedContentColor = TvColors.textPrimary
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = TvFocus.controlScale),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = Focus.buttonScale),
         border = ClickableSurfaceDefaults.border(
             border = if (restingFill == Color.Transparent) Border.None else edge,
             focusedBorder = edge,

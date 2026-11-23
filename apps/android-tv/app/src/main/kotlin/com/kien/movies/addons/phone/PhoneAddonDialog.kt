@@ -10,8 +10,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
 import com.kien.movies.addons.AddonDialog
 import com.kien.movies.addons.AddonDialogButton
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.phone.AddonProposal
 
 /**

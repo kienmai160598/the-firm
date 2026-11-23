@@ -63,6 +63,10 @@ import com.kien.movies.R
 import com.kien.movies.debug.DebugLaunch
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.BakedScrim
+import com.kien.movies.design.NoScrollSpec
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
 import com.kien.movies.design.rememberBakedImage
 import com.kien.movies.shell.AppRoute
 import com.kien.movies.shell.Router
@@ -269,7 +273,7 @@ private fun DetailsTop(
             onInfo = onInfo,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = TvGrid.margin, end = TvGrid.margin, bottom = HERO_BOTTOM)
+                .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, bottom = HERO_BOTTOM)
                 .graphicsLayer { alpha = heroAlpha }
                 .onFocusChanged { focusState -> onHeroFocusChanged(focusState.hasFocus) }
                 .focusGroup()
@@ -423,7 +427,7 @@ private const val SPINNER_TURN_MILLIS = 1_000
 private const val BACKDROP_FADE_MILLIS = 300
 private const val CONTENT_FADE_MILLIS = 200
 
-private val BACKDROP_SCRIM = BakedScrim.backdrop(TvColors.detailsBackground)
+private val BACKDROP_SCRIM = BakedScrim.backdrop(TvColors.details)
 private val SCREEN_SIZE = DpSize(960.dp, 540.dp)
 private val LOGO_DECODE = DpSize(210.dp, 55.dp)
 

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -31,11 +30,11 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.kien.movies.R
-import com.kien.movies.streams.TvColors
-import com.kien.movies.streams.TvControls
-import com.kien.movies.streams.TvGlass
-import com.kien.movies.streams.TvShapes
-import com.kien.movies.streams.TvType
+import com.kien.movies.design.Focus
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGlass
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
 import com.nuvio.tvos.TvosAddon
 
 /**
@@ -59,7 +58,7 @@ fun AddonRow(addon: TvosAddon, onClick: () -> Unit, modifier: Modifier = Modifie
             pressedContentColor = TvColors.focusedContent
         ),
         shape = ListItemDefaults.shape(shape = TvShapes.panel),
-        scale = ListItemDefaults.scale(focusedScale = TvControls.wideRowFocusScale),
+        scale = ListItemDefaults.scale(focusedScale = Focus.wideRowScale),
         border = TvGlass.listItemBorder(TvShapes.panel),
         leadingContent = { AddonLogo(url = addon.logoUrl, enabled = addon.enabled) },
         headlineContent = { TitleLine(addon) },

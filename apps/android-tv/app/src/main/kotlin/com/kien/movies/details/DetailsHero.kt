@@ -55,7 +55,13 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.kien.movies.R
+import com.kien.movies.design.Focus
 import com.kien.movies.design.ImdbBadge
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvShapes
+import com.kien.movies.design.TvType
+import com.kien.movies.design.glassEdge
 import com.nuvio.tvos.TvosMetaDetails
 import com.nuvio.tvos.TvosPlayAction
 import com.nuvio.tvos.TvosStreamTarget
@@ -203,7 +209,7 @@ private fun PlayAction(action: TvosPlayAction, playFocus: FocusRequester, onOpen
         Button(
             onClick = { onOpen(action.target) },
             colors = controlColors(),
-            scale = ButtonDefaults.scale(focusedScale = TvFocus.controlScale),
+            scale = ButtonDefaults.scale(focusedScale = Focus.buttonScale),
             shape = ButtonDefaults.shape(shape = TvShapes.pill),
             contentPadding = PaddingValues(horizontal = PLAY_PADDING_H),
             interactionSource = interaction,
@@ -238,7 +244,7 @@ private fun InfoButton(onClick: () -> Unit) {
             pressedContainerColor = TvColors.focusedFill,
             pressedContentColor = TvColors.focusedContent
         ),
-        scale = IconButtonDefaults.scale(focusedScale = TvFocus.controlScale),
+        scale = IconButtonDefaults.scale(focusedScale = Focus.buttonScale),
         shape = IconButtonDefaults.shape(shape = CircleShape),
         interactionSource = interaction,
         modifier = Modifier
