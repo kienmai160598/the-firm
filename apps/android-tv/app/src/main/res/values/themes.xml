@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Flat window background, no splash, no action bar. -->
+    <style name="Theme.Movies" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <color name="window_background">#FF000000</color>
+</resources>
