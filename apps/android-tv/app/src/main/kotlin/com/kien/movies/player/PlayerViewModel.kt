@@ -4,9 +4,18 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 
 /**
- * Owns the ExoPlayer instance and the player state for one [PlaybackRequest] (tvOS
- * MpvPlaybackController.swift). Stub until slice A8. Create it with
+ * Holds the [PlayerController] of one [PlaybackRequest] across configuration changes (tvOS keeps
+ * MpvPlaybackController in a StateObject). Create it with
  * `viewModel(key = request.id) { PlayerViewModel(application, request) }`: the cover lives in the
  * Streams entry's ViewModel store, so the key keeps two playbacks apart.
+ *
+ * That store is cleared only when Streams pops, so [onCleared] is a safety net: the screen calls
+ * [release] when the cover leaves, and the second call is a no op.
  */
-class PlayerViewModel(val application: Application, val request: PlaybackRequest) : ViewModel()
+class PlayerViewModel(application: Application, val request: PlaybackRequest) : ViewModel() {
+    val controller = PlayerController(application, request)
+
+    fun release() = controller.finish()
+
+    override fun onCleared() = controller.finish()
+}
