@@ -353,7 +353,11 @@ private fun PlayerContent(controller: PlayerController, state: PlayerState, targ
         modifier = Modifier
             .fillMaxSize()
             .onPreviewKeyEvent(::onMediaKey)
-            .focusProperties { this.onExit = { cancelFocusChange() } }
+            .focusProperties {
+                // Streams focuses the cover; whatever it lands on first, start on the video.
+                onEnter = { surfaceFocus.requestFocus() }
+                this.onExit = { cancelFocusChange() }
+            }
             .focusGroup()
     ) {
         PlayerSurface(player = player, subtitlesLifted = isControlsShown)
@@ -408,6 +412,7 @@ private fun PlayerContent(controller: PlayerController, state: PlayerState, targ
                             panel = panel,
                             controlFocus = controlFocus,
                             onOpen = ::open,
+                            onDown = { surfaceFocus.requestFocus() },
                             onControlFocused = { control ->
                                 if (panel != null && panel?.control != control) panel = null
                                 interaction++
@@ -434,6 +439,7 @@ private fun InfoRow(
     panel: PlayerPanel?,
     controlFocus: Map<PlayerControl, FocusRequester>,
     onOpen: (PlayerControl) -> Unit,
+    onDown: () -> Unit,
     onControlFocused: (PlayerControl) -> Unit
 ) {
     Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.fillMaxWidth()) {
@@ -444,7 +450,16 @@ private fun InfoRow(
             Text(text = target.title, style = TextStyles.playerTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Spacer(modifier = Modifier.width(InfoRowGap))
-        Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
+        // Down goes back to the video (tvOS focus engine); 2D search finds nothing below, the
+        // video surface contains the buttons.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(ButtonGap),
+            modifier = Modifier.onPreviewKeyEvent { event ->
+                val isDown = event.key == Key.DirectionDown
+                if (isDown && event.type == KeyEventType.KeyDown) onDown()
+                isDown
+            }
+        ) {
             val isTrackMenuOpen = panel is PlayerPanel.Tracks
             PlayerControl.entries.forEach { control ->
                 val isOpen = panel?.control == control

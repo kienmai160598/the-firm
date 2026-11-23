@@ -41,6 +41,7 @@ class PlayerTest {
 
     private fun playFirstStream(route: String = TEARS_OF_STEEL_STREAMS) {
         tv.launch(DebugLaunch.ROUTE to route, DebugLaunch.ADDON_URL to TEST_ADDON, DebugLaunch.OPEN_FIRST_STREAM to true)
+        tv.await(hasTestTag(PLAYER_SURFACE_TAG), timeoutMillis = PLAY_TIMEOUT_MS)
         tv.assertFocusedTag(PLAYER_SURFACE_TAG)
         tv.await(hasTestTag(PLAYER_REMAINING_TAG), timeoutMillis = PLAY_TIMEOUT_MS)
     }
@@ -61,6 +62,7 @@ class PlayerTest {
     @Test
     fun p5_audioMenuAndInfoShowDecoder() {
         playFirstStream()
+        pauseSoControlsStay()
 
         tv.press(KeyEvent.KEYCODE_DPAD_UP)
         tv.assertFocusedTag(playerControlTag(PlayerControl.Subtitles))
@@ -80,6 +82,7 @@ class PlayerTest {
     @Test
     fun p5_subtitleMenuHasOff() {
         playFirstStream()
+        pauseSoControlsStay()
 
         tv.press(KeyEvent.KEYCODE_DPAD_UP)
         tv.select()
@@ -101,6 +104,7 @@ class PlayerTest {
     @Test
     fun p7_backFollowsTheOrder() {
         playFirstStream()
+        pauseSoControlsStay()
         tv.press(KeyEvent.KEYCODE_DPAD_UP)
         tv.select()
         tv.await(hasTestTag(PLAYER_TRACK_MENU_TAG))
@@ -123,6 +127,12 @@ class PlayerTest {
 
         tv.select()
 
+        tv.await(hasContentDescription("Paused"))
+    }
+
+    /** Select pauses; paused, the controls do not hide, so Up reaches the buttons. */
+    private fun pauseSoControlsStay() {
+        tv.select()
         tv.await(hasContentDescription("Paused"))
     }
 

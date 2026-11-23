@@ -107,7 +107,8 @@ class PlayerController(private val context: Context, private val request: Playba
     /** Saves with a remote sync and releases the engine. Safe to call more than once. */
     fun finish() {
         if (isFinished) return
-        save(Moment.Exit)
+        // An ended playback was saved as ended already; a second save would only sync again.
+        if (mutableState.value.phase != PlaybackPhase.Ended) save(Moment.Exit)
         isFinished = true
         scope.cancel()
         val exo = mutablePlayer.value
