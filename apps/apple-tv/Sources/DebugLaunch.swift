@@ -36,6 +36,15 @@ enum DebugLaunch {
         defaults.bool(forKey: "MoviesDebugStreamFixture")
     }
 
+    /// Keeps the Home hero on its loading placeholder, so a test can see where it sits.
+    static var holdsHomeHeroPlaceholder: Bool {
+        defaults.bool(forKey: "MoviesDebugHoldHomeHeroPlaceholder")
+    }
+
+    static var streamFixtureFillerRows: Int {
+        defaults.integer(forKey: "MoviesDebugStreamFixtureFillerRows")
+    }
+
     static var opensFirstStream: Bool {
         !hasOpenedFirstStream && defaults.bool(forKey: "MoviesDebugOpenFirstStream")
     }

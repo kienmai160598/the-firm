@@ -5,13 +5,47 @@ enum StreamsDebugFixture {
     private static let bipbopUrl = "https://devstreaming-cdn.apple.com/videos/streaming/"
         + "examples/img_bipbop_adv_example_fmp4/master.m3u8"
 
-    static let group = TvosStreamGroup(
-        addonId: "debug-fixture",
-        addonName: "Debug fixture (not a real addon)",
-        streams: [directStream, torrentStream],
-        isLoading: false,
-        errorMessage: nil
-    )
+    private static let releases = [
+        "2160p.UHD.BluRay.REMUX.DV.HDR10.HEVC.TrueHD.Atmos.7.1",
+        "1080p.BluRay.x264.DTS-HD.MA.5.1",
+        "1080p.WEB-DL.DDP5.1.Atmos.H.264",
+        "2160p.WEB-DL.HDR10+.DDP5.1.x265.10bit",
+        "720p.WEBRip.AAC.2.0.x264",
+    ]
+
+    /// The two playable rows, then `extraRows` torrent rows that only fill the list.
+    static func group(extraRows: Int) -> TvosStreamGroup {
+        TvosStreamGroup(
+            addonId: "debug-fixture",
+            addonName: "Debug fixture (not a real addon)",
+            streams: [directStream, torrentStream] + (0..<extraRows).map(fillerStream),
+            isLoading: false,
+            errorMessage: nil
+        )
+    }
+
+    private static func fillerStream(_ index: Int) -> TvosStream {
+        let release = releases[index % releases.count]
+        return TvosStream(
+            key: "debug-fixture#filler\(index)",
+            name: "Fixture Filler \(index)\n\(release.prefix(5))",
+            title: nil,
+            detail: "Fixture.2024.\(release)-GRP\n👤 \(index * 7) 💾 \(index % 60 + 1).4 GB ⚙️ Fixture",
+            badges: [],
+            sizeLabel: nil,
+            kind: "Torrent",
+            url: nil,
+            externalUrl: nil,
+            infoHash: String(repeating: "f", count: 40),
+            fileIndex: "0",
+            filename: nil,
+            trackers: [],
+            addonId: "debug-fixture",
+            addonName: "Debug fixture",
+            playableUrl: nil,
+            requestHeaders: [:]
+        )
+    }
 
     private static let directStream = TvosStream(
         key: "debug-fixture#0",

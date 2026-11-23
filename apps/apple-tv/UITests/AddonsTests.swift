@@ -3,6 +3,7 @@ import XCTest
 final class AddonsTests: XCTestCase {
     private static let testAddonName = "Nuvio tvOS test films"
     private static let rowId = "addon-row"
+    private static let qrId = "addonQrCode"
 
     private var tv: TvApp!
 
@@ -85,6 +86,47 @@ final class AddonsTests: XCTestCase {
         tv.screenshot("addons-install-failed")
     }
 
+    /// The phone side of the QR flow, sent from the test runner on the same TV. Keeps the app
+    /// state and sends an unreachable manifest, so it changes no addons on a real device.
+    func testThePhonePageReachesTheTvAndGetsTheInstallResult() throws {
+        tv.launch(keepingState: true, withTestAddon: false)
+        openAddonsTab()
+        let qrCode = tv.app.descendants(matching: .any)[Self.qrId]
+        let pageUrl = try XCTUnwrap(URL(string: qrCode.value as? String ?? ""), "QR: \(qrCode.debugDescription)")
+        tv.screenshot("addons-qr")
+
+        let page = try fetch(URLRequest(url: pageUrl))
+        XCTAssertEqual(page.status, 200)
+        XCTAssertTrue(page.text.contains("Add to TV"), page.text)
+        XCTAssertEqual(try fetch(URLRequest(url: pageUrl.withQuery("t=wrong"))).status, 403)
+
+        var add = URLRequest(url: pageUrl.withPath("/add"))
+        add.httpMethod = "POST"
+        add.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        add.httpBody = Data("url=http%3A%2F%2F127.0.0.1%3A9".utf8)
+        let reply = try fetch(add)
+
+        XCTAssertEqual(reply.status, 422, reply.text)
+        XCTAssertTrue(tv.app.staticTexts["Couldn't add this addon"].waitForExistence(timeout: 10))
+    }
+
+    private func fetch(_ request: URLRequest) throws -> (status: Int, text: String) {
+        var result: Result<(Int, String), Error>?
+        let done = expectation(description: request.url?.path ?? "")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error {
+                result = .failure(error)
+            } else {
+                let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                result = .success((status, String(decoding: data ?? Data(), as: UTF8.self)))
+            }
+            done.fulfill()
+        }.resume()
+        wait(for: [done], timeout: 40)
+        let (status, text) = try XCTUnwrap(result).get()
+        return (status, text)
+    }
+
     private func removeFirstAddon() {
         let anyRow = tv.app.buttons[Self.rowId].firstMatch
         XCTAssertTrue(anyRow.waitForExistence(timeout: 20))
@@ -133,12 +175,26 @@ final class AddonsTests: XCTestCase {
         }
         XCTAssertEqual(tv.focusedTabTitle, "Addons")
         tv.remote.press(.select)
-        XCTAssertTrue(tv.app.staticTexts["Add an addon"].waitForExistence(timeout: 10))
+        XCTAssertTrue(tv.app.descendants(matching: .any)[Self.qrId].waitForExistence(timeout: 10))
     }
 
     private func waitForTab(_ title: String) -> Bool {
         let tab = NSPredicate { _, _ in self.tv.focusedTabTitle == title }
         let expectation = XCTNSPredicateExpectation(predicate: tab, object: nil)
         return XCTWaiter.wait(for: [expectation], timeout: 1) == .completed
+    }
+}
+
+private extension URL {
+    func withQuery(_ query: String) -> URL {
+        var components = URLComponents(url: self, resolvingAgainstBaseURL: false)!
+        components.query = query
+        return components.url!
+    }
+
+    func withPath(_ path: String) -> URL {
+        var components = URLComponents(url: self, resolvingAgainstBaseURL: false)!
+        components.path = path
+        return components.url!
     }
 }

@@ -22,6 +22,9 @@ enum MpvOptions {
             ("gpu-api", "vulkan"),
             ("gpu-context", "moltenvk"),
             ("hwdec", "videotoolbox"),
+            // AVSampleBufferAudioRenderer, the renderer AVPlayer uses, reaches AirPlay speakers; the
+            // default RemoteIO audio unit opens a mixable real-time session instead.
+            ("ao", "avfoundation,audiounit"),
             ("video-rotate", "no"),
             ("pause", "yes"),
             ("keep-open", "yes"),

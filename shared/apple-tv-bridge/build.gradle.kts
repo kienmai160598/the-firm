@@ -23,6 +23,14 @@ val p2pEngineEnabled =
     providers.gradleProperty("nuvio.tvos.p2p").orNull?.toBoolean() ?: engineBuilt
 val p2pEngineStub =
     upstreamSrc.resolve("iosAppStore/kotlin/com/nuvio/app/features/p2p/P2pStreamingEngine.ios.kt")
+val trailerResolverStub = upstreamSrc.resolve(
+    "iosAppStore/kotlin/com/nuvio/app/features/trailer/TrailerPlaybackResolver.ios.kt",
+)
+val trailerExtractorSources = listOf(
+    "fullCommonMain/kotlin/com/nuvio/app/features/trailer/InAppYouTubeExtractor.kt",
+    "fullCommonMain/kotlin/com/nuvio/app/features/trailer/TrailerPlaybackResolver.kt",
+    "iosFull/kotlin/com/nuvio/app/features/trailer/TrailerExtractionPlatform.ios.kt",
+).map(upstreamSrc::resolve)
 val missingEngineMessage = "Build the Nuvio Engine XCFramework with " +
     "nuvio-engine/scripts/build-apple-xcframework.sh, or pass -Pnuvio.tvos.p2p=false."
 
@@ -92,6 +100,13 @@ abstract class GenerateEnglishResShim : DefaultTask() {
     }
 }
 
+// The full iOS build's YouTube trailer extractor, without the rest of fullCommonMain (plugins, JS).
+val trailerExtractorDir = layout.buildDirectory.dir("generated/tvos-trailer/kotlin")
+val syncTrailerExtractor = tasks.register<Sync>("syncTrailerExtractor") {
+    from(trailerExtractorSources)
+    into(trailerExtractorDir.map { dir -> dir.dir("com/nuvio/app/features/trailer") })
+}
+
 val generateEnglishResShim = tasks.register<GenerateEnglishResShim>("generateEnglishResShim") {
     valuesDir.set(upstreamSrc.resolve("commonMain/composeResources/values"))
     outputDir.set(layout.buildDirectory.dir("generated/tvos-res-shim/kotlin"))
@@ -125,7 +140,8 @@ kotlin {
 
     sourceSets {
         val replacedByEngine = if (p2pEngineEnabled) setOf(p2pEngineStub.absolutePath) else emptySet()
-        val excludedPaths = excludedUpstreamPaths() + replacedByEngine
+        val excludedPaths =
+            excludedUpstreamPaths() + replacedByEngine + trailerResolverStub.absolutePath
         val isExcluded = Spec<FileTreeElement> { element ->
             element.file.absolutePath in excludedPaths
         }
@@ -151,6 +167,7 @@ kotlin {
         tvosMain {
             kotlin.srcDir(upstreamSrc.resolve("iosMain/kotlin"))
             kotlin.srcDir(upstreamSrc.resolve("iosAppStore/kotlin"))
+            kotlin.srcDir(syncTrailerExtractor.map { trailerExtractorDir })
             if (p2pEngineEnabled) {
                 kotlin.srcDir(upstreamSrc.resolve("appleP2pEngine/kotlin"))
                 kotlin.srcDir(project.file("src/tvosP2pEngine/kotlin"))

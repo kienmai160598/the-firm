@@ -30,6 +30,7 @@ final class PlaybackController {
         self.request = request
         self.onFailure = onFailure
         session = TvosPlayback.shared.startSession(target: request.target, stream: request.stream)
+        PlaybackAudioSession.activate()
         let item = AVPlayerItem(asset: Self.asset(for: request))
         item.externalMetadata = PlaybackMetadata.items(target: request.target)
         player = AVPlayer(playerItem: item)

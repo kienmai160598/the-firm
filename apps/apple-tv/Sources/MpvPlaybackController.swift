@@ -59,7 +59,7 @@ final class MpvPlaybackController: ObservableObject {
 
     func start() {
         guard mpv == nil, !isFinished else { return }
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+        PlaybackAudioSession.activate()
         let options = MpvOptions.playback(headers: request.stream.requestHeaders)
         mpv = MpvHandle(layer: videoLayer, options: options) { [weak self] event in
             self?.handle(event)
@@ -221,6 +221,9 @@ final class MpvPlaybackController: ObservableObject {
     private func play() {
         guard !isFinished else { return }
         hasRequestedPlay = true
+        // The audio output set its own session up while the file loaded; make it non-mixable again.
+        PlaybackAudioSession.activate()
+        Self.log.notice("Audio output \(self.mpv?.string("current-ao") ?? "none", privacy: .public)")
         mpv?.setFlag(MpvProperty.pause, false)
     }
 

@@ -18,8 +18,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
-private const val ADDONS_READY_TIMEOUT_MS = 15_000L
-
 object TvosDetails {
     private val mainScope = MainScope()
 
@@ -30,7 +28,7 @@ object TvosDetails {
     ): TvosCancellable {
         val job = mainScope.launch {
             onChange(TvosDetailsState(details = null, isLoading = true, errorMessage = null))
-            awaitAddonsReady()
+            TvosHome.awaitAddonsReadyForMeta()
             val previousMeta = MetaDetailsRepository.uiState.value.meta
             MetaDetailsRepository.load(type, id)
             WatchProgressRepository.ensureLoaded()
@@ -50,20 +48,6 @@ object TvosDetails {
         }
         return TvosCancellable(job)
     }
-
-    private suspend fun awaitAddonsReady() {
-        withTimeoutOrNull(ADDONS_READY_TIMEOUT_MS) {
-            TvosHome.awaitStartupAddons()
-            AddonRepository.uiState.first(AddonsUiState::isReadyForMeta)
-        }
-    }
-}
-
-private fun AddonsUiState.isReadyForMeta(): Boolean {
-    val enabledAddons = addons.enabledAddons()
-    if (enabledAddons.isEmpty()) return false
-    return enabledAddons.any { addon -> addon.manifest != null } ||
-        !enabledAddons.hasPendingEnabledManifests()
 }
 
 private fun MetaDetailsUiState.isStale(previousMeta: MetaDetails?, requestedId: String): Boolean {

@@ -14,22 +14,33 @@ struct HomeView: View {
 
     @ViewBuilder
     private var content: some View {
-        if model.rows.isEmpty && model.continueWatching == nil && model.upcoming == nil {
-            HomeStatusView(isLoading: model.isLoading, errorMessage: model.errorMessage)
+        // While loading, the shelves still show, with a placeholder hero that holds focus: the first
+        // focus then lands in the content and the sidebar stays collapsed, like the Apple TV app.
+        if !model.isLoading && !hasContent {
+            HomeStatusView(errorMessage: model.errorMessage)
         } else {
-            ScrollViewReader { proxy in
-                ScrollView(.vertical) {
-                    shelves(onHeroFocus: { revealHero(using: proxy) })
+            GeometryReader { geometry in
+                ScrollViewReader { proxy in
+                    ScrollView(.vertical) {
+                        shelves(bottomInset: geometry.safeAreaInsets.bottom) {
+                            revealHero(using: proxy)
+                        }
+                    }
+                    .background(HomeBackground())
+                    .ignoresSafeArea(edges: .top)
                 }
-                .background(HomeBackground())
-                .ignoresSafeArea(edges: .top)
             }
         }
     }
 
-    private func shelves(onHeroFocus: @escaping () -> Void) -> some View {
+    private func shelves(bottomInset: CGFloat, onHeroFocus: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            HomeHero(rows: model.rows, onFocus: onHeroFocus)
+            HomeHero(
+                rows: model.rows,
+                isLoading: model.isLoading,
+                bottomInset: bottomInset,
+                onFocus: onHeroFocus
+            )
                 .id(Self.heroId)
             VStack(alignment: .leading, spacing: 24) {
                 ForEach(continueWatchingRows, id: \.title) { row in
@@ -48,6 +59,10 @@ struct HomeView: View {
 
     private func revealHero(using proxy: ScrollViewProxy) {
         withAnimation(.smooth(duration: 0.35)) { proxy.scrollTo(Self.heroId, anchor: .top) }
+    }
+
+    private var hasContent: Bool {
+        !model.rows.isEmpty || model.continueWatching != nil || model.upcoming != nil
     }
 
     private var continueWatchingRows: [TvosContinueWatchingRow] {

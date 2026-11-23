@@ -20,6 +20,14 @@ targets:
     dependencies:
       - package: MPVKit
         product: MPVKit-GPL
+      - target: NuvioTvTopShelf
+    entitlements:
+      path: NuvioTv.entitlements
+      properties:
+        # The app's own group stays first, so keychain items without a group still land there.
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.kien.movies.tvos
+          - $(AppIdentifierPrefix)com.kien.movies.tvos.shared
     info:
       path: Info.plist
       properties:
@@ -27,6 +35,13 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+        NSLocalNetworkUsageDescription: A phone on your home network sends addon links to Movies.
+        TopShelfKeychainGroup: $(AppIdentifierPrefix)com.kien.movies.tvos.shared
+        # movies://continue?key=... opens a Continue Watching item from the Top Shelf.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.kien.movies.tvos
+            CFBundleURLSchemes:
+              - movies
     settings:
       base:
         PRODUCT_NAME: NuvioTv
@@ -36,6 +51,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Movies
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"
         FRAMEWORK_SEARCH_PATHS:
           - "$(inherited)"
           - "$(SRCROOT)/../../shared/apple-tv-bridge/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
@@ -75,6 +91,32 @@ targets:
           fi
           cd "$SRCROOT/../../shared"
           ./gradlew :tvosShared:embedAndSignAppleFrameworkForXcode
+  NuvioTvTopShelf:
+    type: app-extension
+    platform: tvOS
+    sources:
+      - TopShelf
+      - path: Sources/TopShelfStore.swift
+    entitlements:
+      path: TopShelf/NuvioTvTopShelf.entitlements
+      properties:
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.kien.movies.tvos.shared
+    info:
+      path: TopShelf/Info.plist
+      properties:
+        CFBundleDisplayName: Movies
+        TopShelfKeychainGroup: $(AppIdentifierPrefix)com.kien.movies.tvos.shared
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.tv-top-shelf
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ContentProvider
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kien.movies.tvos.topshelf
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
   NuvioTvTests:
     type: bundle.unit-test
     platform: tvOS

@@ -39,12 +39,21 @@ final class AddonsModel: ObservableObject {
         subscription = nil
     }
 
-    func install(_ rawUrl: String) {
+    /// `onFinish` gets the outcome; `.installing` means another install was still running.
+    func install(_ rawUrl: String, onFinish: ((AddonInstallStatus) -> Void)? = nil) {
         let url = rawUrl.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !url.isEmpty, !isInstalling else { return }
+        guard !isInstalling else {
+            onFinish?(.installing)
+            return
+        }
+        guard !url.isEmpty else {
+            onFinish?(.failed(message: "Enter a manifest URL."))
+            return
+        }
         installStatus = .installing
         TvosAddons.shared.install(rawUrl: url) { [weak self] result in
             self?.finishInstall(result)
+            onFinish?(self?.installStatus ?? .failed(message: "The Addons screen closed."))
         }
     }
 
