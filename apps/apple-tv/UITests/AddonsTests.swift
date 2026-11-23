@@ -36,6 +36,23 @@ final class AddonsTests: XCTestCase {
         tv.screenshot("addons-turned-off")
     }
 
+    func testMoveUpPutsTheAddonFirst() throws {
+        try XCTSkipUnless(TvApp.isAddonServerUp, "Test addon server is not running")
+        tv.launch()
+        openAddonsTab()
+        XCTAssertTrue(tv.button(containing: Self.testAddonName).waitForExistence(timeout: 20))
+        focusRow(containing: Self.testAddonName)
+        tv.remote.press(.select)
+        XCTAssertTrue(tv.app.buttons["Move Up"].firstMatch.waitForExistence(timeout: 5))
+
+        focusButton(labeled: "Move Up", moving: .down)
+        tv.remote.press(.select)
+
+        let firstRow = tv.app.buttons.matching(identifier: Self.rowId).firstMatch
+        let startsWithTestAddon = NSPredicate(format: "label BEGINSWITH %@", Self.testAddonName)
+        XCTAssertTrue(tv.waitUntil(firstRow, startsWithTestAddon, timeout: 5), firstRow.label)
+    }
+
     func testRemovingEveryAddonShowsTheEmptyState() {
         tv.launch(withTestAddon: false)
         openAddonsTab()
