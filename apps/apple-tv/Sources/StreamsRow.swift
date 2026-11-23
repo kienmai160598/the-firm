@@ -1,83 +1,35 @@
-import NuvioTvShared
 import SwiftUI
-
-extension TvosStream {
-    var features: StreamFeatures {
-        StreamFeatures(
-            texts: [name, title, detail, filename].compactMap { $0 },
-            providedBadges: badges,
-            providedSize: sizeLabel
-        )
-    }
-
-    var oneLineName: String {
-        name.split(whereSeparator: \.isNewline)
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
-            .joined(separator: "   ")
-    }
-
-    var fileLine: String? {
-        if let filename, !filename.isEmpty { return filename }
-        let lines = [title, detail].compactMap { $0 }
-            .flatMap { $0.split(whereSeparator: \.isNewline) }
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty && $0 != name }
-        return lines.first
-    }
-
-    var isTorrent: Bool {
-        infoHash != nil
-    }
-}
-
-struct StreamRowProgress: Equatable {
-    let title: String
-    let detail: String?
-    let fraction: Double?
-
-    static let checking = StreamRowProgress(title: "Checking stream", detail: nil, fraction: nil)
-    static let startingTorrent = StreamRowProgress(
-        title: "Starting torrent",
-        detail: nil,
-        fraction: nil
-    )
-}
 
 struct StreamRow: View {
     private static let height: CGFloat = 104
-    private static let maxCapabilities = 4
 
-    let stream: TvosStream
-    let progress: StreamRowProgress?
+    let row: StreamRowData
+    let isChecking: Bool
+    let torrent: TorrentSession
 
     var body: some View {
-        let features = stream.features
         HStack(spacing: 28) {
-            StreamResolutionBadge(resolution: features.resolution)
+            StreamResolutionBadge(resolution: row.resolution)
             VStack(alignment: .leading, spacing: 12) {
-                Text(stream.oneLineName)
+                Text(row.title)
                     .font(.system(size: 29, weight: .semibold))
                     .lineLimit(1)
-                StreamDetailLine(
-                    capabilities: Array(features.capabilities.prefix(Self.maxCapabilities)),
-                    fileLine: stream.fileLine
-                )
+                StreamDetailLine(capabilities: row.capabilities, fileLine: row.fileLine)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            trailing(features)
+            trailing
         }
         .padding(.horizontal, 8)
         .frame(height: Self.height)
     }
 
     @ViewBuilder
-    private func trailing(_ features: StreamFeatures) -> some View {
-        if let progress {
-            StreamRowProgressView(progress: progress)
+    private var trailing: some View {
+        if isChecking {
+            StreamCheckingStatus(streamKey: row.id, torrent: torrent)
                 .transition(.opacity)
         } else {
-            StreamFacts(size: features.size, seeders: features.seeders, isTorrent: stream.isTorrent)
+            StreamFacts(size: row.size, seeders: row.seeders, isTorrent: row.isTorrent)
                 .transition(.opacity)
         }
     }
@@ -176,32 +128,5 @@ private struct StreamFacts: View {
 
     private var deliverySymbol: String {
         isTorrent ? "arrow.down.circle" : "link"
-    }
-}
-
-private struct StreamRowProgressView: View {
-    let progress: StreamRowProgress
-
-    var body: some View {
-        VStack(alignment: .trailing, spacing: 8) {
-            HStack(spacing: 16) {
-                ProgressView()
-                Text(progress.title)
-                    .font(.system(size: 25, weight: .semibold))
-                    .lineLimit(1)
-            }
-            if let fraction = progress.fraction {
-                ProgressView(value: fraction)
-                    .frame(width: 260)
-            }
-            if let detail = progress.detail {
-                Text(detail)
-                    .font(.system(size: 20))
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .lineLimit(1)
-            }
-        }
-        .frame(maxWidth: 420, alignment: .trailing)
     }
 }

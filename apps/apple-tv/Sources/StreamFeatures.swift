@@ -23,64 +23,81 @@ struct StreamFeatures: Equatable {
         capabilities = Self.unique(found + providedBadges.filter { $0 != foundResolution })
     }
 
-    private typealias Rule = (pattern: String, label: String)
+    private struct Rule {
+        let expression: NSRegularExpression
+        let label: String
+
+        init(_ pattern: String, _ label: String) {
+            expression = StreamFeatures.compile(pattern)
+            self.label = label
+        }
+    }
 
     private static let resolutionRules: [Rule] = [
-        (#"\b(2160p|4k|uhd)\b"#, "4K"),
-        (#"\b1440p\b"#, "1440p"),
-        (#"\b(1080p|fhd)\b"#, "1080p"),
-        (#"\b720p\b"#, "720p"),
-        (#"\b(576p|480p|360p)\b"#, "SD"),
+        Rule(#"\b(2160p|4k|uhd)\b"#, "4K"),
+        Rule(#"\b1440p\b"#, "1440p"),
+        Rule(#"\b(1080p|fhd)\b"#, "1080p"),
+        Rule(#"\b720p\b"#, "720p"),
+        Rule(#"\b(576p|480p|360p)\b"#, "SD"),
     ]
 
     private static let dynamicRangeRules: [Rule] = [
-        (#"\b(dolby ?vision|dovi|dv)\b"#, "Dolby Vision"),
-        (#"\bhdr10(\+|plus)"#, "HDR10+"),
-        (#"\bhdr10\b(?!\+)"#, "HDR10"),
-        (#"\bhdr\b(?!10)"#, "HDR"),
-        (#"\bhlg\b"#, "HLG"),
+        Rule(#"\b(dolby ?vision|dovi|dv)\b"#, "Dolby Vision"),
+        Rule(#"\bhdr10(\+|plus)"#, "HDR10+"),
+        Rule(#"\bhdr10\b(?!\+)"#, "HDR10"),
+        Rule(#"\bhdr\b(?!10)"#, "HDR"),
+        Rule(#"\bhlg\b"#, "HLG"),
     ]
 
     private static let audioRules: [Rule] = [
-        (#"\batmos\b"#, "Dolby Atmos"),
-        (#"\btrue ?hd\b"#, "TrueHD"),
-        (#"\bdts[ -:]?x\b"#, "DTS:X"),
-        (#"\bdts[ -]?hd"#, "DTS-HD"),
-        (#"\bdts\b"#, "DTS"),
-        (#"\b(ddp|dd\+|e-?ac-?3|dolby digital plus)"#, "Dolby Digital+"),
-        (#"\b(dd|ac-?3|dolby digital)\b"#, "Dolby Digital"),
-        (#"\bflac\b"#, "FLAC"),
-        (#"\bopus\b"#, "Opus"),
-        (#"\baac\b"#, "AAC"),
+        Rule(#"\batmos\b"#, "Dolby Atmos"),
+        Rule(#"\btrue ?hd\b"#, "TrueHD"),
+        Rule(#"\bdts[ -:]?x\b"#, "DTS:X"),
+        Rule(#"\bdts[ -]?hd"#, "DTS-HD"),
+        Rule(#"\bdts\b"#, "DTS"),
+        Rule(#"\b(ddp|dd\+|e-?ac-?3|dolby digital plus)"#, "Dolby Digital+"),
+        Rule(#"\b(dd|ac-?3|dolby digital)\b"#, "Dolby Digital"),
+        Rule(#"\bflac\b"#, "FLAC"),
+        Rule(#"\bopus\b"#, "Opus"),
+        Rule(#"\baac\b"#, "AAC"),
     ]
 
     private static let channelRules: [Rule] = [
-        (#"(?<!\d)7[ .]1(?!\d|\s?[KMGT]i?B)"#, "7.1"),
-        (#"(?<!\d)5[ .]1(?!\d|\s?[KMGT]i?B)"#, "5.1"),
-        (#"(?<!\d)2[ .]0(?!\d|\s?[KMGT]i?B)"#, "Stereo"),
+        Rule(#"(?<!\d)7[ .]1(?!\d|\s?[KMGT]i?B)"#, "7.1"),
+        Rule(#"(?<!\d)5[ .]1(?!\d|\s?[KMGT]i?B)"#, "5.1"),
+        Rule(#"(?<!\d)2[ .]0(?!\d|\s?[KMGT]i?B)"#, "Stereo"),
     ]
 
     private static let codecRules: [Rule] = [
-        (#"\b(hevc|x265|h\.?265)\b"#, "HEVC"),
-        (#"\bav1\b"#, "AV1"),
-        (#"\b(avc|x264|h\.?264)\b"#, "H.264"),
+        Rule(#"\b(hevc|x265|h\.?265)\b"#, "HEVC"),
+        Rule(#"\bav1\b"#, "AV1"),
+        Rule(#"\b(avc|x264|h\.?264)\b"#, "H.264"),
     ]
 
     private static let bitDepthRules: [Rule] = [
-        (#"\b10[ -]?bit\b"#, "10-bit"),
+        Rule(#"\b10[ -]?bit\b"#, "10-bit"),
     ]
 
     private static let sourceRules: [Rule] = [
-        (#"\bremux\b"#, "REMUX"),
-        (#"\b(blu-?ray|bdrip|brrip)\b"#, "Blu-ray"),
-        (#"\bweb-?dl\b"#, "WEB-DL"),
-        (#"\bweb-?rip\b"#, "WEBRip"),
-        (#"\bhdtv\b"#, "HDTV"),
-        (#"\b(cam|hdcam|telesync)\b"#, "CAM"),
+        Rule(#"\bremux\b"#, "REMUX"),
+        Rule(#"\b(blu-?ray|bdrip|brrip)\b"#, "Blu-ray"),
+        Rule(#"\bweb-?dl\b"#, "WEB-DL"),
+        Rule(#"\bweb-?rip\b"#, "WEBRip"),
+        Rule(#"\bhdtv\b"#, "HDTV"),
+        Rule(#"\b(cam|hdcam|telesync)\b"#, "CAM"),
     ]
 
-    private static let sizePattern = #"(\d+(?:[.,]\d+)?)\s?(TB|GB|MB|TiB|GiB|MiB)\b"#
-    private static let seedersPattern = #"(?:👤|seeders?:?|seeds?:?)\s?(\d+)"#
+    private static let sizePattern = compile(#"(\d+(?:[.,]\d+)?)\s?(TB|GB|MB|TiB|GiB|MiB)\b"#)
+    private static let seedersPattern = compile(#"(?:👤|seeders?:?|seeds?:?)\s?(\d+)"#)
+
+    /// Patterns are constants checked by the tests, so a bad one is a programming error.
+    private static func compile(_ pattern: String) -> NSRegularExpression {
+        do {
+            return try NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+        } catch {
+            preconditionFailure("Invalid stream feature pattern \(pattern): \(error)")
+        }
+    }
 
     private static func dynamicRanges(in text: String) -> [String] {
         let found = allMatches(in: text, rules: dynamicRangeRules)
@@ -89,15 +106,15 @@ struct StreamFeatures: Equatable {
     }
 
     private static func firstMatch(in text: String, rules: [Rule]) -> String? {
-        rules.first { matches(text, $0.pattern) }?.label
+        rules.first { matches(text, $0.expression) }?.label
     }
 
     private static func allMatches(in text: String, rules: [Rule]) -> [String] {
-        rules.filter { matches(text, $0.pattern) }.map(\.label)
+        rules.filter { matches(text, $0.expression) }.map(\.label)
     }
 
-    private static func matches(_ text: String, _ pattern: String) -> Bool {
-        text.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
+    private static func matches(_ text: String, _ expression: NSRegularExpression) -> Bool {
+        expression.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
     }
 
     private static func size(in text: String) -> String? {
@@ -113,15 +130,8 @@ struct StreamFeatures: Equatable {
         captures(in: text, pattern: seedersPattern)?.first.flatMap(Int.init)
     }
 
-    private static func captures(in text: String, pattern: String) -> [String]? {
-        guard let expression = try? NSRegularExpression(
-            pattern: pattern,
-            options: [.caseInsensitive]
-        ),
-            let match = expression.firstMatch(
-                in: text,
-                range: NSRange(text.startIndex..., in: text)
-            )
+    private static func captures(in text: String, pattern expression: NSRegularExpression) -> [String]? {
+        guard let match = expression.firstMatch(in: text, range: NSRange(text.startIndex..., in: text))
         else { return nil }
         return (1..<match.numberOfRanges).compactMap { index in
             Range(match.range(at: index), in: text).map { String(text[$0]) }

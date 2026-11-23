@@ -51,7 +51,6 @@ enum RowNeighbor {
 
 private struct ContinueWatchingCard: View {
     static let width: CGFloat = 400
-    static let cornerRadius: CGFloat = 18
     static let removeTitle = "Remove from Continue Watching"
 
     let item: TvosContinueWatchingItem
@@ -63,7 +62,7 @@ private struct ContinueWatchingCard: View {
             captions
         }
         .buttonStyle(.borderless)
-        .buttonBorderShape(.roundedRectangle(radius: Self.cornerRadius))
+        .cardButtonShape()
         .contextMenu {
             Button(Self.removeTitle, systemImage: "minus.circle", role: .destructive) {
                 onRemove(item)
@@ -80,11 +79,10 @@ private struct ContinueWatchingCard: View {
             .overlay(alignment: .bottom) {
                 if !item.isNextUp {
                     WatchProgressBar(fraction: Double(item.progressFraction))
-                        .padding(20)
+                        .padding(CardShape.contentInset)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
-            .hoverEffect(.highlight)
+            .cardArtworkShape()
     }
 
     private var captions: some View {

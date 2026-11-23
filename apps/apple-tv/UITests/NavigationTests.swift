@@ -11,6 +11,49 @@ final class NavigationTests: XCTestCase {
         tv = TvApp(self)
     }
 
+    func testLaunchFocusesTheHeroAndKeepsTheSidebarCollapsed() {
+        tv.launch(withTestAddon: false)
+
+        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
+
+        XCTAssertTrue(tv.waitForFocus(tv.heroButton, timeout: 5), "Focused: \(tv.focusedLabel)")
+        XCTAssertFalse(tv.isTabBarFocused, "Launch focus went to the sidebar")
+        tv.screenshot("home-launch")
+    }
+
+    func testLoadingPlaceholderButtonSitsWhereTheHeroButtonLands() {
+        tv.launch(keepingState: true, withTestAddon: false,
+                  extra: ["-MoviesDebugHoldHomeHeroPlaceholder", "YES"])
+        let placeholder = tv.app.buttons["homeHeroPlaceholder"]
+        XCTAssertTrue(placeholder.waitForExistence(timeout: 30))
+        XCTAssertTrue(tv.waitForFocus(placeholder), "Focused: \(tv.focusedLabel)")
+        XCTAssertFalse(tv.isTabBarFocused, "Launch focus went to the sidebar")
+        let placeholderFrame = placeholder.frame
+        tv.screenshot("home-hero-placeholder")
+
+        tv.launch(keepingState: true, withTestAddon: false)
+        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
+        XCTAssertTrue(tv.waitForFocus(tv.heroButton, timeout: 5), "Focused: \(tv.focusedLabel)")
+
+        XCTAssertEqual(placeholderFrame.minX, tv.heroButton.frame.minX, accuracy: 1)
+        XCTAssertEqual(placeholderFrame.maxY, tv.heroButton.frame.maxY, accuracy: 1)
+    }
+
+    func testUpFromTheThirdCardOfTheFirstShelfReachesTheHero() {
+        tv.launch(withTestAddon: false)
+        XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))
+        tv.focusHero()
+        tv.remote.press(.down)
+        XCTAssertTrue(tv.waitUntil(tv.heroButton, NSPredicate(format: "hasFocus == false"), timeout: 3))
+        tv.remote.press(.right)
+        tv.remote.press(.right)
+        let card = tv.focusedLabel
+
+        tv.remote.press(.up)
+
+        XCTAssertTrue(tv.waitForFocus(tv.heroButton), "Up from \(card) focused \(tv.focusedLabel)")
+    }
+
     func testHeroArrowsChangeItemThenLeftOpensSidebarAndDownReachesFirstRow() {
         tv.launch(withTestAddon: false)
         XCTAssertTrue(tv.heroButton.waitForExistence(timeout: 60))

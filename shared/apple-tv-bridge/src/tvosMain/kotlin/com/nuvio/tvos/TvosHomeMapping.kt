@@ -11,11 +11,12 @@ internal fun tvosHomeState(
     continueWatchingRows: TvosContinueWatchingRows,
     home: HomeUiState,
     addons: AddonsUiState,
+    newReleaseRows: List<NewReleaseRow>,
 ): TvosHomeState =
     TvosHomeState(
         continueWatching = continueWatchingRows.continueWatching,
         upcoming = continueWatchingRows.upcoming,
-        rows = home.sections.map(HomeCatalogSection::toTvosRow),
+        rows = withNewReleaseRows(home.sections.map(HomeCatalogSection::toTvosRow), newReleaseRows),
         isLoading = home.isLoading || addons.addons.hasPendingEnabledManifests(),
         errorMessage = home.errorMessage ?: addons.addons.firstEnabledManifestError(),
     )

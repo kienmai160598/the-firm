@@ -2,11 +2,13 @@ import SwiftUI
 
 struct RootTabView: View {
     @StateObject private var router = Router()
+    @State private var continueWatchingLink = ContinueWatchingLink()
 
     var body: some View {
         tabs
             .environmentObject(router)
             .onAppear(perform: openDebugRoute)
+            .onOpenURL(perform: openTopShelfLink)
     }
 
     @ViewBuilder
@@ -22,6 +24,13 @@ struct RootTabView: View {
             SidebarTabs()
         } else {
             TopTabs()
+        }
+    }
+
+    private func openTopShelfLink(_ url: URL) {
+        guard let key = TopShelfLink.resumeKey(from: url) else { return }
+        continueWatchingLink.open(key: key) { target in
+            router.path = [.streams(target, resumesDirectly: true)]
         }
     }
 

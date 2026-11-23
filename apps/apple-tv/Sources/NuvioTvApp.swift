@@ -8,6 +8,7 @@ struct NuvioTvApp: App {
         DebugLaunch.eraseStateWhenAsked()
         #endif
         TvosHome.shared.start()
+        TopShelfPublisher.start()
         #if DEBUG
         TvosDebugAddon.shared.sync(manifestUrl: DebugLaunch.addonUrl)
         #endif

@@ -18,14 +18,16 @@ final class MpvScrubPreview: ObservableObject {
 @MainActor
 final class MpvTouchScrubber {
     private static let stepSeconds = 10
+    private static let settleBeforeSeek: Duration = .milliseconds(900)
 
     let preview = MpvScrubPreview()
     var panContext: () -> MpvPanContext? = { nil }
     var onScrubStart: () -> Void = {}
-    var onRevealControls: () -> Void = {}
+    var onSettle: () -> Void = {}
     private let clock: MpvPlaybackClock
     private let touchpad = MpvTouchpad()
     private var session: MpvScrubSession?
+    private var settleTask: Task<Void, Never>?
 
     init(clock: MpvPlaybackClock) {
         self.clock = clock
@@ -34,6 +36,8 @@ final class MpvTouchScrubber {
     var isPending: Bool { session != nil }
 
     var isSwiping: Bool { touchpad.isSwiping }
+
+    var diagnosticRows: [MpvInfoRow] { touchpad.diagnostics.rows }
 
     func start() {
         touchpad.onMove = { [weak self] move in self?.follow(move) }
@@ -45,7 +49,7 @@ final class MpvTouchScrubber {
         touchpad.stop()
         panContext = { nil }
         onScrubStart = {}
-        onRevealControls = {}
+        onSettle = {}
         cancel()
     }
 
@@ -54,6 +58,7 @@ final class MpvTouchScrubber {
         current.step(bySeconds: steps * Self.stepSeconds)
         session = current
         preview.settle(at: current.shownSeconds)
+        scheduleSettle()
     }
 
     func commit() -> Int? {
@@ -62,28 +67,30 @@ final class MpvTouchScrubber {
     }
 
     func cancel() {
+        settleTask?.cancel()
+        settleTask = nil
         session = nil
         preview.show(nil)
     }
 
     private func follow(_ move: MpvTouchMove) {
-        guard var current = session ?? begin(on: move) else { return }
+        settleTask?.cancel()
+        guard var current = session ?? begin() else { return }
         current.apply(move)
         session = current
         preview.show(current.shownSeconds)
     }
 
-    private func begin(on move: MpvTouchMove) -> MpvScrubSession? {
-        guard let context = panContext() else { return nil }
-        switch MpvPanResponse(context) {
-        case .scrub:
-            break
-        case .revealControls:
-            if move.isPanStart { onRevealControls() }
-            return nil
-        case .ignore:
+    private func begin() -> MpvScrubSession? {
+        guard let context = panContext() else {
+            touchpad.diagnostics.lastDecision = "no player"
             return nil
         }
+        guard MpvPanResponse(context) == .scrub else {
+            touchpad.diagnostics.lastDecision = context.isOnSurface ? "no length" : "menu open"
+            return nil
+        }
+        touchpad.diagnostics.lastDecision = "scrub"
         onScrubStart()
         return MpvScrubSession(
             originSeconds: clock.positionSeconds,
@@ -92,9 +99,21 @@ final class MpvTouchScrubber {
     }
 
     private func release(_ velocity: Float) {
-        guard var current = session, !UIAccessibility.isReduceMotionEnabled else { return }
-        current.coast(releaseVelocity: velocity)
-        session = current
+        guard var current = session else { return }
+        if !UIAccessibility.isReduceMotionEnabled {
+            current.coast(releaseVelocity: velocity)
+            session = current
+        }
         preview.settle(at: current.shownSeconds)
+        scheduleSettle()
+    }
+
+    private func scheduleSettle() {
+        settleTask?.cancel()
+        settleTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.settleBeforeSeek)
+            guard !Task.isCancelled else { return }
+            self?.onSettle()
+        }
     }
 }

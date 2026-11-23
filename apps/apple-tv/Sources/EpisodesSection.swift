@@ -105,7 +105,6 @@ private struct EpisodeShelf: View {
 
 private struct EpisodeCard: View {
     static let width: CGFloat = 400
-    static let cornerRadius: CGFloat = 18
 
     let episode: TvosEpisode
 
@@ -115,7 +114,7 @@ private struct EpisodeCard: View {
             captions
         }
         .buttonStyle(.borderless)
-        .buttonBorderShape(.roundedRectangle(radius: Self.cornerRadius))
+        .cardButtonShape()
         .accessibilityIdentifier("episode-\(episode.videoId)")
         .accessibilityLabel(heading)
         .accessibilityValue(watchState)
@@ -127,8 +126,7 @@ private struct EpisodeCard: View {
             .opacity(episode.isReleased ? 1 : 0.5)
             .overlay(alignment: .topTrailing) { watchedMark }
             .overlay(alignment: .bottom) { progressBar }
-            .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
-            .hoverEffect(.highlight)
+            .cardArtworkShape()
     }
 
     private var captions: some View {
@@ -159,7 +157,7 @@ private struct EpisodeCard: View {
                 .font(.system(size: 44))
                 .symbolRenderingMode(.palette)
                 .foregroundStyle(.black, .white)
-                .padding(16)
+                .padding(CardShape.contentInset)
         }
     }
 
@@ -167,7 +165,7 @@ private struct EpisodeCard: View {
     private var progressBar: some View {
         if !episode.isWatched && episode.progressFraction > 0 {
             WatchProgressBar(fraction: Double(episode.progressFraction))
-                .padding(16)
+                .padding(CardShape.contentInset)
         }
     }
 

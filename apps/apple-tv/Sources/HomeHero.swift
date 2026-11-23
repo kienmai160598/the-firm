@@ -6,16 +6,32 @@ struct HomeHero: View {
     private static let nextShelfPeek: CGFloat = 150
     private static let advanceInterval: Duration = .seconds(8)
     private static let maxItems = 6
+    static let placeholderFocusId = "home-hero-placeholder"
 
     let items: [TvosItem]
+    let isLoading: Bool
+    /// How far the artwork runs below the spotlight: the next shelf peek and the bottom safe area,
+    /// so it reaches the bottom of the screen.
+    let artExtension: CGFloat
     let onFocus: () -> Void
     @State private var currentId: String?
     @State private var advanceTask: Task<Void, Never>?
     @State private var hasTakenLaunchFocus = false
+    @StateObject private var trailer = HeroTrailer()
     @EnvironmentObject private var router: Router
     @FocusState private var focusedId: String?
 
-    init(rows: [TvosRow], onFocus: @escaping () -> Void) {
+    init(rows: [TvosRow], isLoading: Bool, bottomInset: CGFloat, onFocus: @escaping () -> Void) {
+        var rows = rows
+        var isLoading = isLoading
+        #if DEBUG
+        if DebugLaunch.holdsHomeHeroPlaceholder {
+            rows = []
+            isLoading = true
+        }
+        #endif
+        self.isLoading = isLoading
+        artExtension = Self.nextShelfPeek + bottomInset
         self.onFocus = onFocus
         let featured = rows.first?.items.filter { $0.backdropUrl != nil } ?? []
         items = Array(featured.prefix(Self.maxItems))
@@ -30,9 +46,23 @@ struct HomeHero: View {
                 }
                 .containerRelativeFrame(.vertical) { height, _ in height - Self.nextShelfPeek }
                 .onAppear(perform: start)
-                .onDisappear { advanceTask?.cancel() }
+                .onDisappear {
+                    advanceTask?.cancel()
+                    trailer.stop()
+                }
                 .onChange(of: focusedId) { _, id in follow(id) }
-                .defaultFocus($focusedId, items.first?.metaId)
+                .onChange(of: currentId) { prefetchTrailers() }
+                // Up from any card in the first shelf lands here, not only from the cards below the
+                // button, and on the page that is showing.
+                .focusSection()
+                .defaultFocus($focusedId, currentId ?? items.first?.metaId)
+        } else if isLoading {
+            // The pages run to the screen edges, so the placeholder does too and its inset matches.
+            HeroPlaceholder(focusedId: $focusedId)
+                .ignoresSafeArea(edges: .horizontal)
+                .containerRelativeFrame(.vertical) { height, _ in height - Self.nextShelfPeek }
+                .defaultFocus($focusedId, Self.placeholderFocusId)
+                .onAppear(perform: holdLaunchFocus)
         }
     }
 
@@ -40,7 +70,12 @@ struct HomeHero: View {
         ScrollView(.horizontal) {
             HStack(spacing: 0) {
                 ForEach(items, id: \.metaId) { item in
-                    HeroPage(item: item, focusedId: $focusedId)
+                    HeroPage(
+                        item: item,
+                        trailer: trailer.picture(for: item.metaId),
+                        artExtension: artExtension,
+                        focusedId: $focusedId
+                    )
                         .containerRelativeFrame(.horizontal)
                         .id(item.metaId)
                 }
@@ -50,6 +85,7 @@ struct HomeHero: View {
         .scrollPosition(id: $currentId)
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
+        .scrollClipDisabled()
         .ignoresSafeArea(edges: .horizontal)
     }
 
@@ -61,6 +97,20 @@ struct HomeHero: View {
         if currentId == nil { currentId = items.first?.metaId }
         takeLaunchFocus()
         scheduleAdvance()
+        prefetchTrailers()
+    }
+
+    /// The page showing and the next one, so either is ready by the time it gets focus.
+    private func prefetchTrailers() {
+        guard !items.isEmpty else { return }
+        let next = items[(currentIndex + 1) % items.count]
+        trailer.prefetch([items[currentIndex], next])
+    }
+
+    /// Keeps launch focus off the sidebar while Home loads. The real hero takes it over later.
+    private func holdLaunchFocus() {
+        guard !hasTakenLaunchFocus, router.path.isEmpty else { return }
+        DispatchQueue.main.async { focusedId = Self.placeholderFocusId }
     }
 
     private func takeLaunchFocus() {
@@ -72,6 +122,7 @@ struct HomeHero: View {
 
     private func follow(_ id: String?) {
         if id != nil { onFocus() }
+        trailer.focus(items.first { $0.metaId == id })
         if let id, id != currentId {
             withAnimation(.smooth(duration: 0.5)) { currentId = id }
         }
@@ -93,128 +144,5 @@ struct HomeHero: View {
             withAnimation(.smooth(duration: 0.8)) { currentId = next.metaId }
         }
         scheduleAdvance()
-    }
-}
-
-private struct HeroPage: View {
-    let item: TvosItem
-    let focusedId: FocusState<String?>.Binding
-
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            HeroBackdrop(url: item.backdropUrl)
-            HeroDetails(item: item, focusedId: focusedId)
-                .padding(.horizontal, HomeHero.contentInset)
-                .padding(.bottom, 70)
-        }
-    }
-}
-
-private struct HeroBackdrop: View {
-    let url: String?
-
-    var body: some View {
-        Color.clear
-            .overlay { ArtworkImage(url: url) }
-            .clipped()
-            .overlay(
-                LinearGradient(
-                    stops: [
-                        .init(color: .black.opacity(0.75), location: 0),
-                        .init(color: .black.opacity(0.25), location: 0.5),
-                        .init(color: .clear, location: 0.75),
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .mask(
-                LinearGradient(
-                    stops: [
-                        .init(color: .black, location: 0.55),
-                        .init(color: .clear, location: 1),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .ignoresSafeArea(edges: .top)
-    }
-}
-
-private struct HeroDetails: View {
-    let item: TvosItem
-    let focusedId: FocusState<String?>.Binding
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            HeroTitle(name: item.name, logoUrl: item.logoUrl)
-            MetadataLine(facts: facts, imdbRating: item.imdbRating, badgeFontSize: 24)
-                .font(.callout.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.8))
-            if let overview = item.overview {
-                Text(overview)
-                    .font(.callout)
-                    .foregroundStyle(.white.opacity(0.85))
-                    .lineLimit(3)
-            }
-            RouteLink(value: AppRoute.details(type: item.type, id: item.metaId)) {
-                Label("Watch Now", systemImage: "play.fill")
-                    .font(.body.weight(.semibold))
-                    .padding(.horizontal, 8)
-            }
-            .glassProminentButtonStyle()
-            .controlSize(.small)
-            .focused(focusedId, equals: item.metaId)
-            .accessibilityIdentifier("homeHeroButton")
-            .accessibilityValue(item.name)
-            .padding(.top, 6)
-        }
-        .frame(maxWidth: 860, alignment: .leading)
-    }
-
-    private var facts: [String] {
-        let kind = item.type == "series" ? "TV Show" : "Movie"
-        let genres = item.genres.prefix(2).joined(separator: ", ")
-        return [kind, item.releaseInfo, genres.isEmpty ? nil : genres].compactMap { $0 }
-    }
-}
-
-private struct HeroTitle: View {
-    let name: String
-    let logoUrl: String?
-
-    var body: some View {
-        AsyncImage(url: logoUrl.flatMap(URL.init(string:))) { phase in
-            if let image = phase.image {
-                image.resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 620, maxHeight: 200, alignment: .bottomLeading)
-            } else {
-                Text(name)
-                    .font(.system(size: 76, weight: .bold))
-                    .lineLimit(2)
-            }
-        }
-        .accessibilityLabel(name)
-    }
-}
-
-private struct PageIndicator: View {
-    let count: Int
-    let index: Int
-
-    var body: some View {
-        HStack(spacing: 10) {
-            ForEach(0..<count, id: \.self) { position in
-                Capsule()
-                    .fill(.white.opacity(position == index ? 1 : 0.35))
-                    .frame(width: position == index ? 28 : 10, height: 10)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .glassPanel(cornerRadius: 20)
-        .opacity(count > 1 ? 1 : 0)
     }
 }
