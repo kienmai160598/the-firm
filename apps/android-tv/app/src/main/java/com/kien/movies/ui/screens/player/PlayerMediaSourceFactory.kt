@@ -470,44 +470,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         private const val LOG_TAG = "PlayerMediaSource"
         private const val AUTO_VOD_CACHE_FLOOR_BYTES = 2L * 1024L * 1024L * 1024L
 
-        private const val MIME_PROBE_CACHE_SIZE = 64
-
-        data class StreamProbeInfo(val contentLength: Long, val acceptsRanges: Boolean)
-
-        private val probeInfoCache = object : LinkedHashMap<String, StreamProbeInfo>(
-            MIME_PROBE_CACHE_SIZE,
-            0.75f,
-            true
-        ) {
-            override fun removeEldestEntry(
-                eldest: MutableMap.MutableEntry<String, StreamProbeInfo>?
-            ): Boolean {
-                return size > MIME_PROBE_CACHE_SIZE
-            }
-        }
-
-        @JvmStatic
-        fun getProbeInfo(url: String, headers: Map<String, String>): StreamProbeInfo? {
-            val sanitizedHeaders = sanitizeHeaders(headers)
-            val cacheKey = buildMimeProbeCacheKey(url, sanitizedHeaders)
-            return synchronized(probeInfoCache) {
-                probeInfoCache[cacheKey]
-            }
-        }
-
-        private fun buildMimeProbeCacheKey(url: String, headers: Map<String, String>): String {
-            if (headers.isEmpty()) return url
-            return buildString {
-                append(url)
-                headers.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (key, value) ->
-                    append('|')
-                    append(key)
-                    append('=')
-                    append(value)
-                }
-            }
-        }
-
         data class NormalizedPlaybackRequest(val url: String, val headers: Map<String, String>)
 
         @Volatile private var sharedSimpleCache: SimpleCache? = null
