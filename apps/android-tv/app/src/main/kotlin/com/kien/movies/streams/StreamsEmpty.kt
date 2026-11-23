@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
@@ -22,7 +25,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,36 +33,38 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.GlassStyle
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
 import com.nuvio.tvos.TvosStreamsEmptyState
 
 /**
- * No addon found a stream (tvOS StreamsEmptyView.swift, a ContentUnavailableView): symbol, the
- * Kotlin title and message, the missing addon hint, and Try Again, which holds focus (S3).
+ * No addon found a stream (tvOS StreamsEmptyView.swift): the spec's empty state (Headline bold
+ * title, Caption 2 secondary message, centred, no symbol), the missing addon hint and Try Again,
+ * which holds focus (S3).
  */
 @Composable
 fun StreamsEmpty(emptyState: TvosStreamsEmptyState, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier.widthIn(max = EMPTY_MAX_WIDTH),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.textGap)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_streams_unavailable),
-                contentDescription = null,
-                tint = Palette.textSecondary,
-                modifier = Modifier.size(EMPTY_SYMBOL)
+            Text(text = emptyState.title, style = TvType.headline, textAlign = TextAlign.Center)
+            Text(
+                text = emptyState.message,
+                style = TvType.caption2,
+                color = TvColors.textSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.paddingFromBaseline(top = MESSAGE_BASELINE)
             )
-            Text(text = emptyState.title, style = TextStyles.shelfHeader.copy(fontWeight = FontWeight.Bold), textAlign = TextAlign.Center)
-            Text(text = emptyState.message, style = TextStyles.body, color = Palette.textSecondary, textAlign = TextAlign.Center)
             if (emptyState.isMissingStreamAddon) {
-                Text(text = MISSING_ADDON_HINT, style = TextStyles.body, color = Palette.textTertiary, textAlign = TextAlign.Center)
+                Text(
+                    text = MISSING_ADDON_HINT,
+                    style = TvType.caption2,
+                    color = TvColors.textTertiary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = HINT_TOP)
+                )
             }
-            StreamsRetryButton(onRetry = onRetry, modifier = Modifier.testTag(STREAMS_RETRY_TAG))
+            StreamsRetryButton(onRetry = onRetry, modifier = Modifier.padding(top = BUTTON_TOP).testTag(STREAMS_RETRY_TAG))
         }
     }
 }
@@ -70,13 +74,15 @@ fun StreamsEmpty(emptyState: TvosStreamsEmptyState, onRetry: () -> Unit, modifie
 fun StreamsRetryButton(onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onRetry,
-        colors = GlassStyle.buttonColors(),
-        scale = GlassStyle.buttonScale(),
-        modifier = modifier
+        colors = TvGlass.buttonColors(),
+        scale = TvGlass.buttonScale(),
+        shape = TvGlass.pillShape(),
+        border = TvGlass.buttonBorder(),
+        modifier = modifier.height(TvControls.pillHeight)
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.textGap), verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.ic_streams_retry), contentDescription = null, modifier = Modifier.size(BUTTON_SYMBOL))
-            Text(text = "Try Again", style = TextStyles.button)
+        Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
+            Icon(painter = painterResource(R.drawable.ic_streams_retry), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
+            Text(text = "Try Again", style = TvType.body)
         }
     }
 }
@@ -88,10 +94,10 @@ fun StreamsLoading(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier.testTag(STREAMS_LOADING_TAG).focusable(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.textGapLarge)
+            verticalArrangement = Arrangement.spacedBy(EMPTY_GAP)
         ) {
             StreamsSpinner()
-            Text(text = "Finding streams", style = TextStyles.body.copy(fontWeight = FontWeight.Medium), color = Palette.textSecondary)
+            Text(text = "Finding streams", style = TvType.caption2, color = TvColors.textSecondary)
         }
     }
 }
@@ -128,8 +134,14 @@ private const val MISSING_ADDON_HINT =
 
 // tvOS literals, pt / 2.
 private val EMPTY_MAX_WIDTH = 500.dp // frame(maxWidth: 1000)
-private val EMPTY_SYMBOL = 40.dp // ContentUnavailableView symbol, about 80 pt
-private val BUTTON_SYMBOL = 16.dp
+private val EMPTY_GAP = 12.dp
+
+// 61-library.png: title baseline 451 pt, message baseline 535 pt, 42 dp apart; the title's line
+// box ends about 5 dp under its baseline.
+private val MESSAGE_BASELINE = 37.dp
+private val HINT_TOP = 8.dp
+private val BUTTON_TOP = 20.dp
+private val GLYPH_GAP = 8.dp
 private val SPINNER_SIZE = 20.dp // ProgressView, about 40 pt
 private val SPINNER_STROKE = 2.dp
 private const val SPINNER_TURN_MILLIS = 900

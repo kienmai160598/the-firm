@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -24,19 +24,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
 
 /**
  * The streams per addon, as they load (tvOS StreamGroupList.swift): addon name, its error when it
@@ -110,14 +103,16 @@ fun StreamGroupList(
 
 @Composable
 private fun StreamGroupHeader(addonName: String, isFirst: Boolean) {
+    // Shelf title rhythm (spec section 3, Shelf row): baseline 15 dp above the rows, and the next
+    // group's title about 37 dp under the previous rows. The list's row spacing is part of both.
     Text(
         text = addonName,
-        style = TextStyles.shelfHeader.copy(fontSize = ADDON_NAME_SIZE, fontWeight = FontWeight.SemiBold),
-        color = Palette.textSecondary,
+        style = TvType.rowTitle,
+        color = TvColors.textSecondary,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier
-            .padding(start = HEADER_INSET, top = if (isFirst) 0.dp else GROUP_SPACING - ROW_SPACING, bottom = HEADER_GAP)
+            .paddingFromBaseline(top = if (isFirst) FIRST_TITLE_BASELINE else NEXT_TITLE_BASELINE, bottom = TITLE_BASELINE_TO_ROWS)
             .semantics { heading() }
     )
 }
@@ -125,21 +120,20 @@ private fun StreamGroupHeader(addonName: String, isFirst: Boolean) {
 @Composable
 private fun StreamGroupError(message: String) {
     Row(
-        modifier = Modifier.padding(start = HEADER_INSET),
         horizontalArrangement = Arrangement.spacedBy(ICON_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_streams_warning),
             contentDescription = null,
-            tint = Palette.textSecondary,
+            tint = TvColors.textSecondary,
             modifier = Modifier.size(ERROR_SYMBOL)
         )
-        Text(text = message, style = TextStyles.small, color = Palette.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(text = message, style = TvType.caption2, color = TvColors.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }
 
-/** tvOS `.buttonStyle(.bordered)` with the card corner: frosted at rest, white when focused. */
+/** A platter (spec: white 22% plus the glass edge, panel corner), solid white when focused. */
 @Composable
 private fun StreamButton(
     row: StreamRowItem,
@@ -164,16 +158,10 @@ private fun StreamButton(
             .focusRequester(focus)
             .alpha(if (isDimmed) DIMMED_ALPHA else 1f)
             .testTag(streamRowTag(row.key)),
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(CardSize.cornerRadius)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = Palette.frostRest,
-            contentColor = Palette.textPrimary,
-            focusedContainerColor = Palette.focusedContainer,
-            focusedContentColor = Palette.focusedContent,
-            pressedContainerColor = Palette.focusedContainer,
-            pressedContentColor = Palette.focusedContent
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = ROW_FOCUS_SCALE)
+        shape = TvGlass.surfaceShape(TvShapes.panel),
+        colors = TvGlass.surfaceColors(),
+        scale = TvGlass.surfaceScale(TvControls.wideRowFocusScale),
+        border = TvGlass.surfaceBorder(TvShapes.panel)
     ) {
         StreamsRow(row = row, progress = progress)
     }
@@ -182,12 +170,12 @@ private fun StreamButton(
 @Composable
 private fun StreamsSearchingFooter(addonCount: Int) {
     Row(
-        modifier = Modifier.padding(start = HEADER_INSET, top = GROUP_SPACING - ROW_SPACING),
+        modifier = Modifier.padding(top = GROUP_SPACING - ROW_SPACING),
         horizontalArrangement = Arrangement.spacedBy(FOOTER_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
         StreamsSpinner()
-        Text(text = searchingText(addonCount), style = TextStyles.small.copy(fontWeight = FontWeight.Medium), color = Palette.textSecondary)
+        Text(text = searchingText(addonCount), style = TvType.caption2, color = TvColors.textSecondary)
     }
 }
 
@@ -246,19 +234,15 @@ private fun listEntries(content: StreamsContent.Groups): List<ListEntry> = build
 
 private const val DIMMED_ALPHA = 0.45f
 
-// A full width row grows by this much when focused: 2% of about 840 dp keeps the scaled edge
-// outside the 48 dp overscan line. Focus.buttonScale (1.05) would push it across.
-private const val ROW_FOCUS_SCALE = 1.02f
-
-// tvOS literals, pt / 2. Rows start at the 48 dp floor plus tvOS's 24 pt list padding.
-private val LIST_START = Spacing.screenHorizontal + 12.dp
+// Rows sit on the content width (spec section 1), from the 48 dp side margin.
+private val LIST_START = TvGrid.sideMargin
 private val LIST_TOP = 6.dp // room for the first row's focus scale
 private val LIST_BOTTOM = 30.dp // padding(.bottom, 60)
 private val GROUP_SPACING = 22.dp // LazyVStack spacing 44
-private val ROW_SPACING = 7.dp // VStack spacing 14
-private val HEADER_GAP = 2.dp // VStack spacing 18, less the row spacing
-private val HEADER_INSET = 4.dp // padding(.leading, 8)
-private val ADDON_NAME_SIZE = 14.sp // 27 pt semibold
+private val ROW_SPACING = 8.dp // VStack spacing 14 to 18
+private val TITLE_BASELINE_TO_ROWS = 15.dp - ROW_SPACING // spec: baseline 30 pt above the cards
+private val FIRST_TITLE_BASELINE = 16.dp // cap height of 16 sp plus a little room
+private val NEXT_TITLE_BASELINE = 37.dp + 12.dp - ROW_SPACING // 75 pt to the next title's cap top
 private val ICON_GAP = 6.dp
 private val ERROR_SYMBOL = 14.dp
 private val FOOTER_GAP = 9.dp // HStack spacing 18

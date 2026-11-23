@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,22 +25,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Button
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.GlassStyle
-import com.kien.movies.design.Palette
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
 import com.kien.movies.player.StreamNotice
 import com.nuvio.tvos.TvosStream
 
@@ -61,13 +54,14 @@ fun StreamDetailSheet(sheet: StreamSheet, onClose: () -> Unit) {
             modifier = Modifier
                 .widthIn(max = SHEET_MAX_WIDTH)
                 .heightIn(max = SHEET_MAX_HEIGHT)
-                .background(Palette.homeBackground, RoundedCornerShape(SHEET_RADIUS))
+                .background(DialogPanelFill, TvShapes.panel)
+                .glassEdge(TvShapes.panel)
                 .padding(SHEET_PADDING)
                 .testTag(STREAM_SHEET_TAG),
             verticalArrangement = Arrangement.spacedBy(SHEET_GAP)
         ) {
             sheet.notice?.let { notice -> StreamNoticeView(notice) }
-            Text(text = sheet.stream.name, style = NAME_STYLE, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = sheet.stream.name, style = TvType.headline, maxLines = 2, overflow = TextOverflow.Ellipsis)
             // Only the fields scroll: Close is the one focusable, so the notice and the name above
             // must never scroll out of reach.
             Column(
@@ -76,16 +70,22 @@ fun StreamDetailSheet(sheet: StreamSheet, onClose: () -> Unit) {
             ) {
                 StreamFieldGrid(fields(sheet.stream))
                 if (sheet.notice == null) {
-                    Text(text = playbackNote(sheet.stream), style = TextStyles.small, color = Palette.textSecondary)
+                    Text(text = playbackNote(sheet.stream), style = TvType.caption2, color = TvColors.textSecondary)
                 }
             }
             Button(
                 onClick = onClose,
-                colors = GlassStyle.buttonColors(),
-                scale = GlassStyle.buttonScale(),
-                modifier = Modifier.padding(top = CLOSE_TOP).focusRequester(closeFocus).testTag(STREAM_SHEET_CLOSE_TAG)
+                colors = TvGlass.buttonColors(),
+                scale = TvGlass.buttonScale(),
+                shape = TvGlass.pillShape(),
+                border = TvGlass.buttonBorder(),
+                modifier = Modifier
+                    .padding(top = CLOSE_TOP)
+                    .height(TvControls.pillHeight)
+                    .focusRequester(closeFocus)
+                    .testTag(STREAM_SHEET_CLOSE_TAG)
             ) {
-                Text(text = "Close", style = TextStyles.button)
+                Text(text = "Close", style = TvType.body)
             }
         }
     }
@@ -100,9 +100,9 @@ private fun StreamNoticeView(notice: StreamNotice) {
             tint = NOTICE_YELLOW,
             modifier = Modifier.size(NOTICE_SYMBOL)
         )
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.textGap)) {
-            Text(text = notice.title, style = NOTICE_TITLE_STYLE)
-            Text(text = notice.message, style = TextStyles.body, color = Palette.textSecondary)
+        Column(verticalArrangement = Arrangement.spacedBy(NOTICE_TEXT_GAP)) {
+            Text(text = notice.title, style = TvType.headline)
+            Text(text = notice.message, style = TvType.caption1, color = TvColors.textSecondary)
         }
     }
 }
@@ -115,13 +115,13 @@ private fun StreamFieldGrid(fields: List<Pair<String, String>>) {
                 Box(modifier = Modifier.width(FIELD_LABEL_WIDTH), contentAlignment = Alignment.TopEnd) {
                     Text(
                         text = label,
-                        style = TextStyles.small.copy(fontWeight = FontWeight.Medium),
-                        color = Palette.textSecondary,
+                        style = TvType.caption2,
+                        color = TvColors.textSecondary,
                         textAlign = TextAlign.End,
                         modifier = Modifier.padding(top = FIELD_LABEL_BASELINE)
                     )
                 }
-                Text(text = value, style = TextStyles.body, maxLines = FIELD_MAX_LINES, overflow = TextOverflow.Ellipsis)
+                Text(text = value, style = TvType.caption1, maxLines = FIELD_MAX_LINES, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -158,14 +158,12 @@ private val NOTICE_YELLOW = Color(0xFFFFCC00) // the multicolour triangle symbol
 private val SHEET_MAX_WIDTH = 650.dp // frame(maxWidth: 1300)
 private val SHEET_MAX_HEIGHT = 486.dp // the screen less the 27 dp overscan at top and bottom
 private val SHEET_PADDING = 32.dp // padding(64)
-private val SHEET_RADIUS = CardSize.cornerRadius
 private val SHEET_GAP = 18.dp // spacing 36
 private val CLOSE_TOP = 4.dp // padding(.top, 8)
-private val NAME_STYLE = TextStyles.streamsTitle.copy(fontSize = 24.sp, lineHeight = 30.sp) // 48 pt bold
-private val NOTICE_TITLE_STYLE = TextStyles.shelfHeader.copy(fontSize = 19.sp, lineHeight = 24.sp) // 38 pt semibold
+private val NOTICE_TEXT_GAP = 8.dp
 private val NOTICE_GAP = 14.dp // HStack spacing 28
 private val NOTICE_SYMBOL = 26.dp // 52 pt symbol
 private val FIELD_ROW_GAP = 10.dp // verticalSpacing 20
 private val FIELD_COLUMN_GAP = 20.dp // horizontalSpacing 40
 private val FIELD_LABEL_WIDTH = 90.dp // widest label, "External URL", at 12 sp
-private val FIELD_LABEL_BASELINE = 2.dp // first text baseline of 12 sp against 15 sp
+private val FIELD_LABEL_BASELINE = 1.dp // first text baseline of 12 sp against 13 sp

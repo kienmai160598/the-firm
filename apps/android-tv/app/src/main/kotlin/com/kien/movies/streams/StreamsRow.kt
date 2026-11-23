@@ -22,16 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.kien.movies.R
-import com.kien.movies.design.StreamsSize
-import com.kien.movies.design.TextStyles
 
 /**
  * The content of one stream button (tvOS StreamsRow.swift): resolution badge, name, up to four
@@ -41,7 +38,7 @@ import com.kien.movies.design.TextStyles
 @Composable
 fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.fillMaxWidth().height(StreamsSize.rowHeight).padding(horizontal = ROW_PADDING),
+        modifier = modifier.fillMaxWidth().height(ROW_HEIGHT).padding(horizontal = ROW_PADDING),
         horizontalArrangement = Arrangement.spacedBy(ROW_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -49,7 +46,7 @@ fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modif
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
             Text(
                 text = row.oneLineName,
-                style = TextStyles.body.copy(fontWeight = FontWeight.SemiBold),
+                style = TvType.body,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -74,12 +71,12 @@ private fun StreamResolutionBadge(resolution: String?) {
     val content = LocalContentColor.current
     Box(
         modifier = Modifier
-            .size(StreamsSize.resolutionBadge)
-            .background(content.copy(alpha = BADGE_FILL_ALPHA), RoundedCornerShape(BADGE_RADIUS)),
+            .size(RESOLUTION_BADGE)
+            .background(content.copy(alpha = BADGE_FILL_ALPHA), TvShapes.card),
         contentAlignment = Alignment.Center
     ) {
         if (resolution != null) {
-            Text(text = resolution, style = RESOLUTION_STYLE, maxLines = 1)
+            Text(text = resolution, style = TvType.body, maxLines = 1)
         } else {
             Icon(
                 painter = painterResource(R.drawable.ic_streams_no_resolution),
@@ -102,7 +99,7 @@ private fun StreamDetailLine(capabilities: List<String>, fileLine: String?) {
         if (fileLine != null) {
             Text(
                 text = fileLine,
-                style = TextStyles.small,
+                style = TvType.caption2,
                 color = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA),
                 maxLines = 1,
                 overflow = TextOverflow.MiddleEllipsis,
@@ -117,12 +114,12 @@ private fun StreamCapabilityBadge(text: String) {
     val color = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA)
     Text(
         text = text,
-        style = TextStyles.badge,
+        style = TvType.overline,
         color = color,
         maxLines = 1,
         softWrap = false,
         modifier = Modifier
-            .border(CAPABILITY_STROKE, color, RoundedCornerShape(CAPABILITY_RADIUS))
+            .border(CAPABILITY_STROKE, color, CAPABILITY_SHAPE)
             .padding(horizontal = CAPABILITY_PADDING_H, vertical = CAPABILITY_PADDING_V)
     )
 }
@@ -132,7 +129,7 @@ private fun StreamFacts(size: String?, seeders: Int?, isTorrent: Boolean) {
     val secondary = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA)
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
         if (size != null) {
-            Text(text = size, style = TextStyles.small.copy(fontWeight = FontWeight.SemiBold), maxLines = 1, softWrap = false)
+            Text(text = size, style = TvType.caption1, maxLines = 1, softWrap = false)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(FACT_GAP), verticalAlignment = Alignment.CenterVertically) {
             if (seeders != null) StreamFact(R.drawable.ic_streams_seeders, seeders.toString(), secondary)
@@ -149,7 +146,7 @@ private fun StreamFacts(size: String?, seeders: Int?, isTorrent: Boolean) {
 private fun StreamFact(icon: Int, text: String, color: Color) {
     Row(horizontalArrangement = Arrangement.spacedBy(FACT_ICON_GAP), verticalAlignment = Alignment.CenterVertically) {
         Icon(painter = painterResource(icon), contentDescription = null, tint = color, modifier = Modifier.size(FACT_SYMBOL))
-        Text(text = text, style = TextStyles.small.copy(fontWeight = FontWeight.Medium), color = color, maxLines = 1, softWrap = false)
+        Text(text = text, style = TvType.caption2, color = color, maxLines = 1, softWrap = false)
     }
 }
 
@@ -162,13 +159,13 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(PROGRESS_GAP), verticalAlignment = Alignment.CenterVertically) {
             StreamsSpinner(size = PROGRESS_SPINNER)
-            Text(text = progress.title, style = TextStyles.small.copy(fontWeight = FontWeight.SemiBold), maxLines = 1)
+            Text(text = progress.title, style = TvType.caption1, maxLines = 1)
         }
         progress.fraction?.let { fraction -> StreamsProgressBar(fraction = fraction, modifier = Modifier.width(PROGRESS_BAR_WIDTH)) }
         progress.detail?.let { detail ->
             Text(
                 text = detail,
-                style = TextStyles.small,
+                style = TvType.caption2,
                 color = LocalContentColor.current.copy(alpha = SECONDARY_ALPHA),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -178,21 +175,21 @@ private fun StreamRowProgressView(progress: StreamRowProgress) {
 }
 
 private const val MAX_CAPABILITIES = 4
-private const val SECONDARY_ALPHA = 0.6f
+private val SECONDARY_ALPHA = TvColors.textSecondary.alpha
 private const val BADGE_FILL_ALPHA = 0.1f
 
 // tvOS literals, pt / 2.
+private val ROW_HEIGHT = 52.dp
+private val RESOLUTION_BADGE = DpSize(62.dp, 32.dp)
 private val ROW_PADDING = 10.dp // padding(.horizontal, 8) plus the bordered button's own inset
 private val ROW_GAP = 14.dp // HStack spacing 28
 private val TEXT_GAP = 4.dp // spacing 8 to 12
-private val BADGE_RADIUS = 7.dp // cornerRadius 14
 private val RESOLUTION_SYMBOL = 15.dp // 30 pt symbol
-private val RESOLUTION_STYLE = TextStyles.body.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold) // 28 pt bold
 private val DETAIL_LINE_HEIGHT = 16.dp // frame(height: 32)
 private val BADGE_GAP = 5.dp // HStack spacing 10
 private val FILE_LINE_GAP = 3.dp // padding(.leading, 6)
 private val CAPABILITY_STROKE = 1.dp // lineWidth 1.5
-private val CAPABILITY_RADIUS = 3.dp // cornerRadius 6
+private val CAPABILITY_SHAPE = RoundedCornerShape(3.dp) // cornerRadius 6, like the Details tech badges
 private val CAPABILITY_PADDING_H = 5.dp // padding(.horizontal, 10)
 private val CAPABILITY_PADDING_V = 1.dp // padding(.vertical, 4), less so the badge fits the 16 dp line
 private val FACT_GAP = 9.dp // HStack spacing 18
