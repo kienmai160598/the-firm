@@ -104,7 +104,9 @@ private fun StreamsPage(
     val bodyFocus = remember { FocusRequester() }
     val content = state.content
     val restoresRow = restoreKey != null && content is StreamsContent.Groups
-    LaunchedEffect(content::class) {
+    // hasRows too: the Android only Try Again of an all failed list leaves when rows arrive.
+    val hasRows = (content as? StreamsContent.Groups)?.hasRows == true
+    LaunchedEffect(content::class, hasRows) {
         if (restoresRow) return@LaunchedEffect
         withFrameNanos {}
         bodyFocus.requestFocus()

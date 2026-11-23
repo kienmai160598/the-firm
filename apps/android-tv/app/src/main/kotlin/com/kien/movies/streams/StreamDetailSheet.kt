@@ -62,16 +62,22 @@ fun StreamDetailSheet(sheet: StreamSheet, onClose: () -> Unit) {
                 .widthIn(max = SHEET_MAX_WIDTH)
                 .heightIn(max = SHEET_MAX_HEIGHT)
                 .background(Palette.homeBackground, RoundedCornerShape(SHEET_RADIUS))
-                .verticalScroll(rememberScrollState())
                 .padding(SHEET_PADDING)
                 .testTag(STREAM_SHEET_TAG),
             verticalArrangement = Arrangement.spacedBy(SHEET_GAP)
         ) {
             sheet.notice?.let { notice -> StreamNoticeView(notice) }
             Text(text = sheet.stream.name, style = NAME_STYLE, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            StreamFieldGrid(fields(sheet.stream))
-            if (sheet.notice == null) {
-                Text(text = playbackNote(sheet.stream), style = TextStyles.small, color = Palette.textSecondary)
+            // Only the fields scroll: Close is the one focusable, so the notice and the name above
+            // must never scroll out of reach.
+            Column(
+                modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(SHEET_GAP)
+            ) {
+                StreamFieldGrid(fields(sheet.stream))
+                if (sheet.notice == null) {
+                    Text(text = playbackNote(sheet.stream), style = TextStyles.small, color = Palette.textSecondary)
+                }
             }
             Button(
                 onClick = onClose,

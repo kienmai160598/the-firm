@@ -230,10 +230,15 @@ private sealed interface ListEntry {
 }
 
 private fun listEntries(content: StreamsContent.Groups): List<ListEntry> = buildList {
+    // A lazy list throws on a duplicate key: an addon id seen twice gets a suffix.
+    val seen = mutableMapOf<String, Int>()
     content.groups.forEachIndexed { index, group ->
-        add(ListEntry.Header(group.addonId, group.addonName, isFirst = index == 0))
-        group.errorMessage?.let { message -> add(ListEntry.Error(group.addonId, message)) }
-        group.rows.forEach { row -> add(ListEntry.Stream(group.addonId, row)) }
+        val count = (seen[group.addonId] ?: 0) + 1
+        seen[group.addonId] = count
+        val groupKey = if (count == 1) group.addonId else "${group.addonId}#$count"
+        add(ListEntry.Header(groupKey, group.addonName, isFirst = index == 0))
+        group.errorMessage?.let { message -> add(ListEntry.Error(groupKey, message)) }
+        group.rows.forEach { row -> add(ListEntry.Stream(groupKey, row)) }
     }
     if (content.searchingAddonCount > 0) add(ListEntry.Searching(content.searchingAddonCount))
     if (!content.hasRows) add(ListEntry.Retry)
