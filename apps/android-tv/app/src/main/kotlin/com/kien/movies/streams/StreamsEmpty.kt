@@ -78,11 +78,12 @@ fun StreamsRetryButton(onRetry: () -> Unit, modifier: Modifier = Modifier) {
         scale = TvGlass.buttonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
         modifier = modifier.height(TvControls.pillHeight)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(GLYPH_GAP), verticalAlignment = Alignment.CenterVertically) {
             Icon(painter = painterResource(R.drawable.ic_streams_retry), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
-            Text(text = "Try Again", style = TvType.body)
+            Text(text = "Try Again", style = TvType.bodyEmphasized)
         }
     }
 }

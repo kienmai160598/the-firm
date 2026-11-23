@@ -75,13 +75,14 @@ fun AddonDialogButton(label: String, onClick: () -> Unit, modifier: Modifier = M
         scale = TvGlass.buttonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
         modifier = modifier
             .fillMaxWidth()
             .height(TvControls.pillHeight)
             .focusRequester(requester)
             .testTag(dialogButtonTag(label))
     ) {
-        Text(text = label, style = TvType.body, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+        Text(text = label, style = TvType.bodyEmphasized, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
     }
     if (focusFirst) {
         LaunchedEffect(Unit) {

@@ -86,14 +86,15 @@ fun AddonInstallPanel(
             scale = TvGlass.buttonScale(),
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
+            contentPadding = TvGlass.pillPadding,
             modifier = Modifier.height(TvControls.pillHeight).testTag(INSTALL_BUTTON_TAG)
         ) {
             if (state.isInstalling) {
-                Text(text = "Installing", style = TvType.body)
+                Text(text = "Installing", style = TvType.bodyEmphasized)
             } else {
                 Icon(painter = painterResource(R.drawable.ic_addons_plus), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
                 Spacer(Modifier.size(GLYPH_GAP))
-                Text(text = "Install", style = TvType.body)
+                Text(text = "Install", style = TvType.bodyEmphasized)
             }
         }
         Button(
@@ -102,11 +103,12 @@ fun AddonInstallPanel(
             scale = TvGlass.buttonScale(),
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
+            contentPadding = TvGlass.pillPadding,
             modifier = Modifier.height(TvControls.pillHeight).focusRequester(phoneButtonFocus).testTag(PHONE_BUTTON_TAG)
         ) {
             Icon(painter = painterResource(R.drawable.ic_addons_phone), contentDescription = null, modifier = Modifier.size(TvControls.glyph))
             Spacer(Modifier.size(GLYPH_GAP))
-            Text(text = "Add from phone", style = TvType.body)
+            Text(text = "Add from phone", style = TvType.bodyEmphasized)
         }
         StatusLine(state.installStatus)
     }

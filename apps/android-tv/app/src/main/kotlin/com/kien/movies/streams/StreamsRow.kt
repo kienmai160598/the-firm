@@ -46,7 +46,7 @@ fun StreamsRow(row: StreamRowItem, progress: StreamRowProgress?, modifier: Modif
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
             Text(
                 text = row.oneLineName,
-                style = TvType.body,
+                style = TvType.bodyEmphasized,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -76,7 +76,7 @@ private fun StreamResolutionBadge(resolution: String?) {
         contentAlignment = Alignment.Center
     ) {
         if (resolution != null) {
-            Text(text = resolution, style = TvType.body, maxLines = 1)
+            Text(text = resolution, style = TvType.bodyEmphasized, maxLines = 1)
         } else {
             Icon(
                 painter = painterResource(R.drawable.ic_streams_no_resolution),

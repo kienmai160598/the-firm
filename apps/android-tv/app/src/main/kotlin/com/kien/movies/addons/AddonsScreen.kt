@@ -37,6 +37,7 @@ import androidx.tv.material3.Text
 import com.kien.movies.addons.phone.PhoneAddonPanel
 import com.kien.movies.streams.TvColors
 import com.kien.movies.streams.TvGrid
+import com.kien.movies.streams.TvInsets
 import com.kien.movies.streams.TvType
 import com.nuvio.tvos.TvosAddon
 
@@ -66,13 +67,13 @@ fun AddonsScreen() {
             .fillMaxSize()
             // lead: drop this fill when RootScreen gives Search, Library and Addons the slate as
             // the window background; it is one opaque full screen layer until then.
-            .background(TvColors.searchBackground)
-            .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvGrid.tabContentTop)
+            .background(TvColors.searchLibrary)
+            .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvInsets.tabContentTop)
             .focusRestorer(if (state.addons.isEmpty()) fieldFocus else firstRowFocus)
             .focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(PANEL_GAP)
     ) {
-        Box(modifier = Modifier.width(PANEL_WIDTH).fillMaxHeight().padding(bottom = TvGrid.verticalMargin).focusGroup()) {
+        Box(modifier = Modifier.width(PANEL_WIDTH).fillMaxHeight().padding(bottom = TvInsets.verticalMargin).focusGroup()) {
             if (showsPhonePanel) {
                 PhoneAddonPanel(
                     install = viewModel::installFromPhone,
@@ -158,7 +159,7 @@ private fun InstalledList(
     rowFocus.keys.retainAll(urls)
     LazyColumn(
         modifier = Modifier.fillMaxSize().focusRestorer(firstRowFocus).testTag(ADDON_LIST_TAG),
-        contentPadding = PaddingValues(bottom = TvGrid.verticalMargin),
+        contentPadding = PaddingValues(bottom = TvInsets.verticalMargin),
         verticalArrangement = Arrangement.spacedBy(ROW_GAP)
     ) {
         item(key = "header", contentType = "header") {
@@ -199,7 +200,7 @@ internal fun SectionTitle(text: String, spacingAfter: Dp, modifier: Modifier = M
 @Composable
 private fun EmptyState() {
     Column(
-        modifier = Modifier.fillMaxSize().padding(bottom = TvGrid.verticalMargin),
+        modifier = Modifier.fillMaxSize().padding(bottom = TvInsets.verticalMargin),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

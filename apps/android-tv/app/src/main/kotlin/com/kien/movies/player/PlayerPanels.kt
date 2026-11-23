@@ -68,7 +68,7 @@ private val SeparatorVertical = 5.dp // 10 pt
 private val SeparatorHeight = 1.dp
 private val RowFont = TvType.caption1
 private val DetailFont = TvType.caption2
-private val HeaderFont = TvType.caption1.copy(fontWeight = TvType.body.fontWeight)
+private val HeaderFont = TvType.caption1.copy(fontWeight = TvType.bodyEmphasized.fontWeight)
 private const val PRESSED_SCALE = 0.97f
 private val DETAIL_ALPHA = TvColors.textSecondary.alpha
 

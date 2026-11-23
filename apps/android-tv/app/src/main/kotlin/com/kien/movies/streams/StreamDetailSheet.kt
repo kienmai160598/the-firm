@@ -79,13 +79,14 @@ fun StreamDetailSheet(sheet: StreamSheet, onClose: () -> Unit) {
                 scale = TvGlass.buttonScale(),
                 shape = TvGlass.pillShape(),
                 border = TvGlass.buttonBorder(),
+                contentPadding = TvGlass.pillPadding,
                 modifier = Modifier
                     .padding(top = CLOSE_TOP)
                     .height(TvControls.pillHeight)
                     .focusRequester(closeFocus)
                     .testTag(STREAM_SHEET_CLOSE_TAG)
             ) {
-                Text(text = "Close", style = TvType.body)
+                Text(text = "Close", style = TvType.bodyEmphasized)
             }
         }
     }

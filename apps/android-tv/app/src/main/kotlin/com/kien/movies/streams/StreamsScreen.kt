@@ -61,7 +61,7 @@ fun StreamsScreen(route: AppRoute.Streams, router: Router) {
         if (playback == null) {
             // lead: drop this fill once the window background of pushed routes is the spec's
             // Details colour; it replaces the receded backdrop, so it adds no extra pass.
-            Box(modifier = Modifier.fillMaxSize().background(TvColors.detailsBackground))
+            Box(modifier = Modifier.fillMaxSize().background(TvColors.details))
             StreamsPage(
                 viewModel = viewModel,
                 state = state,
@@ -111,7 +111,7 @@ private fun StreamsPage(
         StreamsHeader(
             target = viewModel.target,
             resume = state.directResume,
-            modifier = Modifier.padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvGrid.verticalMargin)
+            modifier = Modifier.padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, top = TvInsets.verticalMargin)
         )
         // No cross fade between the bodies (tvOS fades 0.35 s): during a fade both bodies are
         // composed, and the focus request below could land in the one that is leaving.
@@ -200,11 +200,12 @@ private fun DialogButton(text: String, onClick: () -> Unit, modifier: Modifier =
         scale = TvGlass.buttonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
         modifier = modifier.fillMaxWidth().height(TvControls.pillHeight)
     ) {
         Text(
             text = text,
-            style = TvType.body,
+            style = TvType.bodyEmphasized,
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

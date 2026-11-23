@@ -409,6 +409,7 @@ private fun PlayerContent(controller: PlayerController, state: PlayerState, targ
                 Column(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin, bottom = BottomInset)
                 ) {

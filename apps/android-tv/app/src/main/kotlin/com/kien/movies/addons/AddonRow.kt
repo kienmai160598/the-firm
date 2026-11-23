@@ -73,7 +73,7 @@ const val ADDON_ROW_TAG = "addon-row"
 @Composable
 private fun TitleLine(addon: TvosAddon) {
     Row(horizontalArrangement = Arrangement.spacedBy(TITLE_GAP), verticalAlignment = Alignment.Bottom) {
-        Text(text = addon.name, style = TvType.body, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+        Text(text = addon.name, style = TvType.bodyEmphasized, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
         if (addon.version.isNotEmpty()) {
             Text(text = "v${addon.version}", style = TvType.caption2, color = secondary())
         }

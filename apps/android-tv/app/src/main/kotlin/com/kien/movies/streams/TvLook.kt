@@ -1,13 +1,14 @@
 // lead: move to design/
 // Private copy of the shared look tokens (docs/tv-look-spec.md, sections 1 and 2) for Streams,
-// the player and Addons, under the names the brief gives (TvGrid, glassEdge, TvType, TvColors,
-// TvShapes). The player and Addons import them from here until design/ holds the shared ones.
-// TvControls and TvGlass are extras of this copy: control sizes and focus scales, and the glass
-// edge as a tv-material border parameter.
+// the player and Addons. TvGrid, TvColors, TvType, TvShapes and glassEdge use the member names of
+// android-tv/look2-shell-home design/TvTokens.kt (e1ca6b6d4d), so the merge is an import swap.
+// TvInsets, TvControls, TvGlass and PlatterOverBlack are extras of this copy: insets, control
+// sizes and focus scales, and the glass edge as tv-material border parameters.
 package com.kien.movies.streams
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -39,19 +40,28 @@ import androidx.tv.material3.ListItemDefaults
 /** The column grid every shelf sits on: 960 x 540 dp canvas, 864 dp content, 20 dp gutter. */
 object TvGrid {
     /** Side margin, the Android overscan floor (tvOS 80 pt). */
-    val sideMargin = 48.dp
+    val sideMargin: Dp = 48.dp
 
-    /** Top and bottom overscan floor. */
-    val verticalMargin = 27.dp
-
-    val contentWidth = 864.dp
-    val gutter = 20.dp
-
-    /** First content line under the collapsed nav pill on a tab root (Search field top, 134 pt). */
-    val tabContentTop = 67.dp
+    val contentWidth: Dp = 864.dp
+    val gutter: Dp = 20.dp
 
     /** Width of one item when [columns] items fill the content width. */
-    fun itemWidth(columns: Int): Dp = (contentWidth - gutter * (columns - 1)) / columns
+    fun itemWidth(columns: Int): Dp {
+        require(columns > 0) { "columns must be positive, was $columns" }
+        return (contentWidth - gutter * (columns - 1)) / columns
+    }
+}
+
+/** Vertical insets (extra of this copy). */
+object TvInsets {
+    /** Top and bottom overscan floor. */
+    val verticalMargin: Dp = 27.dp
+
+    /**
+     * First content line under the collapsed nav pill on a tab root: the Search field's magnifier
+     * top, 134 pt on 39-search-results.png (the pill spans 52 to 110 pt).
+     */
+    val tabContentTop: Dp = 67.dp
 }
 
 /** Spec section 2 Type: tvOS text styles at sp = pt / 2. Colour is the caller's. */
@@ -65,8 +75,11 @@ object TvType {
     /** Row title, Callout bold (31 pt), drawn in secondary. */
     val rowTitle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, lineHeight = 19.sp)
 
-    /** Nav pill label, result card title, button label: Body bold (29 pt). */
-    val body = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold, lineHeight = 18.sp)
+    /** Body 29 pt. */
+    val body = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp)
+
+    /** Body 29 pt bold: nav pill label, result card title, button label. */
+    val bodyEmphasized = body.copy(fontWeight = FontWeight.Bold)
 
     /** Metadata line, sidebar item: Caption 1 (25 pt). */
     val caption1 = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium, lineHeight = 16.sp)
@@ -75,14 +88,13 @@ object TvType {
     val caption2 = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, lineHeight = 15.sp)
 
     /** Overline and badge text, 19 pt uppercase: 11 sp floor. */
-    val overline = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, lineHeight = 14.sp)
+    val overline = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, lineHeight = 14.sp)
 }
 
 /** Spec section 2 Colour, Android column. */
 object TvColors {
-    val homeRowsBackground = Color(0xFF1C2228)
-    val detailsBackground = Color(0xFF141C24)
-    val searchBackground = Color(0xFF2E3437)
+    val details = Color(0xFF141C24)
+    val searchLibrary = Color(0xFF2E3437)
 
     val textPrimary = Color.White
     val textSecondary = Color.White.copy(alpha = 0.6f)
@@ -95,7 +107,7 @@ object TvColors {
     val platter = Color.White.copy(alpha = 0.22f)
 
     /** Sidebar panel: near black at 96%, no blur, plus the glass edge. */
-    val sidebarPanel = Color(0xF51A1A1A)
+    val sidebarPanel = Color(0xFF1A1A1A).copy(alpha = 0.96f)
 
     /** The glass edge: 1 dp inside stroke, white 16%. */
     val glassEdge = Color.White.copy(alpha = 0.16f)
@@ -106,7 +118,7 @@ object TvShapes {
     val card = RoundedCornerShape(8.dp)
     val panel = RoundedCornerShape(12.dp)
     val sidebar = RoundedCornerShape(16.dp)
-    val pill = RoundedCornerShape(percent = 50)
+    val pill = RoundedCornerShape(50)
 }
 
 /** The 1 dp glass edge inside [shape]; dropped when the control turns solid white ([visible] false). */
@@ -154,6 +166,9 @@ object TvGlass {
     )
 
     fun pillShape(): ButtonShape = ButtonDefaults.shape(shape = TvShapes.pill)
+
+    /** Horizontal only: a pill is [TvControls.pillHeight] tall, the label centres in it. */
+    val pillPadding = PaddingValues(horizontal = 16.dp)
 
     fun buttonScale(): ButtonScale = ButtonDefaults.scale(focusedScale = TvControls.controlFocusScale)
 

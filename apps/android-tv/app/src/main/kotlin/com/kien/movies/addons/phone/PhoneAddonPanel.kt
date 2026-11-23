@@ -127,9 +127,10 @@ fun PhoneAddonPanel(
             scale = TvGlass.buttonScale(),
             shape = TvGlass.pillShape(),
             border = TvGlass.buttonBorder(),
+            contentPadding = TvGlass.pillPadding,
             modifier = Modifier.height(TvControls.pillHeight).focusRequester(closeFocus).testTag(PHONE_CLOSE_TAG)
         ) {
-            Text(text = "Close", style = TvType.body)
+            Text(text = "Close", style = TvType.bodyEmphasized)
         }
     }
 }
@@ -188,9 +189,10 @@ private fun Problem(message: String, onRetry: () -> Unit) {
         scale = TvGlass.buttonScale(),
         shape = TvGlass.pillShape(),
         border = TvGlass.buttonBorder(),
+        contentPadding = TvGlass.pillPadding,
         modifier = Modifier.height(TvControls.pillHeight)
     ) {
-        Text(text = "Try Again", style = TvType.body)
+        Text(text = "Try Again", style = TvType.bodyEmphasized)
     }
 }
 
