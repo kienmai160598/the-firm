@@ -499,16 +499,8 @@ class PlayerRuntimeController(
     internal var lastPlaybackIssueError: PlaybackIssueErrorInput? = null
     internal val playbackIssueReportRequestVersion = AtomicLong(0L)
     internal val playbackAnalyticsDiagnostics = PlayerPlaybackAnalyticsDiagnostics()
-    internal val loadingDiagnosticEvents: ArrayDeque<PlayerLoadingDiagnosticEvent> = ArrayDeque()
-    internal val loadingDiagnosticRawEventLines: ArrayDeque<String> = ArrayDeque()
+    internal val loadingDiagnostics = PlayerLoadingDiagnosticsLog()
     internal val pendingPlaybackRawEventLines: ArrayDeque<String> = ArrayDeque()
-    internal var loadingDiagnosticsStartedAtMs: Long = 0L
-    internal var currentLoadingPhase: String = "idle"
-    internal var currentLoadingPhaseStartedAtMs: Long = 0L
-    internal var currentLoadingMessageForReport: String? = null
-    internal var currentLoadingProgressForReport: Float? = null
-    internal var lastLoadingDiagnosticSignature: String = ""
-    internal var startupPhaseSequence: Int = 0
 
     internal var lastSavedPosition: Long = 0L
     internal val saveThresholdMs = 5000L
