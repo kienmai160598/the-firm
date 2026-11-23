@@ -10,6 +10,9 @@ import platform.Foundation.NSTemporaryDirectory
 
 private val semanticVersion = Regex("""\d+\.\d+\.\d+""")
 
+// A torrent nobody seeds: its stream stays resolving.
+private const val LONELY_MAGNET = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+
 @OptIn(ExperimentalForeignApi::class)
 class TorrentEnginesTest {
     @Test
@@ -35,5 +38,26 @@ class TorrentEnginesTest {
 
         assertEquals(TorrentEngineException.Reason.InvalidArgument, error.reason)
         assertTrue(error.message.orEmpty().contains("not absolute"), error.message)
+    }
+
+    @Test
+    fun aStreamResolvesUntilClosedAndIsThenUnknown() {
+        TorrentEngines.open(TorrentEngineConfig(NSTemporaryDirectory() + "torrent-stream-test")).use { engine ->
+            val stream = engine.openStream(LONELY_MAGNET)
+
+            assertEquals(StreamInfo.Resolving, engine.streamInfo(stream))
+            engine.closeStream(stream)
+            val error = assertFailsWith<TorrentEngineException> { engine.streamInfo(stream) }
+            assertEquals(TorrentEngineException.Reason.NotFound, error.reason)
+        }
+    }
+
+    @Test
+    fun aBadMagnetLinkIsAnInvalidArgument() {
+        TorrentEngines.open(TorrentEngineConfig(NSTemporaryDirectory() + "torrent-stream-test")).use { engine ->
+            val error = assertFailsWith<TorrentEngineException> { engine.openStream("not a magnet") }
+
+            assertEquals(TorrentEngineException.Reason.InvalidArgument, error.reason)
+        }
     }
 }

@@ -1,0 +1,102 @@
+diff -ru a/include/libtorrent/torrent.hpp b/include/libtorrent/torrent.hpp
+--- a/include/libtorrent/torrent.hpp
++++ b/include/libtorrent/torrent.hpp
+@@ -560,6 +560,7 @@
+ 			, disk_class rw = disk_class::none);
+ 		void handle_inconsistent_hashes(piece_index_t piece);
+ 		void clear_error();
++		void drop_pieces(std::vector<piece_index_t> const& pieces);
+ 
+ 		void set_error(error_code const& ec, file_index_t file);
+ 		bool has_error() const { return !!m_error; }
+diff -ru a/include/libtorrent/torrent_handle.hpp b/include/libtorrent/torrent_handle.hpp
+--- a/include/libtorrent/torrent_handle.hpp
++++ b/include/libtorrent/torrent_handle.hpp
+@@ -507,6 +507,14 @@
+ 		// non-empty), this will clear the error and start the torrent again.
+ 		void clear_error() const;
+ 
++		// Forgets the given pieces so storage can free their memory. A piece
++		// already had counts as missing again and peers get a dont-have message;
++		// a piece half downloaded loses its finished blocks. Either way the disk
++		// job async_clear_piece runs for it, and the piece is fetched again once
++		// its priority allows. Pieces being hashed or not started are skipped.
++		// A dropped half downloaded piece posts a hash_failed_alert.
++		void drop_pieces(std::vector<piece_index_t> const& pieces) const;
++
+ 		// ``trackers()`` returns the list of trackers for this torrent. The
+ 		// announce entry contains both a string ``url`` which specify the
+ 		// announce url for the tracker as well as an int ``tier``, which is
+diff -ru a/src/torrent.cpp b/src/torrent.cpp
+--- a/src/torrent.cpp
++++ b/src/torrent.cpp
+@@ -9307,6 +9307,54 @@
+ 		return false;
+ 	}
+ 
++	void torrent::drop_pieces(std::vector<piece_index_t> const& pieces)
++	{
++		TORRENT_ASSERT(is_single_thread());
++		if (m_abort || !m_storage || !valid_metadata() || pieces.empty()) return;
++		if (m_state == torrent_status::checking_files
++			|| m_state == torrent_status::checking_resume_data)
++			return;
++
++		bool const was_finished = is_finished();
++		if (m_seed_mode) leave_seed_mode(seed_mode_t::skip_checking);
++		need_picker();
++
++		bool forgot_had_piece = false;
++		for (piece_index_t const piece : pieces)
++		{
++			if (piece < piece_index_t(0) || piece >= m_torrent_file->end_piece()) continue;
++			if (m_picker->have_piece(piece))
++			{
++				m_picker->we_dont_have(piece);
++				for (auto* p : m_connections)
++				{
++					TORRENT_INCREMENT(m_iterating_connections);
++					p->write_dont_have(piece);
++				}
++				forgot_had_piece = true;
++				m_ses.disk_thread().async_clear_piece(m_storage, piece
++					, [](piece_index_t const&) {});
++			}
++			else if (m_picker->is_downloading(piece) && !m_picker->is_piece_finished(piece))
++			{
++				// the same path a failed hash takes, without blaming any peer
++				m_picker->lock_piece(piece);
++				m_ses.disk_thread().async_clear_piece(m_storage, piece
++					, [self = shared_from_this()](piece_index_t const& p)
++					{ self->on_piece_sync(p, {}); });
++			}
++		}
++		m_ses.deferred_submit_jobs();
++		if (!forgot_had_piece) return;
++
++		m_have_all = false;
++		m_file_progress.clear();
++		m_file_progress.init(picker(), m_torrent_file->files());
++		update_gauge();
++		state_updated();
++		if (was_finished && !is_finished()) resume_download();
++	}
++
+ 	void torrent::clear_error()
+ 	{
+ 		TORRENT_ASSERT(is_single_thread());
+diff -ru a/src/torrent_handle.cpp b/src/torrent_handle.cpp
+--- a/src/torrent_handle.cpp
++++ b/src/torrent_handle.cpp
+@@ -468,6 +468,11 @@
+ 		async_call(&torrent::clear_error);
+ 	}
+ 
++	void torrent_handle::drop_pieces(std::vector<piece_index_t> const& pieces) const
++	{
++		async_call(&torrent::drop_pieces, pieces);
++	}
++
+ #if TORRENT_ABI_VERSION == 1
+ 	void torrent_handle::set_priority(int const p) const
+ 	{

@@ -2,6 +2,7 @@ package com.nuvio.torrent
 
 import cnames.structs.movies_engine
 import com.nuvio.torrent.native.MOVIES_ENGINE_INVALID_ARGUMENT
+import com.nuvio.torrent.native.MOVIES_ENGINE_NOT_FOUND
 import com.nuvio.torrent.native.MOVIES_ENGINE_OK
 import com.nuvio.torrent.native.movies_engine_config
 import com.nuvio.torrent.native.movies_engine_create
@@ -35,6 +36,7 @@ internal fun throwIfFailed(status: Int) {
     if (status == MOVIES_ENGINE_OK) return
     val reason = when (status) {
         MOVIES_ENGINE_INVALID_ARGUMENT -> TorrentEngineException.Reason.InvalidArgument
+        MOVIES_ENGINE_NOT_FOUND -> TorrentEngineException.Reason.NotFound
         else -> TorrentEngineException.Reason.Internal
     }
     throw TorrentEngineException(reason, movies_engine_last_error()?.toKString().orEmpty())

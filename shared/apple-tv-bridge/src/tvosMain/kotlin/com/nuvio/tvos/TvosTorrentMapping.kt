@@ -9,6 +9,9 @@ internal const val TORRENT_PHASE_CONNECTING = "connecting"
 internal const val TORRENT_PHASE_STREAMING = "streaming"
 internal const val TORRENT_PHASE_FAILED = "failed"
 
+internal const val NO_INFO_HASH = "This stream has no torrent info hash"
+internal const val START_FAILED = "Unable to start torrent stream"
+
 internal fun TvosStream.torrentRequest(): P2pStreamRequest? {
     val hash = infoHash?.takeIf(String::isNotBlank) ?: return null
     return P2pStreamRequest(
@@ -47,7 +50,7 @@ internal fun tvosTorrentStatus(state: P2pStreamingState): TvosTorrentStatus =
         )
     }
 
-private fun quietStatus(phase: String, errorMessage: String?): TvosTorrentStatus =
+internal fun quietStatus(phase: String, errorMessage: String?): TvosTorrentStatus =
     TvosTorrentStatus(
         phase = phase,
         step = null,

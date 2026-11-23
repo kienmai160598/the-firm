@@ -9,6 +9,7 @@ namespace movies::core {
 enum class ErrorCode {
     invalid_argument,
     internal,
+    not_found,
 };
 
 // The one exception type services throw. The C ABI maps the code to a status.

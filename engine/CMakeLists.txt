@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.25)
 
 project(movies_engine VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -8,15 +8,37 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(cmake/Dependencies.cmake)
+
 add_library(movies_engine STATIC
     src/api/c_api.cpp
+    src/api/stream_info_copy.cpp
     src/core/engine.cpp
     src/core/engine_config.cpp
+    src/http/http_connection.cpp
+    src/http/http_gateway.cpp
+    src/http/http_request.cpp
+    src/http/socket.cpp
+    src/session/events.cpp
+    src/session/session_service.cpp
+    src/session/session_settings.cpp
+    src/storage/memory/memory_payload_store.cpp
+    src/storage/payload_disk_io.cpp
+    src/storage/payload_disk_io_jobs.cpp
+    src/storage/payload_store.cpp
+    src/storage/piece_hashing.cpp
+    src/stream/sequential_window.cpp
+    src/stream/stream_reader.cpp
+    src/stream/stream_reading.cpp
+    src/stream/stream_service.cpp
+    src/torrent/file_choice.cpp
+    src/torrent/torrent_service.cpp
 )
 target_include_directories(movies_engine
     PUBLIC include
     PRIVATE src
 )
+target_link_libraries(movies_engine PUBLIC torrent-rasterbar)
 target_compile_definitions(movies_engine PRIVATE MOVIES_ENGINE_VERSION="${PROJECT_VERSION}")
 target_compile_options(movies_engine PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
