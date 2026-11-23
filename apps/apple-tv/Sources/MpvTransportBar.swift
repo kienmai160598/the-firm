@@ -4,38 +4,53 @@ struct MpvTransportBar: View {
     private static let restHeight: CGFloat = 12
     private static let scrubHeight: CGFloat = 18
     private static let trackSlot: CGFloat = 18
-    private static let labelSlot: CGFloat = 180
+    private static let remainingReserve: CGFloat = 180
     private static let labelRowHeight: CGFloat = 44
     private static let playheadRise: CGFloat = 10
     private static let playheadWidth: CGFloat = 4
     private static let skipRise: CGFloat = 40
     private static let progressAnimation: Animation = .smooth(duration: 0.3)
+    private static let settleAnimation: Animation = .interactiveSpring(response: 0.25)
 
     @ObservedObject var clock: MpvPlaybackClock
+    @ObservedObject var preview: MpvScrubPreview
     let isPausedByViewer: Bool
     let isScrubbing: Bool
     let skip: MpvSkip?
+    @Environment(\.accessibilityReduceMotion) private var reducesMotion
+    @State private var elapsedWidth: CGFloat = 0
 
     var body: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
-            let playheadX = width * clock.fraction(clock.positionSeconds)
+            let playheadX = width * clock.fraction(shownSeconds)
             VStack(spacing: 12) {
                 track
                     .overlay(alignment: .leading) {
-                        if isScrubbing { playhead(at: playheadX) }
+                        if isScrubbing || preview.seconds != nil { playhead(at: playheadX) }
                     }
                     .overlay {
                         if let skip { skipBadge(skip, at: playheadX, width: width) }
                     }
-                labels(width: width, playheadX: playheadX)
+                if clock.durationSeconds > 0 {
+                    labels(width: width, playheadX: playheadX)
+                }
             }
         }
         .frame(height: Self.trackSlot + 12 + Self.labelRowHeight)
-        .animation(Self.progressAnimation, value: clock.positionSeconds)
+        .animation(followsPlayback ? Self.progressAnimation : nil, value: clock.positionSeconds)
+        .animation(reducesMotion ? nil : Self.settleAnimation, value: preview.settleCount)
         .animation(Self.progressAnimation, value: clock.bufferedSeconds)
         .animation(.easeOut(duration: 0.2), value: isScrubbing)
         .animation(.smooth(duration: 0.25), value: skip)
+    }
+
+    private var followsPlayback: Bool {
+        preview.seconds == nil
+    }
+
+    private var shownSeconds: Int {
+        preview.seconds ?? clock.positionSeconds
     }
 
     private func skipBadge(_ skip: MpvSkip, at x: CGFloat, width: CGFloat) -> some View {
@@ -75,34 +90,37 @@ struct MpvTransportBar: View {
     private func labels(width: CGFloat, playheadX: CGFloat) -> some View {
         ZStack(alignment: .leading) {
             elapsed
-                .frame(width: Self.labelSlot)
-                .offset(x: clampedSlotOrigin(playheadX, width: width))
-            HStack {
-                Spacer()
-                if clock.durationSeconds > 0 {
-                    Text("-" + MpvClock.label(clock.remainingSeconds))
+                .fixedSize()
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.width
+                } action: { measured in
+                    elapsedWidth = measured
                 }
-            }
+                .offset(x: elapsedOrigin(playheadX, width: width))
+            Text("-" + MpvClock.label(max(clock.durationSeconds - shownSeconds, 0)))
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .font(.system(size: 26, weight: .semibold).monospacedDigit())
+        .contentTransition(.identity)
         .foregroundStyle(.white)
         .frame(height: Self.labelRowHeight)
     }
 
     @ViewBuilder
     private var elapsed: some View {
-        if isPausedByViewer {
+        if isPausedByViewer, preview.seconds == nil {
             Image(systemName: "pause.circle")
                 .font(.system(size: 30, weight: .regular))
                 .accessibilityLabel("Paused")
         } else {
-            Text(MpvClock.label(clock.positionSeconds))
+            Text(MpvClock.label(shownSeconds))
         }
     }
 
-    private func clampedSlotOrigin(_ playheadX: CGFloat, width: CGFloat) -> CGFloat {
-        let centered = playheadX - Self.labelSlot / 2
-        return min(max(centered, 0), max(width - Self.labelSlot * 2, 0))
+    private func elapsedOrigin(_ playheadX: CGFloat, width: CGFloat) -> CGFloat {
+        let centered = playheadX - elapsedWidth / 2
+        let lastOrigin = width - Self.remainingReserve - elapsedWidth
+        return min(max(centered, 0), max(lastOrigin, 0))
     }
 }
 
@@ -136,7 +154,7 @@ enum MpvClock {
         let hours = totalSeconds / 3600
         let minutes = totalSeconds / 60 % 60
         let seconds = totalSeconds % 60
-        guard hours > 0 else { return String(format: "%02d:%02d", minutes, seconds) }
+        guard hours > 0 else { return String(format: "%d:%02d", minutes, seconds) }
         return String(format: "%d:%02d:%02d", hours, minutes, seconds)
     }
 }

@@ -31,10 +31,7 @@ final class PlaybackController {
         self.onFailure = onFailure
         session = TvosPlayback.shared.startSession(target: request.target, stream: request.stream)
         let item = AVPlayerItem(asset: Self.asset(for: request))
-        item.externalMetadata = PlaybackMetadata.items(
-            target: request.target,
-            stream: request.stream
-        )
+        item.externalMetadata = PlaybackMetadata.items(target: request.target)
         player = AVPlayer(playerItem: item)
         stallWatchdog = StallWatchdog(item: item) { [weak self] error in
             self?.fail(error)

@@ -26,6 +26,17 @@ final class PlayerTests: XCTestCase {
         XCTAssertTrue(player.hasFocus)
     }
 
+    func testStartShowsGenresAndTimesOnlyOnceDurationIsKnown() {
+        openMkv()
+        let advisory = tv.app.descendants(matching: .any)["playback-advisory"]
+        let remaining = tv.text(beginningWith: "-")
+
+        XCTAssertTrue(advisory.waitForExistence(timeout: 15))
+        XCTAssertTrue(remaining.exists)
+        tv.screenshot("player-start-advisory")
+        XCTAssertTrue(tv.waitForDisappearance(advisory, timeout: 10))
+    }
+
     func testSubtitleMenuLoadsAnOnlineVietnameseSubtitle() {
         openMkv()
         let embedded = tv.button(containing: "Vietnamese ASS")

@@ -9,6 +9,11 @@ struct PlaybackScreen: View {
         case .system:
             PlayerView(request: request, onFailure: onFailure)
                 .ignoresSafeArea()
+                .overlay {
+                    if let advisory = request.advisory {
+                        PlaybackAdvisoryBanner(advisory: advisory, hasPlaybackStarted: true)
+                    }
+                }
         case .mpv:
             MpvPlayerScreen(request: request, onFailure: onFailure)
         }

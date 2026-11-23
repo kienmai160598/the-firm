@@ -53,8 +53,8 @@ struct MpvPlayerScreen: View {
     private static let panelAnimation: Animation = .spring(response: 0.35, dampingFraction: 0.86)
 
     private let target: TvosStreamTarget
-    private let subtitleLine: String
     private let source: String
+    private let advisory: PlaybackAdvisory?
     @StateObject private var controller: MpvPlaybackController
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reducesMotion
@@ -67,11 +67,11 @@ struct MpvPlayerScreen: View {
     @State private var hideTask: Task<Void, Never>?
     @State private var skip: MpvSkip?
     @State private var skipClearTask: Task<Void, Never>?
+    @State private var resumesAfterScrub = false
 
     init(request: PlaybackRequest, onFailure: @escaping (StreamNotice) -> Void) {
         target = request.target
-        subtitleLine = request.target.subtitle
-            ?? [request.stream.name, request.stream.addonName].joined(separator: "  ·  ")
+        advisory = request.advisory
         source = [request.stream.addonName, request.stream.filename ?? request.stream.name]
             .joined(separator: " · ")
         _controller = StateObject(
@@ -93,6 +93,12 @@ struct MpvPlayerScreen: View {
                 controls
                     .transition(rise(Self.controlsRise))
             }
+            if let advisory {
+                PlaybackAdvisoryBanner(
+                    advisory: advisory,
+                    hasPlaybackStarted: controller.hasPlayed
+                )
+            }
         }
         .ignoresSafeArea()
         .environment(\.colorScheme, .dark)
@@ -103,6 +109,7 @@ struct MpvPlayerScreen: View {
         .onExitCommand(perform: back)
         .onAppear {
             controller.start()
+            startTouchScrubbing()
             focus = .surface
             scheduleHide()
         }
@@ -145,6 +152,7 @@ struct MpvPlayerScreen: View {
             }
             MpvTransportBar(
                 clock: controller.clock,
+                preview: controller.scrubber.preview,
                 isPausedByViewer: controller.isPausedByViewer,
                 isScrubbing: isScrubbing,
                 skip: skip
@@ -195,9 +203,11 @@ struct MpvPlayerScreen: View {
 
     private var titleBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(subtitleLine)
-                .font(.system(size: 23, weight: .medium))
-                .lineLimit(1)
+            if let episodeLine = target.subtitle {
+                Text(episodeLine)
+                    .font(.system(size: 23, weight: .medium))
+                    .lineLimit(1)
+            }
             Text(target.title)
                 .font(.system(size: 54, weight: .bold))
                 .lineLimit(1)
@@ -231,8 +241,42 @@ struct MpvPlayerScreen: View {
     }
 
     private func togglePause() {
+        guard !controller.scrubber.isPending else { return commitScrub() }
         isScrubbing = false
         controller.togglePause()
+        showControls()
+    }
+
+    private func startTouchScrubbing() {
+        let scrubber = controller.scrubber
+        scrubber.canScrub = { focus == .surface && panel == nil }
+        scrubber.onScrubStart = beginTouchScrub
+        scrubber.start()
+    }
+
+    private func beginTouchScrub() {
+        resumesAfterScrub = !controller.isPaused
+        controller.setPaused(true)
+        isScrubbing = true
+        showControls()
+    }
+
+    private func commitScrub() {
+        if let seconds = controller.scrubber.commit() {
+            controller.seek(toSeconds: seconds)
+        }
+        endScrub(resuming: true)
+    }
+
+    private func cancelScrub() {
+        controller.scrubber.cancel()
+        endScrub(resuming: resumesAfterScrub)
+    }
+
+    private func endScrub(resuming: Bool) {
+        isScrubbing = false
+        resumesAfterScrub = false
+        if resuming { controller.setPaused(false) }
         showControls()
     }
 
@@ -247,6 +291,8 @@ struct MpvPlayerScreen: View {
             seekIfHorizontal(direction)
         case .down:
             isScrubbing = true
+        case .up where controller.scrubber.isPending:
+            break
         case .up where isScrubbing:
             isScrubbing = false
         case .up:
@@ -258,6 +304,9 @@ struct MpvPlayerScreen: View {
     }
 
     private func seekIfHorizontal(_ direction: MoveCommandDirection) {
+        let scrubber = controller.scrubber
+        guard !scrubber.isSwiping else { return }
+        guard !scrubber.isPending else { return stepPreview(direction) }
         switch direction {
         case .left:
             isScrubbing = true
@@ -269,6 +318,14 @@ struct MpvPlayerScreen: View {
             showSkip(isForward: true)
         default:
             break
+        }
+    }
+
+    private func stepPreview(_ direction: MoveCommandDirection) {
+        switch direction {
+        case .left: controller.scrubber.step(by: -1)
+        case .right: controller.scrubber.step(by: 1)
+        default: break
         }
     }
 
@@ -332,6 +389,8 @@ struct MpvPlayerScreen: View {
     private func back() {
         if panel != nil {
             closePanel()
+        } else if controller.scrubber.isPending {
+            cancelScrub()
         } else if isScrubbing {
             isScrubbing = false
             showControls()
@@ -359,7 +418,7 @@ struct MpvPlayerScreen: View {
     }
 
     private var canHideControls: Bool {
-        !controller.isPaused && panel == nil && focus != nil
+        !controller.isPaused && panel == nil && focus != nil && !controller.scrubber.isPending
     }
 
     private func hideControls() {
