@@ -7,6 +7,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
@@ -16,12 +18,18 @@ import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kien.movies.debug.DebugLaunch
+import com.kien.movies.search.KEY_DELETE
+import com.kien.movies.search.KEY_NUMBERS
+import com.kien.movies.search.KEY_SPACE
 import com.kien.movies.search.SEARCH_DISCOVER_TAG
 import com.kien.movies.search.SEARCH_FIELD_TAG
 import com.kien.movies.search.SEARCH_INPUT_TAG
+import com.kien.movies.search.SEARCH_KEYBOARD_TAG
 import com.kien.movies.search.SEARCH_REMOVE_TAG
 import com.kien.movies.search.SEARCH_RESULTS_TAG
+import com.kien.movies.search.SEARCH_SUGGESTIONS_TAG
 import com.kien.movies.search.recentSearchTag
+import com.kien.movies.search.searchKeyTag
 import com.kien.movies.support.TvRobot
 import com.nuvio.tvos.TvosSearch
 import org.junit.After
@@ -31,8 +39,8 @@ import org.junit.runner.RunWith
 
 /**
  * Search's ACs Q1 to Q3 (docs/android-tv-rebuild.md, section 6), from the search cases of
- * apps/apple-tv/UITests/NavigationTests.swift. Needs the network: results and the discover row
- * come from the default addon, as on tvOS.
+ * apps/apple-tv/UITests/NavigationTests.swift, plus the one row keyboard of the TV look spec.
+ * Needs the network: results and the discover row come from the default addon, as on tvOS.
  */
 @RunWith(AndroidJUnit4::class)
 class SearchTest {
@@ -52,21 +60,36 @@ class SearchTest {
         tv.await(resultCard(BREAKING_BAD), RESULTS_TIMEOUT_MS)
     }
 
-    /** Q1, the Android part: Down from the field at rest reaches the first result row. */
+    /** Q1: Down from the keyboard reaches the results, through the suggestion capsules if any. */
     @Test
-    fun q1_downFromTheFieldReachesTheResults() {
+    fun q1_downFromTheKeyboardReachesTheResults() {
         openSearch()
         record(BREAKING_BAD)
         tv.down()
         tv.awaitFocus(isRecentSearch())
         compose.onNodeWithTag(recentSearchTag(BREAKING_BAD)).requestFocus()
         tv.select()
-        tv.assertFocusedTag(SEARCH_FIELD_TAG)
+        tv.awaitFocus(hasAnyAncestor(hasTestTag(SEARCH_KEYBOARD_TAG)))
         tv.await(resultCard(BREAKING_BAD), RESULTS_TIMEOUT_MS)
 
         tv.down()
+        tv.awaitFocus(isInSuggestions() or isInResults())
+        if (hasFocusIn(isInSuggestions())) tv.down()
 
-        tv.awaitFocus(hasAnyAncestor(hasTestTag(SEARCH_RESULTS_TAG)))
+        tv.awaitFocus(isInResults())
+    }
+
+    /** Keyboard: the letter, SPACE and delete keys edit the query shown in the field. */
+    @Test
+    fun keyboardTypesLettersSpaceAndDelete() {
+        openSearch()
+
+        for (key in listOf("b", "a", KEY_SPACE, "d", KEY_DELETE)) {
+            compose.onNodeWithTag(searchKeyTag(key)).requestFocus()
+            tv.select()
+        }
+
+        tv.await(hasText("ba ") and hasAnyAncestor(hasTestTag(SEARCH_FIELD_TAG)))
     }
 
     /** Q2, tvOS testOpeningASearchResultKeepsTheQueryInRecentSearches. */
@@ -77,7 +100,7 @@ class SearchTest {
         compose.onAllNodes(resultCard(BREAKING_BAD)).onFirst().requestFocus()
         tv.select()
         compose.waitUntil(TvRobot.FOCUS_TIMEOUT_MS) {
-            compose.onAllNodes(hasTestTag(SEARCH_FIELD_TAG) or hasTestTag(SEARCH_INPUT_TAG)).fetchSemanticsNodes().isEmpty()
+            compose.onAllNodes(hasTestTag(SEARCH_FIELD_TAG) or hasTestTag(SEARCH_KEYBOARD_TAG)).fetchSemanticsNodes().isEmpty()
         }
         tv.close()
 
@@ -100,10 +123,10 @@ class SearchTest {
         compose.waitUntil(TvRobot.FOCUS_TIMEOUT_MS) {
             compose.onAllNodes(hasTestTag(recentSearchTag(REMOVED_QUERY))).fetchSemanticsNodes().isEmpty()
         }
-        tv.awaitFocus(hasTestTag(SEARCH_FIELD_TAG) or isRecentSearch())
+        tv.awaitFocus(hasAnyAncestor(hasTestTag(SEARCH_KEYBOARD_TAG)) or isRecentSearch())
     }
 
-    /** Q3: a blank query shows recent searches and the discover row, focus starts on the field. */
+    /** Q3: a blank query shows recent searches and the discover row, focus starts on the "a" key. */
     @Test
     fun q3_emptyQueryShowsRecentSearchesAndDiscover() {
         openSearch()
@@ -112,18 +135,19 @@ class SearchTest {
 
         tv.await(hasTestTag(recentSearchTag(BREAKING_BAD)))
         tv.await(hasTestTag(SEARCH_DISCOVER_TAG), RESULTS_TIMEOUT_MS)
-        tv.assertFocusedTag(SEARCH_FIELD_TAG)
+        tv.assertFocusedTag(searchKeyTag("a"))
     }
 
-    /** Launches on the Search tab; the shell's first focus lands on the field without the IME. */
+    /** Launches on the Search tab; the shell's first focus lands on the keyboard's "a". */
     private fun openSearch() {
         tv.launch(DebugLaunch.ROUTE to "tab/search")
-        tv.awaitFocus(hasTestTag(SEARCH_FIELD_TAG), TvRobot.DEFAULT_TIMEOUT_MS)
+        tv.awaitFocus(hasTestTag(searchKeyTag("a")), TvRobot.DEFAULT_TIMEOUT_MS)
     }
 
-    /** Select opens the text field (and the IME), then types [query] as the IME would. */
+    /** "123" opens the text field (and the IME), then types [query] as the IME would. */
     private fun openSearchAndType(query: String) {
         openSearch()
+        compose.onNodeWithTag(searchKeyTag(KEY_NUMBERS)).requestFocus()
         tv.select()
         tv.awaitFocus(hasTestTag(SEARCH_INPUT_TAG))
         compose.onNodeWithTag(SEARCH_INPUT_TAG).performTextInput(query)
@@ -136,6 +160,12 @@ class SearchTest {
     }
 
     private fun resultCard(title: String): SemanticsMatcher = hasContentDescription(title, substring = true) and hasAnyAncestor(hasTestTag(SEARCH_RESULTS_TAG))
+
+    private fun isInResults(): SemanticsMatcher = hasAnyAncestor(hasTestTag(SEARCH_RESULTS_TAG))
+
+    private fun isInSuggestions(): SemanticsMatcher = hasAnyAncestor(hasTestTag(SEARCH_SUGGESTIONS_TAG))
+
+    private fun hasFocusIn(matcher: SemanticsMatcher): Boolean = compose.onAllNodes(matcher and isFocused()).fetchSemanticsNodes().isNotEmpty()
 
     private fun isRecentSearch(): SemanticsMatcher = SemanticsMatcher("is a recent search") { node ->
         node.config.getOrNull(SemanticsProperties.TestTag)?.startsWith(recentSearchTag("")) == true

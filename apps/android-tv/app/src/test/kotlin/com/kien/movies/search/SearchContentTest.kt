@@ -34,7 +34,7 @@ class SearchContentTest {
 
         val content = searchContent("Bre", searchState(rows = rows, isLoading = true))
 
-        assertEquals(SearchContent.Results(rows), content)
+        assertEquals(rows, (content as SearchContent.Results).rows)
     }
 
     @Test
@@ -46,9 +46,56 @@ class SearchContentTest {
         assertEquals(listOf("tt1", "tt2"), content.rows.single().items.map(TvosItem::metaId))
     }
 
+    @Test
+    fun topResultsTakeTheRowsInTurnsAndShowEachTitleOnce() {
+        val movies = TvosRow("movie", "Movies", listOf(item("m1"), item("m2"), item("m3")))
+        val shows = TvosRow("series", "Series", listOf(item("s1", type = "series"), item("m1")))
+
+        val content = searchContent("x", searchState(rows = listOf(movies, shows))) as SearchContent.Results
+
+        assertEquals(listOf("m1", "s1", "m2", "m3"), content.topResults.map(TvosItem::metaId))
+    }
+
+    @Test
+    fun topResultsStopAtTwelve() {
+        val many = TvosRow("movie", "Movies", (1..20).map { index -> item("m$index") })
+
+        val content = searchContent("x", searchState(rows = listOf(many))) as SearchContent.Results
+
+        assertEquals(TOP_RESULTS_LIMIT, content.topResults.size)
+    }
+
+    @Test
+    fun suggestionsAreMatchingNamesLowercasedWithPrefixMatchesFirst() {
+        val ranked = listOf(named("Arrival"), named("Dune: Part Two"), named("The Dune Story"), named("Dune"), named("DUNE"))
+
+        val suggestions = searchSuggestions(" Dune ", ranked)
+
+        assertEquals(
+            listOf(SearchSuggestion("dune: part two", 0, 4), SearchSuggestion("dune", 0, 4), SearchSuggestion("the dune story", 4, 8)),
+            suggestions
+        )
+    }
+
+    @Test
+    fun suggestionsStopAtTheLimit() {
+        val ranked = (1..6).map { index -> named("Dune $index") }
+
+        assertEquals(SUGGESTIONS_LIMIT, searchSuggestions("dune", ranked).size)
+    }
+
+    @Test
+    fun aGridFilledByColumnsReadsRowByRow() {
+        assertEquals(listOf(1, 4, 2, 5, 3, 6), rowMajorForColumnGrid(listOf(1, 2, 3, 4, 5, 6), rows = 2))
+        assertEquals(listOf(1, 4, 2, 5, 3), rowMajorForColumnGrid(listOf(1, 2, 3, 4, 5), rows = 2))
+        assertEquals(listOf(1, 2, 3), rowMajorForColumnGrid(listOf(1, 2, 3), rows = 1))
+    }
+
     private fun row(key: String) = TvosRow(key, key, listOf(item("tt1")))
 
-    private fun item(id: String) = TvosItem(id, "movie", id, null, null, null, null, null, null, emptyList())
+    private fun item(id: String, type: String = "movie") = TvosItem(id, type, id, null, null, null, null, null, null, emptyList())
+
+    private fun named(name: String) = TvosItem(name, "movie", name, null, null, null, null, null, null, emptyList())
 
     private fun searchState(
         rows: List<TvosRow> = emptyList(),

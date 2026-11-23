@@ -7,9 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,40 +20,52 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
 import androidx.tv.material3.Card
+import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Text
 import com.kien.movies.design.ArtworkImage
-import com.kien.movies.design.CardFocus
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.Palette
-import com.kien.movies.design.RailSize
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
-import com.kien.movies.design.cardArtworkShape
 import com.nuvio.tvos.TvosItem
 import com.nuvio.tvos.TvosRow
 
-// Search's own copy of tvOS CatalogRowView, ShelfHeader and PosterCard. Home's CatalogRow and
-// PosterCard (slice A4) are built in parallel; once they merge, Search switches to them and this
-// file goes.
+// Search's own poster row and card on the spec's grid (6 columns, 2:3, corner 8 dp, focus 1.1).
+// Home's CatalogRow and PosterCard get the same look from android-shell-home; once both merge,
+// Search can switch to them.
 
-/** A titled shelf of poster cards that scrolls sideways (tvOS CatalogRowView). */
+/** A titled section: the row title in Callout bold, secondary, then [content] under it. */
+@Composable
+internal fun SearchSection(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = TvType.rowTitle,
+            color = TvColors.textSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = TvGrid.margin)
+        )
+        Spacer(Modifier.height(TITLE_TO_ITEMS))
+        content()
+    }
+}
+
+/** A titled shelf of posters that scrolls sideways (6 columns of the grid). */
 @Composable
 internal fun SearchPosterRow(row: TvosRow, onOpen: (TvosItem) -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.testTag(searchRowTag(row.key)), verticalArrangement = Arrangement.spacedBy(SHELF_HEADER_GAP)) {
-        SearchShelfHeader(row.title)
+    SearchSection(title = row.title, modifier = modifier.testTag(searchRowTag(row.key))) {
         LazyRow(
-            modifier = Modifier.focusRestorer(),
-            contentPadding = shelfPadding,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.shelfItem)
+            modifier = Modifier.fillMaxWidth().focusRestorer(),
+            contentPadding = PaddingValues(horizontal = TvGrid.margin),
+            horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter)
         ) {
             items(row.items, key = { item -> "${item.type}:${item.metaId}" }, contentType = { "poster" }) { item ->
                 SearchPosterCard(item = item, onClick = { onOpen(item) })
@@ -61,77 +74,60 @@ internal fun SearchPosterRow(row: TvosRow, onOpen: (TvosItem) -> Unit, modifier:
     }
 }
 
-/** tvOS ShelfHeader: 31 pt semibold, secondary. */
-@Composable
-internal fun SearchShelfHeader(title: String) {
-    Text(
-        text = title,
-        style = TextStyles.shelfHeader,
-        color = Palette.textSecondary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(start = RailSize.contentStart, end = Spacing.screenHorizontal)
-    )
-}
-
-/** tvOS PosterCard: the poster at the card size and shape, the first genre on a shade at the bottom. */
+/** The poster; focused, it grows 1.1 and shows "TV Show · Sci-Fi" in a dark band at the bottom. */
 @Composable
 private fun SearchPosterCard(item: TvosItem, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     Card(
         onClick = onClick,
-        modifier = Modifier.size(CardSize.poster).semantics { contentDescription = item.name },
-        shape = CardFocus.shape(),
-        colors = CardFocus.colors(),
-        scale = CardFocus.scale(),
-        border = CardFocus.border(),
-        glow = CardFocus.glow(),
+        modifier = Modifier.size(posterSize()).semantics { contentDescription = item.name },
+        shape = CardDefaults.shape(shape = TvShapes.card),
+        colors = CardDefaults.colors(containerColor = Color.Transparent, focusedContainerColor = Color.Transparent),
+        scale = CardDefaults.scale(focusedScale = CARD_FOCUS_SCALE),
+        border = CardDefaults.border(border = Border.None, focusedBorder = Border.None),
+        glow = CardDefaults.glow(focusedGlow = focusShadow),
         interactionSource = interactionSource
     ) {
-        Box(modifier = Modifier.fillMaxSize().cardArtworkShape()) {
+        Box(modifier = Modifier.fillMaxSize().clip(TvShapes.card)) {
             ArtworkImage(model = item.posterUrl, modifier = Modifier.fillMaxSize(), fallbackTitle = item.name)
-            item.genres.firstOrNull()?.let { genre -> GenreBand(genre, isFocused, Modifier.align(Alignment.BottomCenter)) }
+            if (isFocused) GenreBand(posterCaption(item), Modifier.align(Alignment.BottomCenter))
         }
     }
 }
 
-/** One gradient per card, drawn only over the text band (docs section 4, "Not ported literally"). */
+/** One flat dark band, drawn on the focused card only. */
 @Composable
-private fun GenreBand(genre: String, isFocused: Boolean, modifier: Modifier) {
-    Box(
-        modifier = modifier.fillMaxWidth().heightIn(min = GENRE_SHADE_HEIGHT).background(genreShade),
-        contentAlignment = Alignment.BottomStart
-    ) {
-        Text(
-            text = genre,
-            style = TextStyles.cardTitle,
-            color = Palette.textPrimary.copy(alpha = if (isFocused) 1f else GENRE_REST_ALPHA),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = GENRE_INSET, end = GENRE_INSET, bottom = GENRE_BOTTOM)
-        )
-    }
+private fun GenreBand(caption: String, modifier: Modifier) {
+    if (caption.isEmpty()) return
+    Text(
+        text = caption,
+        style = TvType.caption2,
+        color = TvColors.textPrimary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(GENRE_BAND)
+            .padding(horizontal = GENRE_INSET, vertical = GENRE_VERTICAL)
+    )
 }
 
 internal fun searchRowTag(key: String): String = "search-row-$key"
 
-private val shelfPadding = PaddingValues(
-    start = RailSize.contentStart,
-    end = Spacing.screenHorizontal,
-    top = Spacing.shelfRowPadding,
-    bottom = Spacing.shelfRowPadding
-)
+/** Six columns of the grid at 2:3 (tvOS 260 x 390 pt). */
+private fun posterSize(): DpSize {
+    val width = TvGrid.itemWidth(POSTER_COLUMNS)
+    return DpSize(width, width * POSTER_HEIGHT_RATIO)
+}
 
-// tvOS PosterCard and CatalogRowView literals, pt / 2.
-private val SHELF_HEADER_GAP = 2.dp // VStack spacing 4
-private val GENRE_SHADE_HEIGHT = 65.dp // shadeHeight 130
-private val GENRE_INSET = 8.dp // horizontal padding 16
-private val GENRE_BOTTOM = 11.dp // bottom padding 22
-private const val GENRE_REST_ALPHA = 0.72f
+/** Spec section 2: focus scale of a card. */
+private const val CARD_FOCUS_SCALE = 1.1f
+private const val POSTER_COLUMNS = 6
+private const val POSTER_HEIGHT_RATIO = 1.5f
 
-private val genreShade = Brush.verticalGradient(
-    0f to Color.Transparent,
-    0.5f to Color.Black.copy(alpha = 0.6f),
-    1f to Color.Black.copy(alpha = 0.88f)
-)
+/** Title to the top of its cards: 43 pt from cap top to card top on 38 and 39-search-results.png. */
+private val TITLE_TO_ITEMS = 5.5.dp
+private val GENRE_BAND = Color.Black.copy(alpha = 0.6f)
+private val GENRE_INSET = 8.dp
+private val GENRE_VERTICAL = 6.dp
