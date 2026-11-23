@@ -17,14 +17,24 @@ class NoProgressWindowTest {
     }
 
     @Test
-    fun newDataOpensAFreshWindow() {
+    fun newDataDuringTheWindowDoesNotExpire() {
+        val window = NoProgressWindow(limitMs = 20_000)
+        window.start(nowMs = 0, loadedBytes = 1_000)
+
+        val expired = window.isExpired(nowMs = 20_000, loadedBytes = 5_000)
+
+        assertFalse(expired)
+    }
+
+    @Test
+    fun aRenewedWindowExpiresAfterAnotherQuietLimit() {
         val window = NoProgressWindow(limitMs = 20_000)
         window.start(nowMs = 0, loadedBytes = 1_000)
         window.isExpired(nowMs = 20_000, loadedBytes = 5_000)
 
-        val expired = window.isExpired(nowMs = 39_000, loadedBytes = 5_000)
+        val expired = window.isExpired(nowMs = 40_000, loadedBytes = 5_000)
 
-        assertFalse(expired)
+        assertTrue(expired)
     }
 
     @Test
