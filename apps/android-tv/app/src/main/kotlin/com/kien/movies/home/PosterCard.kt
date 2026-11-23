@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -16,12 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -30,15 +32,16 @@ import androidx.tv.material3.Text
 import coil3.request.ImageRequest
 import com.kien.movies.design.ArtworkImage
 import com.kien.movies.design.CardFocus
-import com.kien.movies.design.CardSize
-import com.kien.movies.design.TextStyles
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
 import com.kien.movies.shell.AppRoute
 
 /**
- * A poster that opens Details (tvOS PosterCard.swift): the art at 130 x 195 dp, decoded at that
- * size, and the first genre over one shade on the bottom band. Focus scales the card in the draw
- * phase (CardFocus); the genre's brightness follows focus in the draw phase too, so a focus move
- * recomposes nothing.
+ * A poster that opens Details (spec section 3, "Cards"): 2:3 on the 6 column grid, decoded at its
+ * size. Focused only, "TV Show · Comedy" in a dark band inside the bottom of the card. Focus scales
+ * the card by 1.1 in the draw phase (CardFocus) and shows the band through a layer alpha, so a
+ * focus move recomposes nothing.
  */
 @Composable
 fun PosterCard(item: PosterItem, onOpen: (AppRoute) -> Unit, modifier: Modifier = Modifier) {
@@ -55,39 +58,46 @@ fun PosterCard(item: PosterItem, onOpen: (AppRoute) -> Unit, modifier: Modifier 
         glow = CardFocus.glow(),
         interactionSource = interaction
     ) {
-        Box(modifier = Modifier.size(CardSize.poster)) {
+        Box(modifier = Modifier.size(PosterSize)) {
             ArtworkImage(
-                model = rememberSizedImage(item.posterUrl, CardSize.poster),
+                model = rememberSizedImage(item.posterUrl, PosterSize),
                 modifier = Modifier.fillMaxSize(),
                 fallbackTitle = item.name
             )
-            item.genre?.let { genre ->
-                GenreBand(genre, interaction.collectIsFocusedAsState(), Modifier.align(Alignment.BottomCenter))
+            if (item.caption.isNotEmpty()) {
+                CaptionBand(item.caption, interaction.collectIsFocusedAsState(), Modifier.align(Alignment.BottomCenter))
             }
         }
     }
 }
 
 @Composable
-private fun GenreBand(genre: String, isFocused: State<Boolean>, modifier: Modifier) {
+private fun CaptionBand(caption: String, isFocused: State<Boolean>, modifier: Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(GENRE_SHADE_HEIGHT)
-            .drawBehind { drawRect(genreShade) },
-        contentAlignment = Alignment.BottomStart
+            .height(BAND_HEIGHT)
+            .graphicsLayer {
+                alpha = if (isFocused.value) 1f else 0f
+                compositingStrategy = CompositingStrategy.ModulateAlpha
+            }
+            .drawBehind { drawRect(bandShade) },
+        contentAlignment = Alignment.BottomCenter
     ) {
         Text(
-            text = genre,
-            style = TextStyles.cardTitle,
+            text = caption,
+            style = TvType.caption2,
+            color = TvColors.textPrimary,
+            textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .padding(start = GENRE_INSET, end = GENRE_INSET, bottom = GENRE_BOTTOM)
-                .graphicsLayer { alpha = if (isFocused.value) 1f else GENRE_REST_ALPHA }
+            modifier = Modifier.fillMaxWidth().paddingFromBaseline(bottom = CAPTION_BASELINE_TO_BOTTOM)
         )
     }
 }
+
+/** 2:3 poster on the 6 column grid (tvOS 260 x 390 pt). */
+internal val PosterSize: DpSize = TvGrid.itemWidth(POSTER_COLUMNS).let { width -> DpSize(width, width * 3 / 2) }
 
 /**
  * A Coil request decoded at [size] in pixels, so a card never decodes the full resolution art.
@@ -107,15 +117,14 @@ internal fun rememberSizedImage(url: String?, size: DpSize): ImageRequest? {
 }
 
 const val POSTER_CARD_TAG = "poster-card"
+private const val POSTER_COLUMNS = 6
 
-// tvOS genre shade: 130 pt band, clear to black 60% at the middle to 88% at the bottom; label
-// 26 pt medium, 16 pt side and 22 pt bottom padding, white 72% at rest.
-private val GENRE_SHADE_HEIGHT = 65.dp
-private val GENRE_INSET = 8.dp
-private val GENRE_BOTTOM = 11.dp
-private const val GENRE_REST_ALPHA = 0.72f
-private val genreShade = Brush.verticalGradient(
+// Measured on `10-row3.png` (focused poster, at 1.1): band shade over the bottom 60 pt, caption
+// baseline 15 pt above the bottom; 7 dp unscaled.
+private val BAND_HEIGHT = 32.dp
+private val CAPTION_BASELINE_TO_BOTTOM = 7.dp
+private val bandShade = Brush.verticalGradient(
     0f to Color.Transparent,
-    0.5f to Color.Black.copy(alpha = 0.6f),
-    1f to Color.Black.copy(alpha = 0.88f)
+    0.45f to Color.Black.copy(alpha = 0.55f),
+    1f to Color.Black.copy(alpha = 0.8f)
 )

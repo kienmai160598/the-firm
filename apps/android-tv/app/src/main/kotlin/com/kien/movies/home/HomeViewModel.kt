@@ -96,11 +96,19 @@ data class HeroItem(
 @Immutable
 data class CatalogRowState(val key: String, val title: String, val items: List<PosterItem>)
 
-/** One poster; [genre] is the first genre, shown over the bottom of the art. */
+/** One poster; [genre] is the first genre. */
 @Immutable
 data class PosterItem(val metaId: String, val type: String, val name: String, val posterUrl: String?, val genre: String?) {
     val route: AppRoute.Details get() = AppRoute.Details(type = type, id = metaId)
+
+    /** "TV Show · Comedy", shown in the focused poster's band. */
+    val caption: String get() = listOfNotNull(kindLabel(type), genre).joinToString(FACT_SEPARATOR)
 }
+
+/** "TV Show" for a series, "Movie" otherwise (tvOS HeroDetails `facts`). */
+internal fun kindLabel(type: String): String = if (type == "series") "TV Show" else "Movie"
+
+private const val FACT_SEPARATOR = " · "
 
 /** Continue Watching or Upcoming. [key] is unique in the Home list. */
 @Immutable
@@ -162,7 +170,7 @@ private fun heroItem(item: TvosItem, backdropUrl: String) = HeroItem(
 
 /** Kind, release and up to two genres (tvOS HeroDetails `facts`). */
 private fun heroFacts(item: TvosItem): List<String> {
-    val kind = if (item.type == "series") "TV Show" else "Movie"
+    val kind = kindLabel(item.type)
     val genres = item.genres.take(2).joinToString(", ")
     return listOfNotNull(kind, item.releaseInfo?.takeIf(String::isNotBlank), genres.ifEmpty { null })
 }

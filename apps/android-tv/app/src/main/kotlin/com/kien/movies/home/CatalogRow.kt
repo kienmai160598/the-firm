@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -19,20 +20,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
-import com.kien.movies.design.Palette
-import com.kien.movies.design.RailSize
-import com.kien.movies.design.Spacing
-import com.kien.movies.design.TextStyles
+import com.kien.movies.design.TvColors
+import com.kien.movies.design.TvGrid
+import com.kien.movies.design.TvType
 import com.kien.movies.shell.AppRoute
 
-/** A catalog shelf of posters (tvOS CatalogRowView.swift). */
+/** A catalog shelf of posters on 6 columns (spec sections 1 and 3, "Shelf row"). */
 @Composable
-fun CatalogRow(row: CatalogRowState, focusMemory: HomeFocusMemory, onOpen: (AppRoute) -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(CATALOG_HEADER_GAP)) {
-        ShelfHeader(row.title)
+fun CatalogRow(row: CatalogRowState, focusMemory: HomeFocusMemory, onOpen: (AppRoute) -> Unit, modifier: Modifier = Modifier, titleTop: Dp = ShelfMetrics.titleTop) {
+    Column(modifier = modifier) {
+        ShelfHeader(row.title, titleTop = titleTop)
         ShelfRow(rowKey = row.key, focusMemory = focusMemory) {
             items(row.items, key = PosterItem::metaId, contentType = { POSTER_CONTENT_TYPE }) { item ->
                 PosterCard(item = item, onOpen = onOpen, modifier = Modifier.rememberedFocus(focusMemory, cardFocusKey(row.key, item.metaId), row.key))
@@ -41,23 +42,42 @@ fun CatalogRow(row: CatalogRowState, focusMemory: HomeFocusMemory, onOpen: (AppR
     }
 }
 
-/** A shelf title (tvOS `ShelfHeader`): 31 pt semibold, white 60%. */
+/**
+ * A shelf title: Callout bold, secondary, at the side margin. Placed by its baseline:
+ * [titleTop] below the end of the row above (or the hero), [ShelfMetrics.titleToCards] above the
+ * cards.
+ */
 @Composable
-fun ShelfHeader(title: String, modifier: Modifier = Modifier) {
+fun ShelfHeader(title: String, modifier: Modifier = Modifier, titleTop: Dp = ShelfMetrics.titleTop) {
     Text(
         text = title,
-        style = TextStyles.shelfHeader,
-        color = Palette.textSecondary,
+        style = TvType.rowTitle,
+        color = TvColors.textSecondary,
         maxLines = 1,
-        modifier = modifier.padding(start = RailSize.contentStart, end = Spacing.screenHorizontal)
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+            .padding(start = TvGrid.sideMargin, end = TvGrid.sideMargin)
+            .paddingFromBaseline(top = titleTop, bottom = ShelfMetrics.titleToCards)
     )
 }
 
 /**
- * The sideways list of a shelf. Cards start where tab content starts and the next card shows
- * partly at the right edge (AC H2). Entering the row focuses its last focused card ([HomeFocusMemory]), and
- * a focused card is scrolled only as far as needed to sit between the rail and the right
- * overscan line, never under the closed rail.
+ * Vertical rhythm of Home's shelves, measured on `09-top10-focus.png`, `03-sidebar-down.png` and
+ * `01-home.png`: a title's baseline sits about 21.5 pt above its cards (the spec says 30) and
+ * about 105 pt below the cards of the row above; under the hero it sits 81 pt below the slot.
+ */
+object ShelfMetrics {
+    val titleTop: Dp = 52.5.dp
+    val titleTopUnderHero: Dp = 40.5.dp
+    val titleToCards: Dp = 10.75.dp
+}
+
+/**
+ * The sideways list of a shelf. Cards start at the side margin, and the next card shows partly
+ * at the right edge because the row scrolls under it (AC H2). Entering the row focuses its last
+ * focused card ([HomeFocusMemory]), and a focused card is scrolled only as far as needed to sit
+ * between the side margins. No vertical padding: a lazy row's clip leaves room across its axis
+ * for the 1.1 focus scale.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -68,20 +88,15 @@ fun ShelfRow(
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     content: LazyListScope.() -> Unit
 ) {
-    val spec = rememberInsetBringIntoViewSpec(leading = RailSize.contentStart, trailing = Spacing.screenHorizontal)
+    val spec = rememberInsetBringIntoViewSpec(leading = TvGrid.sideMargin, trailing = TvGrid.sideMargin)
     CompositionLocalProvider(LocalBringIntoViewSpec provides spec) {
         LazyRow(
             modifier = modifier
                 .fillMaxWidth()
                 .focusProperties { onEnter = { focusMemory.restoreRow(rowKey) } }
                 .focusGroup(),
-            contentPadding = PaddingValues(
-                start = RailSize.contentStart,
-                end = Spacing.screenHorizontal,
-                top = Spacing.shelfRowPadding,
-                bottom = Spacing.shelfRowPadding
-            ),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.shelfItem),
+            contentPadding = PaddingValues(horizontal = TvGrid.sideMargin),
+            horizontalArrangement = Arrangement.spacedBy(TvGrid.gutter),
             verticalAlignment = verticalAlignment,
             content = content
         )
@@ -116,7 +131,18 @@ internal fun insetScrollDistance(offset: Float, size: Float, containerSize: Floa
     }
 }
 
-private const val POSTER_CONTENT_TYPE = "poster"
+/**
+ * A [BringIntoViewSpec] for Home's list: a focused card is centred on the screen, as every
+ * scrolled capture shows (cards at 345 to 735, 426 to 652, 190 to 888 pt on a 1080 pt screen).
+ * A child at least [WHOLE_FRACTION] of the screen tall (the hero slot) is aligned to the top.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal val CentringBringIntoViewSpec: BringIntoViewSpec = object : BringIntoViewSpec {
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float = centringScrollDistance(offset, size, containerSize)
+}
 
-// tvOS VStack spacing 4 pt between the header and the shelf.
-private val CATALOG_HEADER_GAP = 2.dp
+/** How far to scroll so a child at [offset] with [size] is centred, or top aligned when large. */
+internal fun centringScrollDistance(offset: Float, size: Float, containerSize: Float): Float = if (size >= containerSize * WHOLE_FRACTION) offset else offset + size / 2 - containerSize / 2
+
+private const val WHOLE_FRACTION = 0.6f
+private const val POSTER_CONTENT_TYPE = "poster"
