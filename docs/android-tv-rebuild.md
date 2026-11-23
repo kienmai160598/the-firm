@@ -12,8 +12,8 @@ file, then the Swift files the slice names.
 
 ## 1. Decisions
 
-All four were taken on 2026-11-23 when the build started: decision 1 as asked by the user, 2 to 4
-as the defaults below. Change one only by editing this table in a PR.
+Decisions 1 to 4 were taken on 2026-11-23 when the build started: decision 1 as asked by the user,
+2 to 4 as the defaults below. Decision 5 was taken by the user the same day. Change one only by editing this table in a PR.
 
 | # | Decision | Taken | Why | Alternative not taken |
 |---|---|---|---|---|
@@ -21,6 +21,7 @@ as the defaults below. Change one only by editing this table in a PR.
 | 2 | Root navigation | Sidebar (`ModalNavigationDrawer` from tv-material) | It is what the tvOS app shows on tvOS 18+, and it is a system component | The floating top tab bar of the old box build (commit `d005eae298`): hand built, about a dozen focus rules |
 | 3 | Import old data on the box | No importer | The box install dates from 2026-11-22, so it holds one day of addons and progress | A one time importer of `addon_preferences` and the three `watch_progress_*` DataStores; needs the same applicationId, the same signing key and versionCode above 1080 |
 | 4 | Package id while building | `com.kien.movies.next`, next to the old app | The old app stays usable every evening until cutover | Use `com.kien.movies` from day one and uninstall the old app now |
+| 5 | What happens to Nuvio after cutover | We own `shared/core`: slice A15 deletes the UI files both bridges exclude and Nuvio's mobile app parts, keeps the logic, and drops the exclusion lists | Both TV apps run Nuvio's logic (about 257k lines: catalog, addons, streams, progress, Trakt); only the UI was rebuilt, so the logic stays, the dead UI goes | Keep tracking upstream NuvioMobile; or rewrite the logic from scratch (weeks, no smoothness gain); a package rename away from `com.nuvio.*` was not asked for |
 
 ## 2. Target
 
@@ -534,6 +535,7 @@ Taken from `apps/apple-tv/UITests`. Each is checked with the D-pad only.
 | A12b Add addons from phone | Session logic in `shared/tv-api`, server, QR, phone page, confirm dialog (section 5b) | AQ1 to AQ5 | Unit tests: state machine, token check, request limits. Server test on the JVM: 403, 409, propose then confirm. Manual: a real phone on the home network installs an addon on the box |
 | A13 Box hardening | `baselineprofile` module with new journeys, R8 keep rules check, memory and jank pass, quarter size screenshot pass on every screen | X1 to X3 | `measure.sh` numbers before and after in the PR; profile compile state from `box/install.sh` |
 | A14 Cutover | applicationId `com.kien.movies`, uninstall the old app on the box (this erases its data: ask for confirmation in that chat before running it), remove `.next`, final README and Makefile | all | Full D-pad walk and Back path on the box; the checklist of section 8 |
+| A15 Own core | Delete from `shared/core` every file both bridges exclude, the Compose UI, Android and iOS app entry points and Nuvio mobile resources; move what is left into the bridges' plain source sets; delete `excluded-*.txt` and the upstream patch folder; update CLAUDE.md (core is no longer upstream) | all | `make check`, `make apple-tv-sim`, box APK builds; both apps seen on a device after the cut |
 
 Order: A0 to A3 are strictly in order. A12b needs A12. After A3, A4 to A7 follow the user path; A11 and A12 are
 independent and can be done at any point after A3. A8 needs A7.
