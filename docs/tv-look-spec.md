@@ -65,8 +65,9 @@ colour the box can afford (decided in `android-tv-rebuild.md`, box performance r
 | Text tertiary (placeholder, price caption) | white about 35% | `.tertiary` | `#FFFFFF` at 35% |
 | Focused control fill | `#EAEAE8` | system | `#EBEBEA` |
 | Focused control content | near black | system | `#141414` |
-| Unfocused pill or card platter (result card, season pill) | white at 22 to 30% over the background: `#5C5F60` on search, `#58656E` on details | system material | white 22% (one flat layer) |
-| Sidebar panel | near black glass `#161616` with blur | system | `#1A1A1A` at 96%, no blur |
+| Unfocused pill or card platter (result card, season pill) | white at 22 to 30% over the background: `#5C5F60` on search, `#58656E` on details | system material | white 22% (one flat layer) plus the glass edge |
+| Sidebar panel | near black glass `#161616` with blur | system | `#1A1A1A` at 96%, no blur, plus the glass edge |
+| Glass edge (Android only) | the bright rim of Liquid Glass | not drawn: the system glass has it | 1 dp inside stroke, white 16% unfocused; on every surface that is glass on tvOS: sidebar panel, nav pill, circular buttons, unfocused pills, platters, description panel. Same idea as the YouTube TV app's light outlines. Dropped when the control turns solid white on focus |
 
 ### Type
 
@@ -95,7 +96,7 @@ Bold). Android uses `sp = pt / 2`.
 | Pills (buttons, nav pill, season tab, suggestion) | capsule | `RoundedCornerShape(50)` |
 | Focus scale of a card | system lift; measured 1.09 to 1.10 on posters and 16:9 cards | 1.10 in `graphicsLayer` |
 | Focus shadow | system | one soft shadow, 12 dp blur equivalent, black 40% |
-| Focused control | system: white fill, dark content | white fill, `#141414` content, scale 1.05 |
+| Focused control | system: white fill, dark content | white fill, `#141414` content, scale 1.05, no edge |
 
 ## 3. Components
 
@@ -115,7 +116,7 @@ Reference: `01-home.png`, `30-sidebar.png`, `60-lib-hover.png`.
   so judge this component on the device only.
 - Android: tv-material `ModalNavigationDrawer`. `drawerContent` gets the `DrawerValue`: when
   `Closed` it draws the collapsed pill at the top left, when `Open` it draws the panel. Scrim off;
-  the panel is one opaque layer.
+  the panel is one opaque layer with the glass edge.
 
 ### Hero (Home and Details top)
 
@@ -160,7 +161,7 @@ Reference: `01-home.png`, `05-up-hero.png`, `13-details-top.png`.
 ### Buttons and pills
 
 - Primary: white capsule, dark text, height 68 (Home) or 64 (Details).
-- Secondary: 64 pt circle, glyph only; dark translucent when unfocused, white when focused.
+- Secondary: 64 pt circle, glyph only; dark translucent when unfocused (Android: plus the glass edge), white when focused.
 - Season tabs: capsules height 60, Callout; selected tab grey capsule, others plain text.
 - Search suggestions: capsules height 64 with a magnifier glyph.
 

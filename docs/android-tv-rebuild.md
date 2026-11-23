@@ -313,7 +313,7 @@ own values:
 |---|---|---|
 | Full screen gradient backgrounds (Home, Details) | One flat colour set as the window background: Home `#24282E`, Details `#1B1D22` (gradient midpoints, tune on the panel) | Measured on the box: a full screen gradient costs about 6.5 ms of a 16.7 ms frame |
 | Backdrop blur 40 plus 45% black when receded | A second, tiny decode of the same image (about 96 px wide) scaled up, darkened with a colour filter on the image | Runtime blur and extra translucent layers are fill passes on a fill rate bound GPU |
-| Glass buttons and panels (tvOS 26) | Flat frosted fills: white 14%, 22%, 30%; focused control is solid white with black content | The look does not exist in the Android toolkit |
+| Glass buttons and panels (tvOS 26) | Flat frosted fills: white 14%, 22%, 30%, with a 1 dp white 16% edge (the glass edge in `tv-look-spec.md`, like the YouTube TV app); focused control is solid white with black content and no edge | The look does not exist in the Android toolkit; a 1 dp stroke costs almost nothing on the box, a blur does not |
 | System focus lift and specular highlight | Scale in `graphicsLayer`, read in the draw phase; the card never changes layout size | A size change on focus re-measures the row every frame |
 | Poster genre shade, hero shades | Keep, but one gradient per card, drawn only over the text band; one hero scrim instead of two | About 14 small scrims cost 1.5 ms: budgeted, not free |
 | Swipe scrubbing (`MpvSwipeScrub`, `MpvTouchpad`) | Hold left or right: key repeat grows the step, preview on the bar, seek 900 ms after the last key | No touch surface on the remote |
